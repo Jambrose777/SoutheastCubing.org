@@ -1,0 +1,29 @@
+<div class="competitions-container">
+  <div class="page-header">
+    <div class="title">{{title}}</div>
+    <div class="description">{{description}}</div>
+  </div>
+
+  <ng-container *ngFor="let competition of competitions; let i = index; ">
+    <div class="competition-item" [ngClass]="i%2===1 ? 'align-right' : ''">
+      <div class="competition-item-container">
+        <a [href]="'https://www.worldcubeassociation.org/competitions/' + competition.id" target="_blank">
+          <div class="competition-name">{{competition.name}}</div>
+        </a>
+        <div class="competition-info" [ngClass]="i%2===1 ? 'align-right' : ''">
+          <a [href]="'https://www.google.com/maps/search/' + competition.venue_address" target="_blank">
+            <div>{{competition.city}}</div>
+          </a>
+          <div>{{competition.full_date}}</div>
+          <div>Competitors: {{competition.competitor_limit}}</div>
+          <div>{{competition.registration_status}}</div>
+          <div>
+            <ng-container *ngFor="let event of competition.event_ids">
+              <span [ngClass]="'cubing-icon event-' + event"></span>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

@@ -1,0 +1,27 @@
+<div class="header">
+  <img src="assets/SEChamps2022Logo.png" class="se-logo" [routerLink]="'/home'">
+  <h1 class="se-title" [routerLink]="'/home'">Southeast Cubing</h1>
+  <div class="nav">
+    <div class="nav-item" [routerLink]="'/delegates'">Delegates</div>
+    <div class="nav-item" [routerLink]="'/competitions'">Competitions</div>
+    <div class="nav-item" [routerLink]="'/clubs'">Clubs</div>
+    <div class="nav-menu" mat-button [matMenuTriggerFor]="menu">
+      <i class="fa-solid fa-bars fa-xl"></i>
+    </div>
+
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item class="mobile">
+        <div class="nav-menu-item" [routerLink]="'/delegates'">Delegates</div>
+      </button>
+      <button mat-menu-item class="mobile">
+        <div class="nav-menu-item" [routerLink]="'/competitions'">Competitions</div>
+      </button>
+      <button mat-menu-item class="mobile">
+        <div class="nav-menu-item" [routerLink]="'/clubs'">Clubs</div>
+      </button>
+      <button mat-menu-item>
+        <div class="nav-menu-item" [routerLink]="'/involvement'">Get Involved</div>
+      </button>
+    </mat-menu>
+  </div>
+</div>
