@@ -11,6 +11,7 @@
 @media only screen and (max-width: 850px) {
   .app-body {
     height: auto !important;
+    min-height: calc(100vh - 130px);
     overflow-y: auto !important;
   }
 }

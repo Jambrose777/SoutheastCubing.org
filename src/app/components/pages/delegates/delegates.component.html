@@ -1,0 +1,27 @@
+<div class="delegates-container">
+  <div class="page-header">
+    <div class="title">{{title}}</div>
+    <div class="description">{{description}}</div>
+  </div>
+  <ng-container *ngFor="let delegate of delegates">
+    <div class="delegate-item">
+      <img src="{{delegate.photo.fields.file.url}}" class="delegate-photo" *ngIf="delegate.order%2 === 1 || innerWidth <= 850">
+      <div class="delegate-info">
+        <div class="delegate-name">{{delegate.name}}</div>
+        <div class="delegate-sub-info">{{delegate.delegateType}} - {{delegate.state}}</div>
+        <div class="delegate-description">{{delegate.description}}</div>
+        <div class="delegate-links">
+          <a href="mailto:{{delegate.contact}}" target="_blank">
+            <i class="fa-regular fa-envelope fa-2xl contact-icon"></i>
+          </a>
+          <a href="https://www.worldcubeassociation.org/persons/{{delegate.wcaid}}" target="_blank">
+            <img src="assets/wca_logo.svg" class="wca-logo">
+          </a>
+        </div>
+      </div>
+      <img src="{{delegate.photo.fields.file.url}}" class="delegate-photo" *ngIf="delegate.order%2 === 0 && innerWidth > 850">
+    </div>
+  </ng-container>
+
+  <loading-spinner *ngIf="loadingContent || loadingDelegates"></loading-spinner>
+</div>

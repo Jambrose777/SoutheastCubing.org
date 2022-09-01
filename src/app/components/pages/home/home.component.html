@@ -1,0 +1,11 @@
+<div class="home-container">
+  <div class="page-header">
+    <div class="home-photo-container">
+      <img src="{{photo}}" class="home-photo">
+    </div>
+    <div class="title">{{title}}</div>
+    <div class="description">{{description}}</div>
+  </div>
+
+  <loading-spinner *ngIf="loadingContent"></loading-spinner>
+</div>

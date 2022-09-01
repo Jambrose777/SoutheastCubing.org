@@ -1,0 +1,40 @@
+@import "src/styles/color-pallet.scss";
+
+.clubs-container {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+
+  .page-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #DDEDF4;
+    padding: 10px;
+    border: var(--title-outline);
+    margin-bottom: 10px;
+
+    .title {
+      font-size: 32px;
+    }
+
+    .description {
+      margin-top: 10px;
+      width: 700px;
+      text-align: center;
+    }
+  }
+}
+
+@media only screen and (max-width: 850px) {
+  .page-header {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+  
+  .description {
+    width: 100% !important;
+    max-width: 700px !important;
+  }
+}

@@ -1,0 +1,103 @@
+@import "src/styles/color-pallet.scss";
+
+.involvement-container {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+
+  .page-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #DDEDF4;
+    padding: 10px;
+    border: var(--title-outline);
+    margin-bottom: 10px;
+
+    .title {
+      font-size: 32px;
+    }
+
+    .description {
+      margin-top: 10px;
+      width: 700px;
+      text-align: center;
+    }
+  }
+
+  .sub-topic-container {
+    display: flex;
+    flex-direction: column;
+    width: 800px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    align-items: flex-start;
+    background-color: $se-grey;
+
+    .sub-topic-title {
+      padding: 20px;
+      width: calc(100% - 20px);
+      cursor: pointer;
+
+      .fa-solid {
+        color: $se-blue;
+      }
+    }
+
+    .sub-topic-description-container {
+      display: flex;
+      flex-direction: row;
+      padding: 20px;
+      width: calc(100% - 40px);
+
+      .sub-topic-photo-container {
+        .sub-topic-photo {
+          margin-top: 10px;
+          margin-left: 10px;
+          margin-right: 10px;
+          max-width: 400px;
+          max-height: 400px;
+          object-fit: contain;
+        }
+      }
+    }
+
+    .sub-topic-hidden-photo {
+      display: none;
+    }
+  }
+}
+
+@media only screen and (max-width: 850px) {
+  .page-header {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+  
+  .description {
+    width: 100% !important;
+    max-width: 700px !important;
+  }
+
+  .sub-topic-container {
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+    margin-left: 20px !important;
+    margin-right: 20px !important;
+    width: calc(100% - 40px) !important;
+
+    .sub-topic-description-container {
+      flex-direction: column !important;
+    }
+
+    .sub-topic-photo {
+      margin-top: 10px;
+      margin-left: 10px;
+      margin-right: 10px;
+      max-width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+    }
+  }
+}

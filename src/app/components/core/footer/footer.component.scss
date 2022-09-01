@@ -1,0 +1,31 @@
+@import "src/styles/color-pallet.scss";
+
+.footer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  width: 100%;
+  background-color: var(--footer-color);
+
+  a {
+    margin-right: 20px;
+    margin-left: 20px;
+  }
+
+  .clickable {
+    cursor: pointer;
+    color: $se-grey;
+  }
+
+  .wca-logo-container {
+    width: 40px;
+    
+    .wca-logo {
+      margin-top: 10px;
+      margin-left: -20px;
+      height: 45px;
+    }
+  }
+}

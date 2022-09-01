@@ -3,7 +3,5 @@
 body {
   font-family: 'Oswald', sans-serif;
   margin: 0;
-  background-color: $se-black;
+  background-color: var(--app-background-color);
 }
-// html, body { height: 100%; }
-// body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

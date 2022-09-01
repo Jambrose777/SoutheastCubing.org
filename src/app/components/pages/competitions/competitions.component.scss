@@ -1,0 +1,113 @@
+@import "src/styles/color-pallet.scss";
+
+.competitions-container {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+
+  .page-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #DDEDF4;
+    padding: 10px;
+    border: var(--title-outline);
+    margin-bottom: 10px;
+
+    .title {
+      font-size: 32px;
+    }
+
+    .description {
+      margin-top: 10px;
+      width: 700px;
+      text-align: center;
+    }
+  }
+
+  .competition-item {
+    display: flex;
+    flex-direction: column;
+    width: 800px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    align-items: flex-start;
+
+    .competition-item-container {
+      background-color: $se-grey;
+      border: var(--competitions-outline);
+      padding: 10px;
+      width: 500px;
+    }
+    
+    a {
+      text-decoration: none;
+      color: black;
+    }
+
+    .competition-name {
+      font-size: 24px;
+      color: $se-purple;
+      cursor: pointer;
+      text-align: center;
+
+      .wca-logo {
+        height: 24px;
+        margin-left: 5px;
+        margin-right: 5px;
+        cursor: pointer;
+      }
+    }
+
+    .competition-info {
+      display: flex;
+      flex-direction: column;
+      color: black;
+      align-items: center;
+
+      a {
+        text-decoration: none;
+        color: black;
+      }
+
+      .cubing-icon {
+        font-size: 1.2em;
+      }
+
+      div {
+        text-align: center;
+      }
+    }
+
+    .align-right {
+      align-items: flex-end;
+    }
+  }
+
+  .align-right {
+    align-items: flex-end;
+  }
+}
+
+@media only screen and (max-width: 850px) {
+  .page-header {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+  
+  .description {
+    width: 100% !important;
+    max-width: 700px !important;
+  }
+
+  .competition-item {
+    width: 100% !important;
+    align-items: center !important;
+
+    .competition-item-container {
+      width: calc(100vw - 70px) !important;
+      border: var(--competitions-outline-mobile) !important;
+    }
+  }
+}

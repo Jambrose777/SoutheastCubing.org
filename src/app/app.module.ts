@@ -3,17 +3,18 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HeaderComponent } from './components/header/header.component';
-import { DelegatesComponent } from './components/delegates/delegates.component';
-import { HomeComponent } from './components/home/home.component';
+import { HeaderComponent } from './components/core/header/header.component';
+import { DelegatesComponent } from './components/pages/delegates/delegates.component';
+import { HomeComponent } from './components/pages/home/home.component';
 import { RouterModule, Routes } from '@angular/router';
-import { FooterComponent } from './components/footer/footer.component';
-import { InvolvementComponent } from './components/involvement/involvement.component';
-import { ClubsComponent } from './components/clubs/clubs.component';
-import { CompetitionsComponent } from './components/competitions/competitions.component';
+import { FooterComponent } from './components/core/footer/footer.component';
+import { InvolvementComponent } from './components/pages/involvement/involvement.component';
+import { ClubsComponent } from './components/pages/clubs/clubs.component';
+import { CompetitionsComponent } from './components/pages/competitions/competitions.component';
 import { HttpClientModule } from '@angular/common/http';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatMenuModule} from '@angular/material/menu';
+import { LoadingSpinnerComponent } from './components/shared/loading-spinner/loading-spinner.component';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -33,13 +34,14 @@ const moduleRoutes: Routes = [
     FooterComponent,
     InvolvementComponent,
     ClubsComponent,
-    CompetitionsComponent
+    CompetitionsComponent,
+    LoadingSpinnerComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
-    RouterModule.forChild(moduleRoutes),
+    RouterModule.forRoot(moduleRoutes),
     NoopAnimationsModule,
     MatMenuModule
   ],
