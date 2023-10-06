@@ -12,10 +12,10 @@ import { InvolvementComponent } from './components/pages/involvement/involvement
 import { ClubsComponent } from './components/pages/clubs/clubs.component';
 import { CompetitionsComponent } from './components/pages/competitions/competitions.component';
 import { HttpClientModule } from '@angular/common/http';
-import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatMenuModule} from '@angular/material/menu';
 import { LoadingSpinnerComponent } from './components/shared/loading-spinner/loading-spinner.component';
-import { AlertModule } from '@coreui/angular';
+import { IvyCarouselModule } from 'angular-responsive-carousel';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -45,8 +45,7 @@ const moduleRoutes: Routes = [
     RouterModule.forRoot(moduleRoutes),
     NoopAnimationsModule,
     MatMenuModule,
-    // AlertModule,
-    // BrowserAnimationsModule
+    IvyCarouselModule
   ],
   providers: [],
   bootstrap: [AppComponent]

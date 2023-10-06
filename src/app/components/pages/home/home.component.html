@@ -27,19 +27,15 @@
   <div class="right-pane">
     <div class="home-photo-container">
       <!-- <img src="{{photo}}" class="home-photo"> -->
-      <!-- <c-carousel>
-        <c-carousel-indicators></c-carousel-indicators>
-        <c-carousel-inner>
-          <c-carousel-item *ngFor="let photo of photos">
-            <img
-              [src]="photo"
-              class="d-block w-100"
-              loading="lazy" />
-          </c-carousel-item>
-        </c-carousel-inner>
-        <c-carousel-control [routerLink] caption="Previous" direction="prev"></c-carousel-control>
-        <c-carousel-control [routerLink] caption="Next" direction="next"></c-carousel-control>
-      </c-carousel> -->
+      <carousel
+        [images]="photos"
+        [cellsToShow]="1"
+        [height]="500"
+        [loop]="true"
+        [autoplay]="true"
+        [arrows]="false"
+      >
+      </carousel>
     </div>
   </div>
 </div>

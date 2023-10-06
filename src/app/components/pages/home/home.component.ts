@@ -22,7 +22,7 @@ export class HomeComponent implements OnInit {
       this.title = res.fields.title;
       this.description = res.fields.description;
       this.photo = res.fields.photo.fields.file.url;
-      this.photos = res.fields.photos.map(photo => photo.fields.file.url);
+      this.photos = res.fields.photos.map(photo => ({path: photo.fields.file.url}));
       console.log(this.photos);
       this.loadingContent = false;
     });
