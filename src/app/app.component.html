@@ -1,7 +1,8 @@
-<div class="container">
-  <header></header>
-  <div class="app-body">
+<div class="project-container">
+  <div class="desktop-container" *ngIf="!isMobile()">
     <router-outlet></router-outlet>
   </div>
-  <footer></footer>
+  <div class="mobile-container" *ngIf="isMobile()">
+    <router-outlet></router-outlet>
+  </div>
 </div>

@@ -3,55 +3,73 @@
 .home-container {
   display: flex;
   width: 100%;
-  flex-direction: column;
-  align-items: center;
+  height: 100%;
+  background-color: $se-blue;
+  flex-direction: row;
 
-  .page-header {
+  .left-pane {
     display: flex;
+    width: 50%;
+    height: 100%;
+    background-color: $se-orange;
     flex-direction: column;
-    align-items: center;
-    background-color: #DDEDF4;
-    padding-bottom: 20px;
 
-    .home-photo-container {
-      width: 800px;
-      margin-bottom: 10px;
-  
-      .home-photo {
-        width: 800px;
-        max-height: 500px;
-        object-fit: contain;
-      }
-    }
-
-    .title {
-      font-size: 32px;
+    header {
+      width: 100%;
     }
 
     .description {
-      margin-top: 10px;
-      width: 700px;
+      margin: 100px 30px;
+      width: calc(100% - 60px);
       text-align: center;
+      font-size: 30px;
     }
-  }
-}
 
-@media only screen and (max-width: 850px) {
-  .page-header {
-    margin-left: 20px;
-    margin-right: 20px;
+    .badges {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-evenly;
+      margin: auto 0 100px 0;
+      height: 100px;
+      width: 100%;
+      font-size: 24px;
+    
+      .clickable {
+        cursor: pointer;
+        color: $se-black;
+      }
+    
+      .wca-logo-container {
+        width: 40px;
+        
+        .wca-logo {
+          margin-top: 10px;
+          margin-left: -15px;
+          height: 50px;
+        }
+      }
+    }
+    
+  }
+
+  .right-pane {
+    display: flex;
+    width: 50%;
+    height: 100%;
+    background-color: $se-black;
+    flex-direction: column;
 
     .home-photo-container {
-      width: calc(100vw - 70px) !important;
+      width: 80%;
+      margin: auto;
   
       .home-photo {
-        width: 100% !important;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
       }
     }
   }
-  
-  .description {
-    width: 100% !important;
-    max-width: 700px !important;
-  }
+
 }

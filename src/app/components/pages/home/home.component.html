@@ -1,11 +1,52 @@
-<div class="home-container">
-  <div class="page-header">
-    <div class="home-photo-container">
-      <img src="{{photo}}" class="home-photo">
-    </div>
-    <div class="title">{{title}}</div>
+<div class="home-container" *ngIf="!isMobile()">
+  <div class="left-pane">
+    <header [title]="title"></header>
     <div class="description">{{description}}</div>
-  </div>
 
-  <loading-spinner *ngIf="loadingContent"></loading-spinner>
+    <div class="badges">
+      <a href="https://www.worldcubeassociation.org/" target="_blank" class="wca-logo-container">
+        <img src="assets/wca_logo.svg" class="wca-logo">
+      </a>
+      <a href="mailto:SoutheastCubing@gmail.com" target="_blank">
+        <i class="fa-solid fa-envelope fa-2xl clickable"></i>
+      </a>
+      <a href="https://www.facebook.com/groups/491409969462797/" target="_blank">
+        <i class="fa-brands fa-square-facebook fa-2xl clickable"></i>
+      </a>
+      <a href="https://discord.gg/hp7DSmtReb/" target="_blank">
+        <i class="fa-brands fa-discord fa-2xl clickable"></i>
+      </a>
+      <a href="https://www.instagram.com/southeastcubing/" target="_blank">
+        <i class="fa-brands fa-instagram fa-2xl clickable"></i>
+      </a>
+      <a href="https://www.youtube.com/@SoutheastCubing" target="_blank">
+        <i class="fa-brands fa-youtube fa-2xl clickable"></i>
+      </a>
+    </div>
+  </div>
+  <div class="right-pane">
+    <div class="home-photo-container">
+      <!-- <img src="{{photo}}" class="home-photo"> -->
+      <!-- <c-carousel>
+        <c-carousel-indicators></c-carousel-indicators>
+        <c-carousel-inner>
+          <c-carousel-item *ngFor="let photo of photos">
+            <img
+              [src]="photo"
+              class="d-block w-100"
+              loading="lazy" />
+          </c-carousel-item>
+        </c-carousel-inner>
+        <c-carousel-control [routerLink] caption="Previous" direction="prev"></c-carousel-control>
+        <c-carousel-control [routerLink] caption="Next" direction="next"></c-carousel-control>
+      </c-carousel> -->
+    </div>
+  </div>
 </div>
+<div class="home-container-mobile" *ngIf="!isMobile()">
+
+</div>
+
+
+
+<!-- <loading-spinner *ngIf="loadingContent"></loading-spinner> -->

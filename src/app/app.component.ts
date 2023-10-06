@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ThemeService } from './services/theme.service';
+import { isMobile } from './shared/functions';
 
 @Component({
   selector: 'app-root',
@@ -8,11 +8,11 @@ import { ThemeService } from './services/theme.service';
 })
 export class AppComponent implements OnInit {
   title = 'southeast-cubing';
+  isMobile = isMobile;
 
-  constructor(private themeService: ThemeService) { }
+  constructor() { }
 
   ngOnInit(): void {
-    this.themeService.applyTheme();
   }
 
 }

@@ -1,17 +1,17 @@
-.container {
+@import "src/styles/color-pallet.scss";
+
+$website-border-size: 15px;
+
+.project-container {
   display: flex;
   flex-direction: column;
 
-  .app-body {
-    height: calc(100vh - 130px);
-    overflow-y: scroll;
+  .desktop-container {
+    width: calc(100vw - 2 * $website-border-size);
+    height: calc(100vh - 2 * $website-border-size);
+    padding: $website-border-size;
   }
-}
 
-@media only screen and (max-width: 850px) {
-  .app-body {
-    height: auto !important;
-    min-height: calc(100vh - 130px);
-    overflow-y: auto !important;
+  .mobile-container {
   }
 }

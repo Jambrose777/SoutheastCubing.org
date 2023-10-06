@@ -12,7 +12,7 @@
     align-items: center;
     background-color: #DDEDF4;
     padding: 10px;
-    border: var(--title-outline);
+    border: 5px solid #DDEDF4;
     margin-bottom: 10px;
 
     .title {
@@ -36,7 +36,7 @@
 
     .competition-item-container {
       background-color: $se-grey;
-      border: var(--competitions-outline);
+      border: 10px solid #DDEDF4;
       padding: 10px;
       width: 500px;
     }
@@ -107,7 +107,7 @@
 
     .competition-item-container {
       width: calc(100vw - 70px) !important;
-      border: var(--competitions-outline-mobile) !important;
+      border: 5px solid #DDEDF4 !important;
     }
   }
 }

@@ -1,27 +1,23 @@
 # SoutheastCubing
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.1.3.
+This project is for the organization website SoutheastCubing.org.
+FE: Angular 14.1.3.
+Content: Contentful CMS
+Deployment: AWS
 
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-## Code scaffolding
+## Deployment
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+- Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+- Compress dist/
+- Upload dist.zip file onto AWS S3
+- SSH into AWS EC2 instance
+- navigate to relevant folder `cd /var/www/html`
+- remove current contents `rm -rf *`
+- import dist file into EC2 instance `wget {S3 Object URL}` Replace {} with URL from S3 Object
+- unzip the compressed folder `unzip dist.zip`
+- move files into correct folder `mv dist/jacobambroseme/* .`
+- restart server `service httpd restart` or start server `service httpd start`
