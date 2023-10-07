@@ -2,15 +2,14 @@
 
 .header {
   display: flex;
-  height: 70px;
+  height: 80px;
   width: 100%;
 
   .se-logo {
-    height: calc(100% - 10px);
-    margin: 5px 10px 5px 30px;
-    // margin-left: 30px;
-    // margin-right: 10px;
+    height: calc(100% - 20px);
+    margin: 10px 10px 10px 30px;
     cursor: pointer;
+    z-index: 1;
   }
 
   .se-title {
@@ -18,57 +17,183 @@
     margin-left: 40px;
     cursor: pointer;
     line-height: 25px;
+    z-index: 1;
   }
 
-  // .nav {
-  //   display: flex;
-  //   flex-direction: row;
-  //   margin-right: 20px;
-  //   margin-left: auto;
-  //   color: white;
+  .close-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: 40px;
+    z-index: 1;
+  }
 
-  //   .nav-item {
-  //     margin-left: 10px;
-  //     margin-right: 10px;
-  //     margin-top: 26px;
-  //     cursor: pointer;
-  //   }
+  .clickable {
+    cursor: pointer;
+  }
 
-  //   .nav-menu {
-  //     align-items: center;
-  //     display: flex;
-  //     margin-left: 10px;
-  //     margin-right: 10px;
-  //   }
+  .nav-container {
+    margin-left: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .menu {
+    position: relative;
+    width: 100px;
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .menu .navigation {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.5s;
+    transition-delay: 0.5s;
+  }
+  
+  .menu .navigation span {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    // background: $se-black;
+    transform: translate(calc(14px * var(--x)), calc(14px * var(--y)));
+    transition: transform 0.5s, width 0.5s, height 0.5s;
+    transition-delay: calc(0.1s * var(--i) + 1);
+  }
+  
+  .menu .navigation span .fa-solid {
+    // color: $se-black;
+    font-size: 0.25rem;
+    transition: 0.5s;
+  }
 
-  //   .nav-menu-item {
-  //   }
-  // }
+  .nav-container.active {
+    position: absolute;
+    height: calc(100vh - 30px);
+    width: calc(50% - 30px);
+    background-color: $se-blue;
+  }
+
+  .nav-container.transition {
+    position: absolute;
+    height: calc(100vh - 30px);
+    width: calc(50% - 30px);
+    background-color: $se-blue;
+  }
+  
+  .menu .navigation.active span .fa-solid {
+    font-size: 1.75rem;
+    transition: 0.5s;
+    transition-delay: 0.5s;
+  }
+
+  .hidden-text {
+    display: none;
+  }
+  
+  .menu .navigation.transitioned.active span:hover .fa-solid {
+    display: none;
+  }
+  
+  .menu .navigation.transitioned.active span:hover .fa-solid + .hidden-text {
+    display: block;
+  }
+  
+  .menu .close.active:hover .fa-solid {
+    display: none;
+  }
+  
+  .menu .close.active:hover .fa-solid + .hidden-text {
+    display: block;
+  }
+
+  .menu .navigation.active span {
+    width: 100px;
+    height: 100px;
+    // background: #1f2536;
+    transform: translate(calc(133px * var(--x)), calc(133px * var(--y)));
+    transition-delay: 0.5s;
+  }
+  
+  .menu .close {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    // background: $se-black;
+    transition: 0.5s;
+    cursor: pointer;
+  }
+  
+  .menu .navigation.active ~ .close {
+    width: 100px;
+    height: 100px;
+    pointer-events: initial;
+    transition-delay: 0.5s;
+    // color: $se-black;
+  }
+  
+  .menu .navigation ~ .close .fa-solid {
+    font-size: 2.5rem;
+    scale: 0;
+    transition: 0.5s;
+  }
+  
+  .menu .navigation.active ~ .close .fa-solid {
+    scale: 1;
+    transition-delay: 0.5s;
+  }
+
+  .black-cube {
+    background-color: $se-black;
+    color: white;
+  }
+
+  .blue-cube {
+    background-color: $se-blue;
+  }
+
+  .green-cube {
+    background-color: $se-green;
+  }
+
+  .grey-cube {
+    background-color: $se-grey;
+  }
+
+  .orange-cube {
+    background-color: $se-orange;
+  }
+
+  .purple-cube {
+    background-color: $se-purple;
+  }
+
+  .red-cube {
+    background-color: $se-red;
+  }
+
+  .white-cube {
+    background-color: white;
+  }
+
+  .yellow-cube {
+    background-color: $se-yellow;
+  }
+
 }
-
-// .mobile {
-//   display: none;
-// }
-
-// @media only screen and (max-width: 850px) {
-//   .nav-item {
-//     display: none !important;
-//   }
-
-//   .mobile {
-//     display: flex !important;
-//   }
-
-//   .se-logo {
-//     margin-left: 10px !important;
-//   }
-
-//   .se-title {
-//     margin-right: 5px !important;
-//     margin-left: 5px !important;
-//   }
-
-//   .nav {
-//     margin-right: 0 !important;
-//   }
-// }

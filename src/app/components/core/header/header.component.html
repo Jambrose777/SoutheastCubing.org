@@ -1,6 +1,57 @@
 <div class="header">
   <img src="assets/SEChamps2022Logo.png" class="se-logo" [routerLink]="'/home'">
   <h1 class="se-title" [routerLink]="'/home'">{{title}}</h1>
+
+  <i class="close-icon fa-solid fa-close fa-2xl clickable" *ngIf="isNavActive" (click)="toggleNav(false)"></i>
+
+  <div class="nav-container" [ngClass]="{active: isNavActive, transition: transition}">
+    <div class="menu">
+      <div class="navigation" (click)="toggleNav(true)" [ngClass]="{active: isNavActive, transitioned: !transition}">
+        <span style="--i:0; --x:-1; --y:0;" class="red-cube">
+          <i class="fa-solid fa-handshake-angle fa-2xl clickable"></i>
+          <div class="hidden-text">Get Involved</div>
+        </span>
+        <span style="--i:1; --x:1; --y:0" class="green-cube">
+          <i class="fa-solid fa-address-card fa-2xl clickable"></i>
+          <div class="hidden-text">Delegates</div>
+        </span>
+        <span style="--i:2; --x:0; --y:-1" class="grey-cube">
+          <i class="fa-solid fa-table-list fa-2xl clickable"></i>
+          <div class="hidden-text">Competitions</div>
+        </span>
+        <span style="--i:3; --x:0; --y:1" class="orange-cube">
+          <i class="fa-solid fa-circle-info fa-2xl clickable"></i>
+          <div class="hidden-text">About Us</div>
+        </span>
+        <span style="--i:4; --x:-1; --y:1" class="white-cube">
+          <i class="fa-solid fa-file-lines fa-2xl clickable"></i>
+          <div class="hidden-text">Organizers</div>
+        </span>
+        <span style="--i:5; --x:-1; --y:-1" class="blue-cube">
+          <i class="fa-solid fa-home fa-2xl clickable"></i>
+          <div class="hidden-text">Home</div>
+        </span>
+        <span style="--i:6; --x:1; --y:-1" class="purple-cube">
+          <i class="fa-solid fa-location-dot fa-2xl clickable"></i>
+          <div class="hidden-text">Clubs</div>
+        </span>
+        <span style="--i:7; --x:1; --y:1" class="yellow-cube">
+          <i class="fa-solid fa-envelope fa-2xl clickable"></i>
+          <div class="hidden-text">Contact Us</div>
+        </span>
+        <span style="--i:8; --x:0; --y:0" class="black-cube">
+          <i class="fa-solid fa-trophy fa-2xl clickable"></i>
+          <div class="hidden-text">SE Champs</div>
+        </span>
+      </div>
+      <!-- <div class="close black-cube" [ngClass]="{active: isNavActive}"  (click)="toggleNav(true)" >
+        <i class="fa-solid fa-trophy fa-2xl clickable"></i>
+        <div class="hidden-text">SE Champs</div>
+      </div> -->
+    </div>
+  </div>
+
+
   <!-- <div class="nav">
     <div class="nav-item" [routerLink]="'/delegates'">Delegates</div>
     <div class="nav-item" [routerLink]="'/competitions'">Competitions</div>
