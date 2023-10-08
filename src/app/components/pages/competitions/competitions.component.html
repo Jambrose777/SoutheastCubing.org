@@ -1,34 +1,105 @@
-<div class="competitions-container">
-  <div class="page-header">
-    <div class="title">{{title}}</div>
-    <div class="description">{{description}}</div>
+<div class="competitions-container" *ngIf="!isMobile()">
+  <div class="left-pane">
+    <header [title]="title"></header>
+    <ng-container *ngIf="!selectedCompetition">
+      <div class="description">{{description}}</div>
+    </ng-container>
+    <div *ngIf="selectedCompetition" class="competition-information">
+      <a [href]="'https://www.worldcubeassociation.org/competitions/' + selectedCompetition.id" target="_blank">
+        <h2 class="competition-name">
+          {{selectedCompetition.name}}
+          <img src="assets/wca_logo.svg" class="wca-logo">
+        </h2>
+      </a>
+      <div class="competition-details">
+        <div class="event-container">
+          <ng-container *ngFor="let event of selectedCompetition.event_ids"> 
+            <span [ngClass]="'cubing-icon event-' + event"></span>
+          </ng-container>
+        </div>
+        <div class="competition-details-row" [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
+          <div class="detail-container">
+            <b>{{selectedCompetition.city}}</b>
+            <div>Date: <b>{{selectedCompetition.full_date}}</b></div>
+            <a [href]="'https://www.google.com/maps/search/' + selectedCompetition.venue_address" target="_blank">
+              <div>Address: <b>{{selectedCompetition.venue_address}}</b></div>
+            </a>
+          </div>
+          <div class="detail-container">
+            <!-- location map -->
+          </div>
+        </div>
+        <div class="competition-details-row" [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
+          <div class="detail-container">
+            <div>Competitor Limit: <b>{{selectedCompetition.competitor_limit}}</b></div>
+            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.preLaunch" class="small-registration-text">
+              Registration will open on <b>{{selectedCompetition.readable_registration_open}}</b>. We highly recommend registering right when registration opens; some competitions fill within seconds.
+              
+            </div>
+            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.open">
+
+            </div>
+            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.open">
+
+            </div>
+            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.open">
+
+            </div>
+            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.open">
+
+            </div>
+            <div *ngIf="[RegistrationStatus.preLaunch].includes(selectedCompetition.registration_status)">
+              <a class="btn" [href]="'https://www.worldcubeassociation.org/competitions/' + selectedCompetition.id + '/register'"  target="_blank"  [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
+                Register Here
+            </a>
+            </div>
+          </div>
+          <div class="detail-container">
+            <!-- Contact -->
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+  <div class="right-pane">
+    <div class="competitions-list-container">
+      <ng-container *ngFor="let competition of competitions; let i = index; ">
+        <div 
+          class="competition-item-container clickable" 
+          style="--state-color:{{StateColors[competition.state]}}" 
+          [ngClass]="{active: selectedCompetition?.name === competition.name}"
+          (click)="selectCompetition(competition)"
+        >
+          <div class="competition-name">
+            {{competition.name}}
+          </div>
+          <div class="competition-date">
+            {{competition.full_date}}
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>
+<div class="competitions-container-mobile" *ngIf="!isMobile()">
+
+</div>
+
+
+
+<!-- <loading-spinner *ngIf="loadingContent"></loading-spinner> -->
+
+
+<!-- 
 
   <ng-container *ngFor="let competition of competitions; let i = index; ">
     <div class="competition-item" [ngClass]="i%2===1 ? 'align-right' : ''">
       <div class="competition-item-container">
-        <a [href]="'https://www.worldcubeassociation.org/competitions/' + competition.id" target="_blank">
-          <div class="competition-name">
-            {{competition.name}}
-            <img src="assets/wca_logo.svg" class="wca-logo">
-          </div>
-        </a>
-        <div class="competition-info">
-          <a [href]="'https://www.google.com/maps/search/' + competition.venue_address" target="_blank">
-            <div>{{competition.city}}</div>
-          </a>
-          <div>{{competition.full_date}}</div>
-          <div>Competitors: {{competition.competitor_limit}}</div>
-          <div>{{competition.registration_status}}</div>
-          <div>
-            <ng-container *ngFor="let event of competition.event_ids">
-              <span [ngClass]="'cubing-icon event-' + event"></span>
-            </ng-container>
-          </div>
-        </div>
+        
+        
       </div>
     </div>
   </ng-container>
 
   <loading-spinner *ngIf="loadingContent || loadingCompetitions"></loading-spinner>
-</div>
+</div> -->

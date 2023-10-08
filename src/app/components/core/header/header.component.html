@@ -15,7 +15,7 @@
           <i class="fa-solid fa-address-card fa-2xl clickable"></i>
           <div class="hidden-text">Delegates</div>
         </span>
-        <span style="--i:2; --x:0; --y:-1" class="grey-cube">
+        <span style="--i:2; --x:0; --y:-1" class="grey-cube" [routerLink]="isNavActive ? '/competitions' : []">
           <i class="fa-solid fa-table-list fa-2xl clickable"></i>
           <div class="hidden-text">Competitions</div>
         </span>
@@ -27,7 +27,8 @@
           <i class="fa-solid fa-file-lines fa-2xl clickable"></i>
           <div class="hidden-text">Organizers</div>
         </span>
-        <span style="--i:5; --x:-1; --y:-1" class="blue-cube">
+        <!-- TODO Handle edge case of reclicking when already on nav -->
+        <span style="--i:5; --x:-1; --y:-1" class="blue-cube" [routerLink]="'/home'">
           <i class="fa-solid fa-home fa-2xl clickable"></i>
           <div class="hidden-text">Home</div>
         </span>
@@ -44,10 +45,6 @@
           <div class="hidden-text">SE Champs</div>
         </span>
       </div>
-      <!-- <div class="close black-cube" [ngClass]="{active: isNavActive}"  (click)="toggleNav(true)" >
-        <i class="fa-solid fa-trophy fa-2xl clickable"></i>
-        <div class="hidden-text">SE Champs</div>
-      </div> -->
     </div>
   </div>
 

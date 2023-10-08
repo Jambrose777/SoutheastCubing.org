@@ -10,8 +10,9 @@
     display: flex;
     width: 50%;
     height: 100%;
-    background-color: $se-blue;
+    background-color: var(--right-pane-color);
     flex-direction: column;
+    border-radius: 10px 0 0 10px;
 
     header {
       width: 100%;
@@ -58,6 +59,7 @@
     height: 100%;
     background-color: $se-black;
     flex-direction: column;
+    border-radius: 0 10px 10px 0;
 
     .home-photo-container {
       height: 50vh;

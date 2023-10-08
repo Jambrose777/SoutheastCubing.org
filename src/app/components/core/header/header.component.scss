@@ -84,14 +84,14 @@
     position: absolute;
     height: calc(100vh - 30px);
     width: calc(50% - 30px);
-    background-color: $se-blue;
+    background-color: var(--right-pane-color);
   }
 
   .nav-container.transition {
     position: absolute;
     height: calc(100vh - 30px);
     width: calc(50% - 30px);
-    background-color: $se-blue;
+    background-color: var(--right-pane-color);
   }
   
   .menu .navigation.active span .fa-solid {
@@ -111,51 +111,12 @@
   .menu .navigation.transitioned.active span:hover .fa-solid + .hidden-text {
     display: block;
   }
-  
-  .menu .close.active:hover .fa-solid {
-    display: none;
-  }
-  
-  .menu .close.active:hover .fa-solid + .hidden-text {
-    display: block;
-  }
 
   .menu .navigation.active span {
     width: 100px;
     height: 100px;
     // background: #1f2536;
     transform: translate(calc(133px * var(--x)), calc(133px * var(--y)));
-    transition-delay: 0.5s;
-  }
-  
-  .menu .close {
-    position: absolute;
-    width: 7px;
-    height: 7px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    // background: $se-black;
-    transition: 0.5s;
-    cursor: pointer;
-  }
-  
-  .menu .navigation.active ~ .close {
-    width: 100px;
-    height: 100px;
-    pointer-events: initial;
-    transition-delay: 0.5s;
-    // color: $se-black;
-  }
-  
-  .menu .navigation ~ .close .fa-solid {
-    font-size: 2.5rem;
-    scale: 0;
-    transition: 0.5s;
-  }
-  
-  .menu .navigation.active ~ .close .fa-solid {
-    scale: 1;
     transition-delay: 0.5s;
   }
 

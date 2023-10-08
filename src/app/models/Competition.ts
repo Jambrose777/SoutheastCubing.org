@@ -1,3 +1,5 @@
+import { RegistrationStatus } from "../shared/types";
+
 export class Competition {
   url: string;
   id: string;
@@ -15,6 +17,9 @@ export class Competition {
   end_date: string;
   competitor_limit: number;
   event_ids: string[];
-  full_date: string | undefined;
-  registration_status: string | undefined;
+  full_date?: string;
+  registration_status?: RegistrationStatus;
+  readable_registration_open?: string;
+  state?: string;
+  active_registrations?: number;
 }

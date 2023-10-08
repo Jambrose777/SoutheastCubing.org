@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ContentfulService } from 'src/app/services/contentful.service';
+import { ThemeService } from 'src/app/services/theme.service';
+import { Colors } from 'src/app/shared/types';
 import { isMobile } from 'src/app/shared/functions';
 
 @Component({
@@ -9,21 +11,20 @@ import { isMobile } from 'src/app/shared/functions';
 })
 export class HomeComponent implements OnInit {
   isMobile = isMobile;
-  title: string = '';
+  title: string = 'Southeast Cubing';
   description: string = '';
-  photo: string = '';
   photos: string[] = [];
   loadingContent: boolean = true;
 
-  constructor(private contentful: ContentfulService) { }
+  constructor(private contentful: ContentfulService, private themeService: ThemeService) { }
 
   ngOnInit(): void {
+    this.themeService.setRightPaneColor(Colors.blue);
+
     this.contentful.getContentfulEntry('home').subscribe(res => {
       this.title = res.fields.title;
       this.description = res.fields.description;
-      this.photo = res.fields.photo.fields.file.url;
       this.photos = res.fields.photos.map(photo => ({path: photo.fields.file.url}));
-      console.log(this.photos);
       this.loadingContent = false;
     });
   }
