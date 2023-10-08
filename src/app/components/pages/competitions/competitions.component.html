@@ -36,26 +36,34 @@
               Registration will open on <b>{{selectedCompetition.readable_registration_open}}</b>. We highly recommend registering right when registration opens; some competitions fill within seconds.
               
             </div>
-            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.open">
-
+            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.closed">
+              Registration has closed. We are no longer accepting registrations for this competition.
             </div>
-            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.open">
-
+            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.open" class="loading-registration-text">
+              <loading-spinner [isDark]="selectedCompetition?.state === 'Tennessee'"></loading-spinner>
+              Fetching registration status
             </div>
-            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.open">
-
+            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.openWithSpots">
+              Registration is open! The competition is currently {{selectedCompetition.active_registrations / selectedCompetition.competitor_limit | percent}} full.
             </div>
-            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.open">
-
+            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.openWithWaitingList">
+              Registration is <b>full</b>. You can still register for the waiting list in case of any cancellations.
             </div>
-            <div *ngIf="[RegistrationStatus.preLaunch].includes(selectedCompetition.registration_status)">
+            <div *ngIf="[RegistrationStatus.preLaunch, RegistrationStatus.openWithSpots, RegistrationStatus.openWithWaitingList].includes(selectedCompetition.registration_status)">
               <a class="btn" [href]="'https://www.worldcubeassociation.org/competitions/' + selectedCompetition.id + '/register'"  target="_blank"  [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
                 Register Here
-            </a>
+                <i class="fa-solid fa-up-right-from-square fa-sm"></i>
+              </a>
             </div>
           </div>
           <div class="detail-container">
-            <!-- Contact -->
+            Have any questions? Reach out to the organizers!
+            <div>
+              <a class="btn" [href]="'https://www.worldcubeassociation.org/contact/website?competitionId=' + selectedCompetition.id"  target="_blank"  [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
+                Contact
+                <i class="fa-regular fa-envelope fa-lg clickable"></i>
+              </a>
+            </div>
           </div>
         </div>
       </div>

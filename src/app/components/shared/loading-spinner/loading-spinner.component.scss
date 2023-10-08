@@ -5,7 +5,6 @@
   position: relative;
   width: 80px;
   height: 80px;
-  margin-top: 40px;
 }
 .spinner div {
   display: inline-block;
@@ -14,6 +13,9 @@
   width: 16px;
   background: $se-grey;
   animation: spinner 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+}
+.dark div {
+  background: $se-black;
 }
 .spinner div:nth-child(1) {
   left: 8px;

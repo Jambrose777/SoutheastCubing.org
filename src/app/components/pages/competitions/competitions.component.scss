@@ -108,10 +108,16 @@
           border-radius: 30px;
           padding: 10px;
           background-color: $se-grey;
+          cursor: pointer;
         }
 
         .btn.darker-border {
           border: 5px solid $se-black;
+        }
+
+        .loading-registration-text {
+          display: flex;
+          flex-direction: column;
         }
       }
 
