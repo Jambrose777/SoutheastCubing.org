@@ -25,6 +25,28 @@
       font-size: 30px;
     }
 
+    .sub-text-container {
+      display: flex;
+      flex-direction: row;
+
+      .sub-text-box {
+        width: calc(50% - 30px);
+        height: 200px;
+        margin: 20px;
+        padding: 15px;
+        font-size: 24px;
+        text-align: center; 
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        margin: auto;
+
+        .fa-brands {
+          margin: 0 20px;
+        }
+      }
+    }
+
     .competition-information {
       display: flex;
       flex-direction: column;
@@ -90,7 +112,6 @@
           display: flex;
           flex-direction: column;
           justify-content: space-around;
-
         }
 
         .small-registration-text {
@@ -177,6 +198,7 @@
 
   .clickable {
     cursor: pointer;
+    color: $se-black;
   }
 
 }

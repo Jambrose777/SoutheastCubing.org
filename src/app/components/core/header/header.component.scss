@@ -1,5 +1,7 @@
 @import "src/styles/color-pallet.scss";
 
+// Z-indexes are needed here. The Image Carosel has Z-Index 10000 built into it, and the nav system needs to go over it.
+
 .header {
   display: flex;
   height: 80px;
@@ -9,7 +11,7 @@
     height: calc(100% - 20px);
     margin: 10px 10px 10px 30px;
     cursor: pointer;
-    z-index: 1;
+    z-index: 10002;
   }
 
   .se-title {
@@ -17,7 +19,7 @@
     margin-left: 40px;
     cursor: pointer;
     line-height: 25px;
-    z-index: 1;
+    z-index: 10002;
   }
 
   .close-icon {
@@ -26,7 +28,7 @@
     align-items: center;
     margin-left: auto;
     margin-right: 40px;
-    z-index: 1;
+    z-index: 10002;
   }
 
   .clickable {
@@ -38,6 +40,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 10001;
   }
   
   .menu {

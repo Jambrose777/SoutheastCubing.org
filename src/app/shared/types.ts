@@ -12,11 +12,17 @@ export enum Colors {
 
 export const StateColors = {
   'Alabama': Colors.orange,
+  'AL': Colors.orange,
   'Georgia': Colors.blue,
+  'GA': Colors.blue,
   'Florida': Colors.red,
+  'FL': Colors.red,
   'North Carolina': Colors.green,
+  'NC': Colors.green,
   'South Carolina': Colors.purple,
+  'SC': Colors.purple,
   'Tennessee': Colors.yellow,
+  'TN': Colors.yellow,
 }
 
 export  enum RegistrationStatus {

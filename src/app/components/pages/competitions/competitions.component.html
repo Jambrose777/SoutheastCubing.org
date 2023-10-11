@@ -3,6 +3,19 @@
     <header [title]="title"></header>
     <ng-container *ngIf="!selectedCompetition">
       <div class="description">{{description}}</div>
+      <div class="sub-text-container">
+        <div class="sub-text-box">
+          {{subText}}
+          <div>
+            <a href="https://www.facebook.com/groups/491409969462797/" target="_blank">
+              <i class="fa-brands fa-square-facebook fa-2xl clickable"></i>
+            </a>
+            <a href="https://discord.gg/hp7DSmtReb/" target="_blank">
+              <i class="fa-brands fa-discord fa-2xl clickable"></i>
+            </a>
+          </div>
+        </div>
+      </div>
     </ng-container>
     <div *ngIf="selectedCompetition" class="competition-information">
       <a [href]="'https://www.worldcubeassociation.org/competitions/' + selectedCompetition.id" target="_blank">
@@ -93,21 +106,4 @@
 
 </div>
 
-
-
 <!-- <loading-spinner *ngIf="loadingContent"></loading-spinner> -->
-
-
-<!-- 
-
-  <ng-container *ngFor="let competition of competitions; let i = index; ">
-    <div class="competition-item" [ngClass]="i%2===1 ? 'align-right' : ''">
-      <div class="competition-item-container">
-        
-        
-      </div>
-    </div>
-  </ng-container>
-
-  <loading-spinner *ngIf="loadingContent || loadingCompetitions"></loading-spinner>
-</div> -->

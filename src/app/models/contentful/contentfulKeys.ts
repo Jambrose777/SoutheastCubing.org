@@ -4,6 +4,7 @@ export const contentfulKeys = {
   },
   contentTypeIds: {
     delegates: 'delegates',
+    clubs: 'clubs',
   },
   entryIds: {
     clubs: '5rv5MjBPpXmrwP2wSNXlxC',

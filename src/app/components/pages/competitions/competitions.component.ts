@@ -21,6 +21,7 @@ export class CompetitionsComponent implements OnInit {
   loadingContent: boolean = true;
   loadingCompetitions: boolean = true;
   selectedCompetition: Competition;
+  subText: string = '';
 
   constructor(private contentful: ContentfulService, private wca: WcaService, private themeService: ThemeService) { }
 
@@ -30,6 +31,7 @@ export class CompetitionsComponent implements OnInit {
     this.contentful.getContentfulEntry('competitions').subscribe(res => {
       this.title = res.fields.title;
       this.description = res.fields.description;
+      this.subText = res.fields.subText1;
       this.loadingContent = false;
     });
 
@@ -50,7 +52,6 @@ export class CompetitionsComponent implements OnInit {
         this.findRegistrationOpenStatus();
       }
     }
-    console.log(this.selectedCompetition);
   }
 
   findRegistrationOpenStatus() {

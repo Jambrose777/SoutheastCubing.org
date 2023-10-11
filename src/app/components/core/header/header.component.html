@@ -1,6 +1,6 @@
 <div class="header">
   <img src="assets/SEChamps2022Logo.png" class="se-logo" [routerLink]="'/home'">
-  <h1 class="se-title" [routerLink]="'/home'">{{title}}</h1>
+  <h1 class="se-title">{{title}}</h1>
 
   <i class="close-icon fa-solid fa-close fa-2xl clickable" *ngIf="isNavActive" (click)="toggleNav(false)"></i>
 
@@ -28,11 +28,11 @@
           <div class="hidden-text">Organizers</div>
         </span>
         <!-- TODO Handle edge case of reclicking when already on nav -->
-        <span style="--i:5; --x:-1; --y:-1" class="blue-cube" [routerLink]="'/home'">
+        <span style="--i:5; --x:-1; --y:-1" class="blue-cube" [routerLink]="isNavActive ? '/home' : []">
           <i class="fa-solid fa-home fa-2xl clickable"></i>
           <div class="hidden-text">Home</div>
         </span>
-        <span style="--i:6; --x:1; --y:-1" class="purple-cube">
+        <span style="--i:6; --x:1; --y:-1" class="purple-cube" [routerLink]="isNavActive ? '/clubs' : []">
           <i class="fa-solid fa-location-dot fa-2xl clickable"></i>
           <div class="hidden-text">Clubs</div>
         </span>

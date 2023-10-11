@@ -45,7 +45,7 @@ const moduleRoutes: Routes = [
     RouterModule.forRoot(moduleRoutes),
     NoopAnimationsModule,
     MatMenuModule,
-    IvyCarouselModule
+    IvyCarouselModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
