@@ -1,18 +1,23 @@
 <div class="clubs-container" *ngIf="!isMobile()">
   <div class="left-pane">
     <header [title]="title"></header>
+
+    <!-- Information if there is no selected club (ie. initial page for Clubs) -->
     <ng-container *ngIf="!selectedClub">
       <div class="description">{{description}}</div>
       <div class="sub-text-container">
+        <!-- Section for Start a new club form -->
         <div class="sub-text-box">
           {{subText1}}
           <div>
-            <a class="btn darker-border" [href]="'https://forms.gle/QZVxzyVsxgaJZQme7'"  target="_blank">
+            <a class="btn darker-border" [href]="'https://forms.gle/QZVxzyVsxgaJZQme7'" target="_blank">
               Apply Here
               <i class="fa-solid fa-up-right-from-square fa-sm"></i>
             </a>
           </div>
         </div>
+
+        <!-- Section for contacting SEC about clubs -->
         <div class="sub-text-box">
           {{subText2}}
           <div>
@@ -24,28 +29,33 @@
         </div>
       </div>
     </ng-container>
+
+    <!-- Information for selected club details -->
     <div *ngIf="selectedClub" class="club-information">
+      <!-- Club Name -->
       <h2 class="club-name">
         {{selectedClub.name}}
       </h2>
+
+      <!-- Club Location -->
       <div class="club-text">
         {{selectedClub.city}}
       </div>
+
+      <!-- Club Photos in a carousel -->
       <div class="club-photo-container" *ngIf="selectedClub.images && selectedClub.images.length > 0">
-        <carousel
-          [images]="selectedClub.images"
-          [cellsToShow]="1"
-          [height]="300"
-          [loop]="true"
-          [autoplay]="true"
-          [arrows]="false"
-        >
+        <carousel [images]="selectedClub.images" [cellsToShow]="1" [height]="300" [loop]="true" [autoplay]="true"
+          [arrows]="false">
         </carousel>
       </div>
+
+      <!-- Short Club description -->
       <div class="club-text" *ngIf="selectedClub.description">
         {{selectedClub.description}}
       </div>
+
       <div class="club-details-row" [ngClass]="{'darker-border': selectedClub?.state === 'TN'}">
+        <!-- Bubble for the venue of the club -->
         <div class="detail-container" *ngIf="selectedClub.venue || selectedClub.address">
           <b>Where?</b>
           <div class="detail-sub-container">
@@ -55,13 +65,18 @@
             </a>
           </div>
         </div>
+
+        <!-- Bubble for when the club's meetings are -->
         <div class="detail-container" *ngIf="selectedClub.meetingInformation">
           <b>When?</b>
           <div class="detail-sub-container">
             {{selectedClub.meetingInformation}}
           </div>
         </div>
-        <div class="detail-container" *ngIf="selectedClub.contactName || selectedClub.contactInfo || selectedClub.website">
+
+        <!-- Bubble for who to contact for information about the club -->
+        <div class="detail-container"
+          *ngIf="selectedClub.contactName || selectedClub.contactInfo || selectedClub.website">
           <b>Contact</b>
           <div class="detail-sub-container">
             <div>{{selectedClub.contactName}}</div>
@@ -70,24 +85,16 @@
           </div>
         </div>
       </div>
-
-      <!-- 
-      contactName?: string;
-      contactInfo?: string;
-      website?: string;
-      state?: string -->
-      <!-- description     venue / address    meeting frequency      contact -->
     </div>
   </div>
+
   <div class="right-pane">
+    <!-- List for all loaded clubs -->
     <div class="clubs-list-container">
       <ng-container *ngFor="let club of clubs; let i = index; ">
-        <div 
-          class="club-item-container clickable" 
-          style="--state-color:{{StateColors[club.state]}}" 
-          [ngClass]="{active: selectedClub?.name === club.name}"
-          (click)="selectClub(club)"
-        >
+        <!-- Club Bubble -->
+        <div class="club-item-container clickable" style="--state-color:{{StateColors[club.state]}}"
+          [ngClass]="{active: selectedClub?.name === club.name}" (click)="selectClub(club)">
           <div class="club-name">
             {{club.name}}
           </div>
@@ -99,8 +106,7 @@
     </div>
   </div>
 </div>
+
+<!-- Mobile -->
 <div class="clubs-container-mobile" *ngIf="!isMobile()">
-
 </div>
-
-<!-- <loading-spinner *ngIf="loadingContent"></loading-spinner> -->

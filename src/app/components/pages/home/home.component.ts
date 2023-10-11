@@ -3,6 +3,7 @@ import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
 import { isMobile } from 'src/app/shared/functions';
+import { ContentfulEntryId } from 'src/app/models/Contentful';
 
 @Component({
   selector: 'app-home',
@@ -19,12 +20,14 @@ export class HomeComponent implements OnInit {
   constructor(private contentful: ContentfulService, private themeService: ThemeService) { }
 
   ngOnInit(): void {
-    this.themeService.setRightPaneColor(Colors.blue);
+    // sets up main color for the home page
+    this.themeService.setLeftPaneColor(Colors.blue);
 
-    this.contentful.getContentfulEntry('home').subscribe(res => {
+    // retireve and formats data from the CMS home Page
+    this.contentful.getContentfulEntry(ContentfulEntryId.home).subscribe(res => {
       this.title = res.fields.title;
       this.description = res.fields.description;
-      this.photos = res.fields.photos.map(photo => ({path: photo.fields.file.url}));
+      this.photos = res.fields.photos.map(photo => ({ path: photo.fields.file.url }));
       this.loadingContent = false;
     });
   }

@@ -21,5 +21,5 @@ export class Competition {
   registration_status?: RegistrationStatus;
   readable_registration_open?: string;
   state?: string;
-  active_registrations?: number;
+  accepted_registrations?: number;
 }

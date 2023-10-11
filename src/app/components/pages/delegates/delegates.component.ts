@@ -1,4 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
+import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { ContentfulService } from 'src/app/services/contentful.service';
 
 @Component({
@@ -17,12 +18,16 @@ export class DelegatesComponent implements OnInit {
   constructor(private contentful: ContentfulService) { }
 
   ngOnInit(): void {
-    this.contentful.getContentfulGroup('delegates').subscribe(res => {
-      this.delegates = res.items.sort((a, b) => a['fields']['order'] - b.fields['order']).map(delegate => delegate.fields);
+    // retireve, sorts, and formats data from the CMS Delegates Entries
+    this.contentful.getContentfulGroup(ContentfulContentType.delegates).subscribe(res => {
+      this.delegates = res.items
+        .sort((a, b) => a['fields']['order'] - b.fields['order'])
+        .map(delegate => delegate.fields);
       this.loadingDelegates = false;
     });
 
-    this.contentful.getContentfulEntry('delegates').subscribe(res => {
+    // retireve and formats data from the CMS Delegate Page
+    this.contentful.getContentfulEntry(ContentfulEntryId.delegates).subscribe(res => {
       this.title = res.fields.title;
       this.description = res.fields.description;
       this.loadingContent = false;

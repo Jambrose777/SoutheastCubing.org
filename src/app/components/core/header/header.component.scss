@@ -42,7 +42,7 @@
     align-items: center;
     z-index: 10001;
   }
-  
+
   .menu {
     position: relative;
     width: 100px;
@@ -51,7 +51,7 @@
     justify-content: center;
     align-items: center;
   }
-  
+
   .menu .navigation {
     position: relative;
     width: 100%;
@@ -63,7 +63,7 @@
     transition: 0.5s;
     transition-delay: 0.5s;
   }
-  
+
   .menu .navigation span {
     position: absolute;
     width: 10px;
@@ -71,15 +71,13 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    // background: $se-black;
     transform: translate(calc(14px * var(--x)), calc(14px * var(--y)));
     transition: transform 0.5s, width 0.5s, height 0.5s;
     transition-delay: calc(0.1s * var(--i) + 1);
     border: 1px solid $se-black;
   }
-  
+
   .menu .navigation span .fa-solid {
-    // color: $se-black;
     font-size: 0.25rem;
     transition: 0.5s;
   }
@@ -88,16 +86,16 @@
     position: absolute;
     height: calc(100vh - 30px);
     width: calc(50% - 30px);
-    background-color: var(--right-pane-color);
+    background-color: var(--left-pane-color);
   }
 
   .nav-container.transition {
     position: absolute;
     height: calc(100vh - 30px);
     width: calc(50% - 30px);
-    background-color: var(--right-pane-color);
+    background-color: var(--left-pane-color);
   }
-  
+
   .menu .navigation.active span .fa-solid {
     font-size: 1.75rem;
     transition: 0.5s;
@@ -107,19 +105,18 @@
   .hidden-text {
     display: none;
   }
-  
+
   .menu .navigation.transitioned.active span:hover .fa-solid {
     display: none;
   }
-  
-  .menu .navigation.transitioned.active span:hover .fa-solid + .hidden-text {
+
+  .menu .navigation.transitioned.active span:hover .fa-solid+.hidden-text {
     display: block;
   }
 
   .menu .navigation.active span {
     width: 100px;
     height: 100px;
-    // background: #1f2536;
     border: 2px solid $se-black;
     border-radius: 5px;
     transform: translate(calc(133px * var(--x)), calc(133px * var(--y)));

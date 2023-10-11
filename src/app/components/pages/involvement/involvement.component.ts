@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { ContentfulService } from 'src/app/services/contentful.service';
 
 @Component({
@@ -16,7 +17,7 @@ export class InvolvementComponent implements OnInit {
   constructor(private contentful: ContentfulService) { }
 
   ngOnInit(): void {
-    this.contentful.getContentfulEntry('involvement').subscribe(res => {
+    this.contentful.getContentfulEntry(ContentfulEntryId.involvement).subscribe(res => {
       this.title = res.fields.title;
       this.description = res.fields.description;
       this.subTopics = res.fields.subTopic.map(subTopic => subTopic.fields);

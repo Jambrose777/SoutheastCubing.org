@@ -15,6 +15,7 @@ export class HeaderComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  // Opens / Closes the nav controls
   toggleNav(toggled: boolean) {
     this.isNavActive = toggled;
     this.transition = true;

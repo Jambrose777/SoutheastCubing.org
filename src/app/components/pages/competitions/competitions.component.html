@@ -1,8 +1,12 @@
 <div class="competitions-container" *ngIf="!isMobile()">
   <div class="left-pane">
     <header [title]="title"></header>
+
+    <!-- Information if there is no selected competition (ie. initial page for Competitions) -->
     <ng-container *ngIf="!selectedCompetition">
       <div class="description">{{description}}</div>
+
+      <!-- section for external links text Bubble -->
       <div class="sub-text-container">
         <div class="sub-text-box">
           {{subText}}
@@ -17,20 +21,30 @@
         </div>
       </div>
     </ng-container>
+
+    <!-- Information for selected competition details -->
     <div *ngIf="selectedCompetition" class="competition-information">
+      <!-- Competition Name w/ WCA Logo & Link to competition on WCA -->
       <a [href]="'https://www.worldcubeassociation.org/competitions/' + selectedCompetition.id" target="_blank">
         <h2 class="competition-name">
           {{selectedCompetition.name}}
+
+          <!-- WCA Logo -->
           <img src="assets/wca_logo.svg" class="wca-logo">
         </h2>
       </a>
+
+      <!-- container for remaining details for styling -->
       <div class="competition-details">
+        <!-- Competition Event List -->
         <div class="event-container">
-          <ng-container *ngFor="let event of selectedCompetition.event_ids"> 
+          <ng-container *ngFor="let event of selectedCompetition.event_ids">
             <span [ngClass]="'cubing-icon event-' + event"></span>
           </ng-container>
         </div>
+
         <div class="competition-details-row" [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
+          <!-- Basic Info Bubble -->
           <div class="detail-container">
             <b>{{selectedCompetition.city}}</b>
             <div>Date: <b>{{selectedCompetition.full_date}}</b></div>
@@ -38,41 +52,67 @@
               <div>Address: <b>{{selectedCompetition.venue_address}}</b></div>
             </a>
           </div>
+
+          <!-- Location On Google Map View Bubble -->
           <div class="detail-container">
-            <!-- location map -->
+            TODO
           </div>
         </div>
+
         <div class="competition-details-row" [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
+          <!-- Registration Information Bubble -->
           <div class="detail-container">
             <div>Competitor Limit: <b>{{selectedCompetition.competitor_limit}}</b></div>
-            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.preLaunch" class="small-registration-text">
-              Registration will open on <b>{{selectedCompetition.readable_registration_open}}</b>. We highly recommend registering right when registration opens; some competitions fill within seconds.
-              
+
+            <!-- Info for Registration Status pre launch -->
+            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.preLaunch"
+              class="small-registration-text">
+              Registration will open on <b>{{selectedCompetition.readable_registration_open}}</b>. We highly recommend
+              registering right when registration opens; some competitions fill within seconds.
             </div>
+
+            <!-- Info for Registration Status Closed -->
             <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.closed">
               Registration has closed. We are no longer accepting registrations for this competition.
             </div>
-            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.open" class="loading-registration-text">
+
+            <!-- Loading text for Registration Status open -->
+            <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.open"
+              class="loading-registration-text">
               <loading-spinner [isDark]="selectedCompetition?.state === 'Tennessee'"></loading-spinner>
               Fetching registration status
             </div>
+
+            <!-- Info for Registration Status open with spots -->
             <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.openWithSpots">
-              Registration is open! The competition is currently {{selectedCompetition.active_registrations / selectedCompetition.competitor_limit | percent}} full.
+              Registration is open! The competition is currently {{selectedCompetition.accepted_registrations /
+              selectedCompetition.competitor_limit | percent}} full.
             </div>
+
+            <!-- Info for Registration Status open with a waiting list -->
             <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.openWithWaitingList">
               Registration is <b>full</b>. You can still register for the waiting list in case of any cancellations.
             </div>
-            <div *ngIf="[RegistrationStatus.preLaunch, RegistrationStatus.openWithSpots, RegistrationStatus.openWithWaitingList].includes(selectedCompetition.registration_status)">
-              <a class="btn" [href]="'https://www.worldcubeassociation.org/competitions/' + selectedCompetition.id + '/register'"  target="_blank"  [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
+
+            <!-- Register here link to WCA for cetain Registration Statuses -->
+            <div
+              *ngIf="[RegistrationStatus.preLaunch, RegistrationStatus.openWithSpots, RegistrationStatus.openWithWaitingList].includes(selectedCompetition.registration_status)">
+              <a class="btn"
+                [href]="'https://www.worldcubeassociation.org/competitions/' + selectedCompetition.id + '/register'"
+                target="_blank" [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
                 Register Here
                 <i class="fa-solid fa-up-right-from-square fa-sm"></i>
               </a>
             </div>
           </div>
+
+          <!-- Contact Bubble -->
           <div class="detail-container">
             Have any questions? Reach out to the organizers!
             <div>
-              <a class="btn" [href]="'https://www.worldcubeassociation.org/contact/website?competitionId=' + selectedCompetition.id"  target="_blank"  [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
+              <a class="btn"
+                [href]="'https://www.worldcubeassociation.org/contact/website?competitionId=' + selectedCompetition.id"
+                target="_blank" [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
                 Contact
                 <i class="fa-regular fa-envelope fa-lg clickable"></i>
               </a>
@@ -84,13 +124,11 @@
   </div>
   <div class="right-pane">
     <div class="competitions-list-container">
+      <!-- List for all loaded competitions -->
       <ng-container *ngFor="let competition of competitions; let i = index; ">
-        <div 
-          class="competition-item-container clickable" 
-          style="--state-color:{{StateColors[competition.state]}}" 
-          [ngClass]="{active: selectedCompetition?.name === competition.name}"
-          (click)="selectCompetition(competition)"
-        >
+        <!-- Competition Bubble -->
+        <div class="competition-item-container clickable" style="--state-color:{{StateColors[competition.state]}}"
+          [ngClass]="{active: selectedCompetition?.name === competition.name}" (click)="selectCompetition(competition)">
           <div class="competition-name">
             {{competition.name}}
           </div>
@@ -102,8 +140,7 @@
     </div>
   </div>
 </div>
+
+<!-- Mobile -->
 <div class="competitions-container-mobile" *ngIf="!isMobile()">
-
 </div>
-
-<!-- <loading-spinner *ngIf="loadingContent"></loading-spinner> -->

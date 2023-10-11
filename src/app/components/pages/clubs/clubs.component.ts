@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Club } from 'src/app/models/Club';
+import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { isMobile } from 'src/app/shared/functions';
@@ -25,9 +26,11 @@ export class ClubsComponent implements OnInit {
   constructor(private contentful: ContentfulService, private themeService: ThemeService) { }
 
   ngOnInit(): void {
-    this.themeService.setRightPaneColor(Colors.purple);
+    // sets up main color for the home page
+    this.themeService.setLeftPaneColor(Colors.purple);
 
-    this.contentful.getContentfulEntry('clubs').subscribe(res => {
+    // retireve formats data from the CMS Clubs Page
+    this.contentful.getContentfulEntry(ContentfulEntryId.clubs).subscribe(res => {
       this.title = res.fields.title;
       this.description = res.fields.description;
       this.subText1 = res.fields.subText1;
@@ -35,24 +38,26 @@ export class ClubsComponent implements OnInit {
       this.loadingContent = false;
     });
 
-    this.contentful.getContentfulGroup('clubs').subscribe(res => {
+
+    // retrieve, sorts, and formats the clubs list from the CMS Clubs
+    this.contentful.getContentfulGroup(ContentfulContentType.clubs).subscribe(res => {
       this.clubs = res.items
-        .map(club => ({...club.fields, images: club.fields.images?.map(image => ({path: image.fields.file.url})), state: club.fields?.city.substring(club.fields?.city.length-2)}))
+        .map(club => ({ ...club.fields, images: club.fields.images?.map(image => ({ path: image.fields.file.url })), state: club.fields?.city.substring(club.fields?.city.length - 2) }))
         .sort((a: Club, b: Club) => a.city > b.city ? 1 : -1);
-      console.log(this.clubs)
       this.loadingClubs = false;
     });
   }
 
+  // sets a club as the selected Club to drill details
   selectClub(club: Club) {
-    if(this.selectedClub?.name === club.name) {
+    // deselect a club if it is already selected
+    if (this.selectedClub?.name === club.name) {
       this.selectedClub = undefined;
-      this.themeService.setRightPaneColor(Colors.purple);
+      this.themeService.setLeftPaneColor(Colors.purple);
     } else {
       this.selectedClub = club;
-      this.themeService.setRightPaneColor(StateColors[this.selectedClub.state]);
+      this.themeService.setLeftPaneColor(StateColors[this.selectedClub.state]); // sets the left pane color based on state value
     }
-    console.log(this.selectedClub);
   }
 
 }

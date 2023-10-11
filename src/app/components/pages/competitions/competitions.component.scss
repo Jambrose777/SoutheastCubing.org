@@ -10,7 +10,7 @@
     display: flex;
     width: 50%;
     height: 100%;
-    background-color: var(--right-pane-color);
+    background-color: var(--left-pane-color);
     flex-direction: column;
     border-radius: 10px 0 0 10px;
 
@@ -35,7 +35,7 @@
         margin: 20px;
         padding: 15px;
         font-size: 24px;
-        text-align: center; 
+        text-align: center;
         display: flex;
         flex-direction: column;
         justify-content: space-around;
@@ -108,7 +108,7 @@
           margin: 20px;
           padding: 15px;
           font-size: 24px;
-          text-align: center; 
+          text-align: center;
           display: flex;
           flex-direction: column;
           justify-content: space-around;
@@ -202,82 +202,3 @@
   }
 
 }
-
-
-// @import "src/styles/color-pallet.scss";
-
-// .competitions-container {
-//   display: flex;
-//   width: 100%;
-//   flex-direction: column;
-//   align-items: center;
-
-//   .page-header {
-//     display: flex;
-//     flex-direction: column;
-//     align-items: center;
-//     background-color: #DDEDF4;
-//     padding: 10px;
-//     border: 5px solid #DDEDF4;
-//     margin-bottom: 10px;
-
-//     .title {
-//       font-size: 32px;
-//     }
-
-//     .description {
-//       margin-top: 10px;
-//       width: 700px;
-//       text-align: center;
-//     }
-//   }
-
-//   .competition-item {
-//     display: flex;
-//     flex-direction: column;
-//     width: 800px;
-//     margin-top: 10px;
-//     margin-bottom: 10px;
-//     align-items: flex-start;
-
-//     .competition-item-container {
-//       background-color: $se-grey;
-//       border: 10px solid #DDEDF4;
-//       padding: 10px;
-//       width: 500px;
-//     }
-
-
-
-
-//     .align-right {
-//       align-items: flex-end;
-//     }
-//   }
-
-//   .align-right {
-//     align-items: flex-end;
-//   }
-// }
-
-// @media only screen and (max-width: 850px) {
-//   .page-header {
-//     margin-left: 20px;
-//     margin-right: 20px;
-//   }
-
-//   .description {
-//     width: 100% !important;
-//     max-width: 700px !important;
-//   }
-
-//   .competition-item {
-//     width: 100% !important;
-//     align-items: center !important;
-
-//     .competition-item-container {
-//       width: calc(100vw - 70px) !important;
-//       border: 5px solid #DDEDF4 !important;
-//     }
-//   }
-// }

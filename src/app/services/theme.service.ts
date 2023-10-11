@@ -4,11 +4,14 @@ import { Colors } from '../shared/types';
 @Injectable({
   providedIn: 'root'
 })
+
+// theme service is to interact with scss variables to universally control how the UI looks
 export class ThemeService {
 
   constructor() { }
 
-  setRightPaneColor(color: Colors) {
-    document.documentElement.style.setProperty(`--right-pane-color`, color);
+  // Sets the left pane color variable in the scss
+  setLeftPaneColor(color: Colors) {
+    document.documentElement.style.setProperty(`--left-pane-color`, color);
   }
 }

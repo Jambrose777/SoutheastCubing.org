@@ -10,7 +10,7 @@
     display: flex;
     width: 50%;
     height: 100%;
-    background-color: var(--right-pane-color);
+    background-color: var(--left-pane-color);
     flex-direction: column;
     border-radius: 10px 0 0 10px;
 
@@ -34,15 +34,15 @@
       height: 100px;
       width: 100%;
       font-size: 24px;
-    
+
       .clickable {
         cursor: pointer;
         color: $se-black;
       }
-    
+
       .wca-logo-container {
         width: 40px;
-        
+
         .wca-logo {
           margin-top: 10px;
           margin-left: -15px;
@@ -50,7 +50,7 @@
         }
       }
     }
-    
+
   }
 
   .right-pane {

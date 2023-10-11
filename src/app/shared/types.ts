@@ -10,6 +10,14 @@ export enum Colors {
   red = '#E69291',
 }
 
+export enum RegistrationStatus {
+  preLaunch = 'preLaunch',
+  open = 'open',
+  closed = 'closed',
+  openWithSpots = 'openWithSpots',
+  openWithWaitingList = 'openWithWaitingList'
+}
+
 export const StateColors = {
   'Alabama': Colors.orange,
   'AL': Colors.orange,
@@ -23,12 +31,4 @@ export const StateColors = {
   'SC': Colors.purple,
   'Tennessee': Colors.yellow,
   'TN': Colors.yellow,
-}
-
-export  enum RegistrationStatus {
-  preLaunch = 'preLaunch',
-  open = 'open',
-  closed = 'closed',
-  openWithSpots = 'openWithSpots',
-  openWithWaitingList = 'openWithWaitingList'
 }
