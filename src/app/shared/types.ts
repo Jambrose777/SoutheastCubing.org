@@ -31,4 +31,5 @@ export const StateColors = {
   'SC': Colors.purple,
   'Tennessee': Colors.yellow,
   'TN': Colors.yellow,
+  'Southeast': Colors.purple,
 }

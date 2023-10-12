@@ -3,141 +3,345 @@
 .delegates-container {
   display: flex;
   width: 100%;
-  flex-direction: column;
-  align-items: center;
+  height: 100%;
+  flex-direction: row;
 
-  .page-header {
+  .left-pane {
     display: flex;
+    width: 50%;
+    height: 100%;
+    background-color: var(--left-pane-color);
     flex-direction: column;
-    align-items: center;
-    background-color: #DDEDF4;
-    padding: 10px;
-    border: 5px solid #DDEDF4;
-    margin-bottom: 10px;
+    border-radius: 10px 0 0 10px;
+    overflow-y: scroll;
 
-    .title {
-      font-size: 32px;
+    header {
+      width: 100%;
     }
 
     .description {
-      margin-top: 10px;
-      width: 700px;
+      margin: 100px 30px;
+      width: calc(100% - 60px);
       text-align: center;
-    }
-  }
-
-  .delegate-item {
-    display: flex;
-    width: 800px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-
-    .delegate-photo {
-      height: 350px;
-      margin-top: 10px;
-      margin-left: 10px;
-      margin-right: 10px;
-      max-width: 300px;
-      object-fit: contain;
-      filter: 
-        drop-shadow(0 -10px 0 $se-blue)
-        drop-shadow(0 10px 0 $se-blue)
-        drop-shadow(-10px 0 0 $se-blue)
-        drop-shadow(10px 0 0 $se-blue);
+      font-size: 30px;
     }
 
-    .delegate-info {
-      align-self: center;
+    .sub-text-container {
+      display: flex;
+      flex-direction: row;
+
+      .sub-text-box {
+        width: calc(50% - 30px);
+        height: 150px;
+        margin: 20px;
+        padding: 15px;
+        font-size: 24px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        margin: auto;
+      }
+    }
+
+    a {
+      text-decoration: none;
+      color: black;
+    }
+
+    .btn {
+      border: 5px solid $se-grey;
+      border-radius: 30px;
+      padding: 10px;
+      background-color: $se-grey;
+      cursor: pointer;
+    }
+
+    .btn.darker-border {
+      border: 5px solid $se-black;
+    }
+
+    .delegate-information {
       display: flex;
       flex-direction: column;
-      padding: 10px;
-      margin-top: 30px;
-      margin-bottom: 30px;
-      width: 100%;
-      background-color: $se-grey;
-      align-items: center;
+      height: 100%;
 
       .delegate-name {
-        font-size: 24px;
+        font-size: 48px;
+        cursor: pointer;
+        text-align: center;
+        margin: 30px auto 0 auto;
       }
 
-      .delegate-sub-info {
-        color: $se-purple;
+      .delegate-image {
+        max-height: 400px;
+        max-width: 80%;
       }
 
-      .delegate-description {
-        margin-top: 10px;
-        margin-bottom: 10px;
+      .delegate-text {
+        text-align: center;
+        font-size: 18px;
+        margin: 5px auto;
+        white-space: pre-wrap;
       }
 
-      .delegate-links {
-        margin-top: auto;
+      .description-container {
+        margin: 0 20px;
+      }
+
+      .delegate-photo-container {
+        width: 60%;
+        margin: 5px auto;
+        text-align: center;
+      }
+
+      .delegate-details-row {
         display: flex;
+        flex-direction: row;
+        height: 100%;
+        width: 100%;
+        margin: 30px 0;
+      }
 
-        .wca-logo {
-          height: 40px;
-          margin-left: 5px;
-          margin-right: 5px;
-          cursor: pointer;
-        }
+      .detail-container {
+        width: 100%;
+        height: calc(80% - 70px);
+        max-height: 250px;
+        border: solid 5px $se-black;
+        border-radius: 15px;
+        margin: 20px;
+        padding: 15px;
+        font-size: 24px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
 
-        .contact-icon {
-          width: 40px;
-          margin-left: 5px;
-          margin-right: 5px;
-          padding-top: 18px;
-          cursor: pointer;
-          color: $se-blue;
+        .detail-sub-container {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-around;
+          height: 100%;
         }
       }
+
+      .wca-logo-container {
+        margin: 15px auto;
+      }
+
+      .wca-logo {
+        height: 48px;
+        width: 48px;
+        cursor: pointer;
+      }
+
     }
 
   }
+
+  .right-pane {
+    display: flex;
+    width: 50%;
+    height: 100%;
+    background-color: $se-black;
+    flex-direction: column;
+    border-radius: 0 10px 10px 0;
+
+    .delegates-list-container {
+      display: flex;
+      height: 100%;
+      margin: 50px 0 20px 20px;
+      flex-direction: column;
+      overflow-y: scroll;
+
+      .delegate-item-container {
+        display: flex;
+        flex-direction: row;
+        width: 90%;
+        min-height: 70px;
+        margin-left: auto;
+        margin-bottom: 7px;
+        background-color: var(--state-color);
+        border-radius: 10px 0 0 10px;
+        transition: 0.5s;
+
+        .delegate-thumbnail {
+          height: 60px;
+          width: 60px;
+          margin: 5px;
+          border-radius: 10px;
+        }
+
+        .delegate-name {
+          font-size: 24px;
+          margin: auto 0 auto 20px;
+        }
+
+        .delegate-date {
+          font-size: 16px;
+          margin: auto 5px auto auto;
+        }
+      }
+
+      .delegate-item-container:hover {
+        width: 87%;
+        transition: 0.5s;
+      }
+
+      .delegate-item-container.active {
+        width: 87%;
+        transition: 0.5s;
+      }
+
+    }
+  }
+
+  .clickable {
+    cursor: pointer;
+    color: $se-black;
+  }
+
 }
 
-@media only screen and (max-width: 850px) {
-  .page-header {
-    margin-left: 20px;
-    margin-right: 20px;
-  }
+// @import "src/styles/color-pallet.scss";
 
-  .description {
-    width: 100% !important;
-    max-width: 700px !important;
-  }
+// .delegates-container {
+//   display: flex;
+//   width: 100%;
+//   flex-direction: column;
+//   align-items: center;
 
-  .delegate-item {
-    margin-top: 20px !important;
-    margin-bottom: 20px !important;
-    margin-left: 20px !important;
-    margin-right: 20px !important;
-    width: calc(100% - 40px) !important;
-    flex-direction: column !important;
-  }
+//   .page-header {
+//     display: flex;
+//     flex-direction: column;
+//     align-items: center;
+//     background-color: #DDEDF4;
+//     padding: 10px;
+//     border: 5px solid #DDEDF4;
+//     margin-bottom: 10px;
 
-  .delegate-info {
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding: 0 !important;
-  }
+//     .title {
+//       font-size: 32px;
+//     }
 
-  .delegate-photo {
-    margin-top: 5px !important;
-    margin-bottom: 5px !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    max-width: none !important;
-    filter: 
-      drop-shadow(0 -5px 0 $se-blue)
-      drop-shadow(0 5px 0 $se-blue)
-      drop-shadow(-5px 0 0 $se-blue)
-      drop-shadow(5px 0 0 $se-blue) !important;
-    max-height: 350px;
-    height: auto !important;
-  }
+//     .description {
+//       margin-top: 10px;
+//       width: 700px;
+//       text-align: center;
+//     }
+//   }
 
-  .delegate-description {
-    margin-right: 10px !important;
-    margin-left: 10px !important;
-  }
-}
+//   .delegate-item {
+//     display: flex;
+//     width: 800px;
+//     margin-top: 10px;
+//     margin-bottom: 10px;
+
+//     .delegate-photo {
+//       height: 350px;
+//       margin-top: 10px;
+//       margin-left: 10px;
+//       margin-right: 10px;
+//       max-width: 300px;
+//       object-fit: contain;
+//       filter: 
+//         drop-shadow(0 -10px 0 $se-blue)
+//         drop-shadow(0 10px 0 $se-blue)
+//         drop-shadow(-10px 0 0 $se-blue)
+//         drop-shadow(10px 0 0 $se-blue);
+//     }
+
+//     .delegate-info {
+//       align-self: center;
+//       display: flex;
+//       flex-direction: column;
+//       padding: 10px;
+//       margin-top: 30px;
+//       margin-bottom: 30px;
+//       width: 100%;
+//       background-color: $se-grey;
+//       align-items: center;
+
+//       .delegate-name {
+//         font-size: 24px;
+//       }
+
+//       .delegate-sub-info {
+//         color: $se-purple;
+//       }
+
+//       .delegate-description {
+//         margin-top: 10px;
+//         margin-bottom: 10px;
+//       }
+
+//       .delegate-links {
+//         margin-top: auto;
+//         display: flex;
+
+//         .wca-logo {
+//           height: 40px;
+//           margin-left: 5px;
+//           margin-right: 5px;
+//           cursor: pointer;
+//         }
+
+//         .contact-icon {
+//           width: 40px;
+//           margin-left: 5px;
+//           margin-right: 5px;
+//           padding-top: 18px;
+//           cursor: pointer;
+//           color: $se-blue;
+//         }
+//       }
+//     }
+
+//   }
+// }
+
+// @media only screen and (max-width: 850px) {
+//   .page-header {
+//     margin-left: 20px;
+//     margin-right: 20px;
+//   }
+
+//   .description {
+//     width: 100% !important;
+//     max-width: 700px !important;
+//   }
+
+//   .delegate-item {
+//     margin-top: 20px !important;
+//     margin-bottom: 20px !important;
+//     margin-left: 20px !important;
+//     margin-right: 20px !important;
+//     width: calc(100% - 40px) !important;
+//     flex-direction: column !important;
+//   }
+
+//   .delegate-info {
+//     margin-top: 0 !important;
+//     margin-bottom: 0 !important;
+//     padding: 0 !important;
+//   }
+
+//   .delegate-photo {
+//     margin-top: 5px !important;
+//     margin-bottom: 5px !important;
+//     margin-left: 0 !important;
+//     margin-right: 0 !important;
+//     max-width: none !important;
+//     filter: 
+//       drop-shadow(0 -5px 0 $se-blue)
+//       drop-shadow(0 5px 0 $se-blue)
+//       drop-shadow(-5px 0 0 $se-blue)
+//       drop-shadow(5px 0 0 $se-blue) !important;
+//     max-height: 350px;
+//     height: auto !important;
+//   }
+
+//   .delegate-description {
+//     margin-right: 10px !important;
+//     margin-left: 10px !important;
+//   }
+// }

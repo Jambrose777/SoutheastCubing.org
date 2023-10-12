@@ -43,15 +43,15 @@
       </div>
 
       <!-- Club Photos in a carousel -->
-      <div class="club-photo-container" *ngIf="selectedClub.images && selectedClub.images.length > 0">
-        <carousel [images]="selectedClub.images" [cellsToShow]="1" [height]="300" [loop]="true" [autoplay]="true"
-          [arrows]="false">
-        </carousel>
+      <div class="club-photo-container" *ngIf="selectedClub.image">
+        <img class="club-image" src="{{selectedClub.image}}">
       </div>
 
       <!-- Short Club description -->
-      <div class="club-text" *ngIf="selectedClub.description">
-        {{selectedClub.description}}
+      <div class="description-container" *ngIf="selectedClub.description">
+        <div class="club-text">
+          {{selectedClub.description}}
+        </div>
       </div>
 
       <div class="club-details-row" [ngClass]="{'darker-border': selectedClub?.state === 'TN'}">
@@ -94,7 +94,8 @@
       <ng-container *ngFor="let club of clubs; let i = index; ">
         <!-- Club Bubble -->
         <div class="club-item-container clickable" style="--state-color:{{StateColors[club.state]}}"
-          [ngClass]="{active: selectedClub?.name === club.name}" (click)="selectClub(club)">
+          [ngClass]="{active: selectedClub?.name === club.name && selectedClub?.city === club.city}"
+          (click)="selectClub(club)">
           <div class="club-name">
             {{club.name}}
           </div>

@@ -13,6 +13,7 @@
     background-color: var(--left-pane-color);
     flex-direction: column;
     border-radius: 10px 0 0 10px;
+    overflow-y: scroll;
 
     header {
       width: 100%;

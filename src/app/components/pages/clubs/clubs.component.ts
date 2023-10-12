@@ -42,7 +42,7 @@ export class ClubsComponent implements OnInit {
     // retrieve, sorts, and formats the clubs list from the CMS Clubs
     this.contentful.getContentfulGroup(ContentfulContentType.clubs).subscribe(res => {
       this.clubs = res.items
-        .map(club => ({ ...club.fields, images: club.fields.images?.map(image => ({ path: image.fields.file.url })), state: club.fields?.city.substring(club.fields?.city.length - 2) }))
+        .map(club => ({ ...club.fields, image: club.fields.image?.fields.file.url, state: club.fields?.city.substring(club.fields?.city.length - 2) }))
         .sort((a: Club, b: Club) => a.city > b.city ? 1 : -1);
       this.loadingClubs = false;
     });

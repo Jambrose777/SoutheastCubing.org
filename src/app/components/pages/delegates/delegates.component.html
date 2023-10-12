@@ -1,27 +1,77 @@
-<div class="delegates-container">
-  <div class="page-header">
-    <div class="title">{{title}}</div>
-    <div class="description">{{description}}</div>
-  </div>
-  <ng-container *ngFor="let delegate of delegates">
-    <div class="delegate-item">
-      <img src="{{delegate.photo.fields.file.url}}" class="delegate-photo" *ngIf="delegate.order%2 === 1 || innerWidth <= 850">
-      <div class="delegate-info">
-        <div class="delegate-name">{{delegate.name}}</div>
-        <div class="delegate-sub-info">{{delegate.delegateType}} - {{delegate.state}}</div>
-        <div class="delegate-description">{{delegate.description}}</div>
-        <div class="delegate-links">
-          <a href="mailto:{{delegate.contact}}" target="_blank">
-            <i class="fa-regular fa-envelope fa-2xl contact-icon"></i>
-          </a>
-          <a href="https://www.worldcubeassociation.org/persons/{{delegate.wcaid}}" target="_blank">
-            <img src="assets/wca_logo.svg" class="wca-logo">
-          </a>
+<div class="delegates-container" *ngIf="!isMobile()">
+  <div class="left-pane">
+    <header [title]="title"></header>
+
+    <!-- Information if there is no selected Delegate (ie. initial page for Delegates) -->
+    <ng-container *ngIf="!selectedDelegate">
+      <div class="description">{{description}}</div>
+
+      <!-- section for external link text Bubble -->
+      <div class="sub-text-container">
+        <div class="sub-text-box">
+          {{subText}}
+          <div>
+            <a class="btn" [href]="'https://forms.gle/wUCCjHDgoGocK454A'" target="_blank">
+              Apply Here
+              <i class="fa-solid fa-up-right-from-square fa-sm"></i>
+            </a>
+          </div>
         </div>
       </div>
-      <img src="{{delegate.photo.fields.file.url}}" class="delegate-photo" *ngIf="delegate.order%2 === 0 && innerWidth > 850">
-    </div>
-  </ng-container>
+    </ng-container>
 
-  <loading-spinner *ngIf="loadingContent || loadingDelegates"></loading-spinner>
+    <!-- Information for selected delegate details -->
+    <div *ngIf="selectedDelegate" class="delegate-information">
+      <!-- Delegate Name -->
+      <h2 class="delegate-name">
+        {{selectedDelegate.name}}
+      </h2>
+
+      <!-- Delegate Status & Location  -->
+      <div class="delegate-text">
+        {{selectedDelegate.delegateType}} - {{selectedDelegate.state}}
+      </div>
+
+      <!-- Delegate Photos in a carousel -->
+      <div class="delegate-photo-container" *ngIf="selectedDelegate.photo">
+        <img class="delegate-image" src="{{selectedDelegate.photo}}">
+      </div>
+
+      <!-- Short Delegate description -->
+      <div class="description-container" *ngIf="selectedDelegate.description">
+        <div class="delegate-text">
+          {{selectedDelegate.description}}
+        </div>
+      </div>
+
+      <!-- WCA Logo -->
+      <a href="https://www.worldcubeassociation.org/persons/{{selectedDelegate.wcaid}}" target="_blank"
+        class="wca-logo-container">
+        <img src="assets/wca_logo.svg" class="wca-logo">
+      </a>
+    </div>
+
+  </div>
+  <div class="right-pane">
+    <div class="delegates-list-container">
+      <!-- List for all loaded delegates -->
+      <ng-container *ngFor="let delegate of delegates; let i = index; ">
+        <!-- Delegate Bubble -->
+        <div class="delegate-item-container clickable" style="--state-color:{{StateColors[delegate.state]}}"
+          [ngClass]="{active: selectedDelegate?.name === delegate.name}" (click)="selectDelegate(delegate)">
+          <img class="delegate-thumbnail" src="{{delegate.thumbnail}}">
+          <div class="delegate-name">
+            {{delegate.name}}
+          </div>
+          <div class="delegate-date">
+            {{delegate.state}}
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile -->
+<div class="delegates-container-mobile" *ngIf="!isMobile()">
 </div>

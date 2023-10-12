@@ -1,7 +1,7 @@
 export class Club {
   name: string;
   description?: string;
-  images?: [string];
+  image?: string;
   city: string;
   venue?: string;
   address?: string;
