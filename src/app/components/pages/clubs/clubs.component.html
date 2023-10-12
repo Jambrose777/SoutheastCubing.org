@@ -42,7 +42,7 @@
         {{selectedClub.city}}
       </div>
 
-      <!-- Club Photos in a carousel -->
+      <!-- Club Photo -->
       <div class="club-photo-container" *ngIf="selectedClub.image">
         <img class="club-image" src="{{selectedClub.image}}">
       </div>
@@ -81,7 +81,13 @@
           <div class="detail-sub-container">
             <div>{{selectedClub.contactName}}</div>
             <div>{{selectedClub.contactInfo}}</div>
-            <div>{{selectedClub.website}}</div>
+            <ng-container *ngIf="selectedClub.website">
+              <a class="btn" [href]="'selectedClub.website'" target="_blank"
+                [ngClass]="{'darker-border': selectedClub?.state === 'Tennessee'}">
+                Website
+                <i class="fa-solid fa-up-right-from-square fa-sm"></i>
+              </a>
+            </ng-container>
           </div>
         </div>
       </div>
@@ -91,7 +97,7 @@
   <div class="right-pane">
     <!-- List for all loaded clubs -->
     <div class="clubs-list-container">
-      <ng-container *ngFor="let club of clubs; let i = index; ">
+      <ng-container *ngFor="let club of clubs;">
         <!-- Club Bubble -->
         <div class="club-item-container clickable" style="--state-color:{{StateColors[club.state]}}"
           [ngClass]="{active: selectedClub?.name === club.name && selectedClub?.city === club.city}"
@@ -99,7 +105,7 @@
           <div class="club-name">
             {{club.name}}
           </div>
-          <div class="club-date">
+          <div class="club-city">
             {{club.city}}
           </div>
         </div>

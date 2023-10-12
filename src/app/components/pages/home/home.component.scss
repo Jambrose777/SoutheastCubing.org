@@ -70,3 +70,9 @@
   }
 
 }
+
+::ng-deep carousel {
+  div {
+    border-radius: 10px;
+  }
+}

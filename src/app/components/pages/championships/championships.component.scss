@@ -1,6 +1,6 @@
 @import "src/styles/color-pallet.scss";
 
-.delegates-container {
+.championships-container {
   display: flex;
   width: 100%;
   height: 100%;
@@ -29,10 +29,11 @@
     .sub-text-container {
       display: flex;
       flex-direction: row;
+      justify-content: center;
 
       .sub-text-box {
         width: calc(50% - 30px);
-        height: 150px;
+        height: 200px;
         margin: 20px;
         padding: 15px;
         font-size: 24px;
@@ -40,7 +41,10 @@
         display: flex;
         flex-direction: column;
         justify-content: space-around;
-        margin: auto;
+      }
+
+      .fa-brands {
+        margin: 0 10px;
       }
     }
 
@@ -61,75 +65,100 @@
       border: 5px solid $se-black;
     }
 
-    .delegate-information {
+    .championship-information {
       display: flex;
       flex-direction: column;
       height: 100%;
       margin: 0 20px;
 
-      .delegate-name {
+      .name-container {
+        display: flex;
+        flex-direction: row;
+        margin-top: 30px;
+      }
+
+      .championship-name {
         font-size: 48px;
         cursor: pointer;
         text-align: center;
-        margin: 30px auto 0 auto;
+        margin: 0;
       }
 
-      .delegate-image {
-        max-height: 400px;
-        max-width: 80%;
+      .wca-logo {
+        height: 80px;
+        margin: auto 20px auto 10px;
+        cursor: pointer;
+      }
+
+      .competitiion-logo {
+        height: 80px;
+        margin: auto 10px auto 20px;
+        cursor: pointer;
         border-radius: 10px;
       }
 
-      .delegate-text {
+      .championship-text {
         text-align: center;
         font-size: 18px;
         margin: 5px auto;
         white-space: pre-wrap;
       }
 
-      .delegate-photo-container {
+      .championship-photo-container {
         width: 60%;
         margin: 5px auto;
         text-align: center;
       }
 
-      .delegate-details-row {
-        display: flex;
-        flex-direction: row;
-        height: 100%;
-        width: 100%;
-        margin: 30px 0;
+      .championship-image {
+        max-height: 300px;
+        max-width: 80%;
       }
 
-      .detail-container {
-        width: 100%;
-        height: calc(80% - 70px);
-        max-height: 250px;
-        border: solid 5px $se-black;
-        border-radius: 15px;
-        margin: 20px;
-        padding: 15px;
-        font-size: 24px;
-        text-align: center;
+      .champions-table {
+        border: 3px solid $se-black;
+        border-radius: 10px;
+        width: 80%;
+        margin: 30px auto 20px auto;
         display: flex;
         flex-direction: column;
+        text-align: center;
 
-        .detail-sub-container {
+        .row {
           display: flex;
-          flex-direction: column;
-          justify-content: space-around;
-          height: 100%;
+          flex-direction: row;
+          width: 100%;
+          border-bottom: 1px solid $se-black;
         }
-      }
 
-      .wca-logo-container {
-        margin: 15px auto;
-      }
+        .border {
+          border-right: 1px solid $se-black;
+        }
 
-      .wca-logo {
-        height: 48px;
-        width: 48px;
-        cursor: pointer;
+        .col-1 {
+          width: 12.5%;
+          padding: 3px 0;
+        }
+
+        .col-2 {
+          width: 25%;
+          padding: 3px 0;
+        }
+
+        .col-3 {
+          width: 37.5%;
+          padding: 3px 0;
+        }
+
+        .col-4 {
+          width: 50%;
+          padding: 3px 0;
+        }
+
+        .col-6 {
+          width: 75%;
+          padding: 3px 0;
+        }
       }
 
     }
@@ -144,14 +173,14 @@
     flex-direction: column;
     border-radius: 0 10px 10px 0;
 
-    .delegates-list-container {
+    .championships-list-container {
       display: flex;
       height: 100%;
       margin: 50px 0 20px 20px;
       flex-direction: column;
       overflow-y: scroll;
 
-      .delegate-item-container {
+      .championship-item-container {
         display: flex;
         flex-direction: row;
         width: 90%;
@@ -162,30 +191,30 @@
         border-radius: 10px 0 0 10px;
         transition: 0.5s;
 
-        .delegate-thumbnail {
+        .championship-logo {
           height: 60px;
           width: 60px;
           margin: 5px;
           border-radius: 10px;
         }
 
-        .delegate-name {
+        .championship-name {
           font-size: 24px;
           margin: auto 0 auto 20px;
         }
 
-        .delegate-date {
+        .championship-city {
           font-size: 16px;
           margin: auto 5px auto auto;
         }
       }
 
-      .delegate-item-container:hover {
+      .championship-item-container:hover {
         width: 87%;
         transition: 0.5s;
       }
 
-      .delegate-item-container.active {
+      .championship-item-container.active {
         width: 87%;
         transition: 0.5s;
       }
@@ -195,7 +224,12 @@
 
   .clickable {
     cursor: pointer;
-    color: $se-black;
   }
 
+}
+
+::ng-deep carousel {
+  div {
+    border-radius: 10px;
+  }
 }

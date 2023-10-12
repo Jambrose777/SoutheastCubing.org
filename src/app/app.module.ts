@@ -13,9 +13,10 @@ import { ClubsComponent } from './components/pages/clubs/clubs.component';
 import { CompetitionsComponent } from './components/pages/competitions/competitions.component';
 import { HttpClientModule } from '@angular/common/http';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatMenuModule} from '@angular/material/menu';
+import { MatMenuModule } from '@angular/material/menu';
 import { LoadingSpinnerComponent } from './components/shared/loading-spinner/loading-spinner.component';
 import { IvyCarouselModule } from 'angular-responsive-carousel';
+import { ChampionshipsComponent } from './components/pages/championships/championships.component';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -24,6 +25,7 @@ const moduleRoutes: Routes = [
   { path: 'delegates', component: DelegatesComponent },
   { path: 'home', component: HomeComponent },
   { path: 'involvement', component: InvolvementComponent },
+  { path: 'championships', component: ChampionshipsComponent },
 ];
 
 @NgModule({
@@ -36,7 +38,8 @@ const moduleRoutes: Routes = [
     InvolvementComponent,
     ClubsComponent,
     CompetitionsComponent,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    ChampionshipsComponent
   ],
   imports: [
     BrowserModule,

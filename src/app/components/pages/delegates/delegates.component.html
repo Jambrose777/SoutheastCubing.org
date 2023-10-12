@@ -38,10 +38,8 @@
       </div>
 
       <!-- Short Delegate description -->
-      <div class="description-container" *ngIf="selectedDelegate.description">
-        <div class="delegate-text">
-          {{selectedDelegate.description}}
-        </div>
+      <div class="delegate-text" *ngIf="selectedDelegate.description">
+        {{selectedDelegate.description}}
       </div>
 
       <!-- WCA Logo -->
@@ -55,7 +53,7 @@
   <div class="right-pane">
     <div class="delegates-list-container">
       <!-- List for all loaded delegates -->
-      <ng-container *ngFor="let delegate of delegates; let i = index; ">
+      <ng-container *ngFor="let delegate of delegates;">
         <!-- Delegate Bubble -->
         <div class="delegate-item-container clickable" style="--state-color:{{StateColors[delegate.state]}}"
           [ngClass]="{active: selectedDelegate?.name === delegate.name}" (click)="selectDelegate(delegate)">

@@ -51,7 +51,7 @@ export class ClubsComponent implements OnInit {
   // sets a club as the selected Club to drill details
   selectClub(club: Club) {
     // deselect a club if it is already selected
-    if (this.selectedClub?.name === club.name) {
+    if (this.selectedClub?.name === club.name && this.selectedClub?.city === club.city) {
       this.selectedClub = undefined;
       this.themeService.setLeftPaneColor(Colors.purple);
     } else {

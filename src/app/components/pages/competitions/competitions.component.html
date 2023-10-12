@@ -125,7 +125,7 @@
   <div class="right-pane">
     <div class="competitions-list-container">
       <!-- List for all loaded competitions -->
-      <ng-container *ngFor="let competition of competitions; let i = index; ">
+      <ng-container *ngFor="let competition of competitions;">
         <!-- Competition Bubble -->
         <div class="competition-item-container clickable" style="--state-color:{{StateColors[competition.state]}}"
           [ngClass]="{active: selectedCompetition?.name === competition.name}" (click)="selectCompetition(competition)">

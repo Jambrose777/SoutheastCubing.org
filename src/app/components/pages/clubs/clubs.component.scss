@@ -64,6 +64,7 @@
       display: flex;
       flex-direction: column;
       height: 100%;
+      margin: 0 20px;
 
       .club-name {
         font-size: 48px;
@@ -76,10 +77,6 @@
         text-align: center;
         font-size: 24px;
         margin: 5px auto;
-      }
-
-      .description-container {
-        margin: 0 20px;
       }
 
       .club-photo-container {
@@ -104,7 +101,7 @@
       .detail-container {
         width: 100%;
         height: calc(80% - 70px);
-        max-height: 250px;
+        max-height: 300px;
         border: solid 5px $se-black;
         border-radius: 15px;
         margin: 20px;
@@ -119,6 +116,7 @@
           flex-direction: column;
           justify-content: space-around;
           height: 100%;
+          font-size: 16px;
         }
       }
 
@@ -157,7 +155,7 @@
           margin: auto 0 auto 20px;
         }
 
-        .club-date {
+        .club-city {
           font-size: 16px;
           margin: auto 5px auto auto;
         }

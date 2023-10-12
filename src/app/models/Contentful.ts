@@ -4,9 +4,11 @@ export enum ContentfulEntryId {
   delegates = '2OZsjVEk0sQMbDInOP24dT',
   home = 'VBd7CLFJeHCRE5VbPaIg3',
   involvement = '5L5pulcP34CUhYZ1OuhDDv',
+  championships = '3WtF99CMBrSeRiznpCVbjp',
 }
 
 export enum ContentfulContentType {
-  delegates= 'delegates',
-  clubs= 'clubs',
+  delegates = 'delegates',
+  clubs = 'clubs',
+  championships = 'championships',
 }

@@ -1,0 +1,110 @@
+<div class="championships-container" *ngIf="!isMobile()">
+  <div class="left-pane">
+    <header [title]="title"></header>
+
+    <!-- Information if there is no selected championship (ie. initial page for Championships) -->
+    <ng-container *ngIf="!selectedChampionship">
+      <div class="description">{{description}}</div>
+      <div class="sub-text-container">
+        <!-- Section for links to follow -->
+        <div class="sub-text-box">
+          {{subText1}}
+          <div>
+            <!-- Facebook -->
+            <a href="https://www.facebook.com/groups/491409969462797/" target="_blank">
+              <i class="fa-brands fa-square-facebook fa-2xl clickable"></i>
+            </a>
+
+            <!-- Discord -->
+            <a href="https://discord.gg/hp7DSmtReb/" target="_blank">
+              <i class="fa-brands fa-discord fa-2xl clickable"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Information for selected championship details -->
+    <div *ngIf="selectedChampionship" class="championship-information">
+      <!-- Championship Name -->
+      <a [href]="'https://www.worldcubeassociation.org/competitions/' + selectedChampionship.id" target="_blank"
+        class="name-container">
+        <!-- Competition Logo -->
+        <img src="{{selectedChampionship.logo}}" class="competitiion-logo">
+
+        <h2 class="championship-name">
+          {{selectedChampionship.name}}
+        </h2>
+
+        <!-- WCA Logo -->
+        <img src="assets/wca_logo.svg" class="wca-logo">
+      </a>
+
+      <!-- Championship Location -->
+      <div class="championship-text">
+        {{selectedChampionship.city}} - {{selectedChampionship.date}} - {{selectedChampionship.competitors}}
+      </div>
+
+      <!-- Championship Photos in a carousel -->
+      <div class="championship-photo-container" *ngIf="selectedChampionship.images">
+        <carousel [images]="selectedChampionship.images" [cellsToShow]="1" [height]="300" [loop]="true"
+          [autoplay]="true" [arrows]="false">
+        </carousel>
+      </div>
+
+      <!-- Short Championship description -->
+      <div class="championship-text" *ngIf="selectedChampionship.description">
+        {{selectedChampionship.description}}
+      </div>
+
+      <!-- Champions Table -->
+      <div class="champions-table">
+        <div class="row header">
+          <div class="col-2 border"><b>Event</b></div>
+          <div class="col-3 border"><b>Southeast Champion</b></div>
+          <div class="col-3"><b>Overall Champion</b></div>
+        </div>
+        <ng-container *ngFor="let champion of selectedChampionship.champions;">
+          <div class="row">
+            <div class="col-2 border"><b>{{champion.event}}</b></div>
+
+            <!-- If overall champion is provided, list each se champion and overall -->
+            <ng-container *ngIf="champion.overallChampName">
+              <div class="col-3 border">{{champion.seChampName}} - {{champion.seChampResult}}</div>
+              <div class="col-3">{{champion.overallChampName}} - {{champion.overallChampResult}}</div>
+            </ng-container>
+
+            <!-- If overall champion is not provided, list se champion for both -->
+            <ng-container *ngIf="!champion.overallChampName">
+              <div class="col-6">{{champion.seChampName}} - {{champion.seChampResult}}</div>
+            </ng-container>
+          </div>
+        </ng-container>
+      </div>
+      <div>&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="right-pane">
+    <!-- List for all loaded championships -->
+    <div class="championships-list-container">
+      <ng-container *ngFor="let championship of championships;">
+        <!-- Championship Bubble -->
+        <div class="championship-item-container clickable" style="--state-color:{{StateColors[championship.state]}}"
+          [ngClass]="{active: selectedChampionship?.id === championship.id}" (click)="selectChampionship(championship)">
+          <img class="championship-logo" src="{{championship.logo}}">
+          <div class="championship-name">
+            {{championship.name}}
+          </div>
+          <div class="championship-city">
+            {{championship.city}}
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile -->
+<div class="championships-container-mobile" *ngIf="!isMobile()">
+</div>

@@ -15,7 +15,7 @@ export class DelegatesComponent implements OnInit {
   isMobile = isMobile;
   StateColors = StateColors;
   delegates: Delegate[];
-  title: string = '';
+  title: string = 'Southeast Delegates';
   description: string = '';
   subText: string = '';
   loadingContent: boolean = true;
