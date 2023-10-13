@@ -1,10 +1,11 @@
-<div class="championships-container" *ngIf="!isMobile()">
-  <div class="left-pane">
+<div class="component-container">
+  <div class="main-pane">
     <header [title]="title"></header>
 
     <!-- Information if there is no selected championship (ie. initial page for Championships) -->
     <ng-container *ngIf="!selectedChampionship">
-      <div class="description">{{description}}</div>
+      <div class="large-text-content">{{description}}</div>
+
       <div class="sub-text-container">
         <!-- Section for links to follow -->
         <div class="sub-text-box">
@@ -22,17 +23,18 @@
           </div>
         </div>
       </div>
+
     </ng-container>
 
     <!-- Information for selected championship details -->
-    <div *ngIf="selectedChampionship" class="championship-information">
+    <div *ngIf="selectedChampionship" class="selected-item-container">
       <!-- Championship Name -->
       <a [href]="'https://www.worldcubeassociation.org/competitions/' + selectedChampionship.id" target="_blank"
         class="name-container">
         <!-- Competition Logo -->
         <img src="{{selectedChampionship.logo}}" class="competitiion-logo">
 
-        <h2 class="championship-name">
+        <h2 class="title-text">
           {{selectedChampionship.name}}
         </h2>
 
@@ -41,19 +43,19 @@
       </a>
 
       <!-- Championship Location -->
-      <div class="championship-text">
-        {{selectedChampionship.city}} - {{selectedChampionship.date}} - {{selectedChampionship.competitors}}
+      <div class="small-text-content">
+        {{selectedChampionship.city}} - {{selectedChampionship.date}} - {{selectedChampionship.competitors}} Competitors
       </div>
 
       <!-- Championship Photos in a carousel -->
-      <div class="championship-photo-container" *ngIf="selectedChampionship.images">
+      <div class="photo-container" *ngIf="selectedChampionship.images">
         <carousel [images]="selectedChampionship.images" [cellsToShow]="1" [height]="300" [loop]="true"
           [autoplay]="true" [arrows]="false">
         </carousel>
       </div>
 
       <!-- Short Championship description -->
-      <div class="championship-text" *ngIf="selectedChampionship.description">
+      <div class="small-text-content" *ngIf="selectedChampionship.description">
         {{selectedChampionship.description}}
       </div>
 
@@ -85,26 +87,22 @@
     </div>
   </div>
 
-  <div class="right-pane">
+  <div class="secondary-pane">
     <!-- List for all loaded championships -->
-    <div class="championships-list-container">
+    <div class="list-container">
       <ng-container *ngFor="let championship of championships;">
         <!-- Championship Bubble -->
-        <div class="championship-item-container clickable" style="--state-color:{{StateColors[championship.state]}}"
+        <div class="item-container clickable" style="--state-color:{{StateColors[championship.state]}}"
           [ngClass]="{active: selectedChampionship?.id === championship.id}" (click)="selectChampionship(championship)">
-          <img class="championship-logo" src="{{championship.logo}}">
-          <div class="championship-name">
+          <img class="thumbnail" src="{{championship.logo}}">
+          <div class="item-title">
             {{championship.name}}
           </div>
-          <div class="championship-city">
+          <div class="item-sub-text">
             {{championship.city}}
           </div>
         </div>
       </ng-container>
     </div>
   </div>
-</div>
-
-<!-- Mobile -->
-<div class="championships-container-mobile" *ngIf="!isMobile()">
 </div>

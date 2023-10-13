@@ -12,6 +12,6 @@ export class ThemeService {
 
   // Sets the left pane color variable in the scss
   setLeftPaneColor(color: Colors) {
-    document.documentElement.style.setProperty(`--left-pane-color`, color);
+    document.documentElement.style.setProperty(`--main-pane-color`, color);
   }
 }

@@ -1,10 +1,10 @@
-<div class="delegates-container" *ngIf="!isMobile()">
-  <div class="left-pane">
+<div class="component-container">
+  <div class="main-pane">
     <header [title]="title"></header>
 
     <!-- Information if there is no selected Delegate (ie. initial page for Delegates) -->
     <ng-container *ngIf="!selectedDelegate">
-      <div class="description">{{description}}</div>
+      <div class="large-text-content">{{description}}</div>
 
       <!-- section for external link text Bubble -->
       <div class="sub-text-container">
@@ -21,24 +21,24 @@
     </ng-container>
 
     <!-- Information for selected delegate details -->
-    <div *ngIf="selectedDelegate" class="delegate-information">
+    <div *ngIf="selectedDelegate" class="selected-item-container">
       <!-- Delegate Name -->
-      <h2 class="delegate-name">
+      <h2 class="title-text">
         {{selectedDelegate.name}}
       </h2>
 
       <!-- Delegate Status & Location  -->
-      <div class="delegate-text">
+      <div class="small-text-content">
         {{selectedDelegate.delegateType}} - {{selectedDelegate.state}}
       </div>
 
       <!-- Delegate Photos in a carousel -->
-      <div class="delegate-photo-container" *ngIf="selectedDelegate.photo">
-        <img class="delegate-image" src="{{selectedDelegate.photo}}">
+      <div class="photo-container" *ngIf="selectedDelegate.photo">
+        <img class="image medium-image" src="{{selectedDelegate.photo}}">
       </div>
 
       <!-- Short Delegate description -->
-      <div class="delegate-text" *ngIf="selectedDelegate.description">
+      <div class="small-text-content" *ngIf="selectedDelegate.description">
         {{selectedDelegate.description}}
       </div>
 
@@ -50,26 +50,22 @@
     </div>
 
   </div>
-  <div class="right-pane">
-    <div class="delegates-list-container">
+  <div class="secondary-pane">
+    <div class="list-container">
       <!-- List for all loaded delegates -->
       <ng-container *ngFor="let delegate of delegates;">
         <!-- Delegate Bubble -->
-        <div class="delegate-item-container clickable" style="--state-color:{{StateColors[delegate.state]}}"
+        <div class="item-container clickable" style="--state-color:{{StateColors[delegate.state]}}"
           [ngClass]="{active: selectedDelegate?.name === delegate.name}" (click)="selectDelegate(delegate)">
-          <img class="delegate-thumbnail" src="{{delegate.thumbnail}}">
-          <div class="delegate-name">
+          <img class="thumbnail" src="{{delegate.thumbnail}}">
+          <div class="item-title">
             {{delegate.name}}
           </div>
-          <div class="delegate-date">
+          <div class="item-sub-text">
             {{delegate.state}}
           </div>
         </div>
       </ng-container>
     </div>
   </div>
-</div>
-
-<!-- Mobile -->
-<div class="delegates-container-mobile" *ngIf="!isMobile()">
 </div>

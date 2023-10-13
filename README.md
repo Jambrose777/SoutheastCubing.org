@@ -14,10 +14,12 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The appli
 - Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 - Compress dist/
 - Upload dist.zip file onto AWS S3
+- Make the dist.zip public using acl
+- Copy the URL for dist.zip
 - SSH into AWS EC2 instance
 - navigate to relevant folder `cd /var/www/html`
 - remove current contents `rm -rf *`
 - import dist file into EC2 instance `wget {S3 Object URL}` Replace {} with URL from S3 Object
 - unzip the compressed folder `unzip dist.zip`
-- move files into correct folder `mv dist/jacobambroseme/* .`
+- move files into correct folder `mv dist/southeast-cubing/* .`
 - restart server `service httpd restart` or start server `service httpd start`

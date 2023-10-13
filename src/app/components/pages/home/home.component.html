@@ -1,7 +1,7 @@
-<div class="home-container" *ngIf="!isMobile()">
-  <div class="left-pane">
+<div class="component-container">
+  <div class="main-pane">
     <header [title]="title"></header>
-    <div class="description">{{description}}</div>
+    <div class="large-text-content">{{description}}</div>
 
     <!-- Icons for important external links, such as social media -->
     <div class="badges">
@@ -36,16 +36,12 @@
       </a>
     </div>
   </div>
-  <div class="right-pane">
+  <div class="secondary-pane">
     <div class="home-photo-container">
       <carousel [images]="photos" [cellsToShow]="1" [height]="500" [loop]="true" [autoplay]="true" [arrows]="false">
       </carousel>
     </div>
   </div>
-</div>
-
-<!-- Mobile -->
-<div class="home-container-mobile" *ngIf="!isMobile()">
 </div>
 
 <!-- Spinner Example -->

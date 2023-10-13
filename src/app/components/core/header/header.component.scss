@@ -31,10 +31,6 @@
     z-index: 10002;
   }
 
-  .clickable {
-    cursor: pointer;
-  }
-
   .nav-container {
     margin-left: auto;
     display: flex;
@@ -86,14 +82,14 @@
     position: absolute;
     height: calc(100vh - 30px);
     width: calc(50% - 30px);
-    background-color: var(--left-pane-color);
+    background-color: var(--main-pane-color);
   }
 
   .nav-container.transition {
     position: absolute;
     height: calc(100vh - 30px);
     width: calc(50% - 30px);
-    background-color: var(--left-pane-color);
+    background-color: var(--main-pane-color);
   }
 
   .menu .navigation.active span .fa-solid {
@@ -126,6 +122,10 @@
   .black-cube {
     background-color: $se-black;
     color: white;
+
+    .clickable {
+      color: white;
+    }
   }
 
   .blue-cube {

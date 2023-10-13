@@ -1,68 +1,13 @@
 @import "src/styles/color-pallet.scss";
 
-.competitions-container {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  flex-direction: row;
+.component-container {
 
-  .left-pane {
-    display: flex;
-    width: 50%;
-    height: 100%;
-    background-color: var(--left-pane-color);
-    flex-direction: column;
-    border-radius: 10px 0 0 10px;
-    overflow-y: scroll;
+  .main-pane {
 
-    header {
-      width: 100%;
-    }
+    .selected-item-container {
 
-    .description {
-      margin: 100px 30px;
-      width: calc(100% - 60px);
-      text-align: center;
-      font-size: 30px;
-    }
-
-    .sub-text-container {
-      display: flex;
-      flex-direction: row;
-
-      .sub-text-box {
-        width: calc(50% - 30px);
-        height: 200px;
-        margin: 20px;
-        padding: 15px;
-        font-size: 24px;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
-        margin: auto;
-
-        .fa-brands {
-          margin: 0 20px;
-        }
-      }
-    }
-
-    .competition-information {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      margin: 0 20px;
-
-      a {
-        text-decoration: none;
-        color: black;
-      }
-
-      .competition-name {
-        font-size: 48px;
-        cursor: pointer;
-        text-align: center;
+      .title-text {
+        margin: 0;
 
         .wca-logo {
           height: 48px;
@@ -84,11 +29,6 @@
           flex-direction: row;
           height: 45%;
           width: 100%;
-        }
-
-        a {
-          text-decoration: none;
-          color: black;
         }
 
         .cubing-icon {
@@ -116,26 +56,10 @@
           justify-content: space-around;
         }
 
-        .small-registration-text {
-          font-size: 16px;
-        }
-
         .darker-border {
           .detail-container {
             border: solid 5px $se-black;
           }
-        }
-
-        .btn {
-          border: 5px solid $se-grey;
-          border-radius: 30px;
-          padding: 10px;
-          background-color: $se-grey;
-          cursor: pointer;
-        }
-
-        .btn.darker-border {
-          border: 5px solid $se-black;
         }
 
         .loading-registration-text {
@@ -147,60 +71,4 @@
     }
 
   }
-
-  .right-pane {
-    display: flex;
-    width: 50%;
-    height: 100%;
-    background-color: $se-black;
-    flex-direction: column;
-    border-radius: 0 10px 10px 0;
-
-    .competitions-list-container {
-      display: flex;
-      height: 100%;
-      margin: 50px 0 20px 20px;
-      flex-direction: column;
-      overflow-y: scroll;
-
-      .competition-item-container {
-        display: flex;
-        flex-direction: row;
-        width: 90%;
-        min-height: 70px;
-        margin-left: auto;
-        margin-bottom: 7px;
-        background-color: var(--state-color);
-        border-radius: 10px 0 0 10px;
-        transition: 0.5s;
-
-        .competition-name {
-          font-size: 24px;
-          margin: auto 0 auto 20px;
-        }
-
-        .competition-date {
-          font-size: 16px;
-          margin: auto 5px auto auto;
-        }
-      }
-
-      .competition-item-container:hover {
-        width: 87%;
-        transition: 0.5s;
-      }
-
-      .competition-item-container.active {
-        width: 87%;
-        transition: 0.5s;
-      }
-
-    }
-  }
-
-  .clickable {
-    cursor: pointer;
-    color: $se-black;
-  }
-
 }

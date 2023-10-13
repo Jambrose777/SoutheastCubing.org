@@ -1,10 +1,11 @@
-<div class="clubs-container" *ngIf="!isMobile()">
-  <div class="left-pane">
+<div class="component-container">
+  <div class="main-pane">
     <header [title]="title"></header>
 
     <!-- Information if there is no selected club (ie. initial page for Clubs) -->
     <ng-container *ngIf="!selectedClub">
-      <div class="description">{{description}}</div>
+      <div class="large-text-content">{{description}}</div>
+
       <div class="sub-text-container">
         <!-- Section for Start a new club form -->
         <div class="sub-text-box">
@@ -28,30 +29,29 @@
           </div>
         </div>
       </div>
+
     </ng-container>
 
     <!-- Information for selected club details -->
-    <div *ngIf="selectedClub" class="club-information">
+    <div *ngIf="selectedClub" class="selected-item-container">
       <!-- Club Name -->
-      <h2 class="club-name">
+      <h2 class="title-text">
         {{selectedClub.name}}
       </h2>
 
       <!-- Club Location -->
-      <div class="club-text">
+      <div class="medium-text-content">
         {{selectedClub.city}}
       </div>
 
       <!-- Club Photo -->
-      <div class="club-photo-container" *ngIf="selectedClub.image">
-        <img class="club-image" src="{{selectedClub.image}}">
+      <div class="photo-container" *ngIf="selectedClub.image">
+        <img class="image" src="{{selectedClub.image}}">
       </div>
 
       <!-- Short Club description -->
-      <div class="description-container" *ngIf="selectedClub.description">
-        <div class="club-text">
-          {{selectedClub.description}}
-        </div>
+      <div class="medium-text-content" *ngIf="selectedClub.description">
+        {{selectedClub.description}}
       </div>
 
       <div class="club-details-row" [ngClass]="{'darker-border': selectedClub?.state === 'TN'}">
@@ -94,26 +94,22 @@
     </div>
   </div>
 
-  <div class="right-pane">
+  <div class="secondary-pane">
     <!-- List for all loaded clubs -->
-    <div class="clubs-list-container">
+    <div class="list-container">
       <ng-container *ngFor="let club of clubs;">
         <!-- Club Bubble -->
-        <div class="club-item-container clickable" style="--state-color:{{StateColors[club.state]}}"
+        <div class="item-container clickable" style="--state-color:{{StateColors[club.state]}}"
           [ngClass]="{active: selectedClub?.name === club.name && selectedClub?.city === club.city}"
           (click)="selectClub(club)">
-          <div class="club-name">
+          <div class="item-title">
             {{club.name}}
           </div>
-          <div class="club-city">
+          <div class="item-sub-text">
             {{club.city}}
           </div>
         </div>
       </ng-container>
     </div>
   </div>
-</div>
-
-<!-- Mobile -->
-<div class="clubs-container-mobile" *ngIf="!isMobile()">
 </div>

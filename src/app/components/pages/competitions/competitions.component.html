@@ -1,10 +1,10 @@
-<div class="competitions-container" *ngIf="!isMobile()">
-  <div class="left-pane">
+<div class="component-container">
+  <div class="main-pane">
     <header [title]="title"></header>
 
     <!-- Information if there is no selected competition (ie. initial page for Competitions) -->
     <ng-container *ngIf="!selectedCompetition">
-      <div class="description">{{description}}</div>
+      <div class="large-text-content">{{description}}</div>
 
       <!-- section for external links text Bubble -->
       <div class="sub-text-container">
@@ -23,10 +23,10 @@
     </ng-container>
 
     <!-- Information for selected competition details -->
-    <div *ngIf="selectedCompetition" class="competition-information">
+    <div *ngIf="selectedCompetition" class="selected-item-container">
       <!-- Competition Name w/ WCA Logo & Link to competition on WCA -->
       <a [href]="'https://www.worldcubeassociation.org/competitions/' + selectedCompetition.id" target="_blank">
-        <h2 class="competition-name">
+        <h2 class="title-text">
           {{selectedCompetition.name}}
 
           <!-- WCA Logo -->
@@ -66,7 +66,7 @@
 
             <!-- Info for Registration Status pre launch -->
             <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.preLaunch"
-              class="small-registration-text">
+              class="tiny-text-content">
               Registration will open on <b>{{selectedCompetition.readable_registration_open}}</b>. We highly recommend
               registering right when registration opens; some competitions fill within seconds.
             </div>
@@ -122,25 +122,21 @@
       </div>
     </div>
   </div>
-  <div class="right-pane">
-    <div class="competitions-list-container">
+  <div class="secondary-pane">
+    <div class="list-container">
       <!-- List for all loaded competitions -->
       <ng-container *ngFor="let competition of competitions;">
         <!-- Competition Bubble -->
-        <div class="competition-item-container clickable" style="--state-color:{{StateColors[competition.state]}}"
+        <div class="item-container clickable" style="--state-color:{{StateColors[competition.state]}}"
           [ngClass]="{active: selectedCompetition?.name === competition.name}" (click)="selectCompetition(competition)">
-          <div class="competition-name">
+          <div class="item-title">
             {{competition.name}}
           </div>
-          <div class="competition-date">
+          <div class="item-sub-text">
             {{competition.full_date}}
           </div>
         </div>
       </ng-container>
     </div>
   </div>
-</div>
-
-<!-- Mobile -->
-<div class="competitions-container-mobile" *ngIf="!isMobile()">
 </div>
