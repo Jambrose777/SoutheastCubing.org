@@ -8,7 +8,7 @@ import { isMobile } from './shared/functions';
 })
 export class AppComponent implements OnInit {
   title = 'southeast-cubing';
-  isMobile = isMobile;
+  isMobile = isMobile();
 
   constructor() { }
 

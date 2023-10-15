@@ -23,13 +23,8 @@
         color: black;
         align-items: center;
         height: 100%;
-
-        .competition-details-row {
-          display: flex;
-          flex-direction: row;
-          height: 45%;
-          width: 100%;
-        }
+        flex-flow: row wrap;
+        justify-content: center;
 
         .cubing-icon {
           font-size: 2em;
@@ -43,8 +38,8 @@
         }
 
         .detail-container {
-          width: calc(50% - 30px);
-          height: calc(100% - 70px);
+          width: 230px;
+          height: 270px;
           border: solid 5px $se-grey;
           border-radius: 15px;
           margin: 20px;
@@ -57,9 +52,7 @@
         }
 
         .darker-border {
-          .detail-container {
-            border: solid 5px $se-black;
-          }
+          border: solid 5px $se-black;
         }
 
         .loading-registration-text {

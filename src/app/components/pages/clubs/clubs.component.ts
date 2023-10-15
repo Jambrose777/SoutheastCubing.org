@@ -12,7 +12,7 @@ import { Colors, StateColors } from 'src/app/shared/types';
   styleUrls: ['./clubs.component.scss']
 })
 export class ClubsComponent implements OnInit {
-  isMobile = isMobile;
+  isMobile = isMobile();
   StateColors = StateColors;
   title: string = 'Southeast Clubs';
   description: string = '';
@@ -43,7 +43,7 @@ export class ClubsComponent implements OnInit {
     this.contentful.getContentfulGroup(ContentfulContentType.clubs).subscribe(res => {
       this.clubs = res.items
         .map(club => ({ ...club.fields, image: club.fields.image?.fields.file.url, state: club.fields?.city.substring(club.fields?.city.length - 2) }))
-        .sort((a: Club, b: Club) => a.city > b.city ? 1 : -1);
+        .sort((a: Club, b: Club) => a.city == b.city ? (a.name > b.name ? 1 : -1) : (a.city > b.city ? 1 : -1));
       this.loadingClubs = false;
     });
   }

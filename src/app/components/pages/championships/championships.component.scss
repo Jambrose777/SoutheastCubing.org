@@ -1,8 +1,13 @@
 @import "src/styles/color-pallet.scss";
+@import "src/styles/screen-sizes.scss";
 
 .component-container {
 
   .main-pane {
+
+    .large-text-content {
+      font-size: 24px;
+    }
 
     .selected-item-container {
 
@@ -77,6 +82,20 @@
 
     }
 
+  }
+}
+
+@media only screen and (max-width: $medium-breakpoint) {
+  .title-text {
+    font-size: 32px;
+  }
+
+  .champions-table {
+    font-size: 14px;
+  }
+
+  .item-title {
+    font-size: 20px !important;
   }
 }
 

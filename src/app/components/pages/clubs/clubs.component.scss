@@ -10,15 +10,15 @@
       .club-details-row {
         display: flex;
         flex-direction: row;
-        height: 100%;
+        flex-flow: row wrap;
+        justify-content: center;
         width: 100%;
         margin: 30px 0;
       }
 
       .detail-container {
-        width: 100%;
-        height: calc(80% - 70px);
-        max-height: 300px;
+        width: 200px;
+        height: 200px;
         border: solid 5px $se-black;
         border-radius: 15px;
         margin: 20px;
@@ -34,7 +34,7 @@
           justify-content: space-around;
           height: 100%;
           font-size: 16px;
-          // use tiny text here?
+          align-items: center;
         }
       }
 

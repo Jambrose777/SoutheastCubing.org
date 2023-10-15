@@ -13,7 +13,7 @@ import { ContentfulEntryId } from 'src/app/models/Contentful';
   styleUrls: ['./competitions.component.scss']
 })
 export class CompetitionsComponent implements OnInit {
-  isMobile = isMobile;
+  isMobile = isMobile();
   RegistrationStatus = RegistrationStatus;
   StateColors = StateColors;
   title: string = 'Competitions';

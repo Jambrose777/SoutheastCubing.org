@@ -11,7 +11,7 @@ import { ContentfulEntryId } from 'src/app/models/Contentful';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-  isMobile = isMobile;
+  isMobile = isMobile();
   title: string = 'Southeast Cubing';
   description: string = '';
   photos: string[] = [];

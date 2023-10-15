@@ -1,2 +1,45 @@
 @import "src/styles/color-pallet.scss";
+@import "src/styles/screen-sizes.scss";
+@import "src/styles/constants.scss";
 
+// Z-indexes are needed here. The Image Carosel has Z-Index 10000 built into it, and the nav system needs to go over it.
+
+.footer {
+  display: flex;
+  height: $footer-height;
+  width: 100%;
+  background-color: $se-dark-grey;
+
+  .close-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 10002;
+  }
+
+  .nav-container {
+    width: 100%;
+    margin-left: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10002;
+  }
+
+  .nav-container.active {
+    top: 0;
+    position: absolute;
+    height: 100vh;
+    background-color: $se-dark-grey;
+  }
+
+  .nav-container.transition {
+    top: 0;
+    position: absolute;
+    height: 100vh;
+    background-color: $se-dark-grey;
+  }
+
+}

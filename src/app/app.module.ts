@@ -17,6 +17,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { LoadingSpinnerComponent } from './components/shared/loading-spinner/loading-spinner.component';
 import { IvyCarouselModule } from 'angular-responsive-carousel';
 import { ChampionshipsComponent } from './components/pages/championships/championships.component';
+import { NavComponent } from './components/core/nav/nav.component';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -39,7 +40,8 @@ const moduleRoutes: Routes = [
     ClubsComponent,
     CompetitionsComponent,
     LoadingSpinnerComponent,
-    ChampionshipsComponent
+    ChampionshipsComponent,
+    NavComponent
   ],
   imports: [
     BrowserModule,

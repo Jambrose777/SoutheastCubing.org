@@ -6,13 +6,21 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./footer.component.scss']
 })
 export class FooterComponent implements OnInit {
+  isNavActive = false;
+  transition = false;
 
   constructor() { }
 
   ngOnInit(): void {
   }
 
-  updateTheme() {
+  // Opens / Closes the nav controls
+  toggleNav(toggled: boolean) {
+    this.isNavActive = toggled;
+    this.transition = true;
+    setTimeout(() => {
+      this.transition = false;
+    }, 500);
   }
 
 }

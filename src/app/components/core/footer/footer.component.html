@@ -1,1 +1,9 @@
+<div class="footer">
+  <!-- Nav system -->
+  <div class="nav-container" [ngClass]="{active: isNavActive, transition: transition}">
+    <se-nav [isNavActive]="isNavActive" [transition]="transition" (toggleNavEmitter)="toggleNav($event)"></se-nav>
+  </div>
 
+  <!-- Close Icon for when the nav is open -->
+  <i class="close-icon fa-solid fa-close fa-2xl clickable" *ngIf="isNavActive" (click)="toggleNav(false)"></i>
+</div>

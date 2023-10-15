@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { isMobile } from 'src/app/shared/functions';
 
 @Component({
   selector: 'header',
@@ -6,7 +7,9 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
+  isMobile = isMobile();
   @Input() title: string = 'Southeast Cubing';
+  @Input() useMediumBreakpoint: boolean = false;
   isNavActive = false;
   transition = false;
 

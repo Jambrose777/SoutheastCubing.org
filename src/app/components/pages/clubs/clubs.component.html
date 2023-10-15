@@ -59,8 +59,9 @@
         <div class="detail-container" *ngIf="selectedClub.venue || selectedClub.address">
           <b>Where?</b>
           <div class="detail-sub-container">
-            <div>{{selectedClub.venue}}</div>
-            <a [href]="'https://www.google.com/maps/search/' + selectedClub.address" target="_blank">
+            <div *ngIf="selectedClub.venue">{{selectedClub.venue}}</div>
+            <a [href]="'https://www.google.com/maps/search/' + selectedClub.address" target="_blank"
+              *ngIf="selectedClub.address">
               {{selectedClub.address}}
             </a>
           </div>
@@ -79,8 +80,15 @@
           *ngIf="selectedClub.contactName || selectedClub.contactInfo || selectedClub.website">
           <b>Contact</b>
           <div class="detail-sub-container">
-            <div>{{selectedClub.contactName}}</div>
-            <div>{{selectedClub.contactInfo}}</div>
+            <div *ngIf="selectedClub.contactName">{{selectedClub.contactName}}</div>
+            <div *ngIf="selectedClub.contactInfo">{{selectedClub.contactInfo}}</div>
+            <ng-container *ngIf="selectedClub.contactEmail">
+              <a class="btn" href="mailto:{{selectedClub.contactEmail}}" target="_blank"
+                [ngClass]="{'darker-border': selectedClub?.state === 'Tennessee'}">
+                Email
+                <i class="fa-regular fa-envelope fa-sm"></i>
+              </a>
+            </ng-container>
             <ng-container *ngIf="selectedClub.website">
               <a class="btn" [href]="'selectedClub.website'" target="_blank"
                 [ngClass]="{'darker-border': selectedClub?.state === 'Tennessee'}">

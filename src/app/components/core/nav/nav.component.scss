@@ -1,0 +1,142 @@
+@import "src/styles/color-pallet.scss";
+@import "src/styles/screen-sizes.scss";
+
+.menu {
+  position: relative;
+  width: 100px;
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.menu .navigation {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.5s;
+  transition-delay: 0.5s;
+}
+
+.menu .navigation span {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: translate(calc(14px * var(--x)), calc(14px * var(--y)));
+  transition: transform 0.5s, width 0.5s, height 0.5s;
+  transition-delay: calc(0.1s * var(--i) + 1);
+  border: 1px solid $se-black;
+}
+
+.menu .navigation span .fa-solid {
+  font-size: 0.25rem;
+  transition: 0.5s;
+}
+
+.menu .navigation.active span .fa-solid {
+  font-size: 1.75rem;
+  transition: 0.5s;
+  transition-delay: 0.5s;
+}
+
+.hidden-text {
+  display: none;
+}
+
+.menu .navigation.transitioned.active span:hover .fa-solid {
+  display: none;
+}
+
+.menu .navigation.transitioned.active span:hover .fa-solid+.hidden-text {
+  display: block;
+}
+
+.menu .navigation.active span {
+  width: 100px;
+  height: 100px;
+  border: 2px solid $se-black;
+  border-radius: 5px;
+  transform: translate(calc(133px * var(--x)), calc(133px * var(--y)));
+  transition-delay: 0.5s;
+}
+
+.black-cube {
+  background-color: $se-black;
+  color: white;
+
+  .clickable {
+    color: white;
+  }
+}
+
+.blue-cube {
+  background-color: $se-blue;
+}
+
+.green-cube {
+  background-color: $se-green;
+}
+
+.grey-cube {
+  background-color: $se-grey;
+}
+
+.orange-cube {
+  background-color: $se-orange;
+}
+
+.purple-cube {
+  background-color: $se-purple;
+}
+
+.red-cube {
+  background-color: $se-red;
+}
+
+.white-cube {
+  background-color: white;
+}
+
+.yellow-cube {
+  background-color: $se-yellow;
+}
+
+@media only screen and (max-width: $small-breakpoint) {
+  .menu .navigation.active span {
+    transform: translate(calc(120px * var(--x)), calc(120px * var(--y)));
+  }
+
+  .hidden-text {
+    font-size: 1px;
+    margin-top: 0px;
+    white-space: nowrap;
+    display: block;
+  }
+
+  .menu .navigation.transitioned.active span:hover .fa-solid {
+    display: block;
+  }
+
+  .navigation {
+    span {
+      flex-direction: column;
+    }
+  }
+
+  .active.transitioned {
+    .hidden-text {
+      display: block;
+      font-size: 16px;
+      margin-top: 20px;
+      transition: 0.5s;
+      transition-delay: 0.5s;
+    }
+  }
+}

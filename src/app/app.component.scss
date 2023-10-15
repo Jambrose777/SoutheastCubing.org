@@ -1,6 +1,5 @@
 @import "src/styles/color-pallet.scss";
-
-$website-border-size: 15px;
+@import "src/styles/constants.scss";
 
 .project-container {
   display: flex;
@@ -13,5 +12,11 @@ $website-border-size: 15px;
   }
 
   .mobile-container {
+    height: calc(100vh - $footer-height);
+    overflow-y: scroll;
+  }
+
+  footer {
+    height: $footer-height;
   }
 }

@@ -12,9 +12,9 @@ import { Colors, StateColors } from 'src/app/shared/types';
   styleUrls: ['./championships.component.scss']
 })
 export class ChampionshipsComponent implements OnInit {
-  isMobile = isMobile;
+  isMobile = isMobile();
   StateColors = StateColors;
-  title: string = 'Southeast Championship';
+  title: string = 'Southeast Championships';
   description: string = '';
   loadingContent: boolean = true;
   loadingChampionships: boolean = true;

@@ -12,7 +12,7 @@ import { Colors, StateColors } from 'src/app/shared/types';
   styleUrls: ['./delegates.component.scss']
 })
 export class DelegatesComponent implements OnInit {
-  isMobile = isMobile;
+  isMobile = isMobile();
   StateColors = StateColors;
   delegates: Delegate[];
   title: string = 'Southeast Delegates';
