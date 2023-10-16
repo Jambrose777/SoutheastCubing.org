@@ -12,11 +12,11 @@
   }
 
   .mobile-container {
-    height: calc(100vh - $footer-height);
+    height: calc(100vh - $footer-height + 10px);
     overflow-y: scroll;
   }
 
   footer {
-    height: $footer-height;
+    height: calc($footer-height - 10px);
   }
 }

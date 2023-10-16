@@ -1,6 +1,13 @@
 <div class="component-container">
   <div class="main-pane">
     <header [title]="title"></header>
+
+    <!-- Photo Carousel on Mobile -->
+    <div class="mobile-home-photo-container" *ngIf="isMobile">
+      <carousel [images]="photos" [cellsToShow]="1" [height]="200" [loop]="true" [autoplay]="true" [arrows]="false">
+      </carousel>
+    </div>
+
     <div class="large-text-content">{{description}}</div>
 
     <!-- Icons for important external links, such as social media -->
@@ -36,7 +43,7 @@
       </a>
     </div>
   </div>
-  <div class="secondary-pane">
+  <div class="secondary-pane" *ngIf="!isMobile">
     <div class="home-photo-container">
       <carousel [images]="photos" [cellsToShow]="1" [height]="500" [loop]="true" [autoplay]="true" [arrows]="false">
       </carousel>

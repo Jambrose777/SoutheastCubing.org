@@ -16,8 +16,8 @@ export class NavComponent implements OnInit {
   }
 
   // Opens / Closes the nav controls
-  toggleNav(toggled: boolean) {
-    this.toggleNavEmitter.emit(toggled);
+  toggleNav() {
+    this.toggleNavEmitter.emit(!this.isNavActive);
   }
 
 }

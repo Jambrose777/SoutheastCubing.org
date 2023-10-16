@@ -1,4 +1,4 @@
-<div class="footer">
+<div class="footer" [ngClass]="{active: isNavActive, transition: !isNavActive && transition}">
   <!-- Nav system -->
   <div class="nav-container" [ngClass]="{active: isNavActive, transition: transition}">
     <se-nav [isNavActive]="isNavActive" [transition]="transition" (toggleNavEmitter)="toggleNav($event)"></se-nav>

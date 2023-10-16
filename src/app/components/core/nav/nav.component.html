@@ -1,5 +1,5 @@
 <div class="menu">
-  <div class="navigation" (click)="toggleNav(true)" [ngClass]="{active: isNavActive, transitioned: !transition}">
+  <div class="navigation" (click)="toggleNav()" [ngClass]="{active: isNavActive, transitioned: !transition}">
     <span style="--i:5; --x:-1; --y:-1" class="blue-cube" [routerLink]="isNavActive ? '/home' : []">
       <i class="fa-solid fa-home fa-2xl clickable"></i>
       <div class="hidden-text">Home</div>

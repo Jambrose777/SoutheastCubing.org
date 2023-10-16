@@ -205,4 +205,15 @@ a {
       height: fit-content;
     }
   }
+
+  .project-container {
+    background-color: var(--main-pane-color);
+  }
+
+  .large-text-content {
+    margin: 10px 5px;
+    width: calc(100% - 10px);
+    text-align: center;
+    font-size: 24px;
+  }
 }

@@ -1,5 +1,6 @@
 @import "src/styles/color-pallet.scss";
 @import "src/styles/screen-sizes.scss";
+@import "src/styles/constants.scss";
 
 .menu {
   position: relative;
@@ -118,6 +119,10 @@
     margin-top: 0px;
     white-space: nowrap;
     display: block;
+  }
+
+  .menu {
+    height: $footer-height;
   }
 
   .menu .navigation.transitioned.active span:hover .fa-solid {

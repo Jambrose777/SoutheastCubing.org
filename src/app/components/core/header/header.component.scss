@@ -61,3 +61,16 @@
     font-size: 24px;
   }
 }
+
+@media only screen and (max-width: $small-breakpoint) {
+  .se-logo {
+    margin: 10px !important;
+  }
+
+  .se-title {
+    width: 100%;
+    margin-right: 10px !important;
+    margin-left: 10px !important;
+    text-align: center;
+  }
+}
