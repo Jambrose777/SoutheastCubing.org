@@ -1,36 +1,9 @@
-@import "src/styles/color-pallet.scss";
-
 .component-container {
-
   .main-pane {
-
     .sub-text-container {
       .sub-text-box {
         height: 150px;
       }
     }
-
-    .selected-item-container {
-
-      .delegate-details-row {
-        display: flex;
-        flex-direction: row;
-        height: 100%;
-        width: 100%;
-        margin: 30px 0;
-      }
-
-      .wca-logo-container {
-        margin: 15px auto;
-      }
-
-      .wca-logo {
-        height: 48px;
-        width: 48px;
-        cursor: pointer;
-      }
-
-    }
-
   }
 }

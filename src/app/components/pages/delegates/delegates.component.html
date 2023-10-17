@@ -3,7 +3,7 @@
     <header [title]="title"></header>
 
     <!-- Information if there is no selected Delegate (ie. initial page for Delegates) -->
-    <ng-container *ngIf="!selectedDelegate">
+    <ng-container *ngIf="isMobile || !selectedDelegate">
       <div class="large-text-content">{{description}}</div>
 
       <!-- section for external link text Bubble -->
@@ -21,34 +21,8 @@
     </ng-container>
 
     <!-- Information for selected delegate details -->
-    <div *ngIf="selectedDelegate" class="selected-item-container">
-      <!-- Delegate Name -->
-      <h2 class="title-text">
-        {{selectedDelegate.name}}
-      </h2>
-
-      <!-- Delegate Status & Location  -->
-      <div class="small-text-content">
-        {{selectedDelegate.delegateType}} - {{selectedDelegate.state}}
-      </div>
-
-      <!-- Delegate Photos in a carousel -->
-      <div class="photo-container" *ngIf="selectedDelegate.photo">
-        <img class="image medium-image" src="{{selectedDelegate.photo}}">
-      </div>
-
-      <!-- Short Delegate description -->
-      <div class="small-text-content" *ngIf="selectedDelegate.description">
-        {{selectedDelegate.description}}
-      </div>
-
-      <!-- WCA Logo -->
-      <a href="https://www.worldcubeassociation.org/persons/{{selectedDelegate.wcaid}}" target="_blank"
-        class="wca-logo-container">
-        <img src="assets/wca_logo.svg" class="wca-logo">
-      </a>
-    </div>
-
+    <se-selected-delegate *ngIf="selectedDelegate && !isMobile" [selectedDelegate]="selectedDelegate">
+    </se-selected-delegate>
   </div>
   <div class="secondary-pane">
     <div class="list-container">
@@ -56,14 +30,21 @@
       <ng-container *ngFor="let delegate of delegates;">
         <!-- Delegate Bubble -->
         <div class="item-container clickable" style="--state-color:{{StateColors[delegate.state]}}"
-          [ngClass]="{active: selectedDelegate?.name === delegate.name}" (click)="selectDelegate(delegate)">
-          <img class="thumbnail" src="{{delegate.thumbnail}}">
-          <div class="item-title">
-            {{delegate.name}}
+          [ngClass]="{active: selectedDelegate?.name === delegate.name}">
+          <div class="item-row" (click)="selectDelegate(delegate)" id="{{delegate.name}}">
+            <img class="thumbnail" src="{{delegate.thumbnail}}">
+            <div class="item-title">
+              {{delegate.name}}
+            </div>
+            <div class="item-sub-text">
+              {{delegate.state}}
+            </div>
           </div>
-          <div class="item-sub-text">
-            {{delegate.state}}
-          </div>
+
+          <!-- Information for selected competition details -->
+          <se-selected-delegate *ngIf="isMobile && selectedDelegate?.name === delegate.name"
+            [selectedDelegate]="selectedDelegate">
+          </se-selected-delegate>
         </div>
       </ng-container>
     </div>

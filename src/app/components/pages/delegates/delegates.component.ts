@@ -58,7 +58,14 @@ export class DelegatesComponent implements OnInit {
       this.themeService.setMainPaneColor(Colors.green); //resets left pane
     } else {
       this.selectedDelegate = delegate;
-      this.themeService.setMainPaneColor(StateColors[this.selectedDelegate.state]); // sets the left pane color based on state value
+      if (!this.isMobile) {
+        // sets the left pane color based on state value
+        this.themeService.setMainPaneColor(StateColors[this.selectedDelegate.state]);
+      } else {
+        setTimeout(() => {
+          document.getElementById(this.selectedDelegate.name)?.scrollIntoView({ behavior: 'smooth' });
+        }, 0);
+      }
     }
   }
 }
