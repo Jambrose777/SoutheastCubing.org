@@ -62,6 +62,13 @@ a {
         border-radius: 10px;
       }
 
+      .item-row {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        min-height: 70px;
+      }
+
       .item-title {
         font-size: 24px;
         margin: auto 0 auto 20px;
@@ -69,7 +76,7 @@ a {
 
       .item-sub-text {
         font-size: 16px;
-        margin: auto 5px auto auto;
+        margin: auto 10px auto auto;
       }
     }
 
@@ -203,6 +210,33 @@ a {
 
     .list-container {
       height: fit-content;
+      margin: 6px;
+
+      .item-container {
+        width: calc(100% - 8px);
+        margin: 4px;
+        border-radius: 10px;
+        flex-direction: column;
+
+        .item-title {
+          font-size: 20px;
+          font-weight: bold;
+          margin: auto 10px auto 5px;
+        }
+
+        .item-sub-text {
+          text-align: right;
+        }
+      }
+
+      .item-container:hover {
+        width: calc(100% - 8px);
+      }
+
+      .item-container.active {
+        width: calc(100% - 8px);
+        height: fit-content;
+      }
     }
   }
 
@@ -215,5 +249,9 @@ a {
     width: calc(100% - 10px);
     text-align: center;
     font-size: 24px;
+  }
+
+  .selected-item-container {
+    margin: 0 5px;
   }
 }

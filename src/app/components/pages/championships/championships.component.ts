@@ -7,7 +7,7 @@ import { isMobile } from 'src/app/shared/functions';
 import { Colors, StateColors } from 'src/app/shared/types';
 
 @Component({
-  selector: 'app-championships',
+  selector: 'se-championships',
   templateUrl: './championships.component.html',
   styleUrls: ['./championships.component.scss']
 })
@@ -26,7 +26,7 @@ export class ChampionshipsComponent implements OnInit {
 
   ngOnInit(): void {
     // sets up main color for the home page
-    this.themeService.setLeftPaneColor(Colors.blue);
+    this.themeService.setMainPaneColor(Colors.blue);
 
     // retireve formats data from the CMS Championships Page
     this.contentful.getContentfulEntry(ContentfulEntryId.championships).subscribe(res => {
@@ -58,10 +58,10 @@ export class ChampionshipsComponent implements OnInit {
     // deselect a championship if it is already selected
     if (this.selectedChampionship?.name === championship.name) {
       this.selectedChampionship = undefined;
-      this.themeService.setLeftPaneColor(Colors.blue);
+      this.themeService.setMainPaneColor(Colors.blue);
     } else {
       this.selectedChampionship = championship;
-      this.themeService.setLeftPaneColor(StateColors[this.selectedChampionship.state]); // sets the left pane color based on state value
+      this.themeService.setMainPaneColor(StateColors[this.selectedChampionship.state]); // sets the left pane color based on state value
     }
   }
 

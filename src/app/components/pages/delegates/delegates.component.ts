@@ -7,7 +7,7 @@ import { isMobile } from 'src/app/shared/functions';
 import { Colors, StateColors } from 'src/app/shared/types';
 
 @Component({
-  selector: 'app-delegates',
+  selector: 'se-delegates',
   templateUrl: './delegates.component.html',
   styleUrls: ['./delegates.component.scss']
 })
@@ -26,7 +26,7 @@ export class DelegatesComponent implements OnInit {
 
   ngOnInit(): void {
     // sets up main color for the home page
-    this.themeService.setLeftPaneColor(Colors.green);
+    this.themeService.setMainPaneColor(Colors.green);
 
     // retireve, sorts, and formats data from the CMS Delegates Entries
     this.contentful.getContentfulGroup(ContentfulContentType.delegates).subscribe(res => {
@@ -55,10 +55,10 @@ export class DelegatesComponent implements OnInit {
     // Check if clicking an active delegate, and delselect the delegate if so.
     if (this.selectedDelegate?.name === delegate.name) {
       this.selectedDelegate = undefined;
-      this.themeService.setLeftPaneColor(Colors.green); //resets left pane
+      this.themeService.setMainPaneColor(Colors.green); //resets left pane
     } else {
       this.selectedDelegate = delegate;
-      this.themeService.setLeftPaneColor(StateColors[this.selectedDelegate.state]); // sets the left pane color based on state value
+      this.themeService.setMainPaneColor(StateColors[this.selectedDelegate.state]); // sets the left pane color based on state value
     }
   }
 }

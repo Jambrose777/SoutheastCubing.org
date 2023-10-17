@@ -8,13 +8,12 @@ import { isMobile } from 'src/app/shared/functions';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 
 @Component({
-  selector: 'app-competitions',
+  selector: 'se-competitions',
   templateUrl: './competitions.component.html',
   styleUrls: ['./competitions.component.scss']
 })
 export class CompetitionsComponent implements OnInit {
   isMobile = isMobile();
-  RegistrationStatus = RegistrationStatus;
   StateColors = StateColors;
   title: string = 'Competitions';
   description: string = '';
@@ -28,7 +27,7 @@ export class CompetitionsComponent implements OnInit {
 
   ngOnInit(): void {
     // sets up main color for the home page
-    this.themeService.setLeftPaneColor(Colors.darkGrey);
+    this.themeService.setMainPaneColor(Colors.darkGrey);
 
     // retireve and formats data from the CMS Competitions Page
     this.contentful.getContentfulEntry(ContentfulEntryId.competitions).subscribe(res => {
@@ -50,10 +49,17 @@ export class CompetitionsComponent implements OnInit {
     // Check if clicking an active competition, and delselect the competition if so.
     if (this.selectedCompetition?.name === competition.name) {
       this.selectedCompetition = undefined;
-      this.themeService.setLeftPaneColor(Colors.darkGrey); //resets left pane
+      this.themeService.setMainPaneColor(Colors.darkGrey); //resets left pane
     } else {
       this.selectedCompetition = competition;
-      this.themeService.setLeftPaneColor(StateColors[this.selectedCompetition.state]); // sets the left pane color based on state value
+      if (!this.isMobile) {
+        // sets the left pane color based on state value
+        this.themeService.setMainPaneColor(StateColors[this.selectedCompetition.state]);
+      } else {
+        setTimeout(() => {
+          document.getElementById(this.selectedCompetition.id)?.scrollIntoView({ behavior: 'smooth' });
+        }, 0);
+      }
       if (this.selectedCompetition.registration_status === RegistrationStatus.open) {
         // fetch the registration status when drilling into a competition
         this.findRegistrationOpenStatus();

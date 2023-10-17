@@ -18,6 +18,7 @@ import { LoadingSpinnerComponent } from './components/shared/loading-spinner/loa
 import { IvyCarouselModule } from 'angular-responsive-carousel';
 import { ChampionshipsComponent } from './components/pages/championships/championships.component';
 import { NavComponent } from './components/core/nav/nav.component';
+import { SelectedCompetitionComponent } from './components/pages/competitions/selected-competition/selected-competition.component';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -41,7 +42,8 @@ const moduleRoutes: Routes = [
     CompetitionsComponent,
     LoadingSpinnerComponent,
     ChampionshipsComponent,
-    NavComponent
+    NavComponent,
+    SelectedCompetitionComponent
   ],
   imports: [
     BrowserModule,

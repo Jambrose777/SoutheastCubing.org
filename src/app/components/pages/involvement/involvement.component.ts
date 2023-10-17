@@ -3,7 +3,7 @@ import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { ContentfulService } from 'src/app/services/contentful.service';
 
 @Component({
-  selector: 'app-involvement',
+  selector: 'se-involvement',
   templateUrl: './involvement.component.html',
   styleUrls: ['./involvement.component.scss']
 })

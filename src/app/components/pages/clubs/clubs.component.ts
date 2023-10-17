@@ -7,7 +7,7 @@ import { isMobile } from 'src/app/shared/functions';
 import { Colors, StateColors } from 'src/app/shared/types';
 
 @Component({
-  selector: 'app-clubs',
+  selector: 'se-clubs',
   templateUrl: './clubs.component.html',
   styleUrls: ['./clubs.component.scss']
 })
@@ -27,7 +27,7 @@ export class ClubsComponent implements OnInit {
 
   ngOnInit(): void {
     // sets up main color for the home page
-    this.themeService.setLeftPaneColor(Colors.purple);
+    this.themeService.setMainPaneColor(Colors.purple);
 
     // retireve formats data from the CMS Clubs Page
     this.contentful.getContentfulEntry(ContentfulEntryId.clubs).subscribe(res => {
@@ -53,10 +53,10 @@ export class ClubsComponent implements OnInit {
     // deselect a club if it is already selected
     if (this.selectedClub?.name === club.name && this.selectedClub?.city === club.city) {
       this.selectedClub = undefined;
-      this.themeService.setLeftPaneColor(Colors.purple);
+      this.themeService.setMainPaneColor(Colors.purple);
     } else {
       this.selectedClub = club;
-      this.themeService.setLeftPaneColor(StateColors[this.selectedClub.state]); // sets the left pane color based on state value
+      this.themeService.setMainPaneColor(StateColors[this.selectedClub.state]); // sets the left pane color based on state value
     }
   }
 

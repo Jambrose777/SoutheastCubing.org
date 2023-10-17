@@ -6,7 +6,7 @@ import { isMobile } from 'src/app/shared/functions';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 
 @Component({
-  selector: 'app-home',
+  selector: 'se-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
@@ -21,7 +21,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     // sets up main color for the home page
-    this.themeService.setLeftPaneColor(Colors.blue);
+    this.themeService.setMainPaneColor(Colors.blue);
 
     // retireve and formats data from the CMS home Page
     this.contentful.getContentfulEntry(ContentfulEntryId.home).subscribe(res => {
