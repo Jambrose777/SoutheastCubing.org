@@ -56,7 +56,14 @@ export class ClubsComponent implements OnInit {
       this.themeService.setMainPaneColor(Colors.purple);
     } else {
       this.selectedClub = club;
-      this.themeService.setMainPaneColor(StateColors[this.selectedClub.state]); // sets the left pane color based on state value
+      if (!this.isMobile) {
+        // sets the left pane color based on state value
+        this.themeService.setMainPaneColor(StateColors[this.selectedClub.state]);
+      } else {
+        setTimeout(() => {
+          document.getElementById(this.selectedClub.name + this.selectedClub.city)?.scrollIntoView({ behavior: 'smooth' });
+        }, 0);
+      }
     }
   }
 

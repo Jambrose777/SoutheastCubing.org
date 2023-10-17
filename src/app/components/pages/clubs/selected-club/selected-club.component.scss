@@ -1,0 +1,64 @@
+@import "src/styles/color-pallet.scss";
+@import "src/styles/screen-sizes.scss";
+
+.selected-item-container {
+  .club-details-row {
+    display: flex;
+    flex-direction: row;
+    flex-flow: row wrap;
+    justify-content: center;
+    width: 100%;
+    margin: 30px 0;
+  }
+
+  .detail-container {
+    width: 200px;
+    height: 200px;
+    border: solid 5px $se-black;
+    border-radius: 15px;
+    margin: 20px;
+    padding: 15px;
+    font-size: 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+
+    .detail-sub-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      height: 100%;
+      font-size: 16px;
+      align-items: center;
+    }
+  }
+}
+
+@media only screen and (max-width: $small-breakpoint) {
+  .detail-container {
+    width: 100% !important;
+    height: fit-content !important;
+    border: none !important;
+    border-bottom: dashed 2px $se-black !important;
+    border-radius: 0 !important;
+    margin: 10px 0 0 0 !important;
+    padding: 0 !important;
+    font-size: 20px !important;
+
+    .detail-sub-container {
+      margin: 10px 0;
+    }
+  }
+
+  .club-details-row {
+    margin: 0 !important;
+
+    .detail-container:last-child {
+      border: none !important;
+    }
+  }
+
+  .btn {
+    margin: 5px auto;
+  }
+}

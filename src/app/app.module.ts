@@ -19,6 +19,7 @@ import { IvyCarouselModule } from 'angular-responsive-carousel';
 import { ChampionshipsComponent } from './components/pages/championships/championships.component';
 import { NavComponent } from './components/core/nav/nav.component';
 import { SelectedCompetitionComponent } from './components/pages/competitions/selected-competition/selected-competition.component';
+import { SelectedClubComponent } from './components/pages/clubs/selected-club/selected-club.component';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -43,7 +44,8 @@ const moduleRoutes: Routes = [
     LoadingSpinnerComponent,
     ChampionshipsComponent,
     NavComponent,
-    SelectedCompetitionComponent
+    SelectedCompetitionComponent,
+    SelectedClubComponent
   ],
   imports: [
     BrowserModule,

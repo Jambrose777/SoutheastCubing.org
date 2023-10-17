@@ -1,0 +1,11 @@
+@import "src/styles/screen-sizes.scss";
+
+.badges {
+  height: 50px;
+}
+
+@media only screen and (max-width: $small-breakpoint) {
+  .badges {
+    margin-top: 20px;
+  }
+}

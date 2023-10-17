@@ -1,0 +1,66 @@
+<div class="selected-item-container">
+  <!-- Club Name -->
+  <h2 class="title-text" *ngIf="!isMobile">
+    {{selectedClub.name}}
+  </h2>
+
+  <!-- Club Location -->
+  <div class="medium-text-content" *ngIf="!isMobile">
+    {{selectedClub.city}}
+  </div>
+
+  <!-- Club Photo -->
+  <div class="photo-container" *ngIf="selectedClub.image">
+    <img class="image" src="{{selectedClub.image}}">
+  </div>
+
+  <!-- Short Club description -->
+  <div class="medium-text-content" *ngIf="selectedClub.description">
+    {{selectedClub.description}}
+  </div>
+
+  <div class="club-details-row" [ngClass]="{'darker-border': selectedClub?.state === 'TN'}">
+    <!-- Bubble for the venue of the club -->
+    <div class="detail-container" *ngIf="selectedClub.venue || selectedClub.address">
+      <b>Where?</b>
+      <div class="detail-sub-container">
+        <div *ngIf="selectedClub.venue">{{selectedClub.venue}}</div>
+        <a [href]="'https://www.google.com/maps/search/' + selectedClub.address" target="_blank"
+          *ngIf="selectedClub.address">
+          {{selectedClub.address}}
+        </a>
+      </div>
+    </div>
+
+    <!-- Bubble for when the club's meetings are -->
+    <div class="detail-container" *ngIf="selectedClub.meetingInformation">
+      <b>When?</b>
+      <div class="detail-sub-container">
+        {{selectedClub.meetingInformation}}
+      </div>
+    </div>
+
+    <!-- Bubble for who to contact for information about the club -->
+    <div class="detail-container" *ngIf="selectedClub.contactName || selectedClub.contactInfo || selectedClub.website">
+      <b>Contact</b>
+      <div class="detail-sub-container">
+        <div *ngIf="selectedClub.contactName">{{selectedClub.contactName}}</div>
+        <div *ngIf="selectedClub.contactInfo">{{selectedClub.contactInfo}}</div>
+        <ng-container *ngIf="selectedClub.contactEmail">
+          <a class="btn" href="mailto:{{selectedClub.contactEmail}}" target="_blank"
+            [ngClass]="{'darker-border': selectedClub?.state === 'Tennessee'}">
+            Email
+            <i class="fa-regular fa-envelope fa-sm"></i>
+          </a>
+        </ng-container>
+        <ng-container *ngIf="selectedClub.website">
+          <a class="btn" [href]="'selectedClub.website'" target="_blank"
+            [ngClass]="{'darker-border': selectedClub?.state === 'Tennessee'}">
+            Website
+            <i class="fa-solid fa-up-right-from-square fa-sm"></i>
+          </a>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
