@@ -1,0 +1,66 @@
+<div *ngIf="selectedChampionship" class="selected-item-container">
+  <!-- Championship Name -->
+  <a [href]="'https://www.worldcubeassociation.org/competitions/' + selectedChampionship.id" target="_blank"
+    class="name-container" *ngIf="!isMobile">
+    <!-- Competition Logo -->
+    <img src="{{selectedChampionship.logo}}" class="competitiion-logo">
+
+    <h2 class="title-text">
+      {{selectedChampionship.name}}
+    </h2>
+
+    <!-- WCA Logo -->
+    <img src="assets/wca_logo.svg" class="wca-logo">
+  </a>
+
+  <!-- Championship Location -->
+  <div class="small-text-content">
+    <span *ngIf="!isMobile">{{selectedChampionship.city}} -</span>
+    <a [href]="'https://www.worldcubeassociation.org/competitions/' + selectedChampionship.id" target="_blank"
+      *ngIf="isMobile">
+      <img src="assets/wca_logo.svg" class="wca-logo-small">
+    </a>
+    {{selectedChampionship.date}} -
+    {{selectedChampionship.competitors}} Competitors
+  </div>
+
+  <!-- Championship Photos in a carousel -->
+  <div class="photo-container" *ngIf="selectedChampionship.images">
+    <carousel [images]="selectedChampionship.images" [cellsToShow]="1" [height]="300" [loop]="true" [autoplay]="true"
+      [arrows]="false">
+    </carousel>
+  </div>
+
+  <!-- Short Championship description -->
+  <div class="small-text-content" *ngIf="selectedChampionship.description">
+    {{selectedChampionship.description}}
+  </div>
+
+  <!-- Champions Table -->
+  <div class="champions-table">
+    <div class="row header">
+      <div class="col-2 border"><span class="table-text"><b>Event</b></span></div>
+      <div class="col-3 border"><span class="table-text"><b>Southeast Champion</b></span></div>
+      <div class="col-3"><span class="table-text"><b>Overall Champion</b></span></div>
+    </div>
+    <ng-container *ngFor="let champion of selectedChampionship.champions;">
+      <div class="row">
+        <div class="col-2 border"><span class="table-text"><b>{{champion.event}}</b></span></div>
+
+        <!-- If overall champion is provided, list each se champion and overall -->
+        <ng-container *ngIf="champion.overallChampName">
+          <div class="col-3 border"><span class="table-text">{{champion.seChampName}} -
+              {{champion.seChampResult}}</span></div>
+          <div class="col-3"><span class="table-text">{{champion.overallChampName}} -
+              {{champion.overallChampResult}}</span></div>
+        </ng-container>
+
+        <!-- If overall champion is not provided, list se champion for both -->
+        <ng-container *ngIf="!champion.overallChampName">
+          <div class="col-6"><span class="table-text">{{champion.seChampName}} - {{champion.seChampResult}}</span></div>
+        </ng-container>
+      </div>
+    </ng-container>
+  </div>
+  <div>&nbsp;</div>
+</div>

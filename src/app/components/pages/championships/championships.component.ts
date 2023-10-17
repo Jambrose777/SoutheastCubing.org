@@ -61,7 +61,14 @@ export class ChampionshipsComponent implements OnInit {
       this.themeService.setMainPaneColor(Colors.blue);
     } else {
       this.selectedChampionship = championship;
-      this.themeService.setMainPaneColor(StateColors[this.selectedChampionship.state]); // sets the left pane color based on state value
+      if (!this.isMobile) {
+        // sets the left pane color based on state value
+        this.themeService.setMainPaneColor(StateColors[this.selectedChampionship.state]);
+      } else {
+        setTimeout(() => {
+          document.getElementById(this.selectedChampionship.id)?.scrollIntoView({ behavior: 'smooth' });
+        }, 0);
+      }
     }
   }
 

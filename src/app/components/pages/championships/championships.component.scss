@@ -1,101 +1,30 @@
-@import "src/styles/color-pallet.scss";
 @import "src/styles/screen-sizes.scss";
 
 .component-container {
-
   .main-pane {
-
     .large-text-content {
       font-size: 24px;
     }
 
-    .selected-item-container {
-
-      .name-container {
-        display: flex;
-        flex-direction: row;
-        margin-top: 30px;
-      }
-
-      .title-text {
-        margin: 0;
-      }
-
-      .wca-logo {
-        height: 80px;
-        margin: auto 20px auto 10px;
-        cursor: pointer;
-      }
-
-      .competitiion-logo {
-        height: 80px;
-        margin: auto 10px auto 20px;
-        cursor: pointer;
-        border-radius: 10px;
-      }
-
-      .champions-table {
-        border: 3px solid $se-black;
-        border-radius: 10px;
-        width: 80%;
-        margin: 30px auto 20px auto;
-        display: flex;
-        flex-direction: column;
-        text-align: center;
-
-        .row {
-          display: flex;
-          flex-direction: row;
-          width: 100%;
-          border-bottom: 1px solid $se-black;
-        }
-
-        .border {
-          border-right: 1px solid $se-black;
-        }
-
-        .col-1 {
-          width: 12.5%;
-          padding: 3px 0;
-        }
-
-        .col-2 {
-          width: 25%;
-          padding: 3px 0;
-        }
-
-        .col-3 {
-          width: 37.5%;
-          padding: 3px 0;
-        }
-
-        .col-4 {
-          width: 50%;
-          padding: 3px 0;
-        }
-
-        .col-6 {
-          width: 75%;
-          padding: 3px 0;
-        }
-      }
-
+    .badges {
+      height: 50px;
     }
-
   }
 }
 
 @media only screen and (max-width: $medium-breakpoint) {
-  .title-text {
-    font-size: 32px;
+  .item-title {
+    font-size: 20px !important;
   }
+}
 
-  .champions-table {
-    font-size: 14px;
+@media only screen and (max-width: $small-breakpoint) {
+  .badges {
+    margin-top: 20px;
   }
 
   .item-title {
-    font-size: 20px !important;
+    font-size: 16px !important;
   }
 }
 

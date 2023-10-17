@@ -21,6 +21,7 @@ import { NavComponent } from './components/core/nav/nav.component';
 import { SelectedCompetitionComponent } from './components/pages/competitions/selected-competition/selected-competition.component';
 import { SelectedClubComponent } from './components/pages/clubs/selected-club/selected-club.component';
 import { SelectedDelegateComponent } from './components/pages/delegates/selected-delegate/selected-delegate.component';
+import { SelectedChampionshipComponent } from './components/pages/championships/selected-championship/selected-championship.component';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -47,7 +48,8 @@ const moduleRoutes: Routes = [
     NavComponent,
     SelectedCompetitionComponent,
     SelectedClubComponent,
-    SelectedDelegateComponent
+    SelectedDelegateComponent,
+    SelectedChampionshipComponent
   ],
   imports: [
     BrowserModule,
