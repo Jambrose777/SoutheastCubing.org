@@ -1,5 +1,6 @@
 @import "src/styles/color-pallet.scss";
 @import "src/styles/constants.scss";
+@import "src/styles/screen-sizes.scss";
 
 .project-container {
   display: flex;
@@ -12,11 +13,18 @@
   }
 
   .mobile-container {
-    height: calc(100vh - $footer-height + 10px);
+    height: calc(100% - $footer-height + 10px);
     overflow-y: scroll;
   }
 
   footer {
     height: calc($footer-height - 10px);
+  }
+}
+
+@media only screen and (max-width: $small-breakpoint) {
+  .project-container {
+    height: 100vh;
+    max-height: -webkit-fill-available;
   }
 }
