@@ -2,8 +2,11 @@
   <div class="main-pane">
     <header id="header" [title]="title" [useMediumBreakpoint]="true"></header>
 
+    <!-- Loading Spinner -->
+    <loading-spinner *ngIf="loadingContent"></loading-spinner>
+
     <!-- Information if there is no selected championship (ie. initial page for Championships) -->
-    <ng-container *ngIf="isMobile || !selectedChampionship">
+    <ng-container *ngIf="!loadingContent && (isMobile || !selectedChampionship)">
       <div class="large-text-content">{{description}}</div>
 
       <div class="sub-text-container">
@@ -32,8 +35,11 @@
   </div>
 
   <div class="secondary-pane">
+    <!-- Loading Spinner -->
+    <loading-spinner *ngIf="loadingChampionships"></loading-spinner>
+
     <!-- List for all loaded championships -->
-    <div class="list-container">
+    <div class="list-container" *ngIf="!loadingChampionships">
       <ng-container *ngFor="let championship of championships;">
         <!-- Championship Bubble -->
         <div class="item-container clickable" style="--state-color:{{StateColors[championship.state]}}"

@@ -2,8 +2,11 @@
   <div class="main-pane">
     <header id="header" [title]="title"></header>
 
+    <!-- Loading Spinner -->
+    <loading-spinner *ngIf="loadingContent" [isDark]="true"></loading-spinner>
+
     <!-- Information if there is no selected sub topic (ie. initial page for Involvement) -->
-    <ng-container *ngIf="isMobile || !selectedSubTopic">
+    <ng-container *ngIf="!loadingContent && (isMobile || !selectedSubTopic)">
       <div class="large-text-content">{{description}}</div>
 
       <!-- section for external link text Bubble -->
@@ -26,8 +29,11 @@
   </div>
 
   <div class="secondary-pane">
+    <!-- Loading Spinner -->
+    <loading-spinner *ngIf="loadingContent"></loading-spinner>
+
     <!-- List for all loaded sub topics -->
-    <div class="list-container">
+    <div class="list-container" *ngIf="!loadingContent">
       <ng-container *ngFor="let subTopic of subTopics;">
         <!-- Sub Topic Bubble -->
         <div class="item-container clickable" style="--state-color:{{subTopic.color}}"

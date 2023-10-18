@@ -2,8 +2,11 @@
   <div class="main-pane">
     <header id="header" [title]="title"></header>
 
+    <!-- Loading Spinner -->
+    <loading-spinner *ngIf="loadingContent"></loading-spinner>
+
     <!-- Information if there is no selected club (ie. initial page for Clubs) -->
-    <ng-container *ngIf="isMobile || !selectedClub">
+    <ng-container *ngIf="!loadingContent && (isMobile || !selectedClub)">
       <div class="large-text-content">{{description}}</div>
 
       <div class="sub-text-container">
@@ -38,8 +41,11 @@
   </div>
 
   <div class="secondary-pane">
+    <!-- Loading Spinner -->
+    <loading-spinner *ngIf="loadingClubs"></loading-spinner>
+
     <!-- List for all loaded clubs -->
-    <div class="list-container">
+    <div class="list-container" *ngIf="!loadingClubs">
       <ng-container *ngFor="let club of clubs;">
         <!-- Club Bubble -->
         <div class="item-container clickable" style="--state-color:{{StateColors[club.state]}}"

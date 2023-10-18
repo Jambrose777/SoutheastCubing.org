@@ -2,13 +2,19 @@
   <div class="main-pane">
     <header id="header" [title]="title"></header>
 
+    <!-- Loading Spinner -->
+    <loading-spinner *ngIf="loadingContent"></loading-spinner>
+
     <!-- Information -->
-    <div class="large-text-content">{{description}}</div>
+    <div class="large-text-content" *ngIf="!loadingContent">{{description}}</div>
   </div>
 
   <div class="secondary-pane">
+    <!-- Loading Spinner -->
+    <loading-spinner *ngIf="loadingTeams"></loading-spinner>
+
     <!-- List for all loaded teams -->
-    <div class="list-container">
+    <div class="list-container" *ngIf="!loadingTeams">
       <ng-container *ngFor="let team of teams;">
         <!-- Team Bubble -->
         <div class="team-container">

@@ -2,8 +2,11 @@
   <div class="main-pane">
     <header id="header" [title]="title"></header>
 
+    <!-- Loading Spinner -->
+    <loading-spinner *ngIf="loadingContent"></loading-spinner>
+
     <!-- Information if there is no selected competition (ie. initial page for Competitions) -->
-    <ng-container *ngIf="isMobile || !selectedCompetition">
+    <ng-container *ngIf="!loadingContent && (isMobile || !selectedCompetition)">
       <div class="large-text-content">{{description}}</div>
 
       <!-- section for external links text Bubble -->
@@ -27,7 +30,10 @@
     </se-selected-competition>
   </div>
   <div class="secondary-pane">
-    <div class="list-container">
+    <!-- Loading Spinner -->
+    <loading-spinner *ngIf="loadingCompetitions"></loading-spinner>
+
+    <div class="list-container" *ngIf="!loadingCompetitions">
       <!-- List for all loaded competitions -->
       <ng-container *ngFor="let competition of competitions;">
         <!-- Competition Bubble -->

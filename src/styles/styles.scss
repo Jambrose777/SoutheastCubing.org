@@ -192,6 +192,10 @@ a {
   max-height: 400px;
 }
 
+loading-spinner {
+  margin: auto;
+}
+
 @media only screen and (max-width: $small-breakpoint) {
   .component-container {
     flex-direction: column;
