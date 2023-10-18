@@ -8,6 +8,7 @@ export enum Colors {
   purple = '#BCABE3',
   orange = '#FFA460',
   red = '#E69291',
+  white = 'white'
 }
 
 export enum RegistrationStatus {

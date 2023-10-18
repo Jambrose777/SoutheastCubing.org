@@ -25,7 +25,7 @@ export class DelegatesComponent implements OnInit {
   constructor(private contentful: ContentfulService, private themeService: ThemeService) { }
 
   ngOnInit(): void {
-    // sets up main color for the home page
+    // sets up main color for the delegates page
     this.themeService.setMainPaneColor(Colors.green);
 
     // retireve, sorts, and formats data from the CMS Delegates Entries

@@ -1,4 +1,4 @@
-<div *ngIf="selectedDelegate" class="selected-item-container">
+<div class="selected-item-container">
   <!-- Delegate Name -->
   <h2 class="title-text" *ngIf="!isMobile">
     {{selectedDelegate.name}}
@@ -9,7 +9,7 @@
     {{selectedDelegate.delegateType}}<span *ngIf="!isMobile"> - {{selectedDelegate.state}}</span>
   </div>
 
-  <!-- Delegate Photos in a carousel -->
+  <!-- Delegate Photo -->
   <div class="photo-container" *ngIf="selectedDelegate.photo">
     <img class="image medium-image" src="{{selectedDelegate.photo}}">
   </div>

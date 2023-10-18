@@ -1,0 +1,25 @@
+@import "src/styles/color-pallet.scss";
+@import "src/styles/screen-sizes.scss";
+
+.photo-container {
+  width: 80%;
+}
+
+.medium-text-content {
+  margin: 15px auto;
+}
+
+.btn {
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+@media only screen and (max-width: $small-breakpoint) {
+  .photo-container {
+    width: 100%;
+  }
+
+  .btn {
+    font-size: 20px;
+  }
+}

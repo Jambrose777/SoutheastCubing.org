@@ -1,0 +1,33 @@
+<div class="selected-item-container">
+  <!-- Topic Title -->
+  <h2 class="title-text" *ngIf="!isMobile">
+    {{selectedSubTopic.title}}
+  </h2>
+
+  <!-- Topic Photo -->
+  <div class="photo-container" *ngIf="selectedSubTopic.photo">
+    <img class="image medium-image" src="{{selectedSubTopic.photo}}">
+  </div>
+
+  <!-- Short Delegate description -->
+  <div class="medium-text-content" *ngIf="selectedSubTopic.description">
+    {{selectedSubTopic.description}}
+  </div>
+
+  <!-- Button for link to relevant page -->
+  <div *ngIf="selectedSubTopic.buttonText">
+    <!-- External -->
+    <a class="btn darker-border" [href]="selectedSubTopic.buttonExternalLink" target="_blank"
+      *ngIf="selectedSubTopic.buttonExternalLink">
+      {{selectedSubTopic.buttonText}}
+      <i class="fa-solid {{selectedSubTopic.buttonIcon}} fa-lg" *ngIf="selectedSubTopic.buttonIcon"></i>
+    </a>
+
+    <!-- Internal -->
+    <a class="btn darker-border" [routerLink]="'/' + selectedSubTopic.buttonInternalLink"
+      *ngIf="selectedSubTopic.buttonInternalLink">
+      {{selectedSubTopic.buttonText}}
+      <i class="fa-solid {{selectedSubTopic.buttonIcon}} fa-lg" *ngIf="selectedSubTopic.buttonIcon"></i>
+    </a>
+  </div>
+</div>

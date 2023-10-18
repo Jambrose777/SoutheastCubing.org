@@ -25,7 +25,7 @@ export class ChampionshipsComponent implements OnInit {
   constructor(private contentful: ContentfulService, private themeService: ThemeService) { }
 
   ngOnInit(): void {
-    // sets up main color for the home page
+    // sets up main color for the championships page
     this.themeService.setMainPaneColor(Colors.blue);
 
     // retireve formats data from the CMS Championships Page
