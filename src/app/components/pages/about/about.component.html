@@ -1,0 +1,30 @@
+<div class="component-container">
+  <div class="main-pane">
+    <header [title]="title"></header>
+
+    <!-- Information -->
+    <div class="large-text-content">{{description}}</div>
+  </div>
+
+  <div class="secondary-pane">
+    <!-- List for all loaded teams -->
+    <div class="list-container">
+      <ng-container *ngFor="let team of teams;">
+        <!-- Team Bubble -->
+        <div class="team-container">
+          <div class="team-row">
+            <div class="team-title">
+              <b>{{team.name}}</b>
+            </div>
+            <div class="team-description">
+              {{team.description}}
+            </div>
+            <div class="team-persons">
+              {{team.persons}}
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

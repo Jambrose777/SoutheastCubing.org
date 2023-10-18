@@ -36,7 +36,6 @@ export class ChampionshipsComponent implements OnInit {
       this.loadingContent = false;
     });
 
-
     // retrieve, sorts, and formats the championships list from the CMS Championships
     this.contentful.getContentfulGroup(ContentfulContentType.championships).subscribe(res => {
       this.championships = res.items

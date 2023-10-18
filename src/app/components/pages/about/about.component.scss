@@ -1,0 +1,37 @@
+@import "src/styles/color-pallet.scss";
+@import "src/styles/screen-sizes.scss";
+
+.list-container {
+  margin-right: 20px;
+}
+
+.team-container {
+  color: $se-grey;
+  border-bottom: 3px dashed $se-dark-grey;
+  margin-bottom: 20px;
+
+  .team-row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+
+  .team-title {
+    font-size: 24px;
+  }
+
+  .team-description {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .team-persons {
+    font-size: 16px;
+  }
+}
+
+@media only screen and (max-width: $small-breakpoint) {
+  .list-container {
+    margin-top: 20px;
+  }
+}

@@ -25,6 +25,7 @@ import { SelectedChampionshipComponent } from './components/pages/championships/
 import { SelectedSubTopicComponent } from './components/shared/selected-sub-topic/selected-sub-topic.component';
 import { OrganizersComponent } from './components/pages/organizers/organizers.component';
 import { ContactComponent } from './components/pages/contact/contact.component';
+import { AboutComponent } from './components/pages/about/about.component';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -36,6 +37,7 @@ const moduleRoutes: Routes = [
   { path: 'championships', component: ChampionshipsComponent },
   { path: 'organizers', component: OrganizersComponent },
   { path: 'contact', component: ContactComponent },
+  { path: 'about', component: AboutComponent },
 ];
 
 @NgModule({
@@ -57,7 +59,8 @@ const moduleRoutes: Routes = [
     SelectedChampionshipComponent,
     SelectedSubTopicComponent,
     OrganizersComponent,
-    ContactComponent
+    ContactComponent,
+    AboutComponent
   ],
   imports: [
     BrowserModule,

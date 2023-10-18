@@ -7,10 +7,12 @@ export enum ContentfulEntryId {
   championships = '3WtF99CMBrSeRiznpCVbjp',
   organizers = '4t8K8QdofzsnF25yJtny3x',
   contact = '2MMlKe63oGgs6881etRkSg',
+  about = '15e2e1QADVMwVPci6a7PxE',
 }
 
 export enum ContentfulContentType {
   delegates = 'delegates',
   clubs = 'clubs',
   championships = 'championships',
+  teams = 'teams',
 }
