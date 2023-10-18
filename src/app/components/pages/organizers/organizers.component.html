@@ -1,0 +1,49 @@
+<div class="component-container">
+  <div class="main-pane">
+    <header [title]="title"></header>
+
+    <!-- Information if there is no selected sub topic (ie. initial page for Involvement) -->
+    <ng-container *ngIf="isMobile || !selectedSubTopic">
+      <div class="large-text-content">{{description}}</div>
+
+      <!-- section for external link text Bubble -->
+      <div class="sub-text-container">
+        <div class="sub-text-box">
+          {{subText}}
+          <div>
+            <a class="btn darker-border" [href]="'https://forms.gle/ESvjBYizZ4WzdyNk9'" target="_blank">
+              Apply Here
+              <i class="fa-solid fa-up-right-from-square fa-sm"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Information for selected subTopic details -->
+    <se-selected-sub-topic *ngIf="selectedSubTopic && !isMobile" [selectedSubTopic]="selectedSubTopic">
+    </se-selected-sub-topic>
+  </div>
+
+  <div class="secondary-pane">
+    <!-- List for all loaded sub topics -->
+    <div class="list-container">
+      <ng-container *ngFor="let subTopic of subTopics;">
+        <!-- Sub Topic Bubble -->
+        <div class="item-container clickable" style="--state-color:{{subTopic.color}}"
+          [ngClass]="{active: selectedSubTopic?.title === subTopic.title}">
+          <div class="item-row" (click)="selectSubTopic(subTopic)" id="{{subTopic.title}}">
+            <div class="item-title">
+              {{subTopic.title}}
+            </div>
+          </div>
+
+          <!-- Information for selected Sub Topic details -->
+          <se-selected-sub-topic *ngIf="isMobile && selectedSubTopic?.title === subTopic.title"
+            [selectedSubTopic]="selectedSubTopic">
+          </se-selected-sub-topic>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

@@ -23,6 +23,7 @@ import { SelectedClubComponent } from './components/pages/clubs/selected-club/se
 import { SelectedDelegateComponent } from './components/pages/delegates/selected-delegate/selected-delegate.component';
 import { SelectedChampionshipComponent } from './components/pages/championships/selected-championship/selected-championship.component';
 import { SelectedSubTopicComponent } from './components/shared/selected-sub-topic/selected-sub-topic.component';
+import { OrganizersComponent } from './components/pages/organizers/organizers.component';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -32,6 +33,7 @@ const moduleRoutes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'involvement', component: InvolvementComponent },
   { path: 'championships', component: ChampionshipsComponent },
+  { path: 'organizers', component: OrganizersComponent },
 ];
 
 @NgModule({
@@ -51,7 +53,8 @@ const moduleRoutes: Routes = [
     SelectedClubComponent,
     SelectedDelegateComponent,
     SelectedChampionshipComponent,
-    SelectedSubTopicComponent
+    SelectedSubTopicComponent,
+    OrganizersComponent
   ],
   imports: [
     BrowserModule,

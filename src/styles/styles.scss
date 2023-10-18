@@ -104,12 +104,14 @@ a {
   width: calc(100% - 60px);
   text-align: center;
   font-size: 30px;
+  white-space: pre-wrap;
 }
 
 .medium-text-content {
   text-align: center;
   font-size: 24px;
   margin: 5px auto;
+  white-space: pre-wrap;
 }
 
 .small-text-content {

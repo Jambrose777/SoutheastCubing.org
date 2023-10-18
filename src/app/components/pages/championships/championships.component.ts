@@ -49,7 +49,6 @@ export class ChampionshipsComponent implements OnInit {
         }))
         .sort((a: Championship, b: Championship) => a.year < b.year ? 1 : -1);
       this.loadingChampionships = false;
-      console.log(this.championships)
     });
   }
 

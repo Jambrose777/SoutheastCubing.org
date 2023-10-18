@@ -37,7 +37,6 @@ export class DelegatesComponent implements OnInit {
           photo: delegate.fields['photo']?.fields.file.url,
           thumbnail: delegate.fields['thumbnail']?.fields.file.url,
         } as Delegate));
-      console.log(this.delegates)
       this.loadingDelegates = false;
     });
 
