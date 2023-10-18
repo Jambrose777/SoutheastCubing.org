@@ -37,7 +37,6 @@ export class AboutComponent implements OnInit {
       this.teams = res.items
         .map(team => ({
           ...team.fields,
-          color: Colors[team.fields.color]
         }))
         .sort((a: Team, b: Team) => a.order > b.order ? 1 : -1);
       this.loadingTeams = false;

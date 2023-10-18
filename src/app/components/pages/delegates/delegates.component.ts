@@ -64,6 +64,9 @@ export class DelegatesComponent implements OnInit {
       if (!this.isMobile) {
         // sets the left pane color based on state value
         this.themeService.setMainPaneColor(StateColors[this.selectedDelegate.state]);
+
+        //scroll to top of main pane
+        document.getElementById("header")?.scrollIntoView();
       } else {
         setTimeout(() => {
           document.getElementById(this.selectedDelegate.name)?.scrollIntoView({ behavior: 'smooth' });

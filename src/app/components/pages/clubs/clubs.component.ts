@@ -63,6 +63,9 @@ export class ClubsComponent implements OnInit {
       if (!this.isMobile) {
         // sets the left pane color based on state value
         this.themeService.setMainPaneColor(StateColors[this.selectedClub.state]);
+
+        //scroll to top of main pane
+        document.getElementById("header")?.scrollIntoView();
       } else {
         setTimeout(() => {
           document.getElementById(this.selectedClub.name + this.selectedClub.city)?.scrollIntoView({ behavior: 'smooth' });

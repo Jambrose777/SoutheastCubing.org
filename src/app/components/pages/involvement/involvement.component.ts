@@ -49,6 +49,9 @@ export class InvolvementComponent implements OnInit {
       if (!this.isMobile) {
         // sets the left pane color based on state value
         this.themeService.setMainPaneColor(subTopic.color);
+
+        //scroll to top of main pane
+        document.getElementById("header")?.scrollIntoView();
       } else {
         setTimeout(() => {
           document.getElementById(this.selectedSubTopic.title)?.scrollIntoView({ behavior: 'smooth' });

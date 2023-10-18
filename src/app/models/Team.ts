@@ -3,5 +3,4 @@ export class Team {
   description: string;
   persons: string;
   order: string;
-  color: string;
 }

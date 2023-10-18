@@ -66,6 +66,9 @@ export class ChampionshipsComponent implements OnInit {
       if (!this.isMobile) {
         // sets the left pane color based on state value
         this.themeService.setMainPaneColor(StateColors[this.selectedChampionship.state]);
+
+        //scroll to top of main pane
+        document.getElementById("header")?.scrollIntoView();
       } else {
         setTimeout(() => {
           document.getElementById(this.selectedChampionship.id)?.scrollIntoView({ behavior: 'smooth' });
