@@ -1,0 +1,13 @@
+@import "src/styles/color-pallet.scss";
+
+.secondary-pane {
+  height: 300px;
+}
+
+.badges {
+  margin: auto;
+
+  .fa-solid {
+    color: $se-grey;
+  }
+}

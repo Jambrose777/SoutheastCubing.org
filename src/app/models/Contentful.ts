@@ -6,6 +6,7 @@ export enum ContentfulEntryId {
   involvement = '5L5pulcP34CUhYZ1OuhDDv',
   championships = '3WtF99CMBrSeRiznpCVbjp',
   organizers = '4t8K8QdofzsnF25yJtny3x',
+  contact = '2MMlKe63oGgs6881etRkSg',
 }
 
 export enum ContentfulContentType {
