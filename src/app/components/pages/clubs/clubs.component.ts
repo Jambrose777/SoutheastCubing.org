@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Club } from 'src/app/models/Club';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { ContentfulService } from 'src/app/services/contentful.service';
+import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { isMobile } from 'src/app/shared/functions';
 import { Colors, StateColors } from 'src/app/shared/types';
@@ -23,7 +24,7 @@ export class ClubsComponent implements OnInit {
   subText1: string = '';
   subText2: string = '';
 
-  constructor(private contentful: ContentfulService, private themeService: ThemeService) { }
+  constructor(private contentful: ContentfulService, private themeService: ThemeService, private navService: NavService) { }
 
   ngOnInit(): void {
     // sets up main color for the clubs page
@@ -50,6 +51,9 @@ export class ClubsComponent implements OnInit {
 
   // sets a club as the selected Club to drill details
   selectClub(club: Club) {
+    // close Nav
+    this.navService.closeNav();
+
     // deselect a club if it is already selected
     if (this.selectedClub?.name === club.name && this.selectedClub?.city === club.city) {
       this.selectedClub = undefined;

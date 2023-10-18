@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Championship } from 'src/app/models/Championship';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { ContentfulService } from 'src/app/services/contentful.service';
+import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { isMobile } from 'src/app/shared/functions';
 import { Colors, StateColors } from 'src/app/shared/types';
@@ -22,7 +23,7 @@ export class ChampionshipsComponent implements OnInit {
   selectedChampionship: Championship;
   subText1: string = '';
 
-  constructor(private contentful: ContentfulService, private themeService: ThemeService) { }
+  constructor(private contentful: ContentfulService, private themeService: ThemeService, private navService: NavService) { }
 
   ngOnInit(): void {
     // sets up main color for the championships page
@@ -53,6 +54,9 @@ export class ChampionshipsComponent implements OnInit {
 
   // sets a championship as the selected Championship to drill details
   selectChampionship(championship: Championship) {
+    // close Nav
+    this.navService.closeNav();
+
     // deselect a championship if it is already selected
     if (this.selectedChampionship?.name === championship.name) {
       this.selectedChampionship = undefined;

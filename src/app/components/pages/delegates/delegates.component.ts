@@ -2,6 +2,7 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { Delegate } from 'src/app/models/Delegate';
 import { ContentfulService } from 'src/app/services/contentful.service';
+import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { isMobile } from 'src/app/shared/functions';
 import { Colors, StateColors } from 'src/app/shared/types';
@@ -22,7 +23,7 @@ export class DelegatesComponent implements OnInit {
   loadingDelegates: boolean = true;
   selectedDelegate: Delegate;
 
-  constructor(private contentful: ContentfulService, private themeService: ThemeService) { }
+  constructor(private contentful: ContentfulService, private themeService: ThemeService, private navService: NavService) { }
 
   ngOnInit(): void {
     // sets up main color for the delegates page
@@ -51,6 +52,9 @@ export class DelegatesComponent implements OnInit {
 
   // selects a delegate to drill in details on
   selectDelegate(delegate: Delegate) {
+    // close Nav
+    this.navService.closeNav();
+
     // Check if clicking an active delegate, and delselect the delegate if so.
     if (this.selectedDelegate?.name === delegate.name) {
       this.selectedDelegate = undefined;

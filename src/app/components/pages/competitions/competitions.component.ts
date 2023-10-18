@@ -6,6 +6,7 @@ import { Colors, RegistrationStatus, StateColors } from 'src/app/shared/types';
 import { WcaService } from 'src/app/services/wca.service';
 import { isMobile } from 'src/app/shared/functions';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
+import { NavService } from 'src/app/services/nav.service';
 
 @Component({
   selector: 'se-competitions',
@@ -23,7 +24,7 @@ export class CompetitionsComponent implements OnInit {
   selectedCompetition: Competition;
   subText: string = '';
 
-  constructor(private contentful: ContentfulService, private wca: WcaService, private themeService: ThemeService) { }
+  constructor(private contentful: ContentfulService, private wca: WcaService, private themeService: ThemeService, private navService: NavService) { }
 
   ngOnInit(): void {
     // sets up main color for the competitions page
@@ -46,6 +47,9 @@ export class CompetitionsComponent implements OnInit {
 
   // selects a competition to drill in details on
   selectCompetition(competition: Competition) {
+    // close Nav
+    this.navService.closeNav();
+
     // Check if clicking an active competition, and delselect the competition if so.
     if (this.selectedCompetition?.name === competition.name) {
       this.selectedCompetition = undefined;
