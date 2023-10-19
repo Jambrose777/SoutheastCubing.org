@@ -20,8 +20,8 @@
       *ngIf="isMobile">
       <img src="assets/wca_logo.svg" class="wca-logo-small">
     </a>
-    {{selectedChampionship.date}} -
-    {{selectedChampionship.competitors}} Competitors
+    {{selectedChampionship.date}}
+    <span *ngIf="selectedChampionship.competitors">- {{selectedChampionship.competitors}} Competitors</span>
   </div>
 
   <!-- Championship Photos in a carousel -->
@@ -37,7 +37,7 @@
   </div>
 
   <!-- Champions Table -->
-  <div class="champions-table">
+  <div class="champions-table" *ngIf="selectedChampionship.champions">
     <div class="row header">
       <div class="col-2 border"><span class="table-text"><b>Event</b></span></div>
       <div class="col-3 border"><span class="table-text"><b>Southeast Champion</b></span></div>
