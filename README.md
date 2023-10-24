@@ -1,15 +1,16 @@
 # SoutheastCubing
 
 This project is for the organization website SoutheastCubing.org.
-FE: Angular 14.1.3.
+FE: Angular 14.1.3
+BE: NodeJs v16.15.0
 Content: Contentful CMS
 Deployment: AWS
 
-## Development server
+## FE Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-## Deployment
+## FE Deployment
 
 - Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 - Compress dist/
@@ -23,3 +24,12 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The appli
 - unzip the compressed folder `unzip dist.zip`
 - move files into correct folder `mv dist/southeast-cubing/* .`
 - restart server `service httpd restart` or start server `service httpd start`
+
+## BE Development server
+Run `node backend/app.js`
+
+## BE Deployment
+- cd SoutheastCubing.org
+- git pull
+- npm i
+- systemctl restart api.service

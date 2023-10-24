@@ -35,3 +35,21 @@ export const StateColors = {
   'Southeast': Colors.purple,
   '??': Colors.grey,
 }
+
+export enum EmailType {
+  clubs = 'clubs',
+  upcomingCompetition = 'upcomingCompetition',
+  pastCompetition = 'pastCompetition',
+  delegates = 'delegates',
+  general = 'general',
+  getInvolved = 'getInvolved',
+  socialMedia = 'socialMedia',
+  software = 'software',
+}
+
+export enum EmailApiStatus {
+  none = 'none',
+  pending = 'pending',
+  success = 'success',
+  failure = 'failure'
+}

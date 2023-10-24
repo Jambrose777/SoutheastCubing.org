@@ -2,19 +2,133 @@
   <div class="main-pane">
     <header id="header" [title]="title"></header>
 
-    <!-- Loading Spinner -->
-    <loading-spinner *ngIf="loadingContent" [isDark]="true"></loading-spinner>
+    <form [formGroup]="contactForm" class="form">
+      <!-- Email Type -->
+      <mat-form-field class="form-field">
+        <mat-label>What would you like to contact us about?</mat-label>
+        <mat-select [formControl]="emailTypeControl">
+          <mat-option *ngFor="let emailTypeOption of emailTypeOptions" [value]="emailTypeOption.value">
+            {{emailTypeOption.label}}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="emailTypeControl.hasError('required')">Please select a topic</mat-error>
+      </mat-form-field>
 
-    <!-- Information -->
-    <div class="large-text-content" *ngIf="!loadingContent">{{description}}</div>
+      <!-- Loading Spinner -->
+      <loading-spinner *ngIf="emailTypeControl.value === EmailType.upcomingCompetition && loadingCompetitions">
+      </loading-spinner>
+
+      <ng-container *ngIf="emailTypeControl.value === EmailType.upcomingCompetition && !loadingCompetitions">
+        <!-- Competition -->
+        <mat-form-field class="form-field">
+          <mat-label>Competition</mat-label>
+          <mat-select [(value)]="selectedCompetition">
+            <mat-option *ngFor="let competition of competitions" [value]="competition.id">
+              {{competition.name}}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="emailTypeControl.hasError('required')">Please select a topic</mat-error>
+        </mat-form-field>
+
+        <!-- Info about contacting organizers -->
+        <ng-container *ngIf="selectedCompetition">
+          <div class="medium-text-content">
+            In order to contact the organizers about this competition, you will need to do so through the WCA Website.
+            You can access that here:
+          </div>
+
+          <!-- Contact Competitions Button -->
+          <div>
+            <a class="btn darker-border"
+              [href]="'https://www.worldcubeassociation.org/contact/website?competitionId=' + selectedCompetition"
+              target="_blank">
+              <img src="assets/wca_logo.svg" class="wca-logo">
+              Contact Organizers
+              <i class="fa-regular fa-envelope fa-lg clickable"></i>
+            </a>
+          </div>
+        </ng-container>
+      </ng-container>
+
+      <ng-container *ngIf="emailTypeControl.value !== EmailType.upcomingCompetition">
+        <div class="form-row">
+          <!-- Name -->
+          <mat-form-field class="form-field left-field">
+            <mat-label>Your Name</mat-label>
+            <input matInput [formControl]="nameControl">
+            <mat-error *ngIf="nameControl.hasError('required')">Your name is required</mat-error>
+          </mat-form-field>
+
+          <!-- Email -->
+          <mat-form-field class="form-field right-field">
+            <mat-label>Email</mat-label>
+            <input type="email" matInput [formControl]="emailControl">
+            <mat-error *ngIf="emailControl.hasError('email') && !emailControl.hasError('required')">
+              Please enter a valid email address
+            </mat-error>
+            <mat-error *ngIf="emailControl.hasError('required')">Email is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <!-- Subject -->
+          <mat-form-field class="form-field left-field">
+            <mat-label>Subject</mat-label>
+            <input matInput [formControl]="subjectControl">
+            <mat-error *ngIf="subjectControl.hasError('required')">A subject is required</mat-error>
+          </mat-form-field>
+
+          <!-- Competition Name -->
+          <mat-form-field class="form-field right-field" *ngIf="emailTypeControl.value === EmailType.pastCompetition">
+            <mat-label>Competition Name</mat-label>
+            <input matInput [formControl]="competitionNameControl">
+            <mat-error *ngIf="competitionNameControl.hasError('required')">A Competition Name is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Message -->
+        <mat-form-field class="form-field">
+          <mat-label>Your Message</mat-label>
+          <textarea matInput [formControl]="messageControl"></textarea>
+          <mat-error *ngIf="messageControl.hasError('required')">A message is required</mat-error>
+        </mat-form-field>
+
+        <!-- Submit Button -->
+        <div *ngIf="emailApiStatus !== EmailApiStatus.pending">
+          <a class="btn darker-border" (click)="onSubmit()">
+            Submit
+            <i class="fa-regular fa-envelope fa-sm"></i>
+          </a>
+        </div>
+
+        <!-- Loading Spinner -->
+        <loading-spinner *ngIf="emailApiStatus === EmailApiStatus.pending" [isDark]="true"></loading-spinner>
+
+        <!-- Success -->
+        <div class="small-text-content success-message" *ngIf="emailApiStatus === EmailApiStatus.success">
+          <i class="fa-solid fa-circle-check fa-sm"></i>
+          Your message has successfully sent!
+        </div>
+
+        <!-- Failure -->
+        <div class="small-text-content error-message" *ngIf="emailApiStatus === EmailApiStatus.failure">
+          <i class="fa-solid fa-circle-xmark fa-sm"></i>
+          Unfortunately an error has occurred. Please try again later.
+        </div>
+
+      </ng-container>
+    </form>
   </div>
 
   <div class="secondary-pane">
-    <!-- Link to email Southeast Cubing -->
-    <div class="badges">
-      <a href="mailto:SoutheastCubing@gmail.com" target="_blank">
-        <i class="fa-solid fa-envelope fa-2xl clickable"></i>
-      </a>
+    <!-- Loading Spinner -->
+    <loading-spinner *ngIf="loadingContent"></loading-spinner>
+
+    <!-- FAQ -->
+    <div class="list-container" *ngIf="!loadingContent">
+      <h2>Frequently Asked Questions</h2>
+      <div>{{description}}</div>
     </div>
   </div>
+
 </div>

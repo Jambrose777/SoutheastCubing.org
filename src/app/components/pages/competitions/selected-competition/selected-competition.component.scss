@@ -46,9 +46,10 @@
       display: flex;
       flex-direction: column;
       justify-content: space-around;
+      box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
     }
 
-    .darker-border {
+    .detail-container.darker-border {
       border: solid 5px $se-black;
     }
 
@@ -80,6 +81,13 @@
         margin: 0;
         padding: 0;
         font-size: 20px;
+        box-shadow: none;
+      }
+
+      .detail-container.darker-border {
+        border: none;
+        border-radius: 0px;
+        border-bottom: 2px dashed $se-black;
       }
 
       .detail-container>div {

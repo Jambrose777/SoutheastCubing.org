@@ -48,14 +48,14 @@
         <div *ngIf="selectedClub.contactInfo">{{selectedClub.contactInfo}}</div>
         <ng-container *ngIf="selectedClub.contactEmail">
           <a class="btn" href="mailto:{{selectedClub.contactEmail}}" target="_blank"
-            [ngClass]="{'darker-border': selectedClub?.state === 'Tennessee'}">
+            [ngClass]="{'darker-border': selectedClub?.state === 'TN'}">
             Email
             <i class="fa-regular fa-envelope fa-sm"></i>
           </a>
         </ng-container>
         <ng-container *ngIf="selectedClub.website">
           <a class="btn" [href]="'selectedClub.website'" target="_blank"
-            [ngClass]="{'darker-border': selectedClub?.state === 'Tennessee'}">
+            [ngClass]="{'darker-border': selectedClub?.state === 'TN'}">
             Website
             <i class="fa-solid fa-up-right-from-square fa-sm"></i>
           </a>

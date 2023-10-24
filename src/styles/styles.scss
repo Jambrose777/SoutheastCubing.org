@@ -27,6 +27,7 @@ a {
   flex-direction: column;
   border-radius: 10px 0 0 10px;
   overflow-y: scroll;
+  box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
 }
 
 .secondary-pane {
@@ -36,6 +37,7 @@ a {
   background-color: $se-black;
   flex-direction: column;
   border-radius: 0 10px 10px 0;
+  box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
 
   .list-container {
     display: flex;
@@ -163,10 +165,11 @@ a {
   cursor: pointer;
   margin: 0 auto;
   display: block;
+  box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
 }
 
 .btn.darker-border {
-  border: 5px solid $se-black;
+  border: 3px solid $se-black;
 }
 
 .selected-item-container {
@@ -190,6 +193,7 @@ a {
 
 .medium-image {
   max-height: 400px;
+  box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
 }
 
 loading-spinner {

@@ -22,6 +22,7 @@
     text-align: center;
     display: flex;
     flex-direction: column;
+    box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
 
     .detail-sub-container {
       display: flex;
@@ -44,6 +45,7 @@
     margin: 10px 0 0 0 !important;
     padding: 0 !important;
     font-size: 20px !important;
+    box-shadow: none !important;
 
     .detail-sub-container {
       margin: 10px 0;

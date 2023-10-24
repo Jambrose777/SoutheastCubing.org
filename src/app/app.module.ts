@@ -26,6 +26,10 @@ import { SelectedSubTopicComponent } from './components/shared/selected-sub-topi
 import { OrganizersComponent } from './components/pages/organizers/organizers.component';
 import { ContactComponent } from './components/pages/contact/contact.component';
 import { AboutComponent } from './components/pages/about/about.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -70,6 +74,10 @@ const moduleRoutes: Routes = [
     NoopAnimationsModule,
     MatMenuModule,
     IvyCarouselModule,
+    ReactiveFormsModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   providers: [],
   bootstrap: [AppComponent]

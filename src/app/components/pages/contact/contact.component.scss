@@ -1,13 +1,98 @@
 @import "src/styles/color-pallet.scss";
+@import "src/styles/screen-sizes.scss";
 
-.secondary-pane {
-  min-height: 300px;
+.form {
+  margin: 50px 30px;
+  display: flex;
+  flex-direction: column;
+
+  .form-field {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .form-row {
+    display: flex;
+    flex-direction: row;
+
+    .form-field {
+      width: calc(50% - 15px);
+    }
+
+    .left-field {
+      margin-right: 15px;
+    }
+
+    .right-field {
+      margin-left: 15px;
+    }
+  }
+
+  .wca-logo {
+    height: 20px;
+  }
 }
 
-.badges {
-  margin: auto;
+.success-message {
+  margin-top: 20px;
+  color: $se-green;
+}
 
-  .fa-solid {
-    color: $se-grey;
+.error-message {
+  margin-top: 20px;
+  color: $se-red;
+}
+
+.list-container {
+  margin-right: 20px;
+  color: $se-grey;
+  white-space: pre-wrap;
+}
+
+@media only screen and (max-width: $small-breakpoint) {
+  .form {
+    margin: 20px 5px;
   }
+
+  .form-row {
+    flex-direction: column !important;
+
+    .form-field {
+      width: 100% !important;
+    }
+
+    .left-field {
+      margin-right: 0 !important;
+    }
+
+    .right-field {
+      margin-left: 0 !important;
+    }
+  }
+
+  .list-container {
+    margin-bottom: 20px;
+  }
+}
+
+::ng-deep .mat-form-field-flex {
+  border-radius: 5px;
+  background-color: darken($se-yellow, 3%);
+}
+
+::ng-deep .mat-form-field-flex:hover {
+  background-color: darken($se-yellow, 5%);
+}
+
+::ng-deep .mat-form-field-infix {
+  margin: 2px 10px;
+}
+
+::ng-deep .mat-select-panel {
+  max-height: none !important;
+  margin-top: 40px !important;
+}
+
+::ng-deep textarea {
+  height: 100px !important;
 }
