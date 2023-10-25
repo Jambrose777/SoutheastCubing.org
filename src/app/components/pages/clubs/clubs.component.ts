@@ -97,7 +97,7 @@ export class ClubsComponent implements OnInit {
   filterCompetitions() {
     this.fliteredClubs = this.clubs;
     if (this.filters.states.length > 0) {
-      this.fliteredClubs = this.fliteredClubs.filter(club => this.filters.states.includes(club.state));
+      this.fliteredClubs = this.fliteredClubs.filter(club => this.filters.states.includes(States[club.state]));
     }
   }
 
