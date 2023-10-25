@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Competition } from 'src/app/models/Competition';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
-import { Colors, RegistrationStatus, StateColors } from 'src/app/shared/types';
+import { Colors, RegistrationStatus, StateColors, States } from 'src/app/shared/types';
 import { WcaService } from 'src/app/services/wca.service';
 import { isMobile } from 'src/app/shared/functions';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
@@ -21,10 +21,15 @@ export class CompetitionsComponent implements OnInit {
   title: string = 'Competitions';
   description: string = '';
   competitions: Competition[] = [];
+  filteredCompetitions: Competition[] = [];
   loadingContent: boolean = true;
   loadingCompetitions: boolean = true;
   selectedCompetition: Competition;
   subText: string = '';
+  filters = {
+    states: [],
+    events: [],
+  }
 
   constructor(private contentful: ContentfulService, private wca: WcaService, private themeService: ThemeService, private navService: NavService) { }
 
@@ -43,6 +48,7 @@ export class CompetitionsComponent implements OnInit {
     // retrieve the competitions list from WCA
     this.wca.getUpcomingCompetitions().subscribe(res => {
       this.competitions = res;
+      this.filteredCompetitions = res;
       this.loadingCompetitions = false;
     });
   }
@@ -91,6 +97,42 @@ export class CompetitionsComponent implements OnInit {
       // save newly aquired data to local storage to cache all responses from WCA.
       this.wca.saveCompetitionstoLocalStorage(this.competitions);
     })
+  }
+
+  handleStateSelection(state: States) {
+    if (this.filters.states.includes(state)) {
+      this.filters.states.splice(this.filters.states.indexOf(state), 1);
+    } else {
+      this.filters.states.push(state);
+    }
+    if (this.filters.states.length === 6) {
+      this.filters.states = [];
+    }
+
+    this.filterCompetitions();
+  }
+
+  handleEventSelection(event: string) {
+    if (this.filters.events.includes(event)) {
+      this.filters.events.splice(this.filters.events.indexOf(event), 1);
+    } else {
+      this.filters.events.push(event);
+    }
+    if (this.filters.events.length === 17) {
+      this.filters.events = [];
+    }
+
+    this.filterCompetitions();
+  }
+
+  filterCompetitions() {
+    this.filteredCompetitions = this.competitions;
+    if (this.filters.states.length > 0) {
+      this.filteredCompetitions = this.filteredCompetitions.filter(comp => this.filters.states.includes(comp.state));
+    }
+    if (this.filters.events.length > 0) {
+      this.filteredCompetitions = this.filteredCompetitions.filter(comp => this.filters.events.reduce((include, event) => include && comp.event_ids.includes(event), true));
+    }
   }
 
 }

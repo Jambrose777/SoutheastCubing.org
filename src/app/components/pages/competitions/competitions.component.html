@@ -9,6 +9,10 @@
     <ng-container *ngIf="!loadingContent && (isMobile || !selectedCompetition)">
       <div class="large-text-content">{{description}}</div>
 
+      <!-- Filters -->
+      <se-event-list [selectedEvents]="filters.events" (selectEventEmitter)="handleEventSelection($event)"></se-event-list>
+      <se-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-map>
+
       <!-- section for external links text Bubble -->
       <div class="sub-text-container">
         <div class="sub-text-box">
@@ -35,7 +39,7 @@
 
     <div class="list-container" *ngIf="!loadingCompetitions">
       <!-- List for all loaded competitions -->
-      <ng-container *ngFor="let competition of competitions;">
+      <ng-container *ngFor="let competition of filteredCompetitions;">
         <!-- Competition Bubble -->
         <div class="item-container clickable" style="--state-color:{{StateColors[competition.state]}}"
           [ngClass]="{active: selectedCompetition?.name === competition.name}">

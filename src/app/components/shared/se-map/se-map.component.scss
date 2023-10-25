@@ -1,0 +1,13 @@
+.map-container {
+  display: flex;
+  justify-content: center;
+  
+  .svg {
+    margin-left: -650px;
+    margin-top: -250px;
+  }
+
+  .clickable {
+    cursor:pointer;
+  }
+}

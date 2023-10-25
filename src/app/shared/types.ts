@@ -36,6 +36,15 @@ export const StateColors = {
   '??': Colors.grey,
 }
 
+export enum States {
+  'AL' = 'Alabama',
+  'FL' = 'Florida',
+  'GA' = 'Georgia',
+  'NC' = 'North Carolina',
+  'SC' = 'South Carolina',
+  'TN' = 'Tennessee',
+}
+
 export enum EmailType {
   clubs = 'clubs',
   upcomingCompetition = 'upcomingCompetition',
@@ -53,3 +62,23 @@ export enum EmailApiStatus {
   success = 'success',
   failure = 'failure'
 }
+
+export const Events = [
+  '333',
+  '222',
+  '444',
+  '555',
+  '666',
+  '777',
+  '333bf',
+  '333fm',
+  '333oh',
+  'clock',
+  'minx',
+  'pyram',
+  'skewb',
+  'sq1',
+  '444bf',
+  '555bf',
+  '333mbf',
+];
