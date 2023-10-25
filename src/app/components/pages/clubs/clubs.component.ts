@@ -5,7 +5,7 @@ import { ContentfulService } from 'src/app/services/contentful.service';
 import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { isMobile } from 'src/app/shared/functions';
-import { Colors, StateColors } from 'src/app/shared/types';
+import { Colors, StateColors, States } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -22,9 +22,13 @@ export class ClubsComponent implements OnInit {
   loadingContent: boolean = true;
   loadingClubs: boolean = true;
   clubs: Club[];
+  fliteredClubs: Club[];
   selectedClub: Club;
   subText1: string = '';
   subText2: string = '';
+  filters = {
+    states: [],
+  }
 
   constructor(private contentful: ContentfulService, private themeService: ThemeService, private navService: NavService) { }
 
@@ -47,6 +51,7 @@ export class ClubsComponent implements OnInit {
       this.clubs = res.items
         .map(club => ({ ...club.fields, image: club.fields.image?.fields.file.url, state: club.fields?.city.substring(club.fields?.city.length - 2) }))
         .sort((a: Club, b: Club) => a.city == b.city ? (a.name > b.name ? 1 : -1) : (a.city > b.city ? 1 : -1));
+      this.fliteredClubs = this.clubs;
       this.loadingClubs = false;
     });
   }
@@ -73,6 +78,26 @@ export class ClubsComponent implements OnInit {
           document.getElementById(this.selectedClub.name + this.selectedClub.city)?.scrollIntoView({ behavior: 'smooth' });
         }, 0);
       }
+    }
+  }
+
+  handleStateSelection(state: States) {
+    if (this.filters.states.includes(state)) {
+      this.filters.states.splice(this.filters.states.indexOf(state), 1);
+    } else {
+      this.filters.states.push(state);
+    }
+    if (this.filters.states.length === 6) {
+      this.filters.states = [];
+    }
+
+    this.filterCompetitions();
+  }
+
+  filterCompetitions() {
+    this.fliteredClubs = this.clubs;
+    if (this.filters.states.length > 0) {
+      this.fliteredClubs = this.fliteredClubs.filter(club => this.filters.states.includes(club.state));
     }
   }
 

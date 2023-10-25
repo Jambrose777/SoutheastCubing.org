@@ -9,6 +9,9 @@
     <ng-container *ngIf="!loadingContent && (isMobile || !selectedClub)">
       <div class="large-text-content">{{description}}</div>
 
+      <!-- Filters -->
+      <se-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-map>
+
       <div class="sub-text-container">
         <!-- Section for Start a new club form -->
         <div class="sub-text-box">
@@ -46,7 +49,7 @@
 
     <!-- List for all loaded clubs -->
     <div class="list-container" *ngIf="!loadingClubs">
-      <ng-container *ngFor="let club of clubs;">
+      <ng-container *ngFor="let club of fliteredClubs;">
         <!-- Club Bubble -->
         <div class="item-container clickable" style="--state-color:{{StateColors[club.state]}}"
           [ngClass]="{active: selectedClub?.name === club.name && selectedClub?.city === club.city}">
