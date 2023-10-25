@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Championship } from 'src/app/models/Championship';
 import { isMobile } from 'src/app/shared/functions';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'se-selected-championship',
@@ -9,6 +10,7 @@ import { isMobile } from 'src/app/shared/functions';
 })
 export class SelectedChampionshipComponent implements OnInit {
   isMobile = isMobile();
+  enviroment = environment;
   @Input() selectedChampionship: Championship;
 
   constructor() { }

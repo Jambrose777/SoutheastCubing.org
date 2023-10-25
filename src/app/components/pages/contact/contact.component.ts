@@ -11,6 +11,7 @@ import { ThemeService } from 'src/app/services/theme.service';
 import { WcaService } from 'src/app/services/wca.service';
 import { isMobile } from 'src/app/shared/functions';
 import { Colors, EmailApiStatus, EmailType } from 'src/app/shared/types';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-contact',
@@ -21,6 +22,7 @@ export class ContactComponent implements OnInit {
   isMobile = isMobile();
   EmailApiStatus = EmailApiStatus;
   EmailType = EmailType;
+  enviroment = environment;
   title: string = 'Get Involved';
   description: string = '';
   loadingContent: boolean = true;
@@ -117,7 +119,6 @@ export class ContactComponent implements OnInit {
 
     // pull default values from query params
     this.route.queryParams.subscribe(params => {
-      console.log(params)
       if (params['defaultEmailType']) {
         this.emailTypeControl.setValue(params['defaultEmailType'])
       }

@@ -29,7 +29,7 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The appli
 Run `node backend/app.js`
 
 ## BE Deployment
-- cd SoutheastCubing.org
+- cd SoutheastCubing.org/backend
 - git pull
 - npm i
 - systemctl restart api.service

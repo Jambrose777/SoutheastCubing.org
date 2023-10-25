@@ -4,6 +4,7 @@ import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
 import { isMobile } from 'src/app/shared/functions';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'se-home',
@@ -12,6 +13,7 @@ import { ContentfulEntryId } from 'src/app/models/Contentful';
 })
 export class HomeComponent implements OnInit {
   isMobile = isMobile();
+  enviroment = environment;
   title: string = 'Southeast Cubing';
   description: string = '';
   photos: string[] = [];

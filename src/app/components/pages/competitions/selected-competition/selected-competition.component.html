@@ -1,7 +1,6 @@
 <div class="selected-item-container">
   <!-- Competition Name w/ WCA Logo & Link to competition on WCA -->
-  <a [href]="'https://www.worldcubeassociation.org/competitions/' + selectedCompetition.id" target="_blank"
-    *ngIf="!isMobile">
+  <a [href]="enviroment.links.wcaCompetition + selectedCompetition.id" target="_blank" *ngIf="!isMobile">
     <h2 class="title-text">
       {{selectedCompetition.name}}
 
@@ -23,7 +22,7 @@
     <div class="detail-container" [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
       <div>City: <b>{{selectedCompetition.city}}</b></div>
       <div *ngIf="!isMobile">Date: <b>{{selectedCompetition.full_date}}</b></div>
-      <a [href]="'https://www.google.com/maps/search/' + selectedCompetition.venue_address" target="_blank">
+      <a [href]="enviroment.links.googleMaps + selectedCompetition.venue_address" target="_blank">
         <div>Address: <b>{{selectedCompetition.venue_address}}</b></div>
       </a>
     </div>
@@ -70,9 +69,8 @@
       <!-- Register here link to WCA for cetain Registration Statuses -->
       <div
         *ngIf="[RegistrationStatus.preLaunch, RegistrationStatus.openWithSpots, RegistrationStatus.openWithWaitingList].includes(selectedCompetition.registration_status)">
-        <a class="btn"
-          [href]="'https://www.worldcubeassociation.org/competitions/' + selectedCompetition.id + '/register'"
-          target="_blank" [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
+        <a class="btn" [href]="enviroment.links.wcaCompetition + selectedCompetition.id + '/register'" target="_blank"
+          [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
           Register Here
           <i class="fa-solid fa-up-right-from-square fa-sm"></i>
         </a>
@@ -83,9 +81,8 @@
     <div class="detail-container" [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
       <div>Have any questions? Reach out to the organizers!</div>
       <div>
-        <a class="btn"
-          [href]="'https://www.worldcubeassociation.org/contact/website?competitionId=' + selectedCompetition.id"
-          target="_blank" [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
+        <a class="btn" [href]="enviroment.links.wcaContact + '?competitionId=' + selectedCompetition.id" target="_blank"
+          [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
           Contact
           <i class="fa-regular fa-envelope fa-lg clickable"></i>
         </a>

@@ -11,6 +11,6 @@ export class SouteastcubingApiService {
   constructor(private http: HttpClient) { }
 
   contactSubmission(body: EmailRequestBody) {
-    return this.http.post(`${environment.southeastCubingApi}/email`, body)
+    return this.http.post(`${environment.links.southeastCubingApi}/email`, body)
   }
 }

@@ -1,7 +1,7 @@
 <div *ngIf="selectedChampionship" class="selected-item-container">
   <!-- Championship Name -->
-  <a [href]="'https://www.worldcubeassociation.org/competitions/' + selectedChampionship.id" target="_blank"
-    class="name-container" *ngIf="!isMobile">
+  <a [href]="enviroment.links.wcaCompetition + selectedChampionship.id" target="_blank" class="name-container"
+    *ngIf="!isMobile">
     <!-- Competition Logo -->
     <img src="{{selectedChampionship.logo}}" class="competitiion-logo">
 
@@ -16,8 +16,7 @@
   <!-- Championship Location -->
   <div class="small-text-content">
     <span *ngIf="!isMobile">{{selectedChampionship.city}} -</span>
-    <a [href]="'https://www.worldcubeassociation.org/competitions/' + selectedChampionship.id" target="_blank"
-      *ngIf="isMobile">
+    <a [href]="enviroment.links.wcaCompetition + selectedChampionship.id" target="_blank" *ngIf="isMobile">
       <img src="assets/wca_logo.svg" class="wca-logo-small">
     </a>
     {{selectedChampionship.date}}

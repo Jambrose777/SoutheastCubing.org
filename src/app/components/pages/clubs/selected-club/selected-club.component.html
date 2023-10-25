@@ -25,8 +25,7 @@
       <b>Where?</b>
       <div class="detail-sub-container">
         <div *ngIf="selectedClub.venue">{{selectedClub.venue}}</div>
-        <a [href]="'https://www.google.com/maps/search/' + selectedClub.address" target="_blank"
-          *ngIf="selectedClub.address">
+        <a [href]="enviroment.links.googleMaps + selectedClub.address" target="_blank" *ngIf="selectedClub.address">
           {{selectedClub.address}}
         </a>
       </div>

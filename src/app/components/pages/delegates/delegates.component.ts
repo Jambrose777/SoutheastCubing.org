@@ -6,6 +6,7 @@ import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { isMobile } from 'src/app/shared/functions';
 import { Colors, StateColors } from 'src/app/shared/types';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'se-delegates',
@@ -15,6 +16,7 @@ import { Colors, StateColors } from 'src/app/shared/types';
 export class DelegatesComponent implements OnInit {
   isMobile = isMobile();
   StateColors = StateColors;
+  enviroment = environment;
   delegates: Delegate[];
   title: string = 'Southeast Delegates';
   description: string = '';

@@ -7,6 +7,7 @@ import { WcaService } from 'src/app/services/wca.service';
 import { isMobile } from 'src/app/shared/functions';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { NavService } from 'src/app/services/nav.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'se-competitions',
@@ -16,6 +17,7 @@ import { NavService } from 'src/app/services/nav.service';
 export class CompetitionsComponent implements OnInit {
   isMobile = isMobile();
   StateColors = StateColors;
+  enviroment = environment;
   title: string = 'Competitions';
   description: string = '';
   competitions: Competition[] = [];

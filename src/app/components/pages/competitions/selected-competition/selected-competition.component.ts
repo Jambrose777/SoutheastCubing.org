@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Competition } from 'src/app/models/Competition';
 import { isMobile } from 'src/app/shared/functions';
 import { RegistrationStatus } from 'src/app/shared/types';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'se-selected-competition',
@@ -11,6 +12,7 @@ import { RegistrationStatus } from 'src/app/shared/types';
 export class SelectedCompetitionComponent implements OnInit {
   isMobile = isMobile();
   RegistrationStatus = RegistrationStatus;
+  enviroment = environment;
   @Input() selectedCompetition: Competition;
 
   constructor() { }
