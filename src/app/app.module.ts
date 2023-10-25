@@ -35,15 +35,15 @@ import { EventListComponent } from './components/shared/event-list/event-list.co
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
-  { path: 'competitions', component: CompetitionsComponent },
-  { path: 'clubs', component: ClubsComponent },
-  { path: 'delegates', component: DelegatesComponent },
+  { path: 'competitions', component: CompetitionsComponent, title: 'SoutheastCubing - Competitions' },
+  { path: 'clubs', component: ClubsComponent, title: 'SoutheastCubing - Clubs' },
+  { path: 'delegates', component: DelegatesComponent, title: 'SoutheastCubing - Delegates' },
   { path: 'home', component: HomeComponent },
-  { path: 'involvement', component: InvolvementComponent },
-  { path: 'championships', component: ChampionshipsComponent },
-  { path: 'organizers', component: OrganizersComponent },
-  { path: 'contact', component: ContactComponent },
-  { path: 'about', component: AboutComponent },
+  { path: 'involvement', component: InvolvementComponent, title: 'SoutheastCubing - Get Involved' },
+  { path: 'championships', component: ChampionshipsComponent, title: 'SoutheastCubing - SE Champs' },
+  { path: 'organizers', component: OrganizersComponent, title: 'SoutheastCubing - Organizer Guidelines' },
+  { path: 'contact', component: ContactComponent, title: 'SoutheastCubing - Contact' },
+  { path: 'about', component: AboutComponent, title: 'SoutheastCubing - About' },
 ];
 
 @NgModule({

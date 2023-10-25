@@ -7,7 +7,7 @@ export const environment = {
   links: {
     clubForm: 'https://forms.gle/QZVxzyVsxgaJZQme7',
     delegateForm: 'https://forms.gle/wUCCjHDgoGocK454A',
-    discord: 'https://discord.gg/hp7DSmtReb/',
+    discord: 'https://discord.gg/hp7DSmtReb',
     facebook: 'https://www.facebook.com/groups/491409969462797/',
     googleMaps: 'https://www.google.com/maps/search/',
     instagram: 'https://www.instagram.com/southeastcubing/',
