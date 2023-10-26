@@ -23,7 +23,7 @@ export class ContactComponent implements OnInit {
   EmailApiStatus = EmailApiStatus;
   EmailType = EmailType;
   enviroment = environment;
-  title: string = 'Get Involved';
+  title: string = 'Contact Us';
   description: string = '';
   loadingContent: boolean = true;
   loadingCompetitions: boolean = true;

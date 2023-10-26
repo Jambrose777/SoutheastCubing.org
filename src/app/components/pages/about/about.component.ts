@@ -13,7 +13,7 @@ import { Colors } from 'src/app/shared/types';
 })
 export class AboutComponent implements OnInit {
   isMobile = isMobile();
-  title: string = 'Get Involved';
+  title: string = 'About Us';
   description: string = '';
   loadingContent: boolean = true;
   loadingTeams: boolean = true;
