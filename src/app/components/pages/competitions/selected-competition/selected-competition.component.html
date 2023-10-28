@@ -11,8 +11,14 @@
 
   <!-- container for remaining details for styling -->
   <div class="competition-details">
+    <!-- Link to WCA -->
+    <a [href]="enviroment.links.wcaCompetition + selectedCompetition.id" target="_blank" *ngIf="isMobile">
+      <img src="assets/wca_logo.svg" class="wca-logo-mobile">
+    </a>
+
     <!-- Competition Event List -->
     <div class="event-container">
+      <!-- Event List -->
       <ng-container *ngFor="let event of selectedCompetition.event_ids">
         <span [ngClass]="'cubing-icon event-' + event"></span>
       </ng-container>
