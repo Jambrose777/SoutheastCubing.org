@@ -43,14 +43,14 @@
   .nav-container.active {
     position: absolute;
     height: calc(100vh - 30px);
-    width: calc(50% - 30px);
+    width: calc(50% - 15px);
     background-color: var(--main-pane-color);
   }
 
   .nav-container.transition {
     position: absolute;
     height: calc(100vh - 30px);
-    width: calc(50% - 30px);
+    width: calc(50% - 15px);
     background-color: var(--main-pane-color);
   }
 

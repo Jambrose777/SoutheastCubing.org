@@ -12,6 +12,32 @@
         </carousel>
       </div>
 
+      <!-- Important Announcements -->
+      <ng-container *ngFor="let subTopic of subTopics;">
+        <div class="announcement-banner clickable" (click)="announcementClick(subTopic)" style="--banner-color:{{subTopic.color}}">
+          <div class="items-container">
+            <div *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8, 9 ,10]" class="announcement-text">
+              <span>
+                {{subTopic.title}}
+                {{subTopic.description}}
+                {{subTopic.buttonText}}
+                <i *ngIf="subTopic.buttonIcon" class="fa-solid {{subTopic.buttonIcon}} fa-2xl"></i>
+                &nbsp;
+              </span>
+            </div>
+            <!-- <div class="announcement-text">
+              <span>
+                {{subTopic.title}}
+                {{subTopic.description}}
+                {{subTopic.buttonText}}
+                <i *ngIf="subTopic.buttonIcon" class="fa-solid {{subTopic.buttonIcon}} fa-2xl"></i>
+                &nbsp;
+              </span>
+            </div> -->
+          </div>
+        </div>
+      </ng-container>
+
       <div class="large-text-content">{{description}}</div>
 
       <!-- Icons for important external links, such as social media -->

@@ -1,9 +1,42 @@
 @import "src/styles/color-pallet.scss";
 @import "src/styles/screen-sizes.scss";
 
+:root {
+  --duration: 5s;
+  --duration-double: 10s;
+}
+
 .component-container {
 
   .main-pane {
+
+    .announcement-banner {
+      font-size: 20px;
+      background-color: var(--banner-color);
+      padding: 20px;
+      width: 100%;
+      overflow-x: hidden;
+      margin-bottom: 10px;
+
+      .items-container {
+        display: flex;
+        width: 10000px;
+        animation-name: infiniteScroll;
+        animation-duration: 120s;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+      }
+
+      .announcement-text {
+        white-space: nowrap;
+      }
+
+      .fa-solid {
+        font-size: 16px;
+        top: -4px;
+        position: relative;
+      }
+    }
 
     .badges {
       display: flex;
@@ -61,4 +94,9 @@
   div {
     border-radius: 10px;
   }
+}
+
+@keyframes infiniteScroll {
+  from {transform: translateX(0)}
+  to {transform: translateX(-50%)}
 }
