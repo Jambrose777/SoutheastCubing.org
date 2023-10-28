@@ -32,8 +32,8 @@ export class HomeComponent implements OnInit {
     this.contentful.getContentfulEntry(ContentfulEntryId.home).subscribe(res => {
       this.title = res.fields.title;
       this.description = res.fields.description;
-      this.subTopics = res.fields.subTopics.map(subTopic => ({ ...subTopic.fields, color: Colors[subTopic.fields.color] }))
-      this.photos = res.fields.photos.map(photo => ({ path: photo.fields.file.url }));
+      this.subTopics = res.fields.subTopics?.map(subTopic => ({ ...subTopic.fields, color: Colors[subTopic.fields.color] }))
+      this.photos = res.fields.photos?.map(photo => ({ path: photo.fields.file.url }));
       this.loadingContent = false;
     });
   }

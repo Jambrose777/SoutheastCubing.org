@@ -6,12 +6,6 @@
     <loading-spinner *ngIf="loadingContent"></loading-spinner>
 
     <ng-container *ngIf="!loadingContent">
-      <!-- Photo Carousel on Mobile -->
-      <div class="mobile-home-photo-container" *ngIf="isMobile">
-        <carousel [images]="photos" [cellsToShow]="1" [height]="200" [loop]="true" [autoplay]="true" [arrows]="false">
-        </carousel>
-      </div>
-
       <!-- Important Announcements -->
       <ng-container *ngFor="let subTopic of subTopics;">
         <div class="announcement-banner clickable" (click)="announcementClick(subTopic)" style="--banner-color:{{subTopic.color}}">
@@ -37,6 +31,12 @@
           </div>
         </div>
       </ng-container>
+      
+      <!-- Photo Carousel on Mobile -->
+      <div class="mobile-home-photo-container" *ngIf="isMobile">
+        <carousel [images]="photos" [cellsToShow]="1" [height]="200" [loop]="true" [autoplay]="true" [arrows]="false">
+        </carousel>
+      </div>
 
       <div class="large-text-content">{{description}}</div>
 
