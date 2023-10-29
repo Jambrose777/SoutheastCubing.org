@@ -31,6 +31,7 @@ export class ContactComponent implements OnInit {
   selectedCompetition: Competition;
   ipAddress: string;
   emailApiStatus: EmailApiStatus = EmailApiStatus.none;
+  hasHadError = false;
 
   emailTypeOptions = [
     { value: EmailType.upcomingCompetition, label: 'An upcoming WCA competition' },
@@ -155,7 +156,12 @@ export class ContactComponent implements OnInit {
         this.contactForm.reset();
       },
       error: (error) => {
-        this.emailApiStatus = EmailApiStatus.failure;
+        if (this.hasHadError) {
+          this.emailApiStatus = EmailApiStatus.doubleFailure;
+        } else {
+          this.emailApiStatus = EmailApiStatus.failure;
+          this.hasHadError = true;
+        }
         this.contactForm.enable();
       }
     })

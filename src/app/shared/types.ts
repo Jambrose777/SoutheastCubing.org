@@ -60,7 +60,8 @@ export enum EmailApiStatus {
   none = 'none',
   pending = 'pending',
   success = 'success',
-  failure = 'failure'
+  failure = 'failure',
+  doubleFailure = 'doubleFailure'
 }
 
 export const Events = [
