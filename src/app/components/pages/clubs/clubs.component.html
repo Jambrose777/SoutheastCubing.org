@@ -52,7 +52,7 @@
       <ng-container *ngFor="let club of fliteredClubs;">
         <!-- Club Bubble -->
         <div class="item-container clickable" style="--state-color:{{StateColors[club.state]}}"
-          [ngClass]="{active: selectedClub?.name === club.name && selectedClub?.city === club.city}">
+          [ngClass]="{active: selectedClub?.id === club.id}">
           <div class="item-row" (click)="selectClub(club)" id="{{club.name + club.city}}">
             <div class="item-title">
               {{club.name}}
@@ -62,8 +62,7 @@
             </div>
           </div>
           <!-- Information for selected competition details -->
-          <se-selected-club *ngIf="isMobile && selectedClub?.name === club.name && selectedClub.city === club.city"
-            [selectedClub]="selectedClub">
+          <se-selected-club *ngIf="isMobile && selectedClub?.id === club.id" [selectedClub]="selectedClub">
           </se-selected-club>
         </div>
       </ng-container>

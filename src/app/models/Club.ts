@@ -1,4 +1,5 @@
 export class Club {
+  id: string;
   name: string;
   description?: string;
   image?: string;

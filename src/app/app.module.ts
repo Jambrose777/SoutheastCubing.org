@@ -36,12 +36,18 @@ import { EventListComponent } from './components/shared/event-list/event-list.co
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
   { path: 'competitions', component: CompetitionsComponent, title: 'SoutheastCubing - Competitions' },
+  { path: 'competitions/:competitionId', component: CompetitionsComponent, title: 'SoutheastCubing - Competitions' },
   { path: 'clubs', component: ClubsComponent, title: 'SoutheastCubing - Clubs' },
+  { path: 'clubs/:clubId', component: ClubsComponent, title: 'SoutheastCubing - Clubs' },
   { path: 'delegates', component: DelegatesComponent, title: 'SoutheastCubing - Delegates' },
+  { path: 'delegates/:delegateName', component: DelegatesComponent, title: 'SoutheastCubing - Delegates' },
   { path: 'home', component: HomeComponent },
   { path: 'involvement', component: InvolvementComponent, title: 'SoutheastCubing - Get Involved' },
+  { path: 'involvement/:subTopicId', component: InvolvementComponent, title: 'SoutheastCubing - Get Involved' },
   { path: 'championships', component: ChampionshipsComponent, title: 'SoutheastCubing - SE Champs' },
+  { path: 'championships/:championshipId', component: ChampionshipsComponent, title: 'SoutheastCubing - SE Champs' },
   { path: 'organizers', component: OrganizersComponent, title: 'SoutheastCubing - Organizer Guidelines' },
+  { path: 'organizers/:subTopicId', component: OrganizersComponent, title: 'SoutheastCubing - Organizer Guidelines' },
   { path: 'contact', component: ContactComponent, title: 'SoutheastCubing - Contact' },
   { path: 'about', component: AboutComponent, title: 'SoutheastCubing - About' },
 ];

@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { Delegate } from 'src/app/models/Delegate';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -7,6 +7,8 @@ import { ThemeService } from 'src/app/services/theme.service';
 import { isMobile } from 'src/app/shared/functions';
 import { Colors, StateColors } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
+import { Location } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'se-delegates',
@@ -18,6 +20,7 @@ export class DelegatesComponent implements OnInit {
   StateColors = StateColors;
   enviroment = environment;
   delegates: Delegate[];
+  selectedDelegateNameFromRoute: string;
   title: string = 'Southeast Delegates';
   description: string = '';
   subText: string = '';
@@ -25,11 +28,24 @@ export class DelegatesComponent implements OnInit {
   loadingDelegates: boolean = true;
   selectedDelegate: Delegate;
 
-  constructor(private contentful: ContentfulService, private themeService: ThemeService, private navService: NavService) { }
+  constructor(
+    private contentful: ContentfulService,
+    private themeService: ThemeService,
+    private navService: NavService,
+    private route: ActivatedRoute,
+    private location: Location
+  ) {
+
+  }
 
   ngOnInit(): void {
     // sets up main color for the delegates page
     this.themeService.setMainPaneColor(Colors.green);
+
+    // collect competitionId from params
+    this.route.params.subscribe(params => {
+      this.selectedDelegateNameFromRoute = params['delegateName'];
+    });
 
     // retireve, sorts, and formats data from the CMS Delegates Entries
     this.contentful.getContentfulGroup(ContentfulContentType.delegates).subscribe(res => {
@@ -48,6 +64,14 @@ export class DelegatesComponent implements OnInit {
       this.title = res.fields.title;
       this.description = res.fields.description;
       this.subText = res.fields.subText1;
+      if (this.selectedDelegateNameFromRoute) {
+        let foundDelegate = this.delegates.find(delegate => delegate.name.replace(/ +/g, "-") === this.selectedDelegateNameFromRoute);
+        if (foundDelegate) {
+          this.selectDelegate(foundDelegate);
+        } else {
+          this.location.replaceState('/delegates');
+        }
+      }
       this.loadingContent = false;
     });
   }
@@ -61,6 +85,7 @@ export class DelegatesComponent implements OnInit {
     if (this.selectedDelegate?.name === delegate.name) {
       this.selectedDelegate = undefined;
       this.themeService.setMainPaneColor(Colors.green); //resets left pane
+      this.location.replaceState('/delegates');
     } else {
       this.selectedDelegate = delegate;
       if (!this.isMobile) {
@@ -74,6 +99,7 @@ export class DelegatesComponent implements OnInit {
           document.getElementById(this.selectedDelegate.name)?.scrollIntoView({ behavior: 'smooth' });
         }, 0);
       }
+      this.location.replaceState('/delegates/' + this.selectedDelegate.name.replace(/ +/g, "-"));
     }
   }
 }

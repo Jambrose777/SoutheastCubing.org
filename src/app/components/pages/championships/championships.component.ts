@@ -7,6 +7,8 @@ import { ThemeService } from 'src/app/services/theme.service';
 import { isMobile } from 'src/app/shared/functions';
 import { Colors, StateColors } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
+import { Location } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'se-championships',
@@ -23,13 +25,25 @@ export class ChampionshipsComponent implements OnInit {
   loadingChampionships: boolean = true;
   championships: Championship[];
   selectedChampionship: Championship;
+  selectedChampionshipIdFromRoute: string;
   subText1: string = '';
 
-  constructor(private contentful: ContentfulService, private themeService: ThemeService, private navService: NavService) { }
+  constructor(
+    private contentful: ContentfulService,
+    private themeService: ThemeService,
+    private navService: NavService,
+    private route: ActivatedRoute,
+    private location: Location
+  ) { }
 
   ngOnInit(): void {
     // sets up main color for the championships page
     this.themeService.setMainPaneColor(Colors.blue);
+
+    // collect championshipId from params
+    this.route.params.subscribe(params => {
+      this.selectedChampionshipIdFromRoute = params['championshipId'];
+    });
 
     // retireve formats data from the CMS Championships Page
     this.contentful.getContentfulEntry(ContentfulEntryId.championships).subscribe(res => {
@@ -50,6 +64,14 @@ export class ChampionshipsComponent implements OnInit {
           champions: championship.fields.champions?.map(champion => ({ ...champion.fields }))
         }))
         .sort((a: Championship, b: Championship) => a.year < b.year ? 1 : -1);
+      if (this.selectedChampionshipIdFromRoute) {
+        let foundChampionship = this.championships.find(championship => championship.id === this.selectedChampionshipIdFromRoute);
+        if (foundChampionship) {
+          this.selectChampionship(foundChampionship);
+        } else {
+          this.location.replaceState('/championships');
+        }
+      }
       this.loadingChampionships = false;
     });
   }
@@ -63,6 +85,7 @@ export class ChampionshipsComponent implements OnInit {
     if (this.selectedChampionship?.name === championship.name) {
       this.selectedChampionship = undefined;
       this.themeService.setMainPaneColor(Colors.blue);
+      this.location.replaceState('/championships');
     } else {
       this.selectedChampionship = championship;
       if (!this.isMobile) {
@@ -76,6 +99,7 @@ export class ChampionshipsComponent implements OnInit {
           document.getElementById(this.selectedChampionship.id)?.scrollIntoView({ behavior: 'smooth' });
         }, 0);
       }
+      this.location.replaceState('/championships/' + this.selectedChampionship.id);
     }
   }
 
