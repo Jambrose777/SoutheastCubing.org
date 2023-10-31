@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Club } from 'src/app/models/Club';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
@@ -9,13 +9,14 @@ import { Colors, StateColors, States } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
 import { Location } from '@angular/common';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'se-clubs',
   templateUrl: './clubs.component.html',
   styleUrls: ['./clubs.component.scss']
 })
-export class ClubsComponent implements OnInit {
+export class ClubsComponent implements OnInit, OnDestroy {
   isMobile: boolean;
   StateColors = StateColors;
   enviroment = environment;
@@ -31,7 +32,8 @@ export class ClubsComponent implements OnInit {
   subText2: string = '';
   filters = {
     states: [],
-  }
+  };
+  subscriptions: Subscription = new Subscription();
 
   constructor(
     private contentful: ContentfulService,
@@ -44,36 +46,36 @@ export class ClubsComponent implements OnInit {
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile);
+    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
 
     // sets up main color for the clubs page
     this.themeService.setMainPaneColor(Colors.purple);
 
     // collect competitionId from params
-    this.route.params.subscribe(params => {
+    this.subscriptions.add(this.route.params.subscribe(params => {
       this.selectedClubIdFromRoute = params['clubId'];
-    });
+    }));
 
     // collect filters from query params
-    this.route.queryParams.subscribe(params => {
+    this.subscriptions.add(this.route.queryParams.subscribe(params => {
       if (params['states']) {
         this.filters.states = params['states']
           .split(",")
           .filter(state => ["Alabama", "Florida", "Georgia", "North Carolina", "South Carolina", "Tennessee"].includes(state));
       }
-    });
+    }));
 
     // retireve formats data from the CMS Clubs Page
-    this.contentful.getContentfulEntry(ContentfulEntryId.clubs).subscribe(res => {
+    this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.clubs).subscribe(res => {
       this.title = res.fields.title;
       this.description = res.fields.description;
       this.subText1 = res.fields.subText1;
       this.subText2 = res.fields.subText2;
       this.loadingContent = false;
-    });
+    }));
 
     // retrieve, sorts, and formats the clubs list from the CMS Clubs
-    this.contentful.getContentfulGroup(ContentfulContentType.clubs).subscribe(res => {
+    this.subscriptions.add(this.contentful.getContentfulGroup(ContentfulContentType.clubs).subscribe(res => {
       this.clubs = res.items
         .map(club => ({ ...club.fields, image: club.fields.image?.fields.file.url, state: club.fields?.city.substring(club.fields?.city.length - 2) }))
         .sort((a: Club, b: Club) => a.city == b.city ? (a.name > b.name ? 1 : -1) : (a.city > b.city ? 1 : -1));
@@ -87,7 +89,11 @@ export class ClubsComponent implements OnInit {
         }
       }
       this.loadingClubs = false;
-    });
+    }));
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   // sets a club as the selected Club to drill details

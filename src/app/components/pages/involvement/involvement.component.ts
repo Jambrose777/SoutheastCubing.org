@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -8,13 +8,14 @@ import { Colors } from 'src/app/shared/types';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'se-involvement',
   templateUrl: './involvement.component.html',
   styleUrls: ['./involvement.component.scss']
 })
-export class InvolvementComponent implements OnInit {
+export class InvolvementComponent implements OnInit, OnDestroy {
   isMobile: boolean;
   title: string = 'Get Involved';
   description: string = '';
@@ -22,6 +23,7 @@ export class InvolvementComponent implements OnInit {
   subTopics: SubTopic[];
   selectedSubTopic: SubTopic;
   selectedSubTopicTitleFromRoute: string;
+  subscriptions: Subscription = new Subscription();
 
   constructor(
     private contentful: ContentfulService,
@@ -34,18 +36,18 @@ export class InvolvementComponent implements OnInit {
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile);
+    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
 
     // sets up main color for the Involvement page
     this.themeService.setMainPaneColor(Colors.red);
 
     // collect subTopicId from params
-    this.route.params.subscribe(params => {
+    this.subscriptions.add(this.route.params.subscribe(params => {
       this.selectedSubTopicTitleFromRoute = params['subTopicId'];
-    });
+    }));
 
     // retireve formats data from the CMS Involvement Page
-    this.contentful.getContentfulEntry(ContentfulEntryId.involvement).subscribe(res => {
+    this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.involvement).subscribe(res => {
       this.title = res.fields.title;
       this.description = res.fields.description;
       this.subTopics = res.fields.subTopics.map(subTopic => ({ ...subTopic.fields, photo: subTopic.fields['photo']?.fields.file.url, color: Colors[subTopic.fields.color] }))
@@ -58,7 +60,11 @@ export class InvolvementComponent implements OnInit {
         }
       }
       this.loadingContent = false;
-    });
+    }));
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   // sets a sub topic as the selected sub topic to drill details

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Championship } from 'src/app/models/Championship';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -9,13 +9,14 @@ import { environment } from 'src/environments/environment';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'se-championships',
   templateUrl: './championships.component.html',
   styleUrls: ['./championships.component.scss']
 })
-export class ChampionshipsComponent implements OnInit {
+export class ChampionshipsComponent implements OnInit, OnDestroy {
   isMobile: boolean
   StateColors = StateColors;
   enviroment = environment;
@@ -27,6 +28,7 @@ export class ChampionshipsComponent implements OnInit {
   selectedChampionship: Championship;
   selectedChampionshipIdFromRoute: string;
   subText1: string = '';
+  subscriptions: Subscription = new Subscription();
 
   constructor(
     private contentful: ContentfulService,
@@ -39,26 +41,26 @@ export class ChampionshipsComponent implements OnInit {
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile);
+    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
 
     // sets up main color for the championships page
     this.themeService.setMainPaneColor(Colors.blue);
 
     // collect championshipId from params
-    this.route.params.subscribe(params => {
+    this.subscriptions.add(this.route.params.subscribe(params => {
       this.selectedChampionshipIdFromRoute = params['championshipId'];
-    });
+    }));
 
     // retireve formats data from the CMS Championships Page
-    this.contentful.getContentfulEntry(ContentfulEntryId.championships).subscribe(res => {
+    this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.championships).subscribe(res => {
       this.title = res.fields.title;
       this.description = res.fields.description;
       this.subText1 = res.fields.subText1;
       this.loadingContent = false;
-    });
+    }));
 
     // retrieve, sorts, and formats the championships list from the CMS Championships
-    this.contentful.getContentfulGroup(ContentfulContentType.championships).subscribe(res => {
+    this.subscriptions.add(this.contentful.getContentfulGroup(ContentfulContentType.championships).subscribe(res => {
       this.championships = res.items
         .map(championship => ({
           ...championship.fields,
@@ -77,7 +79,11 @@ export class ChampionshipsComponent implements OnInit {
         }
       }
       this.loadingChampionships = false;
-    });
+    }));
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   // sets a championship as the selected Championship to drill details

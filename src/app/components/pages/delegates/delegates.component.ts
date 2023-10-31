@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { Delegate } from 'src/app/models/Delegate';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -9,13 +9,14 @@ import { environment } from 'src/environments/environment';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'se-delegates',
   templateUrl: './delegates.component.html',
   styleUrls: ['./delegates.component.scss']
 })
-export class DelegatesComponent implements OnInit {
+export class DelegatesComponent implements OnInit, OnDestroy {
   isMobile: boolean;
   StateColors = StateColors;
   enviroment = environment;
@@ -27,6 +28,7 @@ export class DelegatesComponent implements OnInit {
   loadingContent: boolean = true;
   loadingDelegates: boolean = true;
   selectedDelegate: Delegate;
+  subscriptions: Subscription = new Subscription();
 
   constructor(
     private contentful: ContentfulService,
@@ -41,18 +43,18 @@ export class DelegatesComponent implements OnInit {
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile);
+    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
 
     // sets up main color for the delegates page
     this.themeService.setMainPaneColor(Colors.green);
 
     // collect competitionId from params
-    this.route.params.subscribe(params => {
+    this.subscriptions.add(this.route.params.subscribe(params => {
       this.selectedDelegateNameFromRoute = params['delegateName'];
-    });
+    }));
 
     // retireve, sorts, and formats data from the CMS Delegates Entries
-    this.contentful.getContentfulGroup(ContentfulContentType.delegates).subscribe(res => {
+    this.subscriptions.add(this.contentful.getContentfulGroup(ContentfulContentType.delegates).subscribe(res => {
       this.delegates = res.items
         .sort((a, b) => a['fields']['order'] - b.fields['order'])
         .map(delegate => ({
@@ -61,10 +63,10 @@ export class DelegatesComponent implements OnInit {
           thumbnail: delegate.fields['thumbnail']?.fields.file.url,
         } as Delegate));
       this.loadingDelegates = false;
-    });
+    }));
 
     // retireve and formats data from the CMS Delegate Page
-    this.contentful.getContentfulEntry(ContentfulEntryId.delegates).subscribe(res => {
+    this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.delegates).subscribe(res => {
       this.title = res.fields.title;
       this.description = res.fields.description;
       this.subText = res.fields.subText1;
@@ -77,7 +79,11 @@ export class DelegatesComponent implements OnInit {
         }
       }
       this.loadingContent = false;
-    });
+    }));
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   // selects a delegate to drill in details on

@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { Competition } from 'src/app/models/Competition';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { EmailRequestBody } from 'src/app/models/EmailRequestBody';
@@ -18,7 +19,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './contact.component.html',
   styleUrls: ['./contact.component.scss']
 })
-export class ContactComponent implements OnInit {
+export class ContactComponent implements OnInit, OnDestroy {
   isMobile: boolean;;
   EmailApiStatus = EmailApiStatus;
   EmailType = EmailType;
@@ -32,6 +33,7 @@ export class ContactComponent implements OnInit {
   ipAddress: string;
   emailApiStatus: EmailApiStatus = EmailApiStatus.none;
   hasHadError = false;
+  subscriptions: Subscription = new Subscription();
 
   emailTypeOptions = [
     { value: EmailType.upcomingCompetition, label: 'An upcoming WCA competition' },
@@ -89,30 +91,30 @@ export class ContactComponent implements OnInit {
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile);
+    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
 
     // sets up main color for the Involvement page
     this.themeService.setMainPaneColor(Colors.yellow);
 
     // retireve formats data from the CMS Involvement Page
-    this.contentful.getContentfulEntry(ContentfulEntryId.contact).subscribe(res => {
+    this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.contact).subscribe(res => {
       this.description = res.fields.description;
       this.loadingContent = false;
-    });
+    }));
 
     // retrieve the competitions list from WCA
-    this.wca.getUpcomingCompetitions().subscribe(res => {
+    this.subscriptions.add(this.wca.getUpcomingCompetitions().subscribe(res => {
       this.competitions = res;
       this.loadingCompetitions = false;
-    });
+    }));
 
     // retrieves IP Address if available
-    this.auth.getIpAddress().subscribe(res => {
+    this.subscriptions.add(this.auth.getIpAddress().subscribe(res => {
       this.ipAddress = res;
-    });
+    }));
 
     // set up custom validators
-    this.emailTypeControl.valueChanges.subscribe(value => {
+    this.subscriptions.add(this.emailTypeControl.valueChanges.subscribe(value => {
       if (value === EmailType.pastCompetition) {
         this.competitionNameControl.setValidators([Validators.required])
       } else {
@@ -120,14 +122,18 @@ export class ContactComponent implements OnInit {
       }
 
       this.competitionNameControl.updateValueAndValidity();
-    });
+    }));
 
     // pull default values from query params
-    this.route.queryParams.subscribe(params => {
+    this.subscriptions.add(this.route.queryParams.subscribe(params => {
       if (params['defaultEmailType']) {
         this.emailTypeControl.setValue(params['defaultEmailType'])
       }
-    });
+    }));
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   onSubmit(): void {
@@ -153,7 +159,7 @@ export class ContactComponent implements OnInit {
     }
 
     // submit API Call
-    this.southeastcubingApiService.contactSubmission(emailRequestBody).subscribe({
+    this.subscriptions.add(this.southeastcubingApiService.contactSubmission(emailRequestBody).subscribe({
       next: (res) => {
         this.emailApiStatus = EmailApiStatus.success;
         this.contactForm.enable();
@@ -168,7 +174,7 @@ export class ContactComponent implements OnInit {
         }
         this.contactForm.enable();
       }
-    })
+    }))
 
   }
 

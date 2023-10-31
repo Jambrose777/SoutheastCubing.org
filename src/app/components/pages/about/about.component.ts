@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { Team } from 'src/app/models/Team';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -11,13 +12,14 @@ import { Colors } from 'src/app/shared/types';
   templateUrl: './about.component.html',
   styleUrls: ['./about.component.scss']
 })
-export class AboutComponent implements OnInit {
+export class AboutComponent implements OnInit, OnDestroy {
   isMobile: boolean;
   title: string = 'About Us';
   description: string = '';
   loadingContent: boolean = true;
   loadingTeams: boolean = true;
   teams: Team[];
+  subscriptions: Subscription = new Subscription();
 
   constructor(
     private contentful: ContentfulService, 
@@ -27,27 +29,31 @@ export class AboutComponent implements OnInit {
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile);
+    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
 
     // sets up main color for the Involvement page
     this.themeService.setMainPaneColor(Colors.orange);
 
     // retireve formats data from the CMS Involvement Page
-    this.contentful.getContentfulEntry(ContentfulEntryId.about).subscribe(res => {
+    this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.about).subscribe(res => {
       this.title = res.fields.title;
       this.description = res.fields.description;
       this.loadingContent = false;
-    });
+    }));
 
     // retrieve theams list from the CMS Teams
-    this.contentful.getContentfulGroup(ContentfulContentType.teams).subscribe(res => {
+    this.subscriptions.add(this.contentful.getContentfulGroup(ContentfulContentType.teams).subscribe(res => {
       this.teams = res.items
         .map(team => ({
           ...team.fields,
         }))
         .sort((a: Team, b: Team) => a.order > b.order ? 1 : -1);
       this.loadingTeams = false;
-    });
+    }));
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
 }

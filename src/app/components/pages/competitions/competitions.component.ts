@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Competition } from 'src/app/models/Competition';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
@@ -10,13 +10,14 @@ import { environment } from 'src/environments/environment';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'se-competitions',
   templateUrl: './competitions.component.html',
   styleUrls: ['./competitions.component.scss']
 })
-export class CompetitionsComponent implements OnInit {
+export class CompetitionsComponent implements OnInit, OnDestroy {
   isMobile: boolean;
   StateColors = StateColors;
   enviroment = environment;
@@ -32,7 +33,8 @@ export class CompetitionsComponent implements OnInit {
   filters = {
     states: [],
     events: [],
-  }
+  };
+  subscriptions: Subscription = new Subscription();
 
   constructor(
     private contentful: ContentfulService,
@@ -46,18 +48,18 @@ export class CompetitionsComponent implements OnInit {
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile);
+    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
 
     // sets up main color for the competitions page
     this.themeService.setMainPaneColor(Colors.darkGrey);
 
     // collect competitionId from params
-    this.route.params.subscribe(params => {
+    this.subscriptions.add(this.route.params.subscribe(params => {
       this.selectedCompetitionIdFromRoute = params['competitionId'];
-    });
+    }));
 
     // collect filters from query params
-    this.route.queryParams.subscribe(params => {
+    this.subscriptions.add(this.route.queryParams.subscribe(params => {
       if (params['states']) {
         this.filters.states = params['states']
           .split(",")
@@ -68,18 +70,18 @@ export class CompetitionsComponent implements OnInit {
           .split(",")
           .filter(event => Events.includes(event));
       }
-    });
+    }));
 
     // retireve and formats data from the CMS Competitions Page
-    this.contentful.getContentfulEntry(ContentfulEntryId.competitions).subscribe(res => {
+    this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.competitions).subscribe(res => {
       this.title = res.fields.title;
       this.description = res.fields.description;
       this.subText = res.fields.subText1;
       this.loadingContent = false;
-    });
+    }));
 
     // retrieve the competitions list from WCA
-    this.wca.getUpcomingCompetitions().subscribe(res => {
+    this.subscriptions.add(this.wca.getUpcomingCompetitions().subscribe(res => {
       this.competitions = res;
       this.filteredCompetitions = res;
       this.filterCompetitions();
@@ -92,7 +94,11 @@ export class CompetitionsComponent implements OnInit {
         }
       }
       this.loadingCompetitions = false;
-    });
+    }));
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   // selects a competition to drill in details on
@@ -129,7 +135,7 @@ export class CompetitionsComponent implements OnInit {
   // retrieves and sets the registration status for open registrations for the selected competition
   findRegistrationOpenStatus() {
     // fetch the number of accepted registrations from wca
-    this.wca.getAcceptedRegistrations(this.selectedCompetition.id).subscribe(res => {
+    this.subscriptions.add(this.wca.getAcceptedRegistrations(this.selectedCompetition.id).subscribe(res => {
       this.selectedCompetition.accepted_registrations = res;
       // registration is full and has a waiting list if the competitor limit is = the accepted registrations, otherwise registration is still open.
       if (this.selectedCompetition.accepted_registrations >= this.selectedCompetition.competitor_limit) {
@@ -140,7 +146,7 @@ export class CompetitionsComponent implements OnInit {
 
       // save newly aquired data to local storage to cache all responses from WCA.
       this.wca.saveCompetitionstoLocalStorage(this.competitions);
-    })
+    }));
   }
 
   handleStateSelection(state: States) {
