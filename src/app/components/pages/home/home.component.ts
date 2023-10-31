@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
-import { isMobile } from 'src/app/shared/functions';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { environment } from 'src/environments/environment';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { Router } from '@angular/router';
+import { ScreenSizeService } from 'src/app/services/screen-size.service';
 
 @Component({
   selector: 'se-home',
@@ -14,7 +14,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-  isMobile = isMobile();
+  isMobile: boolean;
   enviroment = environment;
   title: string = 'Southeast Cubing';
   description: string = '';
@@ -22,9 +22,17 @@ export class HomeComponent implements OnInit {
   loadingContent: boolean = true;
   subTopics: SubTopic[];
 
-  constructor(private contentful: ContentfulService, private themeService: ThemeService, private router: Router) { }
+  constructor(
+    private contentful: ContentfulService, 
+    private themeService: ThemeService, 
+    private router: Router,
+    private screenSizeService: ScreenSizeService
+    ) { }
 
   ngOnInit(): void {
+    // sets up responsive screensize
+    this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile);
+
     // sets up main color for the home page
     this.themeService.setMainPaneColor(Colors.blue);
 

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Club } from 'src/app/models/Club';
-import { isMobile } from 'src/app/shared/functions';
+import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -9,13 +9,18 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./selected-club.component.scss']
 })
 export class SelectedClubComponent implements OnInit {
-  isMobile = isMobile();
+  isMobile: boolean;
   enviroment = environment;
   @Input() selectedClub: Club;
 
-  constructor() { }
+  constructor(
+    private screenSizeService: ScreenSizeService,
+    ) { }
 
   ngOnInit(): void {
+    // sets up responsive screensize
+    this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile);
+
   }
 
 }

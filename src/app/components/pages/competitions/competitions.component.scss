@@ -2,6 +2,7 @@
 
 .badges {
   height: 50px;
+  margin-top: 20px;
 }
 
 .large-text-content {
@@ -9,14 +10,10 @@
 }
 
 .sub-text-container {
-  margin-top: -30px;
+  margin-top: -45px;
 }
 
 @media only screen and (max-width: $small-breakpoint) {
-  .badges {
-    margin-top: 20px;
-  }
-
   .large-text-content {
     margin: 10px 5px;
   }

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Delegate } from 'src/app/models/Delegate';
-import { isMobile } from 'src/app/shared/functions';
+import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -9,13 +9,18 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./selected-delegate.component.scss']
 })
 export class SelectedDelegateComponent implements OnInit {
-  isMobile = isMobile();
+  isMobile: boolean;
   enviroment = environment;
   @Input() selectedDelegate: Delegate;
 
-  constructor() { }
+  constructor(
+    private screenSizeService: ScreenSizeService,
+    ) { }
 
   ngOnInit(): void {
+    // sets up responsive screensize
+    this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile);
+
   }
 
 }

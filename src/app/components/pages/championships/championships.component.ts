@@ -4,11 +4,11 @@ import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Content
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
-import { isMobile } from 'src/app/shared/functions';
 import { Colors, StateColors } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { ScreenSizeService } from 'src/app/services/screen-size.service';
 
 @Component({
   selector: 'se-championships',
@@ -16,7 +16,7 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./championships.component.scss']
 })
 export class ChampionshipsComponent implements OnInit {
-  isMobile = isMobile();
+  isMobile: boolean
   StateColors = StateColors;
   enviroment = environment;
   title: string = 'Southeast Championships';
@@ -33,10 +33,14 @@ export class ChampionshipsComponent implements OnInit {
     private themeService: ThemeService,
     private navService: NavService,
     private route: ActivatedRoute,
-    private location: Location
+    private location: Location,
+    private screenSizeService: ScreenSizeService,
   ) { }
 
   ngOnInit(): void {
+    // sets up responsive screensize
+    this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile);
+
     // sets up main color for the championships page
     this.themeService.setMainPaneColor(Colors.blue);
 

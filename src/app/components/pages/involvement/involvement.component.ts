@@ -4,10 +4,10 @@ import { SubTopic } from 'src/app/models/SubTopic';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
-import { isMobile } from 'src/app/shared/functions';
 import { Colors } from 'src/app/shared/types';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { ScreenSizeService } from 'src/app/services/screen-size.service';
 
 @Component({
   selector: 'se-involvement',
@@ -15,7 +15,7 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./involvement.component.scss']
 })
 export class InvolvementComponent implements OnInit {
-  isMobile = isMobile();
+  isMobile: boolean;
   title: string = 'Get Involved';
   description: string = '';
   loadingContent: boolean = true;
@@ -28,10 +28,14 @@ export class InvolvementComponent implements OnInit {
     private themeService: ThemeService,
     private navService: NavService,
     private route: ActivatedRoute,
-    private location: Location
+    private location: Location,
+    private screenSizeService: ScreenSizeService,
   ) { }
 
   ngOnInit(): void {
+    // sets up responsive screensize
+    this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile);
+
     // sets up main color for the Involvement page
     this.themeService.setMainPaneColor(Colors.red);
 

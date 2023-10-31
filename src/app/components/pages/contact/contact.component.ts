@@ -6,10 +6,10 @@ import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { EmailRequestBody } from 'src/app/models/EmailRequestBody';
 import { AuthService } from 'src/app/services/auth.service';
 import { ContentfulService } from 'src/app/services/contentful.service';
+import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { SouteastcubingApiService } from 'src/app/services/souteastcubing-api.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { WcaService } from 'src/app/services/wca.service';
-import { isMobile } from 'src/app/shared/functions';
 import { Colors, EmailApiStatus, EmailType } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
 
@@ -19,7 +19,7 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./contact.component.scss']
 })
 export class ContactComponent implements OnInit {
-  isMobile = isMobile();
+  isMobile: boolean;;
   EmailApiStatus = EmailApiStatus;
   EmailType = EmailType;
   enviroment = environment;
@@ -83,10 +83,14 @@ export class ContactComponent implements OnInit {
     private wca: WcaService,
     private auth: AuthService,
     private southeastcubingApiService: SouteastcubingApiService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private screenSizeService: ScreenSizeService,
   ) { }
 
   ngOnInit(): void {
+    // sets up responsive screensize
+    this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile);
+
     // sets up main color for the Involvement page
     this.themeService.setMainPaneColor(Colors.yellow);
 

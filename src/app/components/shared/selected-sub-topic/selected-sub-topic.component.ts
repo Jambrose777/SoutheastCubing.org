@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { SubTopic } from 'src/app/models/SubTopic';
-import { isMobile } from 'src/app/shared/functions';
+import { ScreenSizeService } from 'src/app/services/screen-size.service';
 
 @Component({
   selector: 'se-selected-sub-topic',
@@ -8,12 +8,16 @@ import { isMobile } from 'src/app/shared/functions';
   styleUrls: ['./selected-sub-topic.component.scss']
 })
 export class SelectedSubTopicComponent implements OnInit {
-  isMobile = isMobile();
+  isMobile: boolean;
   @Input() selectedSubTopic: SubTopic;
 
-  constructor() { }
+  constructor(
+    private screenSizeService: ScreenSizeService
+    ) { }
 
   ngOnInit(): void {
+    // sets up responsive screensize
+    this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile);
   }
 
 }

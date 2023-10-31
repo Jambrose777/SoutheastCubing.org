@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { Team } from 'src/app/models/Team';
 import { ContentfulService } from 'src/app/services/contentful.service';
+import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { ThemeService } from 'src/app/services/theme.service';
-import { isMobile } from 'src/app/shared/functions';
 import { Colors } from 'src/app/shared/types';
 
 @Component({
@@ -12,16 +12,23 @@ import { Colors } from 'src/app/shared/types';
   styleUrls: ['./about.component.scss']
 })
 export class AboutComponent implements OnInit {
-  isMobile = isMobile();
+  isMobile: boolean;
   title: string = 'About Us';
   description: string = '';
   loadingContent: boolean = true;
   loadingTeams: boolean = true;
   teams: Team[];
 
-  constructor(private contentful: ContentfulService, private themeService: ThemeService) { }
+  constructor(
+    private contentful: ContentfulService, 
+    private themeService: ThemeService,
+    private screenSizeService: ScreenSizeService
+    ) { }
 
   ngOnInit(): void {
+    // sets up responsive screensize
+    this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile);
+
     // sets up main color for the Involvement page
     this.themeService.setMainPaneColor(Colors.orange);
 

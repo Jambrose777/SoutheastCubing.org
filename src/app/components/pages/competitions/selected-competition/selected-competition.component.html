@@ -46,12 +46,12 @@
       <!-- Info for Registration Status pre launch -->
       <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.preLaunch" class="tiny-text-content">
         Registration will open on <b>{{selectedCompetition.readable_registration_open}}</b>. We highly recommend
-        registering right when registration opens; some competitions fill within seconds.
+        registering right when registration opens. Some competitions fill within seconds.
       </div>
 
       <!-- Info for Registration Status Closed -->
       <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.closed">
-        Registration has closed. We are no longer accepting registrations for this competition.
+        Registration has closed. You can no longer register for this competition.
       </div>
 
       <!-- Loading text for Registration Status open -->

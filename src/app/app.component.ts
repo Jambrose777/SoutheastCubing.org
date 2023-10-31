@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { isMobile } from './shared/functions';
+import { ScreenSizeService } from './services/screen-size.service';
 
 @Component({
   selector: 'app-root',
@@ -8,11 +8,16 @@ import { isMobile } from './shared/functions';
 })
 export class AppComponent implements OnInit {
   title = 'southeast-cubing';
-  isMobile = isMobile();
+  isMobile: boolean;
 
-  constructor() { }
+  constructor(private screenSizeService: ScreenSizeService) { }
 
   ngOnInit(): void {
+    this.screenSizeService.setUpScreenSize();
+
+    // sets up responsive screensize
+    this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile);
+
   }
 
 }
