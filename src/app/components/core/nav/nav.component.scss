@@ -34,6 +34,7 @@
   transition: transform 0.5s, width 0.5s, height 0.5s;
   transition-delay: calc(0.1s * var(--i) + 1);
   border: 1px solid $se-black;
+  box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
 }
 
 .menu .navigation span .fa-solid {
