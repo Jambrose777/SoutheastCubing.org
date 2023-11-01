@@ -48,7 +48,7 @@
     <loading-spinner *ngIf="loadingClubs"></loading-spinner>
 
     <!-- List for all loaded clubs -->
-    <div class="list-container" *ngIf="!loadingClubs">
+    <div id="club-list-container" class="list-container" *ngIf="!loadingClubs">
       <ng-container *ngFor="let club of fliteredClubs;">
         <!-- Club Bubble -->
         <div class="item-container clickable" style="--state-color:{{StateColors[club.state]}}"

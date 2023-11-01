@@ -5,5 +5,7 @@
   </div>
 
   <!-- Close Icon for when the nav is open -->
-  <i class="close-icon fa-solid fa-close fa-2xl clickable" *ngIf="isNavActive" (click)="toggleNav(false)"></i>
+  <i class="close-icon fa-solid fa-close fa-2xl clickable" *ngIf="isNavActive || transition"
+    (click)="toggleNav(false)"></i>
+  <div class="nav-item-text">{{(isNavActive || transition) ? 'Close' : 'Menu'}}</div>
 </div>

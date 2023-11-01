@@ -149,34 +149,47 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
     }));
   }
 
+  // Adds a state to the filters
   handleStateSelection(state: States) {
+    // If the state is already filtered on, remove it from the filters
     if (this.filters.states.includes(state)) {
       this.filters.states.splice(this.filters.states.indexOf(state), 1);
     } else {
       this.filters.states.push(state);
     }
+
+    // If filters are all full, remove them (same condition)
     if (this.filters.states.length === 6) {
       this.filters.states = [];
     }
 
+    // Make Subsequent Calls
     this.updateUrl();
+    this.scrollToCompetitions();
     this.filterCompetitions();
   }
 
+  // Adds an event to the filters
   handleEventSelection(event: string) {
+    // If the event is already filtered on, remove it from the filters
     if (this.filters.events.includes(event)) {
       this.filters.events.splice(this.filters.events.indexOf(event), 1);
     } else {
       this.filters.events.push(event);
     }
+
+    // If filters are all full, remove them (same condition)
     if (this.filters.events.length === 17) {
       this.filters.events = [];
     }
 
+    // Make Subsequent Calls
     this.updateUrl();
+    this.scrollToCompetitions();
     this.filterCompetitions();
   }
 
+  // Filters Competitions in list according to filters
   filterCompetitions() {
     this.filteredCompetitions = this.competitions;
     if (this.filters.states.length > 0) {
@@ -187,6 +200,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Updates URL to include filters
   updateUrl() {
     let queryParams = [];
     if (this.filters.states.length > 0) {
@@ -198,6 +212,15 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
     this.location.replaceState('/competitions' +
       (this.selectedCompetition ? '/' + this.selectedCompetition.id : '') +
       (queryParams.length > 0 ? '?' + queryParams.join("&") : ''));
+  }
+
+  // Scrolls to the secondary pane on mobile
+  scrollToCompetitions() {
+    if (this.isMobile) {
+      setTimeout(() => {
+        document.getElementById('competition-list-container')?.scrollIntoView({ behavior: 'smooth' });
+      }, 0);
+    }
   }
 
 }

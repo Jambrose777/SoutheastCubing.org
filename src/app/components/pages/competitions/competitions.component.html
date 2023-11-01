@@ -10,7 +10,8 @@
       <div class="large-text-content">{{description}}</div>
 
       <!-- Filters -->
-      <se-event-list [selectedEvents]="filters.events" (selectEventEmitter)="handleEventSelection($event)"></se-event-list>
+      <se-event-list [selectedEvents]="filters.events" (selectEventEmitter)="handleEventSelection($event)">
+      </se-event-list>
       <se-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-map>
 
       <!-- section for external links text Bubble -->
@@ -37,7 +38,7 @@
     <!-- Loading Spinner -->
     <loading-spinner *ngIf="loadingCompetitions"></loading-spinner>
 
-    <div class="list-container" *ngIf="!loadingCompetitions">
+    <div id="competition-list-container" class="list-container" *ngIf="!loadingCompetitions">
       <!-- List for all loaded competitions -->
       <ng-container *ngFor="let competition of filteredCompetitions;">
         <!-- Competition Bubble -->

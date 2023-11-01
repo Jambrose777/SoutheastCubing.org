@@ -123,20 +123,27 @@ export class ClubsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Adds a state to the filters
   handleStateSelection(state: States) {
+    // If the state is already filtered on, remove it from the filters
     if (this.filters.states.includes(state)) {
       this.filters.states.splice(this.filters.states.indexOf(state), 1);
     } else {
       this.filters.states.push(state);
     }
+
+    // If filters are all full, remove them (same condition)
     if (this.filters.states.length === 6) {
       this.filters.states = [];
     }
 
+    // Make Subsequent Calls
     this.updateUrl();
+    this.scrollToClubs();
     this.filterClubs();
   }
 
+  // Filters Clubs in list according to filters
   filterClubs() {
     this.fliteredClubs = this.clubs;
     if (this.filters.states.length > 0) {
@@ -144,10 +151,20 @@ export class ClubsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Updates URL to include filters
   updateUrl() {
     this.location.replaceState('/clubs' +
       (this.selectedClub ? '/' + this.selectedClub.id : '') +
       (this.filters.states.length > 0 ? '?states=' + this.filters.states.join(",") : ''));
+  }
+
+  // Scrolls to the secondary pane on mobile
+  scrollToClubs() {
+    if(this.isMobile) {
+      setTimeout(() => {
+        document.getElementById('club-list-container')?.scrollIntoView({ behavior: 'smooth' });
+      }, 0);
+    }
   }
 
 }

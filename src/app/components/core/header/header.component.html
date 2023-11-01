@@ -3,7 +3,7 @@
   <h1 class="se-title" [ngClass]="{ 'medium-se-title': useMediumBreakpoint }">{{title}}</h1>
 
   <!-- Close Icon for when the nav is open -->
-  <i class="close-icon fa-solid fa-close fa-2xl clickable" *ngIf="isNavActive && !isMobile"
+  <i class="close-icon fa-solid fa-close fa-2xl clickable" *ngIf="isNavActive && !isMobile &&!activateNavOnDefault"
     (click)="toggleNav(false)"></i>
 
   <!-- Nav system -->

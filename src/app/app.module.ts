@@ -32,6 +32,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { SeMapComponent } from './components/shared/se-map/se-map.component';
 import { EventListComponent } from './components/shared/event-list/event-list.component';
+import { PageNotFoundComponent } from './components/pages/page-not-found/page-not-found.component';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -50,6 +51,7 @@ const moduleRoutes: Routes = [
   { path: 'organizers/:subTopicId', component: OrganizersComponent, title: 'SoutheastCubing - Organizer Guidelines' },
   { path: 'contact', component: ContactComponent, title: 'SoutheastCubing - Contact' },
   { path: 'about', component: AboutComponent, title: 'SoutheastCubing - About' },
+  { path: '**', pathMatch: 'full',  component: PageNotFoundComponent, title: 'SoutheastCubing - Page Not Found' }, 
 ];
 
 @NgModule({
@@ -74,7 +76,8 @@ const moduleRoutes: Routes = [
     ContactComponent,
     AboutComponent,
     SeMapComponent,
-    EventListComponent
+    EventListComponent,
+    PageNotFoundComponent
   ],
   imports: [
     BrowserModule,

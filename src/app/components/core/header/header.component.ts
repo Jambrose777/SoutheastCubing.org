@@ -11,6 +11,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isMobile: boolean;
   @Input() title: string = 'Southeast Cubing';
   @Input() useMediumBreakpoint: boolean = false;
+  @Input() activateNavOnDefault: boolean = false;
   isNavActive = false;
   transition = false;
   subscriptions: Subscription = new Subscription();
@@ -22,6 +23,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // sets up responsive screensize
     this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
+
+    if (this.activateNavOnDefault) {
+      this.toggleNav(this.activateNavOnDefault);
+    }
   }
 
   ngOnDestroy(): void {

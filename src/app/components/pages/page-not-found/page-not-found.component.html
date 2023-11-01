@@ -1,0 +1,17 @@
+<div class="component-container">
+  <div class="main-pane">
+    <header id="header" [title]="title" [activateNavOnDefault]="true"></header>
+    <ng-container *ngIf="isMobile">
+      <loading-spinner *ngIf="loadingContent"></loading-spinner>
+      <div *ngIf="!loadingContent" class="large-text-content">{{description}}</div>
+    </ng-container>
+  </div>
+  <div class="secondary-pane" *ngIf="!isMobile">
+    <!-- Loading Spinner -->
+    <loading-spinner *ngIf="loadingContent"></loading-spinner>
+
+    <ng-container *ngIf="!loadingContent && !isMobile">
+      <div class="large-text-content">{{description}}</div>
+    </ng-container>
+  </div>
+</div>

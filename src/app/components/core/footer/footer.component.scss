@@ -6,6 +6,7 @@
 
 .footer {
   display: flex;
+  flex-direction: column;
   height: $footer-height;
   width: calc(100% - 4px);
   background-color: $se-dark-grey;
@@ -20,17 +21,23 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 29px auto 20px auto;
     z-index: 10002;
   }
 
   .nav-container {
     width: 100%;
+    height: 50px;
     margin-left: auto;
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 10002;
+  }
+
+  .nav-item-text {
+    text-align: center;
+    color: $se-black;
     z-index: 10002;
   }
 

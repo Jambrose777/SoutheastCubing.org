@@ -19,19 +19,10 @@
                 &nbsp;
               </span>
             </div>
-            <!-- <div class="announcement-text">
-              <span>
-                {{subTopic.title}}
-                {{subTopic.description}}
-                {{subTopic.buttonText}}
-                <i *ngIf="subTopic.buttonIcon" class="fa-solid {{subTopic.buttonIcon}} fa-2xl"></i>
-                &nbsp;
-              </span>
-            </div> -->
           </div>
         </div>
       </ng-container>
-      
+
       <!-- Photo Carousel on Mobile -->
       <div class="mobile-home-photo-container" *ngIf="isMobile">
         <carousel [images]="photos" [cellsToShow]="1" [height]="200" [loop]="true" [autoplay]="true" [arrows]="false">

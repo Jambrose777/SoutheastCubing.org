@@ -8,6 +8,7 @@ export enum ContentfulEntryId {
   organizers = '4t8K8QdofzsnF25yJtny3x',
   contact = '2MMlKe63oGgs6881etRkSg',
   about = '15e2e1QADVMwVPci6a7PxE',
+  pageNotFound = '6j2IxOmaYgOFEFEtlW62Tl',
 }
 
 export enum ContentfulContentType {
