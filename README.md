@@ -37,3 +37,9 @@ Run `node backend/app.js`
 ## BE Status
 - systemctl status api.service
 - systemctl status nginx
+
+# FE Fetch a new SSL certificate
+- sudo certbot --apache
+
+# BE Fetch a new SSL certificate
+- sudo certbot --nginx
