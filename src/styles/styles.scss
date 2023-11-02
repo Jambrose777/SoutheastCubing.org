@@ -202,6 +202,10 @@ loading-spinner {
 }
 
 @media only screen and (max-width: $small-breakpoint) {
+  body {
+    background: $se-black;
+  }
+
   .component-container {
     flex-direction: column;
     height: fit-content;
