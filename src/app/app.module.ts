@@ -33,6 +33,8 @@ import { MatInputModule } from '@angular/material/input';
 import { SeMapComponent } from './components/shared/se-map/se-map.component';
 import { EventListComponent } from './components/shared/event-list/event-list.component';
 import { PageNotFoundComponent } from './components/pages/page-not-found/page-not-found.component';
+import { CatsComponent } from './components/pages/cats/cats.component';
+import { SelectedCatComponent } from './components/pages/cats/selected-cat/selected-cat.component';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -51,6 +53,8 @@ const moduleRoutes: Routes = [
   { path: 'organizers/:subTopicId', component: OrganizersComponent, title: 'SoutheastCubing - Organizer Guidelines' },
   { path: 'contact', component: ContactComponent, title: 'SoutheastCubing - Contact' },
   { path: 'about', component: AboutComponent, title: 'SoutheastCubing - About' },
+  { path: 'cats', component: CatsComponent, title: 'SoutheastCubing - Cats' },
+  { path: 'cats/:catName', component: CatsComponent, title: 'SoutheastCubing - Cats' },
   { path: '**', pathMatch: 'full',  component: PageNotFoundComponent, title: 'SoutheastCubing - Page Not Found' }, 
 ];
 
@@ -77,7 +81,9 @@ const moduleRoutes: Routes = [
     AboutComponent,
     SeMapComponent,
     EventListComponent,
-    PageNotFoundComponent
+    PageNotFoundComponent,
+    CatsComponent,
+    SelectedCatComponent
   ],
   imports: [
     BrowserModule,

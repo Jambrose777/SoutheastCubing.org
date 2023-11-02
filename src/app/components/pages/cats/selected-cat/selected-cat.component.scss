@@ -1,0 +1,8 @@
+@import "src/styles/color-pallet.scss";
+@import "src/styles/screen-sizes.scss";
+
+@media only screen and (max-width: $small-breakpoint) {
+  .photo-container {
+    width: 80%;
+  }
+}

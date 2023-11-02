@@ -62,14 +62,6 @@ export class DelegatesComponent implements OnInit, OnDestroy {
           photo: delegate.fields['photo']?.fields.file.url,
           thumbnail: delegate.fields['thumbnail']?.fields.file.url,
         } as Delegate));
-      this.loadingDelegates = false;
-    }));
-
-    // retireve and formats data from the CMS Delegate Page
-    this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.delegates).subscribe(res => {
-      this.title = res.fields.title;
-      this.description = res.fields.description;
-      this.subText = res.fields.subText1;
       if (this.selectedDelegateNameFromRoute) {
         let foundDelegate = this.delegates.find(delegate => delegate.name.replace(/ +/g, "-") === this.selectedDelegateNameFromRoute);
         if (foundDelegate) {
@@ -78,6 +70,14 @@ export class DelegatesComponent implements OnInit, OnDestroy {
           this.location.replaceState('/delegates');
         }
       }
+      this.loadingDelegates = false;
+    }));
+
+    // retireve and formats data from the CMS Delegate Page
+    this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.delegates).subscribe(res => {
+      this.title = res.fields.title;
+      this.description = res.fields.description;
+      this.subText = res.fields.subText1;
       this.loadingContent = false;
     }));
   }

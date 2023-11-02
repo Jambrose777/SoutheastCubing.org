@@ -1,0 +1,42 @@
+<div class="component-container">
+  <div class="main-pane">
+    <header id="header" [title]="title"></header>
+
+    <!-- Loading Spinner -->
+    <loading-spinner *ngIf="loadingContent"></loading-spinner>
+
+    <!-- Information if there is no selected Cat (ie. initial page for Cats) -->
+    <ng-container *ngIf="!loadingContent && (isMobile || !selectedCat)">
+      <div class="large-text-content">{{description}}</div>
+    </ng-container>
+
+    <!-- Information for selected cat details -->
+    <se-selected-cat *ngIf="selectedCat && !isMobile" [selectedCat]="selectedCat">
+    </se-selected-cat>
+  </div>
+  <div class="secondary-pane">
+    <!-- Loading Spinner -->
+    <loading-spinner *ngIf="loadingCats"></loading-spinner>
+
+    <div class="list-container" *ngIf="!loadingCats">
+      <!-- List for all loaded cats -->
+      <ng-container *ngFor="let cat of cats;">
+        <!-- Cat Bubble -->
+        <div class="item-container clickable" style="--state-color:{{cat.color}}"
+          [ngClass]="{active: selectedCat?.name === cat.name}">
+          <div class="item-row" (click)="selectCat(cat)" id="{{cat.name}}">
+            <img class="thumbnail" src="{{cat.thumbnail}}">
+            <div class="item-title">
+              {{cat.name}}
+            </div>
+          </div>
+
+          <!-- Information for selected competition details -->
+          <se-selected-cat *ngIf="isMobile && selectedCat?.name === cat.name"
+            [selectedCat]="selectedCat">
+          </se-selected-cat>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

@@ -9,6 +9,7 @@ export enum ContentfulEntryId {
   contact = '2MMlKe63oGgs6881etRkSg',
   about = '15e2e1QADVMwVPci6a7PxE',
   pageNotFound = '6j2IxOmaYgOFEFEtlW62Tl',
+  cats = '6ioa16NhQUuNlyZJHlpZ4e',
 }
 
 export enum ContentfulContentType {
@@ -16,4 +17,5 @@ export enum ContentfulContentType {
   clubs = 'clubs',
   championships = 'championships',
   teams = 'teams',
+  cats = 'cats',
 }
