@@ -46,18 +46,15 @@
   font-size: 1.75rem;
   transition: 0.5s;
   transition-delay: 0.5s;
+  margin-top: 35px;
+}
+
+.menu .navigation.active.transitioned span .fa-solid {
+  height: 28px;
 }
 
 .hidden-text {
   display: none;
-}
-
-.menu .navigation.transitioned.active span:hover .fa-solid {
-  display: none;
-}
-
-.menu .navigation.transitioned.active span:hover .fa-solid+.hidden-text {
-  display: block;
 }
 
 .menu .navigation.active span {
@@ -67,6 +64,10 @@
   border-radius: 5px;
   transform: translate(calc(133px * var(--x)), calc(133px * var(--y)));
   transition-delay: 0.5s;
+}
+
+.menu .navigation.active.transitioned span {
+  justify-content: start;
 }
 
 .black-cube {
@@ -110,39 +111,41 @@
   background-color: $se-yellow;
 }
 
-@media only screen and (max-width: $small-breakpoint) {
-  .menu .navigation.active span {
-    transform: translate(calc(120px * var(--x)), calc(120px * var(--y)));
-  }
-
+.active {
   .hidden-text {
     font-size: 1px;
     margin-top: 0px;
     white-space: nowrap;
     display: block;
   }
+}
+
+.active.transitioned {
+  .hidden-text {
+    display: block;
+    font-size: 16px;
+    transition: 0.5s;
+    transition-delay: 0.5s;
+  }
+}
+
+.menu .navigation.transitioned.active span:hover .fa-solid {
+  display: block;
+}
+
+.navigation {
+  span {
+    margin-top: 10px;
+    flex-direction: column;
+  }
+}
+
+@media only screen and (max-width: $small-breakpoint) {
+  .menu .navigation.active span {
+    transform: translate(calc(120px * var(--x)), calc(120px * var(--y)));
+  }
 
   .menu {
     height: $footer-height;
-  }
-
-  .menu .navigation.transitioned.active span:hover .fa-solid {
-    display: block;
-  }
-
-  .navigation {
-    span {
-      flex-direction: column;
-    }
-  }
-
-  .active.transitioned {
-    .hidden-text {
-      display: block;
-      font-size: 16px;
-      margin-top: 20px;
-      transition: 0.5s;
-      transition-delay: 0.5s;
-    }
   }
 }
