@@ -25,6 +25,7 @@ export class CatsComponent implements OnInit, OnDestroy {
   loadingCats: boolean = true;
   selectedCat: Cat;
   subscriptions: Subscription = new Subscription();
+  availableColors: Colors[] = [Colors.blue, Colors.darkGrey, Colors.green, Colors.grey, Colors.yellow, Colors.purple, Colors.orange, Colors.red];
 
   constructor(
     private contentful: ContentfulService,
@@ -59,7 +60,7 @@ export class CatsComponent implements OnInit, OnDestroy {
           ...cat.fields,
           photo: cat.fields['photo']?.fields.file.url,
           thumbnail: cat.fields['thumbnail']?.fields.file.url,
-          color: Colors[cat.fields.color]
+          color:  this.availableColors[Math.floor(Math.random() * this.availableColors.length)],
         } as Cat));
       if (this.selectedCatNameFromRoute) {
         let foundCat = this.cats?.find(cat => cat.name.replace(/ +/g, "-") === this.selectedCatNameFromRoute);
