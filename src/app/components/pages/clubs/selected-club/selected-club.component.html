@@ -53,7 +53,7 @@
           </a>
         </ng-container>
         <ng-container *ngIf="selectedClub.website">
-          <a class="btn" [href]="'selectedClub.website'" target="_blank"
+          <a class="btn" [href]="selectedClub.website" target="_blank"
             [ngClass]="{'darker-border': selectedClub?.state === 'TN'}">
             Website
             <i class="fa-solid fa-up-right-from-square fa-sm"></i>
