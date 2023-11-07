@@ -75,6 +75,10 @@
   }
 }
 
+mat-label, mat-option {
+  font-family: 'Montserrat';
+}
+
 ::ng-deep .mat-form-field-flex {
   border-radius: 5px;
   background-color: darken($se-yellow, 3%);
