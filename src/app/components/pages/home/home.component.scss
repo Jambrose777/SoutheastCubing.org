@@ -21,10 +21,7 @@
       .items-container {
         display: flex;
         width: 10000px;
-        animation-name: infiniteScroll;
-        animation-duration: 120s;
-        animation-iteration-count: infinite;
-        animation-timing-function: linear;
+        animation: infiniteScroll 120s linear infinite;
       }
 
       .announcement-text {
