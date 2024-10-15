@@ -10,7 +10,7 @@
       <ng-container *ngFor="let subTopic of subTopics;">
         <div class="announcement-banner clickable" (click)="announcementClick(subTopic)" style="--banner-color:{{subTopic.color}}">
           <div class="items-container">
-            <div *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8, 9 ,10]" class="announcement-text">
+            <div *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]" class="announcement-text">
               <span>
                 {{subTopic.title}}
                 {{subTopic.description}}
