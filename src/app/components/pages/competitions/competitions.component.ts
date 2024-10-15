@@ -20,7 +20,7 @@ import { Subscription } from 'rxjs';
 export class CompetitionsComponent implements OnInit, OnDestroy {
   isMobile: boolean;
   StateColors = StateColors;
-  enviroment = environment;
+  environment = environment;
   title: string = 'Competitions';
   description: string = '';
   competitions: Competition[] = [];
