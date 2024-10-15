@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
+import { LinksService } from 'src/app/services/links.service';
 
 @Component({
   selector: 'se-competitions',
@@ -44,6 +45,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private location: Location,
     private screenSizeService: ScreenSizeService,
+    public linksService: LinksService,
   ) { }
 
   ngOnInit(): void {

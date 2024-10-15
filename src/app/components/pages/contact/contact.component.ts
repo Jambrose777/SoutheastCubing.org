@@ -93,10 +93,10 @@ export class ContactComponent implements OnInit, OnDestroy {
     // sets up responsive screensize
     this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
 
-    // sets up main color for the Involvement page
+    // sets up main color for the Contact page
     this.themeService.setMainPaneColor(Colors.yellow);
 
-    // retireve formats data from the CMS Involvement Page
+    // retireve formats data from the CMS Contact Page
     this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.contact).subscribe(res => {
       this.description = res.fields.description;
       this.loadingContent = false;

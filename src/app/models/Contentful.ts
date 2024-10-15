@@ -10,6 +10,7 @@ export enum ContentfulEntryId {
   about = '15e2e1QADVMwVPci6a7PxE',
   pageNotFound = '6j2IxOmaYgOFEFEtlW62Tl',
   cats = '6ioa16NhQUuNlyZJHlpZ4e',
+  linksConfiguration = '6GWjRKoJ7PP2XIAzqWrjis',
 }
 
 export enum ContentfulContentType {

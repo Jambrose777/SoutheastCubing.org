@@ -8,6 +8,7 @@ import { SubTopic } from 'src/app/models/SubTopic';
 import { Router } from '@angular/router';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
+import { LinksService } from 'src/app/services/links.service';
 
 @Component({
   selector: 'se-home',
@@ -28,7 +29,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private contentful: ContentfulService, 
     private themeService: ThemeService, 
     private router: Router,
-    private screenSizeService: ScreenSizeService
+    private screenSizeService: ScreenSizeService,
+    public linksService: LinksService,
     ) { }
 
   ngOnInit(): void {

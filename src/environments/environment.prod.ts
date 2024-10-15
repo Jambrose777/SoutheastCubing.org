@@ -4,6 +4,7 @@ export const environment = {
     space: '9jj6t3di6e0s',
     accessToken: '0caGxltFJOw2pGUixHWvFff46oavZqciOyEGb_5TjLg'
   },
+  // some links can be overwritten by contentful
   links: {
     clubForm: 'https://forms.gle/QZVxzyVsxgaJZQme7',
     delegateForm: 'https://forms.gle/wUCCjHDgoGocK454A',
