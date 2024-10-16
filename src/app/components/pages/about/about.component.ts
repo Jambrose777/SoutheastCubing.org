@@ -14,7 +14,7 @@ import { Colors } from 'src/app/shared/types';
 })
 export class AboutComponent implements OnInit, OnDestroy {
   isMobile: boolean;
-  title: string = 'About Us';
+  title: string = 'About SECI';
   description: string = '';
   loadingContent: boolean = true;
   loadingTeams: boolean = true;

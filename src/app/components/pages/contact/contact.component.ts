@@ -24,7 +24,7 @@ export class ContactComponent implements OnInit, OnDestroy {
   EmailApiStatus = EmailApiStatus;
   EmailType = EmailType;
   enviroment = environment;
-  title: string = 'Contact Us';
+  title: string = 'Contact';
   description: string = '';
   loadingContent: boolean = true;
   loadingCompetitions: boolean = true;
