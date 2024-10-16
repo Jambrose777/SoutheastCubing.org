@@ -26,6 +26,8 @@ export class DelegatesComponent implements OnInit, OnDestroy {
   title: string = 'Southeast Delegates';
   description: string = '';
   subText: string = '';
+  subTextButtonText: string = '';
+  subTextButtonLink: string = '';
   loadingContent: boolean = true;
   loadingDelegates: boolean = true;
   selectedDelegate: Delegate;
@@ -80,6 +82,8 @@ export class DelegatesComponent implements OnInit, OnDestroy {
       this.title = res.fields.title;
       this.description = res.fields.description;
       this.subText = res.fields.subText1;
+      this.subTextButtonText = res.fields.subText1ButtonText;
+      this.subTextButtonLink = res.fields.subText1ButtonLink;
       this.loadingContent = false;
     }));
   }

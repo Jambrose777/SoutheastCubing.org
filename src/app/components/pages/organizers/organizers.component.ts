@@ -24,6 +24,8 @@ export class OrganizersComponent implements OnInit, OnDestroy {
   selectedSubTopic: SubTopic;
   selectedSubTopicTitleFromRoute: string;
   subText: string;
+  subTextButtonText: string = '';
+  subTextButtonLink: string = '';
   subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -53,6 +55,10 @@ export class OrganizersComponent implements OnInit, OnDestroy {
       this.description = res.fields.description;
       this.subTopics = res.fields.subTopics?.map(subTopic => ({ ...subTopic.fields, photo: subTopic.fields['photo']?.fields.file.url, color: Colors[subTopic.fields.color] }))
       this.subText = res.fields.subText1;
+      this.subTextButtonText = res.fields.subText1ButtonText;
+      this.subTextButtonLink = res.fields.subText1ButtonLink;
+
+      // select topic based on route information
       if (this.selectedSubTopicTitleFromRoute) {
         let foundSubTopic = this.subTopics.find(subTopic => subTopic.title.replace(/ +/g, "-") === this.selectedSubTopicTitleFromRoute);
         if (foundSubTopic) {

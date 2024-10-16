@@ -30,7 +30,11 @@ export class ClubsComponent implements OnInit, OnDestroy {
   selectedClub: Club;
   selectedClubIdFromRoute: string;
   subText1: string = '';
+  subText1ButtonText: string = '';
+  subText1ButtonLink: string = '';
   subText2: string = '';
+  subText2ButtonText: string = '';
+  subText2ButtonLink: string = '';
   filters = {
     states: [],
   };
@@ -72,7 +76,11 @@ export class ClubsComponent implements OnInit, OnDestroy {
       this.title = res.fields.title;
       this.description = res.fields.description;
       this.subText1 = res.fields.subText1;
+      this.subText1ButtonText = res.fields.subText1ButtonText;
+      this.subText1ButtonLink = res.fields.subText1ButtonLink;
       this.subText2 = res.fields.subText2;
+      this.subText2ButtonText = res.fields.subText2ButtonText;
+      this.subText2ButtonLink = res.fields.subText2ButtonLink;
       this.loadingContent = false;
     }));
 

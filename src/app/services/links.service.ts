@@ -8,8 +8,6 @@ import { take } from 'rxjs';
   providedIn: 'root'
 })
 export class LinksService {
-  clubForm: string = environment.links.clubForm;
-  delegateForm: string = environment.links.delegateForm;
   discord: string = environment.links.discord;
   facebook: string = environment.links.facebook;
   instagram: string = environment.links.instagram;
@@ -22,12 +20,6 @@ export class LinksService {
   pullLinksFromContentful() {
     // retireve links data from the CMS to overwrite links
     this.contentful.getContentfulEntry(ContentfulEntryId.linksConfiguration).pipe(take(1)).subscribe(res => {
-      if (res.fields.clubForm) {
-        this.clubForm = res.fields.clubForm;
-      }
-      if (res.fields.delegateForm) {
-        this.delegateForm = res.fields.delegateForm;
-      }
       if (res.fields.discord) {
         this.discord = res.fields.discord;
       }
