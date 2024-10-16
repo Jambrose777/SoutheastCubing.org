@@ -25,7 +25,7 @@
     </div>
 
     <!-- Basic Info Bubble -->
-    <div class="detail-container" [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
+    <div class="detail-container">
       <div>City: <b>{{selectedCompetition.city}}</b></div>
       <div *ngIf="!isMobile">Date: <b>{{selectedCompetition.full_date}}</b></div>
       <a [href]="enviroment.links.googleMaps + selectedCompetition.venue_address" target="_blank">
@@ -34,13 +34,13 @@
     </div>
 
     <!-- Location On Google Map View Bubble -->
-    <!-- <div class="detail-container" [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}"
+    <!-- <div class="detail-container"
       *ngIf="!isMobile">
       TODO
     </div> -->
 
     <!-- Registration Information Bubble -->
-    <div class="detail-container" [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
+    <div class="detail-container">
       <div>Competitor Limit: <b>{{selectedCompetition.competitor_limit}}</b></div>
 
       <!-- Info for Registration Status pre launch -->
@@ -75,8 +75,7 @@
       <!-- Register here link to WCA for cetain Registration Statuses -->
       <div
         *ngIf="[RegistrationStatus.preLaunch, RegistrationStatus.openWithSpots, RegistrationStatus.openWithWaitingList].includes(selectedCompetition.registration_status)">
-        <a class="btn" [href]="enviroment.links.wcaCompetition + selectedCompetition.id + '/register'" target="_blank"
-          [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
+        <a class="btn" [href]="enviroment.links.wcaCompetition + selectedCompetition.id + '/register'" target="_blank">
           Register Here
           <i class="fa-solid fa-up-right-from-square fa-sm"></i>
         </a>
@@ -84,11 +83,10 @@
     </div>
 
     <!-- Contact Bubble -->
-    <div class="detail-container" [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
+    <div class="detail-container">
       <div>Have any questions? Reach out to the organizers!</div>
       <div>
-        <a class="btn" [href]="enviroment.links.wcaContact + '?competitionId=' + selectedCompetition.id" target="_blank"
-          [ngClass]="{'darker-border': selectedCompetition?.state === 'Tennessee'}">
+        <a class="btn" [href]="enviroment.links.wcaContact + '?competitionId=' + selectedCompetition.id" target="_blank">
           Contact
           <i class="fa-regular fa-envelope fa-lg clickable"></i>
         </a>

@@ -17,14 +17,14 @@
   <!-- Button for link to relevant page -->
   <div *ngIf="selectedSubTopic.buttonText">
     <!-- External -->
-    <a class="btn darker-border" [href]="selectedSubTopic.buttonExternalLink" target="_blank"
+    <a class="btn" [href]="selectedSubTopic.buttonExternalLink" target="_blank"
       *ngIf="selectedSubTopic.buttonExternalLink">
       {{selectedSubTopic.buttonText}}
       <i class="fa-solid {{selectedSubTopic.buttonIcon}} fa-lg" *ngIf="selectedSubTopic.buttonIcon"></i>
     </a>
 
     <!-- Internal -->
-    <a class="btn darker-border" [routerLink]="'/' + selectedSubTopic.buttonInternalLink"
+    <a class="btn" [routerLink]="'/' + selectedSubTopic.buttonInternalLink"
       *ngIf="selectedSubTopic.buttonInternalLink">
       {{selectedSubTopic.buttonText}}
       <i class="fa-solid {{selectedSubTopic.buttonIcon}} fa-lg" *ngIf="selectedSubTopic.buttonIcon"></i>

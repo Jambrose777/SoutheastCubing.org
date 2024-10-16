@@ -19,7 +19,7 @@
     {{selectedClub.description}}
   </div>
 
-  <div class="club-details-row" [ngClass]="{'darker-border': selectedClub?.state === 'TN'}">
+  <div class="club-details-row">
     <!-- Bubble for the venue of the club -->
     <div class="detail-container" *ngIf="selectedClub.venue || selectedClub.address">
       <b>Where?</b>
@@ -46,15 +46,13 @@
         <div *ngIf="selectedClub.contactName">{{selectedClub.contactName}}</div>
         <div *ngIf="selectedClub.contactInfo">{{selectedClub.contactInfo}}</div>
         <ng-container *ngIf="selectedClub.contactEmail">
-          <a class="btn" href="mailto:{{selectedClub.contactEmail}}" target="_blank"
-            [ngClass]="{'darker-border': selectedClub?.state === 'TN'}">
+          <a class="btn" href="mailto:{{selectedClub.contactEmail}}" target="_blank">
             Email
             <i class="fa-regular fa-envelope fa-sm"></i>
           </a>
         </ng-container>
         <ng-container *ngIf="selectedClub.website">
-          <a class="btn" [href]="selectedClub.website" target="_blank"
-            [ngClass]="{'darker-border': selectedClub?.state === 'TN'}">
+          <a class="btn" [href]="selectedClub.website" target="_blank">
             Website
             <i class="fa-solid fa-up-right-from-square fa-sm"></i>
           </a>

@@ -39,7 +39,7 @@
 
           <!-- Contact Competitions Button -->
           <div>
-            <a class="btn darker-border" [href]="enviroment.links.wcaContact + '?competitionId=' + selectedCompetition"
+            <a class="btn" [href]="enviroment.links.wcaContact + '?competitionId=' + selectedCompetition"
               target="_blank">
               <img src="assets/wca_logo.svg" class="wca-logo">
               Contact Organizers
@@ -94,7 +94,7 @@
 
         <!-- Submit Button -->
         <div *ngIf="emailApiStatus !== EmailApiStatus.pending">
-          <a class="btn darker-border" (click)="onSubmit()">
+          <a class="btn" (click)="onSubmit()">
             Submit
             <i class="fa-regular fa-envelope fa-sm"></i>
           </a>

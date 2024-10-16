@@ -177,7 +177,7 @@ a {
 
 .btn {
   width: fit-content;
-  border: 5px solid $se-grey;
+  border: 3px solid $se-black;
   border-radius: 30px;
   padding: 10px;
   background-color: $se-grey;
@@ -185,10 +185,6 @@ a {
   margin: 0 auto;
   display: block;
   box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
-}
-
-.btn.darker-border {
-  border: 3px solid $se-black;
 }
 
 .selected-item-container {
