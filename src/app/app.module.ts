@@ -35,6 +35,7 @@ import { EventListComponent } from './components/shared/event-list/event-list.co
 import { PageNotFoundComponent } from './components/pages/page-not-found/page-not-found.component';
 import { CatsComponent } from './components/pages/cats/cats.component';
 import { SelectedCatComponent } from './components/pages/cats/selected-cat/selected-cat.component';
+import { TeamsComponent } from './components/pages/about/teams/teams.component';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -53,6 +54,7 @@ const moduleRoutes: Routes = [
   { path: 'organizers/:subTopicId', component: OrganizersComponent, title: 'SoutheastCubing - Organizer Guidelines' },
   { path: 'contact', component: ContactComponent, title: 'SoutheastCubing - Contact' },
   { path: 'about', component: AboutComponent, title: 'SoutheastCubing - About' },
+  { path: 'about/:subTopicId', component: AboutComponent, title: 'SoutheastCubing - About' },
   { path: 'cats', component: CatsComponent, title: 'SoutheastCubing - Cats' },
   { path: 'cats/:catName', component: CatsComponent, title: 'SoutheastCubing - Cats' },
   { path: '**', pathMatch: 'full',  component: PageNotFoundComponent, title: 'SoutheastCubing - Page Not Found' }, 
@@ -83,7 +85,8 @@ const moduleRoutes: Routes = [
     EventListComponent,
     PageNotFoundComponent,
     CatsComponent,
-    SelectedCatComponent
+    SelectedCatComponent,
+    TeamsComponent
   ],
   imports: [
     BrowserModule,

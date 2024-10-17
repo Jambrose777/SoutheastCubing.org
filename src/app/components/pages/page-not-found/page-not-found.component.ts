@@ -7,7 +7,7 @@ import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
 
 @Component({
-  selector: 'app-page-not-found',
+  selector: 'se-page-not-found',
   templateUrl: './page-not-found.component.html',
   styleUrls: ['./page-not-found.component.scss']
 })

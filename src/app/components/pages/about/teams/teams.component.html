@@ -1,0 +1,26 @@
+<!-- List for all loaded teams -->
+<div class="list-container">
+  <ng-container *ngFor="let team of teams;">
+    <!-- Team Bubble -->
+    <div class="team-container">
+      <div class="team-row">
+        <div class="team-title">
+          <b>{{team.name}}</b>
+        </div>
+        <div class="team-description">
+          {{team.description}}
+        </div>
+        <div class="team-persons-container">
+          <!-- {{team.persons}} -->
+          <ng-container *ngFor="let teamMember of team.teamMembers">
+            <div class="team-person" style="--team-member-color:{{teamMember.color}}">
+              <b>{{teamMember.name}}</b>
+              {{teamMember.title}}
+              <img *ngIf="teamMember.thumbnail" class="thumbnail" [ngClass]="{ 'extra-spacing': !teamMember.title }" src="{{teamMember.thumbnail}}">
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

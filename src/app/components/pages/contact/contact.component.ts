@@ -15,7 +15,7 @@ import { Colors, EmailApiStatus, EmailType } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'app-contact',
+  selector: 'se-contact',
   templateUrl: './contact.component.html',
   styleUrls: ['./contact.component.scss']
 })

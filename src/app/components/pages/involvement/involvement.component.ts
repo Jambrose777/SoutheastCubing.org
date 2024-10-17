@@ -50,7 +50,7 @@ export class InvolvementComponent implements OnInit, OnDestroy {
     this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.involvement).subscribe(res => {
       this.title = res.fields.title;
       this.description = res.fields.description;
-      this.subTopics = res.fields.subTopics.map(subTopic => ({ ...subTopic.fields, photo: subTopic.fields['photo']?.fields.file.url, color: Colors[subTopic.fields.color] }))
+      this.subTopics = res.fields.subTopics.map(subTopic => ({ ...subTopic.fields, photo: subTopic.fields['photo']?.fields.file.url, color: Colors[subTopic.fields.color] }));
       if (this.selectedSubTopicTitleFromRoute) {
         let foundSubTopic = this.subTopics.find(subTopic => subTopic.title.replace(/ +/g, "-") === this.selectedSubTopicTitleFromRoute);
         if (foundSubTopic) {

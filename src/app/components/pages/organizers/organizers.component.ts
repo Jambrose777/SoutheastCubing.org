@@ -53,7 +53,7 @@ export class OrganizersComponent implements OnInit, OnDestroy {
     this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.organizers).subscribe(res => {
       this.title = res.fields.title;
       this.description = res.fields.description;
-      this.subTopics = res.fields.subTopics?.map(subTopic => ({ ...subTopic.fields, photo: subTopic.fields['photo']?.fields.file.url, color: Colors[subTopic.fields.color] }))
+      this.subTopics = res.fields.subTopics?.map(subTopic => ({ ...subTopic.fields, photo: subTopic.fields['photo']?.fields.file.url, color: Colors[subTopic.fields.color] }));
       this.subText = res.fields.subText1;
       this.subTextButtonText = res.fields.subText1ButtonText;
       this.subTextButtonLink = res.fields.subText1ButtonLink;

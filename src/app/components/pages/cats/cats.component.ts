@@ -11,7 +11,7 @@ import { Colors } from 'src/app/shared/types';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 
 @Component({
-  selector: 'app-cats',
+  selector: 'se-cats',
   templateUrl: './cats.component.html',
   styleUrls: ['./cats.component.scss']
 })
