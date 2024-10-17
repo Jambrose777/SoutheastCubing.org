@@ -49,6 +49,18 @@
           <se-selected-sub-topic *ngIf="isMobile && selectedSubTopic?.title === subTopic.title && selectedSubTopic?.title !== 'Who We Are' && selectedSubTopic?.title !== 'Documents'"
             [selectedSubTopic]="selectedSubTopic">
           </se-selected-sub-topic>
+
+          <!-- Information when Who We Are is selected -->
+          <se-teams
+            *ngIf="isMobile && selectedSubTopic?.title === subTopic.title && selectedSubTopic?.title == 'Who We Are'" 
+            [teams]="teams">
+          </se-teams>
+
+          <!-- Information when Documents is selected -->
+          <se-documents
+            *ngIf="isMobile && selectedSubTopic?.title === subTopic.title && selectedSubTopic?.title == 'Documents'" 
+            [documents]="documents">
+          </se-documents>
         </div>
       </ng-container>
     </div>
