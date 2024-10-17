@@ -36,6 +36,7 @@ import { PageNotFoundComponent } from './components/pages/page-not-found/page-no
 import { CatsComponent } from './components/pages/cats/cats.component';
 import { SelectedCatComponent } from './components/pages/cats/selected-cat/selected-cat.component';
 import { TeamsComponent } from './components/pages/about/teams/teams.component';
+import { DoucmentsComponent } from './components/pages/about/documents/documents.component';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -86,7 +87,8 @@ const moduleRoutes: Routes = [
     PageNotFoundComponent,
     CatsComponent,
     SelectedCatComponent,
-    TeamsComponent
+    TeamsComponent,
+    DoucmentsComponent
   ],
   imports: [
     BrowserModule,

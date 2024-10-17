@@ -21,6 +21,12 @@
       *ngIf="selectedSubTopic && !isMobile && selectedSubTopic?.title == 'Who We Are'" 
       [teams]="teams">
     </se-teams>
+
+    <!-- Information when Documents is selected -->
+    <se-documents
+      *ngIf="selectedSubTopic && !isMobile && selectedSubTopic?.title == 'Documents'" 
+      [documents]="documents">
+    </se-documents>
   </div>
 
   <div class="secondary-pane">

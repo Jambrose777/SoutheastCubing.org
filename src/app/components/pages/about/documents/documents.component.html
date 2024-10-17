@@ -1,0 +1,7 @@
+<div class="document-container">
+  <ng-container *ngFor="let doc of documents">
+    <a class="document-item btn" style="--document-item-color:{{doc.color}}" [href]="doc.link" target="_blank" >
+      <b>{{doc.name}}</b>
+    </a>
+  </ng-container>
+</div>

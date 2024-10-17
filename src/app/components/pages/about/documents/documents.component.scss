@@ -1,0 +1,11 @@
+.document-container {
+  margin: 30px 20px 0 20px;
+  display: flex;
+  flex-direction: column;
+
+  .document-item {
+    width: calc(100% - 40px);
+    margin-bottom: 20px;
+    background-color: var(--document-item-color);
+  }
+}

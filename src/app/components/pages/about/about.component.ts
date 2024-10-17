@@ -10,6 +10,7 @@ import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
 import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import { DocumentLink } from 'src/app/models/Document';
 
 @Component({
   selector: 'se-about',
@@ -22,10 +23,12 @@ export class AboutComponent implements OnInit, OnDestroy {
   description: string = '';
   loadingContent: boolean = true;
   loadingTeams: boolean = true;
-  teams: Team[];
+  loadingDocuments: boolean = true;
   subTopics: SubTopic[];
   selectedSubTopic: SubTopic;
   selectedSubTopicTitleFromRoute: string;
+  teams: Team[];
+  documents: DocumentLink[];
   subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -87,6 +90,17 @@ export class AboutComponent implements OnInit, OnDestroy {
         }))
         .sort((a: Team, b: Team) => a.order > b.order ? 1 : -1);
       this.loadingTeams = false;
+    }));
+
+    // retrieve Documents list from the CMS Teams
+    this.subscriptions.add(this.contentful.getContentfulGroup(ContentfulContentType.documents).subscribe(res => {
+      this.documents = res.items
+        .map(document => ({
+          ...document.fields,
+          color: Colors[document.fields.color] ||  Colors.grey,
+        }))
+        .sort((a: Team, b: Team) => a.order > b.order ? 1 : -1);
+      this.loadingDocuments = false;
     }));
   }
 
