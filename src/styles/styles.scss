@@ -46,6 +46,12 @@ a {
   border-radius: 10px 0 0 10px;
   overflow-y: scroll;
   box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
+
+  header {
+    position: sticky;
+    top: 0;
+    background-color: var(--main-pane-color);
+  }
 }
 
 .secondary-pane {
