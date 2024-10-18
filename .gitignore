@@ -42,4 +42,7 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Credentials
 backend/app.env
+backend/southeastcubing-org-api.json

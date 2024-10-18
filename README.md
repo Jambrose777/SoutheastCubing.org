@@ -25,6 +25,11 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The appli
 - move files into correct folder `mv dist/southeast-cubing/* .`
 - restart server `service httpd restart` or start server `service httpd start`
 
+## BE Development setup
+You will need the following files for the backend to run:
+- app.env
+- southeastcubing-org-api.json
+
 ## BE Development server
 Run `node backend/app.js`
 

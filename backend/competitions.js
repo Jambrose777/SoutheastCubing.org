@@ -1,7 +1,8 @@
 const axios = require("axios");
 const moment = require("moment");
 
-const aws = require('./aws.js')
+const aws = require('./aws.js');
+const googleForm = require('./googleForm.js');
 
 let competitions;
 let lastChecked;
@@ -35,10 +36,10 @@ function fetchCompetitions() {
       competitions = data.competitions;
     }
     if (!lastChecked || lastChecked.isBefore(moment().set('hour', 0).set('minute', 0).set('second', 0))) {
-      console.log('DEBUG: on bootup, pulling from WCA. ', !lastChecked, " lastChecked: ", lastChecked ? lastChecked.format("YYYY-MM-DD hh:mm:ss") : null);
+      console.log('DEBUG: on bootup, pulling from WCA. ', !lastChecked, " lastChecked: ", lastChecked ? lastChecked.format("YYYY-MM-DD HH:mm:ss") : null);
       getCompetitionsFromWCA();
     } else {
-      console.log('DEBUG: on bootup, NOT pulling from WCA. ', !lastChecked, " lastChecked: ", lastChecked.format("YYYY-MM-DD hh:mm:ss"));
+      console.log('DEBUG: on bootup, NOT pulling from WCA. ', !lastChecked, " lastChecked: ", lastChecked.format("YYYY-MM-DD HH:mm:ss"));
     }
   });
 }
@@ -47,8 +48,11 @@ function fetchCompetitions() {
 function getCompetitionsFromWCA() {
   return axios.get("https://www.worldcubeassociation.org/api/v0/competitions?country_iso2=US&per_page=1000&page=1&start=" + moment().add(-1, 'day').format('YYYY-MM-DD'))
     .then(async res => {
+      // fetch competitions with a staff application
+      let competitionsWithStaffApp = await googleForm.getCompetitionsInStaffForm();
+
       // format competition data
-      let comps = await formatCompetitionData(res.data);
+      let comps = await formatCompetitionData(res.data, competitionsWithStaffApp);
 
       if (comps && comps.length) {
         // save competition data locally
@@ -56,7 +60,7 @@ function getCompetitionsFromWCA() {
         lastChecked = moment();
 
         // save competition data to S3
-        aws.saveCompetitionData({ lastChecked: lastChecked.format("YYYY-MM-DD hh:mm:ss"), competitions });
+        aws.saveCompetitionData({ lastChecked: lastChecked.format("YYYY-MM-DD HH:mm:ss"), competitions });
       } else {
         console.log('There are no competitions!');
       }
@@ -66,7 +70,7 @@ function getCompetitionsFromWCA() {
     .catch(err => console.log(err));
 }
 
-async function formatCompetitionData(comps) {
+async function formatCompetitionData(comps, competitionsWithStaffApp) {
   return await Promise.all(comps
     .filter(comp => 
       comp.city.includes(', Georgia') ||
@@ -98,6 +102,7 @@ async function formatCompetitionData(comps) {
       state: competition.city.substring(competition.city.lastIndexOf(",") + 1).trim(),
       full_date: getFullCompetitionDate(competition.start_date, competition.end_date),
       readable_registration_open: getReadableRegistrationOpen(competition),
+      isInStaffApplication: competitionsWithStaffApp.includes(competition.name),
       accepted_registrations: await getRegistrationsFromWCA(competition),
     })))
 }
