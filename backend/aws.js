@@ -2,9 +2,9 @@ const AWS = require('aws-sdk');
 
 // Set the region and access keys
 AWS.config.update({
-    region: 'us-east-2',
-    accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_ACCESS_SECRET
+  region: 'us-east-2',
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_ACCESS_SECRET
 });
 
 // Create a new instance of the S3 class
@@ -21,11 +21,11 @@ function saveCompetitionData(comps) {
 
   // Upload the file to S3
   s3.upload(params, (err, data) => {
-      if (err) {
-          console.log('Error uploading file:', err);
-      } else {
-          console.log('File uploaded successfully. File location:', data.Location);
-      }
+    if (err) {
+      console.log('Error uploading file:', err);
+    } else {
+      console.log('File uploaded successfully. File location:', data.Location);
+    }
   });  
 }
 
@@ -39,12 +39,12 @@ function getCompetitionData(callback) {
   // get parameters
   s3.getObject(params, (err, data) => {
     if (err) {
-        console.log('Error retrieving file:', err);
+      console.log('Error retrieving file:', err);
     } else {
-        console.log('File retrieved successfully');
-        return callback(JSON.parse(data.Body))
+      console.log('File retrieved successfully');
+      return callback(JSON.parse(data.Body))
     }
   });
 }
 
-module.exports = { sendEmail };
+module.exports = { saveCompetitionData, getCompetitionData };
