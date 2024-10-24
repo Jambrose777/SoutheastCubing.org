@@ -26,4 +26,8 @@ export class SouteastcubingApiService {
         readable_registration_open: getReadableRegistrationOpen(competition)
       } as Competition))));
   }
+
+  updateCompetitions(): Observable<any> {
+    return this.http.get(`${environment.links.southeastCubingApi}/update-competitions`)
+  }
 }

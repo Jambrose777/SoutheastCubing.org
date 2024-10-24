@@ -101,7 +101,7 @@
         </div>
 
         <!-- Loading Spinner -->
-        <loading-spinner *ngIf="emailApiStatus === EmailApiStatus.pending" [isDark]="true"></loading-spinner>
+        <loading-spinner *ngIf="emailApiStatus === EmailApiStatus.pending"></loading-spinner>
 
         <!-- Success -->
         <div class="small-text-content success-message" *ngIf="emailApiStatus === EmailApiStatus.success">

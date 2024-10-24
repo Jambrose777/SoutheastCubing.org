@@ -1,0 +1,10 @@
+@import "src/styles/color-pallet.scss";
+
+.loading-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.error-color {
+  color: $se-red;
+}

@@ -3,7 +3,7 @@
     <header id="header" [title]="title"></header>
 
     <!-- Loading Spinner -->
-    <loading-spinner *ngIf="loadingContent" [isDark]="true"></loading-spinner>
+    <loading-spinner *ngIf="loadingContent"></loading-spinner>
 
     <!-- Information if there is no selected sub topic (ie. initial page for Involvement) -->
     <ng-container *ngIf="!loadingContent && (isMobile || !selectedSubTopic)">

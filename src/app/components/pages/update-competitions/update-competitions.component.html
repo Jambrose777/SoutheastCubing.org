@@ -1,0 +1,29 @@
+<div class="component-container">
+  <div class="main-pane">
+    <header id="header" [title]="title"></header>
+
+    <div>
+      <div class="large-text-content">{{description}}</div>
+
+      <!-- Refresh Competitions Button -->
+      <a *ngIf="updateCompetitionsStatus === 'default'" class="btn" (click)="updateCompetitions()">
+        Refresh Competitions
+        <i class="fa-solid fa-arrows-rotate fa-sm"></i>
+      </a>
+      
+      <!-- Loading text for Registration Status open -->
+      <div *ngIf="updateCompetitionsStatus === 'updating'" class="btn loading-text">
+        Updating Competitions
+        <loading-spinner></loading-spinner>
+      </div>
+
+      <!-- Success Message -->
+      <div *ngIf="updateCompetitionsStatus === 'success'" class="small-text-content error-color">Successfully updated the competitions cache & page!</div>
+
+      <!-- Error Message -->
+      <div *ngIf="updateCompetitionsStatus === 'failure'" class="small-text-content error-color">{{errorMessage}}</div>
+    </div>
+  </div>
+  <div class="secondary-pane">
+  </div>
+</div>

@@ -6,7 +6,6 @@ import { Component, Input, OnInit } from '@angular/core';
   styleUrls: ['./loading-spinner.component.scss']
 })
 export class LoadingSpinnerComponent implements OnInit {
-  @Input() isDark: boolean = false;
 
   constructor() { }
 

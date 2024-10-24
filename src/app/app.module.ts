@@ -37,11 +37,13 @@ import { CatsComponent } from './components/pages/cats/cats.component';
 import { SelectedCatComponent } from './components/pages/cats/selected-cat/selected-cat.component';
 import { TeamsComponent } from './components/pages/about/teams/teams.component';
 import { DoucmentsComponent } from './components/pages/about/documents/documents.component';
+import { UpdateCompetitionsComponent } from './components/pages/update-competitions/update-competitions.component';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
   { path: 'competitions', component: CompetitionsComponent, title: 'SoutheastCubing - Competitions' },
   { path: 'competitions/:competitionId', component: CompetitionsComponent, title: 'SoutheastCubing - Competitions' },
+  { path: 'update-competitions', component: UpdateCompetitionsComponent, title: 'SoutheastCubing - Update Competitions' },
   { path: 'clubs', component: ClubsComponent, title: 'SoutheastCubing - Clubs' },
   { path: 'clubs/:clubId', component: ClubsComponent, title: 'SoutheastCubing - Clubs' },
   { path: 'delegates', component: DelegatesComponent, title: 'SoutheastCubing - Delegates' },
@@ -88,7 +90,8 @@ const moduleRoutes: Routes = [
     CatsComponent,
     SelectedCatComponent,
     TeamsComponent,
-    DoucmentsComponent
+    DoucmentsComponent,
+    UpdateCompetitionsComponent
   ],
   imports: [
     BrowserModule,
