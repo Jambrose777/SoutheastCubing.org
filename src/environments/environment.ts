@@ -6,6 +6,7 @@ export const environment = {
   },
   // some links can be overwritten by contentful
   links: {
+    applyToStaffForm: 'https://docs.google.com/forms/d/1vtcLw_QPrS-ZDKG9XxsN192xPEdr0gCA7vIoRVlTZmI',
     discord: 'https://discord.gg/hp7DSmtReb',
     facebook: 'https://www.facebook.com/groups/491409969462797/',
     googleMaps: 'https://www.google.com/maps/search/',

@@ -73,6 +73,11 @@
           <i class="fa-solid fa-up-right-from-square fa-sm"></i>
         </a>
       </div>
+
+      <a *ngIf="selectedCompetition.isInStaffApplication" class="btn" [href]="linksService.applyToStaffForm" target="_blank">
+        Apply For Staff
+        <i class="fa-solid fa-up-right-from-square fa-sm"></i>
+      </a>
     </div>
 
     <!-- Contact Bubble -->

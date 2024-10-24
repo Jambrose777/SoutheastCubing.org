@@ -1,6 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Competition } from 'src/app/models/Competition';
+import { LinksService } from 'src/app/services/links.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { RegistrationStatus } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
@@ -19,6 +20,7 @@ export class SelectedCompetitionComponent implements OnInit, OnDestroy {
 
   constructor(
     private screenSizeService: ScreenSizeService,
+    public linksService: LinksService,
     ) { }
 
   ngOnInit(): void {

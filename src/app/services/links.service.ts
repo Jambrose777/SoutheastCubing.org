@@ -12,6 +12,7 @@ export class LinksService {
   facebook: string = environment.links.facebook;
   instagram: string = environment.links.instagram;
   youtube: string = environment.links.youtube;
+  applyToStaffForm: string = environment.links.applyToStaffForm;
 
   constructor(
     private contentful: ContentfulService
@@ -31,6 +32,9 @@ export class LinksService {
       }
       if (res.fields.youtube) {
         this.youtube = res.fields.youtube;
+      }
+      if (res.fields.applyToStaffForm) {
+        this.applyToStaffForm = res.fields.applyToStaffForm;
       }
     });
   }
