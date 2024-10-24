@@ -10,7 +10,7 @@ export const environment = {
     facebook: 'https://www.facebook.com/groups/491409969462797/',
     googleMaps: 'https://www.google.com/maps/search/',
     instagram: 'https://www.instagram.com/southeastcubing/',
-    southeastCubingApi: 'https://api.southeastcubing.org',
+    southeastCubingApi: 'http://localhost:8080',
     wca: 'https://www.worldcubeassociation.org/',
     wcaCompetition: 'https://www.worldcubeassociation.org/competitions/',
     wcaContact: 'https://www.worldcubeassociation.org/contact/website',

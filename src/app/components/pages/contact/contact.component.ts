@@ -10,7 +10,6 @@ import { ContentfulService } from 'src/app/services/contentful.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { SouteastcubingApiService } from 'src/app/services/souteastcubing-api.service';
 import { ThemeService } from 'src/app/services/theme.service';
-import { WcaService } from 'src/app/services/wca.service';
 import { Colors, EmailApiStatus, EmailType } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
 
@@ -82,7 +81,6 @@ export class ContactComponent implements OnInit, OnDestroy {
   constructor(
     private contentful: ContentfulService,
     private themeService: ThemeService,
-    private wca: WcaService,
     private auth: AuthService,
     private southeastcubingApiService: SouteastcubingApiService,
     private route: ActivatedRoute,
@@ -103,7 +101,7 @@ export class ContactComponent implements OnInit, OnDestroy {
     }));
 
     // retrieve the competitions list from WCA
-    this.subscriptions.add(this.wca.getUpcomingCompetitions().subscribe(res => {
+    this.subscriptions.add(this.southeastcubingApiService.getUpcomingCompetitions().subscribe(res => {
       this.competitions = res;
       this.loadingCompetitions = false;
     }));

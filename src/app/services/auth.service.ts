@@ -12,7 +12,7 @@ export class AuthService {
   constructor(private http: HttpClient, private localstorage: LocalStorageService) { }
 
   getIpAddress(): Observable<string> {
-    // checks if competitions are stored in local storage for the same day (psudo-cache) to not spam the WCA with too many requests.
+    // checks if ip is stored in local storage for the same day (psudo-cache) to not spam the geolocation with too many requests.
     const localStorageData = this.localstorage.getIp();
     if (localStorageData?.timestamp === moment().format('YYYY-MM-DD')) {
       return of(localStorageData.ip);

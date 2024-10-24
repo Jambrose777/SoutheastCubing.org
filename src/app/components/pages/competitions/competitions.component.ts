@@ -3,7 +3,6 @@ import { Competition } from 'src/app/models/Competition';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, Events, RegistrationStatus, StateColors, States } from 'src/app/shared/types';
-import { WcaService } from 'src/app/services/wca.service';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { NavService } from 'src/app/services/nav.service';
 import { environment } from 'src/environments/environment';
@@ -12,6 +11,7 @@ import { Location } from '@angular/common';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
+import { SouteastcubingApiService } from 'src/app/services/souteastcubing-api.service';
 
 @Component({
   selector: 'se-competitions',
@@ -39,7 +39,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
 
   constructor(
     private contentful: ContentfulService,
-    private wca: WcaService,
+    private southeastcubingApiService: SouteastcubingApiService,
     private themeService: ThemeService,
     private navService: NavService,
     private route: ActivatedRoute,
@@ -83,7 +83,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
     }));
 
     // retrieve the competitions list from WCA
-    this.subscriptions.add(this.wca.getUpcomingCompetitions().subscribe(res => {
+    this.subscriptions.add(this.southeastcubingApiService.getUpcomingCompetitions().subscribe(res => {
       this.competitions = res;
       this.filteredCompetitions = res;
       this.filterCompetitions();
@@ -126,31 +126,9 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
           document.getElementById(this.selectedCompetition.id)?.scrollIntoView({ behavior: 'smooth' });
         }, 0);
       }
-      if (this.selectedCompetition.registration_status === RegistrationStatus.open) {
-        // fetch the registration status when drilling into a competition
-        this.findRegistrationOpenStatus();
-      }
       this.updateUrl();
     }
   }
-
-  // retrieves and sets the registration status for open registrations for the selected competition
-  findRegistrationOpenStatus() {
-    // fetch the number of accepted registrations from wca
-    this.subscriptions.add(this.wca.getAcceptedRegistrations(this.selectedCompetition.id).subscribe(res => {
-      this.selectedCompetition.accepted_registrations = res;
-      // registration is full and has a waiting list if the competitor limit is = the accepted registrations, otherwise registration is still open.
-      if (this.selectedCompetition.accepted_registrations >= this.selectedCompetition.competitor_limit) {
-        this.selectedCompetition.registration_status = RegistrationStatus.openWithWaitingList;
-      } else {
-        this.selectedCompetition.registration_status = RegistrationStatus.openWithSpots;
-      }
-
-      // save newly aquired data to local storage to cache all responses from WCA.
-      this.wca.saveCompetitionstoLocalStorage(this.competitions);
-    }));
-  }
-
   // Adds a state to the filters
   handleStateSelection(state: States) {
     // If the state is already filtered on, remove it from the filters

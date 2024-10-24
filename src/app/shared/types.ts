@@ -13,7 +13,6 @@ export enum Colors {
 
 export enum RegistrationStatus {
   preLaunch = 'preLaunch',
-  open = 'open',
   closed = 'closed',
   openWithSpots = 'openWithSpots',
   openWithWaitingList = 'openWithWaitingList'

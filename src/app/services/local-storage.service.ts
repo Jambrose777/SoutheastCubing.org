@@ -12,23 +12,6 @@ export class LocalStorageService {
   constructor() { }
 
   // Retrieves the competition from local storage
-  getCompetitions(): Competition[] {
-    return JSON.parse(localStorage.getItem('competitions'));
-  }
-
-  // Sets the competition object into local storage
-  setCompetitions(competitions: Competition[]) {
-    localStorage.setItem('competitions', JSON.stringify(competitions));
-    // Save Time To Live for how long the local storage can be utilized before the data is stale
-    localStorage.setItem('competitionsTTL', moment().format('YYYY-MM-DD'));
-  }
-
-  // retrieves the Time To Live for the competition data
-  getCompetitionsTTL(): string {
-    return localStorage.getItem('competitionsTTL');
-  }
-
-  // Retrieves the competition from local storage
   getIp(): { ip: string, timestamp: string } {
     return JSON.parse(localStorage.getItem('ip'));
   }

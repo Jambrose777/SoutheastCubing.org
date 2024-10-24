@@ -54,13 +54,6 @@
         Registration has closed. You can no longer register for this competition.
       </div>
 
-      <!-- Loading text for Registration Status open -->
-      <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.open"
-        class="loading-registration-text">
-        <loading-spinner [isDark]="selectedCompetition?.state === 'Tennessee'"></loading-spinner>
-        Fetching registration status
-      </div>
-
       <!-- Info for Registration Status open with spots -->
       <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.openWithSpots">
         Registration is open! The competition is currently {{selectedCompetition.accepted_registrations /

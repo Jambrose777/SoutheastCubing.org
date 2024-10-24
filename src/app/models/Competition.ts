@@ -22,4 +22,5 @@ export class Competition {
   readable_registration_open?: string;
   state?: string;
   accepted_registrations?: number;
+  isInStaffApplication: boolean;
 }
