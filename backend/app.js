@@ -1,6 +1,8 @@
 const express = require('express');
 const morgan = require('morgan');
 var cors = require('cors');
+const schedule = require('node-schedule');
+
 const email = require('./email.js')
 const competitions = require('./competitions.js');
 
@@ -13,6 +15,13 @@ app.use(cors());
 
 // load in competitions on bootup
 competitions.fetchCompetitions();
+
+// fetch competitions update everyday at midnight
+schedule.scheduleJob('0 0 * * *', () => { 
+  getCompetitionsFromWCA().then(comps => {
+    res.send(comps);
+  });
+});
 
 app.post('/email', async (req, res) => {
   email.sendEmail(req, res);
