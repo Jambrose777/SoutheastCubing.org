@@ -19,8 +19,8 @@ function getCompetitions(req, res) {
 
 function updateCompetitions(req, res) {
   if (lastChecked && lastChecked.isAfter(moment().add(-1, 'hour'))) {
-    console.log('400 ', lastChecked.format("YYYY-MM-DD hh:mm:ss"), lastChecked.isAfter(moment().add(-1, 'hour')))
-    res.status(400).json({ message: 'Cannot update multiple times within an hour. Last update was: ' + lastChecked.format("YYYY-MM-DD hh:mm:ss") });
+    console.log('400 ', lastChecked.format("YYYY-MM-DD HH:mm:ss"), lastChecked.isAfter(moment().add(-1, 'hour')))
+    res.status(400).json({ message: 'Cannot update multiple times within an hour. Last update was: ' + lastChecked.format("YYYY-MM-DD HH:mm:ss") });
   } else {
     // pull competitions from WCA
     getCompetitionsFromWCA().then(comps => {

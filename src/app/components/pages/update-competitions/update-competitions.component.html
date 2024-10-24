@@ -18,10 +18,10 @@
       </div>
 
       <!-- Success Message -->
-      <div *ngIf="updateCompetitionsStatus === 'success'" class="small-text-content error-color">Successfully updated the competitions cache & page!</div>
+      <div *ngIf="updateCompetitionsStatus === 'success'" class="small-text-content success-color"><b>Successfully updated the competitions cache!</b></div>
 
       <!-- Error Message -->
-      <div *ngIf="updateCompetitionsStatus === 'failure'" class="small-text-content error-color">{{errorMessage}}</div>
+      <div *ngIf="updateCompetitionsStatus === 'failure'" class="small-text-content error-color"><b>{{errorMessage}}</b></div>
     </div>
   </div>
   <div class="secondary-pane">
