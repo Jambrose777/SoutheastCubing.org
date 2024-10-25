@@ -4,6 +4,7 @@ const moment = require("moment");
 const aws = require('./aws.js');
 const googleForm = require('./googleForm.js');
 const contentful = require('./contentful.js');
+const discord = require('./discord.js');
 
 let competitions;
 let lastChecked;
@@ -19,15 +20,15 @@ function getCompetitions(req, res) {
 }
 
 function updateCompetitions(req, res) {
-  // if (lastChecked && lastChecked.isAfter(moment().add(-1, 'hour'))) {
-  //   console.log('400 ', lastChecked.format("YYYY-MM-DD HH:mm:ss"), lastChecked.isAfter(moment().add(-1, 'hour')))
-  //   res.status(400).json({ message: 'Cannot update multiple times within an hour. Last update was: ' + lastChecked.format("YYYY-MM-DD HH:mm:ss") });
-  // } else {
+  if (lastChecked && lastChecked.isAfter(moment().add(-1, 'hour'))) {
+    console.log('400 ', lastChecked.format("YYYY-MM-DD HH:mm:ss"), lastChecked.isAfter(moment().add(-1, 'hour')))
+    res.status(400).json({ message: 'Cannot update multiple times within an hour. Last update was: ' + lastChecked.format("YYYY-MM-DD HH:mm:ss") });
+  } else {
     // pull competitions from WCA
     getCompetitionsFromWCA().then(comps => {
       res.send(comps);
     })
-  // }
+  }
 }
 
 function fetchCompetitions() {
@@ -78,6 +79,11 @@ function getCompetitionsFromWCA() {
       let comps = await formatCompetitionData(res.data.concat(contentfulCompetitions), competitionsWithStaffApp);
 
       if (comps && comps.length) {
+        // for any new competitions, post them on discord
+        comps.filter(comp => !competitions.find(comp2 => comp2.id === comp.id)).forEach(newCompetition => {
+          discord.postCompetitionInDiscord(newCompetition);
+        });
+
         // save competition data locally
         competitions = comps;
         lastChecked = moment();
@@ -126,6 +132,7 @@ async function formatCompetitionData(comps, competitionsWithStaffApp) {
       state: competition.city.substring(competition.city.lastIndexOf(",") + 1).trim(),
       is_in_staff_application: competitionsWithStaffApp.includes(competition.name),
       accepted_registrations: await getRegistrationsFromWCA(competition),
+      full_date: getFullCompetitionDate(competition.start_date, competition.end_date),
       is_manual_competition: competition.is_manual_competition || false,
     })))
 }
@@ -148,6 +155,32 @@ function getWCACompetitions(competitions, competitionId) {
     return axios.get(`https://www.worldcubeassociation.org/api/v0/competitions/${competitionId}`)
       .then(res => res.data)
       .catch(err => console.log(err));
+  }
+}
+
+// Formats a date from WCA with appropriate multi day Logic
+function getFullCompetitionDate(start, end) {
+  // 1 day competition has no special logic. Output example: "Jan 1, 2023"
+  if (start === end) {
+    return moment(start).format("MMM D, YYYY");
+  }
+
+  let mstart = moment(start);
+  let mend = moment(end);
+
+  // Check that year matches
+  if (mstart.year === mend.year) {
+    // Check that month matches
+    if (mstart.month === mend.month) {
+      // Multi day competition with a few days difference. Output example: Jan 1 - 2, 2023
+      return mstart.format("MMM D") + " - " + mend.format("D, YYYY");
+    } else {
+      // Multi day competitiion with a month difference included. Output example: Jan 31 - Feb 2, 2023
+      return mstart.format("MMM D") + " - " + mend.format("MMM D, YYYY");
+    }
+  } else {
+    // Multi day competitiion with a year difference included. Output example: Dec 31, 2022 - Jan 1, 2023
+    return mstart.format("MMM D, YYYY") + " - " + mend.format("MMM D, YYYY");
   }
 }
 

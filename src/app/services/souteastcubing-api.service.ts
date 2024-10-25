@@ -4,7 +4,7 @@ import { environment } from 'src/environments/environment';
 import { EmailRequestBody } from '../models/EmailRequestBody';
 import { Observable, map } from 'rxjs';
 import { Competition } from '../models/Competition';
-import { getFullCompetitionDate, getRegistrationStatus, getReadableRegistrationOpen } from '../shared/competition.utils';
+import { getRegistrationStatus, getReadableRegistrationOpen } from '../shared/competition.utils';
 
 @Injectable({
   providedIn: 'root'
@@ -20,8 +20,7 @@ export class SouteastcubingApiService {
   getUpcomingCompetitions(): Observable<Competition[]> {
     return this.http.get(`${environment.links.southeastCubingApi}/competitions`)
       .pipe(map((res: any[]) => res.map(competition => ({
-        ...competition, 
-        full_date: getFullCompetitionDate(competition.start_date, competition.end_date),
+        ...competition,
         registration_status: getRegistrationStatus(competition),
         readable_registration_open: getReadableRegistrationOpen(competition)
       } as Competition))));
