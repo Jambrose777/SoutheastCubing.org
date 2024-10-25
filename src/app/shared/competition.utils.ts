@@ -35,6 +35,8 @@ export function getRegistrationStatus(competition: Competition): RegistrationSta
     return RegistrationStatus.closed;
   } else if (moment.utc(competition.registration_open).isAfter(moment.now())) {
     return RegistrationStatus.preLaunch;
+  } else if (competition.is_manual_competition) {
+    return RegistrationStatus.open;
   } else if (competition.accepted_registrations >= competition.competitor_limit) {
     return RegistrationStatus.openWithWaitingList;
   } else {

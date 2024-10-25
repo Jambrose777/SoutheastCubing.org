@@ -3,6 +3,7 @@ const moment = require("moment");
 
 const aws = require('./aws.js');
 const googleForm = require('./googleForm.js');
+const contentful = require('./contentful.js');
 
 let competitions;
 let lastChecked;
@@ -18,15 +19,15 @@ function getCompetitions(req, res) {
 }
 
 function updateCompetitions(req, res) {
-  if (lastChecked && lastChecked.isAfter(moment().add(-1, 'hour'))) {
-    console.log('400 ', lastChecked.format("YYYY-MM-DD HH:mm:ss"), lastChecked.isAfter(moment().add(-1, 'hour')))
-    res.status(400).json({ message: 'Cannot update multiple times within an hour. Last update was: ' + lastChecked.format("YYYY-MM-DD HH:mm:ss") });
-  } else {
+  // if (lastChecked && lastChecked.isAfter(moment().add(-1, 'hour'))) {
+  //   console.log('400 ', lastChecked.format("YYYY-MM-DD HH:mm:ss"), lastChecked.isAfter(moment().add(-1, 'hour')))
+  //   res.status(400).json({ message: 'Cannot update multiple times within an hour. Last update was: ' + lastChecked.format("YYYY-MM-DD HH:mm:ss") });
+  // } else {
     // pull competitions from WCA
     getCompetitionsFromWCA().then(comps => {
       res.send(comps);
     })
-  }
+  // }
 }
 
 function fetchCompetitions() {
@@ -48,11 +49,33 @@ function fetchCompetitions() {
 function getCompetitionsFromWCA() {
   return axios.get("https://www.worldcubeassociation.org/api/v0/competitions?country_iso2=US&per_page=1000&page=1&start=" + moment().add(-1, 'day').format('YYYY-MM-DD'))
     .then(async res => {
+      // fetch manual competitions from Contentful
+      let contentfulCompetitions = await Promise.all((await contentful.getContentfulCompetitions()).items.map(async contentfulComp => {
+        // fetch info on competition from WCA
+        const wcaCompetition = await getWCACompetitions(res.data, contentfulComp.fields.id);
+
+        return {
+          ...wcaCompetition,
+          name: contentfulComp.fields.name,
+          city: contentfulComp.fields.city,
+          venue_address: contentfulComp.fields.venueAddress,
+          venue_details: contentfulComp.fields.venueDetails,
+          latitude_degrees: contentfulComp.fields.latitudeDegrees,
+          longitude_degrees: contentfulComp.fields.longitudeDegrees,
+          country_iso2: contentfulComp.fields.countryIso2,
+          competitor_limit: contentfulComp.fields.competitorLimit,
+          is_manual_competition: true,
+        };
+      }));
+
+      // Filter out past competitions from Contentful
+      contentfulCompetitions = contentfulCompetitions.filter(comp => moment(comp.end_date).isAfter(moment().add(-1, 'day')));
+
       // fetch competitions with a staff application
       let competitionsWithStaffApp = await googleForm.getCompetitionsInStaffForm();
 
       // format competition data
-      let comps = await formatCompetitionData(res.data, competitionsWithStaffApp);
+      let comps = await formatCompetitionData(res.data.concat(contentfulCompetitions), competitionsWithStaffApp);
 
       if (comps && comps.length) {
         // save competition data locally
@@ -72,6 +95,7 @@ function getCompetitionsFromWCA() {
 
 async function formatCompetitionData(comps, competitionsWithStaffApp) {
   return await Promise.all(comps
+    // Filter to only SE comp Dates
     .filter(comp => 
       comp.city.includes(', Georgia') ||
       comp.city.includes(', Tennessee') ||
@@ -100,8 +124,9 @@ async function formatCompetitionData(comps, competitionsWithStaffApp) {
       competitor_limit: competition.competitor_limit,
       event_ids: competition.event_ids,
       state: competition.city.substring(competition.city.lastIndexOf(",") + 1).trim(),
-      isInStaffApplication: competitionsWithStaffApp.includes(competition.name),
+      is_in_staff_application: competitionsWithStaffApp.includes(competition.name),
       accepted_registrations: await getRegistrationsFromWCA(competition),
+      is_manual_competition: competition.is_manual_competition || false,
     })))
 }
 
@@ -109,8 +134,19 @@ function getRegistrationsFromWCA(competition) {
   if (moment.utc(competition.registration_close).isBefore(moment.now()) || moment.utc(competition.registration_open).isAfter(moment.now())) {
     return Promise.resolve(0);
   } else {
-    return axios.get(`https://www.worldcubeassociation.org//api/v0/competitions/${competition.id}/registrations`)
+    return axios.get(`https://www.worldcubeassociation.org/api/v0/competitions/${competition.id}/registrations`)
       .then(res => res.data.length)
+      .catch(err => console.log(err));
+  }
+}
+
+function getWCACompetitions(competitions, competitionId) {
+  let wcaCompetition = competitions.find(wcaCompetition => wcaCompetition.id === competitionId);
+  if (wcaCompetition) {
+    return Promise.resolve(wcaCompetition);
+  } else {
+    return axios.get(`https://www.worldcubeassociation.org/api/v0/competitions/${competitionId}`)
+      .then(res => res.data)
       .catch(err => console.log(err));
   }
 }

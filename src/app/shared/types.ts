@@ -15,7 +15,8 @@ export enum RegistrationStatus {
   preLaunch = 'preLaunch',
   closed = 'closed',
   openWithSpots = 'openWithSpots',
-  openWithWaitingList = 'openWithWaitingList'
+  openWithWaitingList = 'openWithWaitingList',
+  open = 'open',
 }
 
 export const StateColors = {

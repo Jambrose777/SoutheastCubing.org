@@ -65,16 +65,22 @@
         Registration is <b>full</b>. You can still register for the waiting list in case of any cancellations.
       </div>
 
-      <!-- Register here link to WCA for cetain Registration Statuses -->
+      <!-- Info for Registration Status open (Manual Competition) -->
+      <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.open">
+        Registration is open! Please check the competition website for availability at this location.
+      </div>
+
+      <!-- Register here link to WCA for certain Registration Statuses -->
       <div
-        *ngIf="[RegistrationStatus.preLaunch, RegistrationStatus.openWithSpots, RegistrationStatus.openWithWaitingList].includes(selectedCompetition.registration_status)">
+        *ngIf="[RegistrationStatus.preLaunch, RegistrationStatus.openWithSpots, RegistrationStatus.openWithWaitingList, RegistrationStatus.open].includes(selectedCompetition.registration_status)">
         <a class="btn" [href]="enviroment.links.wcaCompetition + selectedCompetition.id + '/register'" target="_blank">
           Register Here
           <i class="fa-solid fa-up-right-from-square fa-sm"></i>
         </a>
       </div>
 
-      <a *ngIf="selectedCompetition.isInStaffApplication" class="btn" [href]="linksService.applyToStaffForm" target="_blank">
+      <!-- Staff Application -->
+      <a *ngIf="selectedCompetition.is_in_staff_application" class="btn" [href]="linksService.applyToStaffForm" target="_blank">
         Apply For Staff
         <i class="fa-solid fa-up-right-from-square fa-sm"></i>
       </a>
