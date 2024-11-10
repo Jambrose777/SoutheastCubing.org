@@ -30,7 +30,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { SeMapComponent } from './components/shared/se-map/se-map.component';
+import { SeFilterMapComponent } from './components/shared/se-filter-map/se-filter-map.component';
 import { EventListComponent } from './components/shared/event-list/event-list.component';
 import { PageNotFoundComponent } from './components/pages/page-not-found/page-not-found.component';
 import { CatsComponent } from './components/pages/cats/cats.component';
@@ -85,7 +85,7 @@ const moduleRoutes: Routes = [
     OrganizersComponent,
     ContactComponent,
     AboutComponent,
-    SeMapComponent,
+    SeFilterMapComponent,
     EventListComponent,
     PageNotFoundComponent,
     CatsComponent,

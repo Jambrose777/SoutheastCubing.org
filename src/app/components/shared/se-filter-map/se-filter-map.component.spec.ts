@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SeMapComponent } from './se-map.component';
+import { SeFilterMapComponent } from './se-filter-map.component';
 
-describe('SeMapComponent', () => {
-  let component: SeMapComponent;
-  let fixture: ComponentFixture<SeMapComponent>;
+describe('SeFilterMapComponent', () => {
+  let component: SeFilterMapComponent;
+  let fixture: ComponentFixture<SeFilterMapComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SeMapComponent ]
+      declarations: [ SeFilterMapComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(SeMapComponent);
+    fixture = TestBed.createComponent(SeFilterMapComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

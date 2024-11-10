@@ -12,7 +12,7 @@
       <!-- Filters -->
       <se-event-list [selectedEvents]="filters.events" (selectEventEmitter)="handleEventSelection($event)">
       </se-event-list>
-      <se-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-map>
+      <se-filter-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-filter-map>
 
       <!-- section for external links text Bubble -->
       <div class="sub-text-container">

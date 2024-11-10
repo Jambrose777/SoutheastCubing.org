@@ -2,11 +2,11 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Colors, StateColors, States } from 'src/app/shared/types';
 
 @Component({
-  selector: 'se-map',
-  templateUrl: './se-map.component.html',
-  styleUrls: ['./se-map.component.scss']
+  selector: 'se-filter-map',
+  templateUrl: './se-filter-map.component.html',
+  styleUrls: ['./se-filter-map.component.scss']
 })
-export class SeMapComponent implements OnInit {
+export class SeFilterMapComponent implements OnInit {
   StateColors = StateColors;
   Colors = Colors;
   States = States;

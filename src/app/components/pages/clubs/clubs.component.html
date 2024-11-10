@@ -10,7 +10,7 @@
       <div class="large-text-content">{{description}}</div>
 
       <!-- Filters -->
-      <se-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-map>
+      <se-filter-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-filter-map>
 
       <div class="sub-text-container">
         <!-- Section for Start a new club form -->
