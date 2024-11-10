@@ -66,8 +66,16 @@
   }
 }
 
+@media only screen and (max-width: 1050px) {
+  .se-logo {
+    height: calc(100% - 30px) !important;
+    margin: 15px 10px 15px 10px !important;
+  }
+}
+
 @media only screen and (max-width: $small-breakpoint) {
   .se-logo {
+    height: calc(100% - 20px) !important;
     margin: 10px !important;
   }
 

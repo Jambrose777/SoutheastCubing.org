@@ -21,7 +21,7 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
   isMobile: boolean
   StateColors = StateColors;
   enviroment = environment;
-  title: string = 'Southeast Championships';
+  title: string = 'Southeast Championship';
   description: string = '';
   loadingContent: boolean = true;
   loadingChampionships: boolean = true;
