@@ -38,6 +38,7 @@ import { SelectedCatComponent } from './components/pages/cats/selected-cat/selec
 import { TeamsComponent } from './components/pages/about/teams/teams.component';
 import { DoucmentsComponent } from './components/pages/about/documents/documents.component';
 import { UpdateCompetitionsComponent } from './components/pages/update-competitions/update-competitions.component';
+import { SafeUrlPipe } from './pipes/safeUrl.pipe';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -91,7 +92,8 @@ const moduleRoutes: Routes = [
     SelectedCatComponent,
     TeamsComponent,
     DoucmentsComponent,
-    UpdateCompetitionsComponent
+    UpdateCompetitionsComponent,
+    SafeUrlPipe
   ],
   imports: [
     BrowserModule,

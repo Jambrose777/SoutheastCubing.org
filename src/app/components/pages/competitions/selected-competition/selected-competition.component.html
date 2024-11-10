@@ -34,10 +34,17 @@
     </div>
 
     <!-- Location On Google Map View Bubble -->
-    <!-- <div class="detail-container"
-      *ngIf="!isMobile">
-      TODO
-    </div> -->
+    <div class="detail-container map-container" *ngIf="!isMobile">
+      <iframe
+        width="260"
+        height="300"
+        class="map-iframe"
+        loading="lazy"
+        allowfullscreen
+        referrerpolicy="no-referrer-when-downgrade"
+        [src]="googleMapUrl | safeUrl">
+      </iframe>
+    </div>
 
     <!-- Registration Information Bubble -->
     <div class="detail-container">
@@ -80,10 +87,12 @@
       </div>
 
       <!-- Staff Application -->
-      <a *ngIf="selectedCompetition.is_in_staff_application" class="btn" [href]="linksService.applyToStaffForm" target="_blank">
-        Apply For Staff
-        <i class="fa-solid fa-up-right-from-square fa-sm"></i>
-      </a>
+      <div>
+        <a *ngIf="selectedCompetition.is_in_staff_application" class="btn" [href]="linksService.applyToStaffForm" target="_blank">
+          Apply For Staff
+          <i class="fa-solid fa-up-right-from-square fa-sm"></i>
+        </a>
+      </div>
     </div>
 
     <!-- Contact Bubble -->

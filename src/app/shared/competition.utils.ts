@@ -1,6 +1,7 @@
 import { Competition } from "../models/Competition";
 import { RegistrationStatus } from "./types";
 import * as moment from 'moment';
+
 // Calculates the current registration status based on when registration is opened and closed
 export function getRegistrationStatus(competition: Competition): RegistrationStatus {
   if (moment.utc(competition.registration_close).isBefore(moment.now())) {

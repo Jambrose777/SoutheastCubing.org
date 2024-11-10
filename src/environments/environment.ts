@@ -2,7 +2,7 @@ export const environment = {
   production: false,
   contentful: {
     space: '9jj6t3di6e0s',
-    accessToken: '0caGxltFJOw2pGUixHWvFff46oavZqciOyEGb_5TjLg'
+    accessToken: '0caGxltFJOw2pGUixHWvFff46oavZqciOyEGb_5TjLg',
   },
   // some links can be overwritten by contentful
   links: {
@@ -10,6 +10,7 @@ export const environment = {
     discord: 'https://discord.gg/hp7DSmtReb',
     facebook: 'https://www.facebook.com/groups/491409969462797/',
     googleMaps: 'https://www.google.com/maps/search/',
+    googleMapsApi: 'https://www.google.com/maps/embed/v1/place?key=AIzaSyCK6MMJMU76c3rFmrZCA1yKFe7YLibiFn4&q=',
     instagram: 'https://www.instagram.com/southeastcubing/',
     southeastCubingApi: 'http://localhost:8080',
     wca: 'https://www.worldcubeassociation.org/',
