@@ -17,6 +17,8 @@ export class Competition {
   end_date: string;
   competitor_limit: number;
   event_ids: string[];
+  venue: string;
+  venueUrl?: string;
   full_date?: string;
   registration_status?: RegistrationStatus;
   readable_registration_open?: string;

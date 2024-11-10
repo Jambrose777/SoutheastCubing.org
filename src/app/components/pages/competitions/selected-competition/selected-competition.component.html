@@ -28,6 +28,10 @@
     <div class="detail-container">
       <div>City: <b>{{selectedCompetition.city}}</b></div>
       <div *ngIf="!isMobile">Date: <b>{{selectedCompetition.full_date}}</b></div>
+      <div *ngIf="!selectedCompetition.venueUrl">Venue: <b>{{selectedCompetition.venue}}</b></div>
+      <a *ngIf="selectedCompetition.venueUrl" [href]="selectedCompetition.venueUrl" target="_blank">
+        <div>Venue: <b>{{selectedCompetition.venue}}</b></div>
+      </a>
       <a [href]="enviroment.links.googleMaps + selectedCompetition.venue_address" target="_blank">
         <div>Address: <b>{{selectedCompetition.venue_address}}</b></div>
       </a>

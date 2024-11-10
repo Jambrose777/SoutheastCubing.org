@@ -18,7 +18,7 @@ competitions.fetchCompetitions();
 
 // fetch competitions update everyday at midnight
 schedule.scheduleJob('0 0 * * *', () => { 
-  getCompetitionsFromWCA().then(comps => {
+  competitions.getCompetitionsFromWCA().then(comps => {
     res.send(comps);
   });
 });

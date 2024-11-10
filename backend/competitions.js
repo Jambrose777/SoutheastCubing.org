@@ -129,6 +129,8 @@ async function formatCompetitionData(comps, competitionsWithStaffApp) {
       end_date: competition.end_date,
       competitor_limit: competition.competitor_limit,
       event_ids: competition.event_ids,
+      venue: getCompetitionVenueName(competition.venue),
+      venueUrl: getCompetitionVenueUrl(competition.venue),
       state: competition.city.substring(competition.city.lastIndexOf(",") + 1).trim(),
       is_in_staff_application: competitionsWithStaffApp.includes(competition.name),
       accepted_registrations: await getRegistrationsFromWCA(competition),
@@ -181,6 +183,22 @@ function getFullCompetitionDate(start, end) {
   } else {
     // Multi day competitiion with a year difference included. Output example: Dec 31, 2022 - Jan 1, 2023
     return mstart.format("MMM D, YYYY") + " - " + mend.format("MMM D, YYYY");
+  }
+}
+
+function getCompetitionVenueName(venue) {
+  if (venue && venue.indexOf("]") !== -1) {
+    return venue.substring(1, venue.indexOf(']'));
+  } else {
+    return venue;
+  }
+}
+
+function getCompetitionVenueUrl(venue) {
+  if (venue && venue.indexOf("(") !== -1 && venue.indexOf(")") !== -1) {
+    return venue.substring(venue.indexOf('(') + 1, venue.indexOf(')'));
+  } else {
+    return undefined;
   }
 }
 
