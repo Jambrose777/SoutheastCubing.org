@@ -202,4 +202,4 @@ function getCompetitionVenueUrl(venue) {
   }
 }
 
-module.exports = { getCompetitions, updateCompetitions, fetchCompetitions };
+module.exports = { getCompetitions, updateCompetitions, fetchCompetitions, getCompetitionsFromWCA };

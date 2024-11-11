@@ -38,6 +38,8 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
     states: [],
     events: [],
   };
+  filtersDescription: string;
+  filtersOpen: boolean = false;
   competitionMapPoints: MapPoint[];
   subscriptions: Subscription = new Subscription();
 
@@ -83,6 +85,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
       this.title = res.fields.title;
       this.description = res.fields.description;
       this.subText = res.fields.subText1;
+      this.filtersDescription = res.fields.subTopics[0]?.fields.description;
       this.loadingContent = false;
     }));
 
@@ -111,6 +114,9 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   selectCompetition(competition: Competition) {
     // close Nav
     this.navService.closeNav();
+
+    // close Filters
+    this.filtersOpen = false;
 
     // Check if clicking an active competition, and delselect the competition if so.
     if (this.selectedCompetition?.name === competition.name) {
@@ -226,7 +232,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
     } else if (status === RegistrationStatus.open || status === RegistrationStatus.openWithSpots) {
       return MarkerColorClass.green;
     } else if (status === RegistrationStatus.openWithWaitingList) {
-      return MarkerColorClass.yellow;
+      return MarkerColorClass.orange;
     } else {
       return MarkerColorClass.blue;
     }
@@ -249,6 +255,16 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   // hover event on competition list
   competitionHover(competition?: Competition) {
     this.hoveredListCompetition = competition?.id;
+  }
+
+  // toggles whether the filters pane is open or not
+  toggleFiltersOpen() {
+    this.filtersOpen = !this.filtersOpen;
+
+    // clear page from a selected competition on filter changes
+    if (this.filtersOpen && this.selectedCompetition) {
+      this.selectCompetition(this.selectedCompetition);
+    }
   }
 
 }

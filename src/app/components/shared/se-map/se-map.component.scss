@@ -1,3 +1,5 @@
+@import "src/styles/color-pallet.scss";
+
 #se-map { 
   height: 350px;
   width: 400px;
@@ -5,6 +7,46 @@
   border-radius: 10px;
 }
 
+.map-legend {
+  background-color: $se-yellow;
+  margin-top: -19px;
+  z-index: 1001; // above leaflet base layer
+  position: relative;
+  border-radius: 0 0 10px 10px;
+  width: 400px;
+  height: 20px;
+  margin: -19px auto 0 auto;
+  font-size: 9px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.dot {
+  height: 12px;
+  width: 12px;
+  border-radius: 25px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.green {
+  background-color: #00936d;
+}
+
+.blue {
+  background-color: #3187c7;
+}
+
+.orange {
+  background-color: #b36900;
+}
+
+.red {
+  background-color: #dd5258;
+}
+
+// marker colors for div created by leaflet
 ::ng-deep .blue-marker { 
   filter: hue-rotate(0deg);
 }
@@ -13,8 +55,8 @@
   filter: hue-rotate(138deg);
 }
 
-::ng-deep .yellow-marker { 
-  filter: hue-rotate(200deg);
+::ng-deep .orange-marker { 
+  filter: hue-rotate(180deg);
 }
 
 ::ng-deep .green-marker { 

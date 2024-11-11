@@ -8,6 +8,6 @@ export class MapPoint {
 export enum MarkerColorClass {
   blue = 'blue-marker',
   red = 'red-marker',
-  yellow = 'yellow-marker',
+  orange = 'orange-marker',
   green = 'green-marker'
 }

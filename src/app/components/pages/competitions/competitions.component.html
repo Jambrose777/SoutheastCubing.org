@@ -6,13 +6,8 @@
     <loading-spinner *ngIf="loadingContent"></loading-spinner>
 
     <!-- Information if there is no selected competition (ie. initial page for Competitions) -->
-    <ng-container *ngIf="!loadingContent && (isMobile || !selectedCompetition)">
+    <ng-container *ngIf="!loadingContent && (isMobile || !selectedCompetition) && !filtersOpen">
       <div class="large-text-content">{{description}}</div>
-
-      <!-- Filters -->
-      <!-- <se-event-list [selectedEvents]="filters.events" (selectEventEmitter)="handleEventSelection($event)">
-      </se-event-list>
-      <se-filter-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-filter-map> -->
 
       <se-map 
         *ngIf="competitionMapPoints"
@@ -46,6 +41,14 @@
       </div>
     </ng-container>
 
+    <!-- Filters -->
+    <ng-container *ngIf="filtersOpen">
+      <div class="large-text-content">{{filtersDescription}}</div>
+      <se-event-list [selectedEvents]="filters.events" (selectEventEmitter)="handleEventSelection($event)">
+      </se-event-list>
+      <se-filter-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-filter-map>
+    </ng-container>
+
     <!-- Information for selected competition details -->
     <se-selected-competition *ngIf="selectedCompetition && !isMobile" [selectedCompetition]="selectedCompetition">
     </se-selected-competition>
@@ -53,6 +56,11 @@
   <div class="secondary-pane">
     <!-- Loading Spinner -->
     <loading-spinner *ngIf="loadingCompetitions"></loading-spinner>
+
+    <!-- Filters Icon -->
+    <div class="icon-row" (click)="toggleFiltersOpen()">
+      <i class="fa-solid fa-filter"></i>
+    </div>
 
     <div id="competition-list-container" class="list-container" *ngIf="!loadingCompetitions">
       <!-- List for all loaded competitions -->
