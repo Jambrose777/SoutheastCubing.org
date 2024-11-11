@@ -1,0 +1,26 @@
+#se-map { 
+  height: 350px;
+  width: 400px;
+  margin: 0 auto 0 auto;
+  border-radius: 10px;
+}
+
+::ng-deep .blue-marker { 
+  filter: hue-rotate(0deg);
+}
+
+::ng-deep .red-marker { 
+  filter: hue-rotate(138deg);
+}
+
+::ng-deep .yellow-marker { 
+  filter: hue-rotate(200deg);
+}
+
+::ng-deep .green-marker { 
+  filter: hue-rotate(300deg);
+}
+
+::ng-deep .active-marker {
+  filter: hue-rotate(40deg);
+}

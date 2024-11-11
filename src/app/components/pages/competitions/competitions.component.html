@@ -10,9 +10,17 @@
       <div class="large-text-content">{{description}}</div>
 
       <!-- Filters -->
-      <se-event-list [selectedEvents]="filters.events" (selectEventEmitter)="handleEventSelection($event)">
+      <!-- <se-event-list [selectedEvents]="filters.events" (selectEventEmitter)="handleEventSelection($event)">
       </se-event-list>
-      <se-filter-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-filter-map>
+      <se-filter-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-filter-map> -->
+
+      <se-map 
+        *ngIf="competitionMapPoints"
+        [points]="competitionMapPoints"
+        [selectedPoint]="hoveredListCompetition"
+        (hoverPoint)="mapHoverEvent($event)"
+        (clickPoint)="mapClickEvent($event)"
+      ></se-map>
 
       <!-- section for external links text Bubble -->
       <div class="sub-text-container">
@@ -51,7 +59,8 @@
       <ng-container *ngFor="let competition of filteredCompetitions;">
         <!-- Competition Bubble -->
         <div class="item-container clickable" style="--state-color:{{StateColors[competition.state]}}"
-          [ngClass]="{active: selectedCompetition?.name === competition.name}">
+          [ngClass]="{active: selectedCompetition?.id === competition.id || hoveredMapCompetition === competition.id}"
+          (mouseover)="competitionHover(competition)" (mouseout)="competitionHover()">
           <div class="item-row" (click)="selectCompetition(competition)" id="{{competition.id}}">
             <div class="item-title">
               {{competition.name}}

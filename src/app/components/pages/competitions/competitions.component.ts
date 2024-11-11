@@ -12,6 +12,7 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
 import { SouteastcubingApiService } from 'src/app/services/souteastcubing-api.service';
+import { MapPoint, MarkerColorClass } from 'src/app/models/Map';
 
 @Component({
   selector: 'se-competitions',
@@ -30,11 +31,14 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   loadingCompetitions: boolean = true;
   selectedCompetition: Competition;
   selectedCompetitionIdFromRoute: string;
+  hoveredMapCompetition: string;
+  hoveredListCompetition: string;
   subText: string = '';
   filters = {
     states: [],
     events: [],
   };
+  competitionMapPoints: MapPoint[];
   subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -178,6 +182,8 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
     if (this.filters.events.length > 0) {
       this.filteredCompetitions = this.filteredCompetitions.filter(comp => this.filters.events.reduce((include, event) => include && comp.event_ids.includes(event), true));
     }
+
+    this.createMapPoints();
   }
 
   // Updates URL to include filters
@@ -201,6 +207,48 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
         document.getElementById('competition-list-container')?.scrollIntoView({ behavior: 'smooth' });
       }, 0);
     }
+  }
+
+  // Creates array for the map points with lats and longs
+  createMapPoints() {
+    this.competitionMapPoints = this.filteredCompetitions.map(competition => ({
+      id: competition.id,
+      lat: competition.latitude_degrees,
+      long: competition.longitude_degrees,
+      colorClass: this.getRegistrationColor(competition.registration_status)
+    }));
+  }
+
+  // gets map marker color based on registration status
+  getRegistrationColor(status: RegistrationStatus): MarkerColorClass {
+    if(status === RegistrationStatus.closed) {
+      return MarkerColorClass.red;
+    } else if (status === RegistrationStatus.open || status === RegistrationStatus.openWithSpots) {
+      return MarkerColorClass.green;
+    } else if (status === RegistrationStatus.openWithWaitingList) {
+      return MarkerColorClass.yellow;
+    } else {
+      return MarkerColorClass.blue;
+    }
+  }
+
+  // handles hover event on map
+  mapHoverEvent(competitionId: string) {
+    this.hoveredMapCompetition = competitionId;
+  }
+
+  // handles click event on map to open competition
+  mapClickEvent(competitionId: string) {
+    const competition = this.filteredCompetitions.find(competition => competition.id === competitionId);
+    this.selectCompetition(competition);
+
+    // resets hovered event
+    this.hoveredMapCompetition = '';
+  }
+
+  // hover event on competition list
+  competitionHover(competition?: Competition) {
+    this.hoveredListCompetition = competition?.id;
   }
 
 }

@@ -39,6 +39,7 @@ import { TeamsComponent } from './components/pages/about/teams/teams.component';
 import { DoucmentsComponent } from './components/pages/about/documents/documents.component';
 import { UpdateCompetitionsComponent } from './components/pages/update-competitions/update-competitions.component';
 import { SafeUrlPipe } from './pipes/safeUrl.pipe';
+import { SeMapComponent } from './components/shared/se-map/se-map.component';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -93,7 +94,8 @@ const moduleRoutes: Routes = [
     TeamsComponent,
     DoucmentsComponent,
     UpdateCompetitionsComponent,
-    SafeUrlPipe
+    SafeUrlPipe,
+    SeMapComponent
   ],
   imports: [
     BrowserModule,
