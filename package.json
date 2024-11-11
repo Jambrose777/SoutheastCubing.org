@@ -23,8 +23,10 @@
     "angular-responsive-carousel": "^2.1.2",
     "contentful": "^9.1.34",
     "leaflet": "^1.9.4",
+    "marked": "^15.0.0",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.34",
+    "ngx-markdown": "^14.0.1",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"

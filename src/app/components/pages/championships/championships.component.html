@@ -7,7 +7,9 @@
 
     <!-- Information if there is no selected championship (ie. initial page for Championships) -->
     <ng-container *ngIf="!loadingContent && (isMobile || !selectedChampionship)">
-      <div class="large-text-content">{{description}}</div>
+      <div class="large-text-content">
+        <markdown [data]="description"></markdown>
+      </div>
 
       <div class="sub-text-container">
         <!-- Section for links to follow -->

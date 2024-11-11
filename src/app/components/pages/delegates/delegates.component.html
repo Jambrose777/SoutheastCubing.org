@@ -7,7 +7,9 @@
 
     <!-- Information if there is no selected Delegate (ie. initial page for Delegates) -->
     <ng-container *ngIf="!loadingContent && (isMobile || !selectedDelegate)">
-      <div class="large-text-content">{{description}}</div>
+      <div class="large-text-content">
+        <markdown [data]="description"></markdown>
+      </div>
 
       <!-- section for external link text Bubble -->
       <div class="sub-text-container">

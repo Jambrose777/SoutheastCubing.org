@@ -132,7 +132,9 @@
     <!-- FAQ -->
     <div class="list-container" *ngIf="!loadingContent">
       <h2>Frequently Asked Questions</h2>
-      <div>{{description}}</div>
+      <div>
+        <markdown [data]="description"></markdown>
+      </div>
     </div>
   </div>
 

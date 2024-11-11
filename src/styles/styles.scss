@@ -21,13 +21,25 @@ body {
   background: linear-gradient(to left top, $se-dark-grey, $se-grey);
 }
 
-h1, h2, b {
+h1, h2, b, strong {
   font-family: 'MontserratBold';
 }
 
 a {
   text-decoration: none;
   color: black;
+}
+
+// Keep underline for markdown transformations.
+markdown {
+  a {
+    text-decoration: underline;
+  }
+}
+
+p {
+  margin-block-start: 0;
+  margin-block-end: 0;
 }
 
 .component-container {

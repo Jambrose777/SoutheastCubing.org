@@ -16,7 +16,7 @@
 
   <!-- Short Delegate description -->
   <div class="small-text-content" *ngIf="selectedDelegate.description">
-    {{selectedDelegate.description}}
+    <markdown [data]="selectedDelegate.description"></markdown>
   </div>
 
   <!-- WCA Logo -->

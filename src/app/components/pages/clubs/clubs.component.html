@@ -7,7 +7,9 @@
 
     <!-- Information if there is no selected club (ie. initial page for Clubs) -->
     <ng-container *ngIf="!loadingContent && (isMobile || !selectedClub) && !filtersOpen">
-      <div class="large-text-content">{{description}}</div>
+      <div class="large-text-content">
+        <markdown [data]="description"></markdown>
+      </div>
 
       <se-map 
         *ngIf="clubMapPoints"
@@ -45,7 +47,9 @@
 
     <!-- Filters -->
     <ng-container *ngIf="filtersOpen">
-      <div class="large-text-content">{{filtersDescription}}</div>
+      <div class="large-text-content">
+        <markdown [data]="filtersDescription"></markdown>
+      </div>
       <se-filter-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-filter-map>
     </ng-container>
 
@@ -59,7 +63,7 @@
     <loading-spinner *ngIf="loadingClubs"></loading-spinner>
 
     <!-- Filters Icon -->
-    <div class="icon-row" (click)="toggleFiltersOpen()">
+    <div class="icon-row" (click)="toggleFiltersOpen()" *ngIf="!loadingClubs">
       <i class="fa-solid fa-filter"></i>
     </div>
 

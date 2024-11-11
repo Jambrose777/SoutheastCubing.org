@@ -7,7 +7,9 @@
 
     <!-- Information if there is no selected Cat (ie. initial page for Cats) -->
     <ng-container *ngIf="!loadingContent && (isMobile || !selectedCat)">
-      <div class="large-text-content">{{description}}</div>
+      <div class="large-text-content">
+        <markdown [data]="description"></markdown>
+      </div>
     </ng-container>
 
     <!-- Information for selected cat details -->

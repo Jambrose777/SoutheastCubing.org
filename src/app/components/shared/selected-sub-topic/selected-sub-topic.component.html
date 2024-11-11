@@ -11,7 +11,7 @@
 
   <!-- Topic Description -->
   <div class="medium-text-content" *ngIf="selectedSubTopic.description">
-    {{selectedSubTopic.description}}
+    <markdown [data]="selectedSubTopic.description"></markdown>
   </div>
 
   <!-- Button for link to relevant page -->

@@ -40,6 +40,7 @@ import { DoucmentsComponent } from './components/pages/about/documents/documents
 import { UpdateCompetitionsComponent } from './components/pages/update-competitions/update-competitions.component';
 import { SafeUrlPipe } from './pipes/safeUrl.pipe';
 import { SeMapComponent } from './components/shared/se-map/se-map.component';
+import { MarkdownModule } from 'ngx-markdown';
 
 const moduleRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -95,7 +96,7 @@ const moduleRoutes: Routes = [
     DoucmentsComponent,
     UpdateCompetitionsComponent,
     SafeUrlPipe,
-    SeMapComponent
+    SeMapComponent,
   ],
   imports: [
     BrowserModule,
@@ -108,7 +109,8 @@ const moduleRoutes: Routes = [
     ReactiveFormsModule,
     MatSelectModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MarkdownModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent]

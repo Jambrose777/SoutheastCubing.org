@@ -16,7 +16,7 @@
 
   <!-- Short Club description -->
   <div class="medium-text-content" *ngIf="selectedClub.description">
-    {{selectedClub.description}}
+    <markdown [data]="selectedClub.description"></markdown>
   </div>
 
   <div class="club-details-row">
@@ -35,7 +35,7 @@
     <div class="detail-container" *ngIf="selectedClub.meetingInformation">
       <b>When?</b>
       <div class="detail-sub-container">
-        {{selectedClub.meetingInformation}}
+        <markdown [data]="selectedClub.meetingInformation"></markdown>
       </div>
     </div>
 

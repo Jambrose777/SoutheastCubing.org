@@ -32,7 +32,7 @@
 
   <!-- Short Championship description -->
   <div class="small-text-content" *ngIf="selectedChampionship.description">
-    {{selectedChampionship.description}}
+    <markdown [data]="selectedChampionship.description"></markdown>
   </div>
 
   <!-- Champions Table -->

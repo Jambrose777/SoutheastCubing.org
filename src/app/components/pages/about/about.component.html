@@ -7,7 +7,9 @@
 
     <!-- Information if there is no selected sub topic (ie. initial page for Involvement) -->
     <ng-container *ngIf="!loadingContent && (isMobile || !selectedSubTopic)">
-      <div class="large-text-content">{{description}}</div>
+      <div class="large-text-content">
+        <markdown [data]="description"></markdown>
+      </div>
     </ng-container>
 
     <!-- Information for selected subTopic details -->

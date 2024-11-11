@@ -7,7 +7,9 @@
 
     <!-- Information if there is no selected competition (ie. initial page for Competitions) -->
     <ng-container *ngIf="!loadingContent && (isMobile || !selectedCompetition) && !filtersOpen">
-      <div class="large-text-content">{{description}}</div>
+      <div class="large-text-content">
+        <markdown [data]="description"></markdown>
+      </div>
 
       <se-map 
         *ngIf="competitionMapPoints"
@@ -44,7 +46,10 @@
 
     <!-- Filters -->
     <ng-container *ngIf="filtersOpen">
-      <div class="large-text-content">{{filtersDescription}}</div>
+      <div class="large-text-content">
+        <markdown [data]="filtersDescription"></markdown>
+      </div>
+
       <se-event-list [selectedEvents]="filters.events" (selectEventEmitter)="handleEventSelection($event)">
       </se-event-list>
       <se-filter-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-filter-map>
@@ -59,7 +64,7 @@
     <loading-spinner *ngIf="loadingCompetitions"></loading-spinner>
 
     <!-- Filters Icon -->
-    <div class="icon-row" (click)="toggleFiltersOpen()">
+    <div class="icon-row" (click)="toggleFiltersOpen()" *ngIf="!loadingCompetitions">
       <i class="fa-solid fa-filter"></i>
     </div>
 

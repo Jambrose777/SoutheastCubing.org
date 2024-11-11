@@ -3,7 +3,9 @@
     <header id="header" [title]="title" [activateNavOnDefault]="true"></header>
     <ng-container *ngIf="isMobile">
       <loading-spinner *ngIf="loadingContent"></loading-spinner>
-      <div *ngIf="!loadingContent" class="large-text-content">{{description}}</div>
+      <div *ngIf="!loadingContent" class="large-text-content">
+        <markdown [data]="description"></markdown>
+      </div>
     </ng-container>
   </div>
   <div class="secondary-pane" *ngIf="!isMobile">
@@ -11,7 +13,9 @@
     <loading-spinner *ngIf="loadingContent"></loading-spinner>
 
     <ng-container *ngIf="!loadingContent && !isMobile">
-      <div class="large-text-content">{{description}}</div>
+      <div class="large-text-content">
+        <markdown [data]="description"></markdown>
+      </div>
     </ng-container>
   </div>
 </div>

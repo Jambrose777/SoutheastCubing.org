@@ -29,7 +29,9 @@
         </carousel>
       </div>
 
-      <div class="large-text-content">{{description}}</div>
+      <div class="large-text-content">
+        <markdown [data]="description"></markdown>
+      </div>
 
       <!-- Icons for important external links, such as social media -->
       <div class="badges">
