@@ -6,11 +6,16 @@
     <loading-spinner *ngIf="loadingContent"></loading-spinner>
 
     <!-- Information if there is no selected club (ie. initial page for Clubs) -->
-    <ng-container *ngIf="!loadingContent && (isMobile || !selectedClub)">
+    <ng-container *ngIf="!loadingContent && (isMobile || !selectedClub) && !filtersOpen">
       <div class="large-text-content">{{description}}</div>
 
-      <!-- Filters -->
-      <se-filter-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-filter-map>
+      <se-map 
+        *ngIf="clubMapPoints"
+        [points]="clubMapPoints"
+        [selectedPoint]="hoveredListClub"
+        (hoverPoint)="mapHoverEvent($event)"
+        (clickPoint)="mapClickEvent($event)"
+      ></se-map>
 
       <div class="sub-text-container">
         <!-- Section for Start a new club form -->
@@ -38,6 +43,12 @@
 
     </ng-container>
 
+    <!-- Filters -->
+    <ng-container *ngIf="filtersOpen">
+      <div class="large-text-content">{{filtersDescription}}</div>
+      <se-filter-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-filter-map>
+    </ng-container>
+
     <!-- Information for selected club details -->
     <se-selected-club *ngIf="selectedClub && !isMobile" [selectedClub]="selectedClub">
     </se-selected-club>
@@ -47,13 +58,19 @@
     <!-- Loading Spinner -->
     <loading-spinner *ngIf="loadingClubs"></loading-spinner>
 
+    <!-- Filters Icon -->
+    <div class="icon-row" (click)="toggleFiltersOpen()">
+      <i class="fa-solid fa-filter"></i>
+    </div>
+
     <!-- List for all loaded clubs -->
     <div id="club-list-container" class="list-container" *ngIf="!loadingClubs">
-      <ng-container *ngFor="let club of fliteredClubs;">
+      <ng-container *ngFor="let club of filteredClubs;">
         <!-- Club Bubble -->
         <div class="item-container clickable" style="--state-color:{{StateColors[club.state]}}"
-          [ngClass]="{active: selectedClub?.id === club.id}">
-          <div class="item-row" (click)="selectClub(club)" id="{{club.name + club.city}}">
+          [ngClass]="{active: selectedClub?.id === club.id || hoveredMapClub === club.id}"
+          (mouseover)="clubHover(club)" (mouseout)="clubHover()">
+          <div class="item-row" (click)="selectClub(club)" id="{{club.id}}">
             <div class="item-title">
               {{club.name}}
             </div>
@@ -61,7 +78,7 @@
               {{club.city}}
             </div>
           </div>
-          <!-- Information for selected competition details -->
+          <!-- Information for selected club details -->
           <se-selected-club *ngIf="isMobile && selectedClub?.id === club.id" [selectedClub]="selectedClub">
           </se-selected-club>
         </div>

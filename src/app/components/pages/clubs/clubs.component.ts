@@ -11,6 +11,7 @@ import { Location } from '@angular/common';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
+import { MapPoint } from 'src/app/models/Map';
 
 @Component({
   selector: 'se-clubs',
@@ -26,7 +27,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
   loadingContent: boolean = true;
   loadingClubs: boolean = true;
   clubs: Club[];
-  fliteredClubs: Club[];
+  filteredClubs: Club[];
   selectedClub: Club;
   selectedClubIdFromRoute: string;
   subText1: string = '';
@@ -38,6 +39,11 @@ export class ClubsComponent implements OnInit, OnDestroy {
   filters = {
     states: [],
   };
+  hoveredMapClub: string;
+  hoveredListClub: string;
+  clubMapPoints: MapPoint[];
+  filtersDescription: string;
+  filtersOpen: boolean = false;
   subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -81,6 +87,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
       this.subText2 = res.fields.subText2;
       this.subText2ButtonText = res.fields.subText2ButtonText;
       this.subText2ButtonLink = res.fields.subText2ButtonLink;
+      this.filtersDescription = res.fields.subTopics[0]?.fields.description;
       this.loadingContent = false;
     }));
 
@@ -111,6 +118,9 @@ export class ClubsComponent implements OnInit, OnDestroy {
     // close Nav
     this.navService.closeNav();
 
+    // close Filters
+    this.filtersOpen = false;
+
     // deselect a club if it is already selected
     if (this.selectedClub?.id === club.id) {
       this.selectedClub = undefined;
@@ -126,7 +136,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
         document.getElementById("header")?.scrollIntoView();
       } else {
         setTimeout(() => {
-          document.getElementById(this.selectedClub.name + this.selectedClub.city)?.scrollIntoView({ behavior: 'smooth' });
+          document.getElementById(this.selectedClub.id)?.scrollIntoView({ behavior: 'smooth' });
         }, 0);
       }
       this.updateUrl();
@@ -155,10 +165,12 @@ export class ClubsComponent implements OnInit, OnDestroy {
 
   // Filters Clubs in list according to filters
   filterClubs() {
-    this.fliteredClubs = this.clubs;
+    this.filteredClubs = this.clubs;
     if (this.filters.states.length > 0) {
-      this.fliteredClubs = this.fliteredClubs.filter(club => this.filters.states.includes(States[club.state]));
+      this.filteredClubs = this.filteredClubs.filter(club => this.filters.states.includes(States[club.state]));
     }
+
+    this.createMapPoints();
   }
 
   // Updates URL to include filters
@@ -174,6 +186,56 @@ export class ClubsComponent implements OnInit, OnDestroy {
       setTimeout(() => {
         document.getElementById('club-list-container')?.scrollIntoView({ behavior: 'smooth' });
       }, 0);
+    }
+  }
+
+  // Creates array for the map points with lats and longs
+  createMapPoints() {
+    this.clubMapPoints = this.filteredClubs.map(club => ({
+      id: club.id,
+      lat: club.latitude,
+      long: club.longitude,
+    })).filter(club => club.lat && club.long);
+  }
+
+  // handles hover event on map
+  mapHoverEvent(clubId: string) {
+    this.hoveredMapClub = clubId;
+
+    // scroll club into view if not visible
+    setTimeout(() => {
+      const target = document.getElementById(clubId);
+      if (target && (target.getBoundingClientRect().bottom > window.innerHeight || target.getBoundingClientRect().top < 0)) {
+          target.scrollIntoView({ behavior: 'smooth' })
+      }
+    }, 0);
+  }
+  
+  // handles click event on map to open club
+  mapClickEvent(clubId: string) {
+    const club = this.filteredClubs.find(club => club.id === clubId);
+    this.selectClub(club);
+    // resets hovered event
+    this.hoveredMapClub = '';
+  }
+
+  // hover event on club list
+  clubHover(club?: Club) {
+    this.hoveredListClub = club?.id;
+  }
+
+  // toggles whether the filters pane is open or not
+  toggleFiltersOpen() {
+    this.filtersOpen = !this.filtersOpen;
+
+    if (this.filtersOpen) {
+      // scroll to top on mobile
+      document.getElementById("header")?.scrollIntoView({ behavior: 'smooth' });
+
+      // clear page from a selected club on filter changes
+      if (this.selectedClub) {
+        this.selectClub(this.selectedClub);
+      }
     }
   }
 

@@ -15,11 +15,11 @@ transporter.verify().then(console.log).catch(console.error);
 const EmailType = {
   clubs: 'clubs',
   pastCompetition: 'pastCompetition',
-  delegates: 'delegates',
-  general: 'general',
   getInvolved: 'getInvolved',
   socialMedia: 'socialMedia',
   software: 'software',
+  general: 'general',
+  organizing: 'organizing',
 }
 
 // Sends email from southeastcubing@gmail.com to requested entity
@@ -50,21 +50,19 @@ function sendEmail(req, res) {
 
 // Converts email type to a send to address
 function getToEmail(emailType) {
-  const emailParts = process.env.EMAIL_USER.split('@');
   switch (emailType) {
-    case EmailType.clubs:
-      return emailParts[0] + '+clubs@' + emailParts[1];
-    case EmailType.pastCompetition:
-    case EmailType.delegates:
-      return emailParts[0] + '+delegates@' + emailParts[1];
     case EmailType.getInvolved:
-      return emailParts[0] + '+board@' + emailParts[1];
+      return 'board@southeastcubing.org';
+    case EmailType.clubs:
+      return 'clubs@southeastcubing.org';
+    case EmailType.organizing:
+      return 'competitions@southeastcubing.org';
+    case EmailType.pastCompetition:
     case EmailType.socialMedia:
-      return emailParts[0] + '+socialmedia@' + emailParts[1];
     case EmailType.software:
-      return emailParts[0] + '+software@' + emailParts[1];
+    case EmailType.general:
     default:
-      return process.env.EMAIL_USER;
+      return 'contact@southeastcubing.org';
   }
 }
 

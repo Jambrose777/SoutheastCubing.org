@@ -10,6 +10,7 @@ import { MapPoint } from 'src/app/models/Map';
 export class SeMapComponent implements OnInit {
   @Input() points: MapPoint[];
   @Input() selectedPoint: string;
+  @Input() showLegend: boolean;
   @Output() hoverPoint = new EventEmitter<string>();
   @Output() clickPoint = new EventEmitter<string>();
 

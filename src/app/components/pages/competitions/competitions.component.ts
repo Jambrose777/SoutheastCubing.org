@@ -241,6 +241,14 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   // handles hover event on map
   mapHoverEvent(competitionId: string) {
     this.hoveredMapCompetition = competitionId;
+
+    // scroll competition into view if not visible
+    setTimeout(() => {
+      const target = document.getElementById(competitionId);
+      if (target && (target.getBoundingClientRect().bottom > window.innerHeight || target.getBoundingClientRect().top < 0)) {
+          target.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 0);
   }
 
   // handles click event on map to open competition

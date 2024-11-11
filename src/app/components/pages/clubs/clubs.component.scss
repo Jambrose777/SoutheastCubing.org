@@ -4,8 +4,21 @@
   margin: 50px 30px 20px 30px;
 }
 
-.sub-text-container {
-  margin-top: -30px;
+.list-container {
+  margin: 10px 0 20px 20px;
+}
+
+.icon-row { 
+  display: flex;
+  flex-direction: row;
+  margin: 16px 20px 0 20px;
+  justify-content: end;
+}
+
+.fa-filter {
+  color: white;
+  font-size: 44px;
+  cursor: pointer;
 }
 
 @media only screen and (max-width: $small-breakpoint) {

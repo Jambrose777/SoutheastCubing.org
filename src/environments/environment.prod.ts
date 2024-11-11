@@ -15,7 +15,7 @@ export const environment = {
     southeastCubingApi: 'https://api.southeastcubing.org',
     wca: 'https://www.worldcubeassociation.org/',
     wcaCompetition: 'https://www.worldcubeassociation.org/competitions/',
-    wcaContact: 'https://www.worldcubeassociation.org/contact/website',
+    wcaContact: 'https://www.worldcubeassociation.org/contact?contactRecipient=competition&competitionId=',
     wcaProfile: 'https://www.worldcubeassociation.org/persons/',
     youtube: 'https://www.youtube.com/@SoutheastCubing',
   }

@@ -37,11 +37,11 @@ export class ContactComponent implements OnInit, OnDestroy {
   emailTypeOptions = [
     { value: EmailType.upcomingCompetition, label: 'An upcoming WCA competition' },
     { value: EmailType.pastCompetition, label: 'A past WCA competition' },
-    { value: EmailType.delegates, label: 'Contact the Southeast Delegates' },
     { value: EmailType.clubs, label: 'Southeast Cubing clubs' },
-    { value: EmailType.socialMedia, label: 'Southeast Cubing social media accounts' },
-    { value: EmailType.getInvolved, label: 'Getting more involved with Southeast Cubing' },
-    { value: EmailType.software, label: 'SoutheastCubing.org website issues or requests' },
+    { value: EmailType.socialMedia, label: 'Southeast Cubing social media' },
+    { value: EmailType.software, label: 'SoutheastCubing.org website' },
+    { value: EmailType.organizing, label: 'Organize a SECI supported competition' },
+    { value: EmailType.getInvolved, label: 'Get more involved with Southeast Cubing, Inc.' },
     { value: EmailType.general, label: 'Other' },
   ];
 

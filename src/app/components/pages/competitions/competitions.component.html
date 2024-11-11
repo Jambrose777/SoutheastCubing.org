@@ -13,6 +13,7 @@
         *ngIf="competitionMapPoints"
         [points]="competitionMapPoints"
         [selectedPoint]="hoveredListCompetition"
+        [showLegend]="true"
         (hoverPoint)="mapHoverEvent($event)"
         (clickPoint)="mapClickEvent($event)"
       ></se-map>

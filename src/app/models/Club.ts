@@ -11,5 +11,7 @@ export class Club {
   contactInfo?: string;
   contactEmail?: string;
   website?: string;
-  state?: string
+  state?: string;
+  latitude?: number;
+  longitude?: number;
 }

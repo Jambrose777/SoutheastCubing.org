@@ -49,11 +49,11 @@ export enum EmailType {
   clubs = 'clubs',
   upcomingCompetition = 'upcomingCompetition',
   pastCompetition = 'pastCompetition',
-  delegates = 'delegates',
   general = 'general',
   getInvolved = 'getInvolved',
   socialMedia = 'socialMedia',
   software = 'software',
+  organizing = 'organizing',
 }
 
 export enum EmailApiStatus {
