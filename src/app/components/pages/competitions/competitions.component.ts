@@ -261,9 +261,14 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   toggleFiltersOpen() {
     this.filtersOpen = !this.filtersOpen;
 
-    // clear page from a selected competition on filter changes
-    if (this.filtersOpen && this.selectedCompetition) {
-      this.selectCompetition(this.selectedCompetition);
+    if (this.filtersOpen) {
+      // scroll to top on mobile
+      document.getElementById("header")?.scrollIntoView({ behavior: 'smooth' });
+
+      // clear page from a selected competition on filter changes
+      if (this.selectedCompetition) {
+        this.selectCompetition(this.selectedCompetition);
+      }
     }
   }
 
