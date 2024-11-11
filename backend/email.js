@@ -22,7 +22,7 @@ const EmailType = {
   organizing: 'organizing',
 }
 
-// Sends email from southeastcubing@gmail.com to requested entity
+// Sends email from notifications@southeastcubing.org to requested entity
 function sendEmail(req, res) {
   // Validations
   if (!req.body || !req.body.name || !req.body.email || !req.body.text || !req.body.subject) {
