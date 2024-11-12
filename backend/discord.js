@@ -1,6 +1,12 @@
 const axios = require("axios");
 const moment = require("moment-timezone");
 
+// Logger
+const log4js = require("log4js");
+const logger = log4js.getLogger();
+logger.level = "debug";
+
+// Discord Icon and Tag Ids
 const eventIconMap = {
   '333': '1200949445106356274',
   '222': '1200949441402765392',
@@ -30,6 +36,7 @@ const stateTagIds = {
   'Tennessee': '1070759168295833800',
 }
 
+// Post message on Discord using SoutheastCubing API Webhook
 function postCompetitionInDiscord(competition) {
   // compose Discord Message
   let discordMessage = `[${competition.name}](https://www.worldcubeassociation.org/competitions/${competition.id})\n`;
@@ -40,6 +47,7 @@ function postCompetitionInDiscord(competition) {
   discordMessage += `Registrations opens ${moment(competition.registration_open).tz("America/New_York").format("dddd, MMMM Do [at] h:mm a")} Eastern / ${moment(competition.registration_open).tz("America/Chicago").format("h:mm a")} Central\n\n`;
   discordMessage += `https://www.worldcubeassociation.org/competitions/${competition.id}`;
 
+  // Post message
   return axios.post(
     process.env.DISCORD_WEBHOOK,
     JSON.stringify({
@@ -51,7 +59,9 @@ function postCompetitionInDiscord(competition) {
       },
     })
     .then(res => res)
-    .catch(err => console.log(err));
+    .catch(err => {
+      logger.error('Error posting competitions on Discord: ', err);
+    });
 }
 
 module.exports = { postCompetitionInDiscord };

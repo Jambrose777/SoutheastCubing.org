@@ -1,5 +1,10 @@
 const nodemailer = require('nodemailer');
 
+// Logger
+const log4js = require("log4js");
+const logger = log4js.getLogger();
+logger.level = "debug";
+
 // Email mailer
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
@@ -10,7 +15,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-transporter.verify().then(console.log).catch(console.error);
+// verify that the transporter is successfully setup
+transporter.verify()
+  .then(() => {
+    logger.info('Email transporter successfully setup.')
+  }).catch(err => {
+    logger.fatal('Error setting up email transporter: ', err)
+  });
 
 const EmailType = {
   clubs: 'clubs',
@@ -30,6 +41,7 @@ function sendEmail(req, res) {
   } else if (!req.body.emailType || !EmailType[req.body.emailType]) {
     res.status(400).json({ message: 'must provide a valid emailType.' });
   } else {
+
     // Send email
     transporter.sendMail({
       from: `"${req.body.name}" <${process.env.EMAIL_USER}>`,
@@ -42,9 +54,10 @@ function sendEmail(req, res) {
         res.send({ status: 'success' });
       })
       .catch(err => {
-        console.error(err);
+        logger.error('ip-' + req.ip + ' Error sending email: ', err);
         res.status(500).json({ message: err });
       });
+      
   }
 }
 

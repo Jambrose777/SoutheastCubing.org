@@ -1,6 +1,11 @@
 const axios = require("axios");
 const moment = require("moment");
 
+// Logger
+const log4js = require("log4js");
+const logger = log4js.getLogger();
+logger.level = "debug";
+
 const aws = require('./aws.js');
 const googleForm = require('./googleForm.js');
 const contentful = require('./contentful.js');
@@ -9,39 +14,50 @@ const discord = require('./discord.js');
 let competitions;
 let lastChecked;
 
+// Gets competitions from cache
 function getCompetitions(req, res) {
   if (competitions && competitions.length > 0) {
     // pull from local cash
     res.send(competitions);
   } else {
     // send no competitions availble.
+    logger.warn('No competition data available in cache.');
     res.status(204).json({ message: 'No competition data available at this time.' })
   }
 }
 
+// updates competitions with a fresh pull from wca.
 function updateCompetitions(req, res) {
+  // deny request if updated within the last hour
   if (lastChecked && lastChecked.isAfter(moment().add(-1, 'hour'))) {
-    console.log('400 ', lastChecked.format("YYYY-MM-DD HH:mm:ss"), lastChecked.isAfter(moment().add(-1, 'hour')))
+    logger.info('ip-' + req.ip + " attempted update-competitions within 1 hour of a refresh.");
     res.status(400).json({ message: 'Cannot update multiple times within an hour. Last update was: ' + lastChecked.format("YYYY-MM-DD HH:mm:ss") });
   } else {
     // pull competitions from WCA
+    logger.info('ip-' + req.ip + ' Fetching competitions from wca on update-competitions request.');
     getCompetitionsFromWCA().then(comps => {
+      logger.info('ip-' + req.ip + ' Successfully Fetched competitions from wca on update-competitions request.');
       res.send(comps);
-    })
+    });
   }
 }
 
+// Fetches competitions from aws. Refetches competitions from WCAif data is old.
 function fetchCompetitions() {
   aws.getCompetitionData(data => {
+    //sets data recieved from AWS
     if (data && data.competitions && data.competitions.length) {
       lastChecked = moment(data.lastChecked);
       competitions = data.competitions;
     }
+
+    // checks if updates are needed.
     if (!lastChecked || lastChecked.isBefore(moment().set('hour', 0).set('minute', 0).set('second', 0))) {
-      console.log('DEBUG: on bootup, pulling from WCA. ', !lastChecked, " lastChecked: ", lastChecked ? lastChecked.format("YYYY-MM-DD HH:mm:ss") : null);
-      getCompetitionsFromWCA();
-    } else {
-      console.log('DEBUG: on bootup, NOT pulling from WCA. ', !lastChecked, " lastChecked: ", lastChecked.format("YYYY-MM-DD HH:mm:ss"));
+      logger.info('Fetching competitions from wca since AWS data is stale.');
+      getCompetitionsFromWCA().then(comps => {
+        logger.info('Successfully Fetched competitions from wca.');
+        res.send(comps);
+      });
     }
   });
 }
@@ -52,8 +68,8 @@ function getCompetitionsFromWCA() {
     .then(async res => {
       // fetch manual competitions from Contentful
       let contentfulCompetitions = await Promise.all((await contentful.getContentfulCompetitions()).items.map(async contentfulComp => {
-        // fetch info on competition from WCA
-        const wcaCompetition = await getWCACompetitions(res.data, contentfulComp.fields.id);
+        // fetch info on contentful competition from WCA
+        const wcaCompetition = await getWCACompetition(res.data, contentfulComp.fields.id);
 
         return {
           ...wcaCompetition,
@@ -65,7 +81,7 @@ function getCompetitionsFromWCA() {
           longitude_degrees: contentfulComp.fields.longitudeDegrees,
           country_iso2: contentfulComp.fields.countryIso2,
           competitor_limit: contentfulComp.fields.competitorLimit,
-          is_manual_competition: true,
+          is_manual_competition: true, // indicates it is from contentful
         };
       }));
 
@@ -91,12 +107,14 @@ function getCompetitionsFromWCA() {
         // save competition data to S3
         aws.saveCompetitionData({ lastChecked: lastChecked.format("YYYY-MM-DD HH:mm:ss"), competitions });
       } else {
-        console.log('There are no competitions!');
+        logger.warn('There are no competitions!');
       }
 
       return comps;
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      logger.error('Failed to Fetched competitions from wca: ', err);
+    });
 }
 
 async function formatCompetitionData(comps, competitionsWithStaffApp) {
@@ -109,9 +127,11 @@ async function formatCompetitionData(comps, competitionsWithStaffApp) {
       comp.city.includes(', South Carolina') ||
       comp.city.includes(', Alabama') ||
       comp.city.includes(', Florida'))
+
     //  Sort by date
     .sort((a, b) => moment(a.start_date).isBefore(b.start_date) ? -1 : 1)
-    // Create extra fields for competititon data
+
+    // Create extra fields for competititon data & strip out unnecessary data
     .map(async competition => ({
       url: competition.url,
       id: competition.id,
@@ -136,27 +156,38 @@ async function formatCompetitionData(comps, competitionsWithStaffApp) {
       accepted_registrations: await getRegistrationsFromWCA(competition),
       full_date: getFullCompetitionDate(competition.start_date, competition.end_date),
       is_manual_competition: competition.is_manual_competition || false,
-    })))
+    })));
 }
 
+// gets registration data & returns how many registered competitors there are for a competition.
 function getRegistrationsFromWCA(competition) {
+  // check if registration is open
   if (moment.utc(competition.registration_close).isBefore(moment.now()) || moment.utc(competition.registration_open).isAfter(moment.now())) {
     return Promise.resolve(0);
   } else {
+
+    // fetch registrations from WCA
     return axios.get(`https://www.worldcubeassociation.org/api/v0/competitions/${competition.id}/registrations`)
       .then(res => res.data.length)
-      .catch(err => console.log(err));
+      .catch(err => {
+        logger.error(`Failed to fetch registrations from wca for ${competition.id}: `, err);
+      });
   }
 }
 
-function getWCACompetitions(competitions, competitionId) {
+// Fetches a single competition's information
+function getWCACompetition(competitions, competitionId) {
+  // chcek if competition is already in the list of fetched competitions
   let wcaCompetition = competitions.find(wcaCompetition => wcaCompetition.id === competitionId);
   if (wcaCompetition) {
     return Promise.resolve(wcaCompetition);
   } else {
+    // fetch competition from WCA
     return axios.get(`https://www.worldcubeassociation.org/api/v0/competitions/${competitionId}`)
       .then(res => res.data)
-      .catch(err => console.log(err));
+      .catch(err => {
+        logger.error(`Failed to fetch competition from wca for ${competitionId}: `, err);
+      });
   }
 }
 
@@ -186,6 +217,8 @@ function getFullCompetitionDate(start, end) {
   }
 }
 
+// If Venue includes a hyperlink in markdown format, then strip "text" out of it. ie. [text](url)
+// If not, then return Venue name as is
 function getCompetitionVenueName(venue) {
   if (venue && venue.indexOf("]") !== -1) {
     return venue.substring(1, venue.indexOf(']'));
@@ -194,6 +227,8 @@ function getCompetitionVenueName(venue) {
   }
 }
 
+// If Venue includes a hyperlink in markdown format, then strip "url" out of it. ie. [text](url)
+// If not, then return nothing
 function getCompetitionVenueUrl(venue) {
   if (venue && venue.indexOf("(") !== -1 && venue.indexOf(")") !== -1) {
     return venue.substring(venue.indexOf('(') + 1, venue.indexOf(')'));
