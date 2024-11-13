@@ -58,7 +58,10 @@ function postCompetitionInDiscord(competition) {
         "Content-Type": "application/json",
       },
     })
-    .then(res => res)
+    .then(res => {
+      logger.info('Successfully posted competition on Discord');
+      return res;
+    })
     .catch(err => {
       logger.error('Error posting competitions on Discord: ', err);
     });

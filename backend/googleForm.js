@@ -20,6 +20,7 @@ async function getCompetitionsInStaffForm() {
   });
   const res = await forms.forms.get({formId: formID});
   if (res.data) {
+    logger.info('Successfully fetched Staff from Google Form.');
     const competitionsWithStaff = res.data.items[0].questionItem.question.choiceQuestion.options
       .map(comp => comp.value.substring(0, comp.value.indexOf("(") - 1));
     return competitionsWithStaff;

@@ -42,7 +42,7 @@ function updateCompetitions(req, res) {
   }
 }
 
-// Fetches competitions from aws. Refetches competitions from WCAif data is old.
+// Fetches competitions from aws. Refetches competitions from WCA if data is old.
 function fetchCompetitions() {
   aws.getCompetitionData(data => {
     //sets data recieved from AWS
@@ -56,7 +56,6 @@ function fetchCompetitions() {
       logger.info('Fetching competitions from wca since AWS data is stale.');
       getCompetitionsFromWCA().then(comps => {
         logger.info('Successfully Fetched competitions from wca.');
-        res.send(comps);
       });
     }
   });
