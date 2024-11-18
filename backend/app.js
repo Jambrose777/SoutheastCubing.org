@@ -27,13 +27,7 @@ try {
 }
 
 // fetch competitions update everyday at midnight
-let scheduleRule = new schedule.RecurrenceRule();
-// runs at 8:00pm
-scheduleRule.tz = 'America/New_York';
-scheduleRule.second = 0;
-scheduleRule.minute = 0;
-scheduleRule.hour = 20;
-schedule.scheduleJob(scheduleRule, () => {
+schedule.scheduleJob('0 0 * * *', () => {
   try {
     logger.info('Fetching competitions on scheduled update.');
     competitions.getCompetitionsFromWCA().then(() => {

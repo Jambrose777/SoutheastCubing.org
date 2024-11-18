@@ -46,6 +46,7 @@ function getCompetitionData(callback) {
     if (err) {
       logger.error('Error retrieving file from S3: ', err);
     } else {
+      logger.info('Successfully retrieved file from S3.');
       return callback(JSON.parse(data.Body))
     }
   });
