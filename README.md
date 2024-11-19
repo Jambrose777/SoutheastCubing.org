@@ -34,7 +34,7 @@ You will need the following files for the backend to run:
 Run `node backend/app.js`
 
 ## BE Deployment
-- cd southeastcubing/backend
+- cd SoutheastCubing.org/backend
 - git pull
 - npm i
 - systemctl restart api.service
