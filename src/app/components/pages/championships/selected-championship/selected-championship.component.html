@@ -24,11 +24,13 @@
   </div>
 
   <!-- Championship Photos in a carousel -->
-  <div class="photo-container" *ngIf="selectedChampionship.images">
+  <!-- Temporarily disabled: angular-responsive-carousel is incompatible with Angular 16+'s
+       Ivy-only compiler (story 003). Story 067 replaces it and restores this carousel. -->
+  <!-- <div class="photo-container" *ngIf="selectedChampionship.images">
     <carousel [images]="selectedChampionship.images" [cellsToShow]="1" [height]="300" [loop]="true" [autoplay]="true"
       [arrows]="false">
     </carousel>
-  </div>
+  </div> -->
 
   <!-- Short Championship description -->
   <div class="small-text-content" *ngIf="selectedChampionship.description">

@@ -14,7 +14,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
 import { LoadingSpinnerComponent } from './components/shared/loading-spinner/loading-spinner.component';
-import { IvyCarouselModule } from 'angular-responsive-carousel';
 import { ChampionshipsComponent } from './components/pages/championships/championships.component';
 import { NavComponent } from './components/core/nav/nav.component';
 import { SelectedCompetitionComponent } from './components/pages/competitions/selected-competition/selected-competition.component';
@@ -79,7 +78,6 @@ import { MarkdownModule } from 'ngx-markdown';
     AppRoutingModule,
     NoopAnimationsModule,
     MatMenuModule,
-    IvyCarouselModule,
     ReactiveFormsModule,
     MatSelectModule,
     MatFormFieldModule,

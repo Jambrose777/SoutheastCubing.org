@@ -24,10 +24,12 @@
       </ng-container>
 
       <!-- Photo Carousel on Mobile -->
-      <div class="mobile-home-photo-container" *ngIf="isMobile">
+      <!-- Temporarily disabled: angular-responsive-carousel is incompatible with Angular 16+'s
+           Ivy-only compiler (story 003). Story 067 replaces it and restores this carousel. -->
+      <!-- <div class="mobile-home-photo-container" *ngIf="isMobile">
         <carousel [images]="photos" [cellsToShow]="1" [height]="200" [loop]="true" [autoplay]="true" [arrows]="false">
         </carousel>
-      </div>
+      </div> -->
 
       <div class="large-text-content">
         <markdown [data]="description"></markdown>
@@ -72,10 +74,12 @@
     <loading-spinner *ngIf="loadingContent"></loading-spinner>
 
     <ng-container *ngIf="!loadingContent">
-      <div class="home-photo-container">
+      <!-- Temporarily disabled: angular-responsive-carousel is incompatible with Angular 16+'s
+           Ivy-only compiler (story 003). Story 067 replaces it and restores this carousel. -->
+      <!-- <div class="home-photo-container">
         <carousel [images]="photos" [cellsToShow]="1" [height]="500" [loop]="true" [autoplay]="true" [arrows]="false">
         </carousel>
-      </div>
+      </div> -->
     </ng-container>
   </div>
 </div>
