@@ -14,7 +14,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
 import { LoadingSpinnerComponent } from './components/shared/loading-spinner/loading-spinner.component';
-import { IvyCarouselModule } from 'angular-responsive-carousel';
+// `angular-responsive-carousel` is unmaintained and ships pre-Ivy (View Engine) compiled code;
+// starting with Angular 16 the compiler can no longer process it at all (NG6002), so its module
+// import/registration is temporarily removed here as part of story 003 (Angular version upgrade).
+// The `<carousel>` markup that depended on it has been commented out in home.component.html and
+// selected-championship.component.html. Story 067 replaces this library with a supported
+// alternative and restores the carousel UI.
 import { ChampionshipsComponent } from './components/pages/championships/championships.component';
 import { NavComponent } from './components/core/nav/nav.component';
 import { SelectedCompetitionComponent } from './components/pages/competitions/selected-competition/selected-competition.component';
@@ -79,7 +84,6 @@ import { MarkdownModule } from 'ngx-markdown';
     AppRoutingModule,
     NoopAnimationsModule,
     MatMenuModule,
-    IvyCarouselModule,
     ReactiveFormsModule,
     MatSelectModule,
     MatFormFieldModule,
