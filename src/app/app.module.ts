@@ -6,7 +6,6 @@ import { AppComponent } from './app.component';
 import { HeaderComponent } from './components/core/header/header.component';
 import { DelegatesComponent } from './components/pages/delegates/delegates.component';
 import { HomeComponent } from './components/pages/home/home.component';
-import { RouterModule, Routes } from '@angular/router';
 import { FooterComponent } from './components/core/footer/footer.component';
 import { InvolvementComponent } from './components/pages/involvement/involvement.component';
 import { ClubsComponent } from './components/pages/clubs/clubs.component';
@@ -41,30 +40,6 @@ import { UpdateCompetitionsComponent } from './components/pages/update-competiti
 import { SafeUrlPipe } from './pipes/safeUrl.pipe';
 import { SeMapComponent } from './components/shared/se-map/se-map.component';
 import { MarkdownModule } from 'ngx-markdown';
-
-const moduleRoutes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'home' },
-  { path: 'competitions', component: CompetitionsComponent, title: 'SoutheastCubing - Competitions' },
-  { path: 'competitions/:competitionId', component: CompetitionsComponent, title: 'SoutheastCubing - Competitions' },
-  { path: 'update-competitions', component: UpdateCompetitionsComponent, title: 'SoutheastCubing - Update Competitions' },
-  { path: 'clubs', component: ClubsComponent, title: 'SoutheastCubing - Clubs' },
-  { path: 'clubs/:clubId', component: ClubsComponent, title: 'SoutheastCubing - Clubs' },
-  { path: 'delegates', component: DelegatesComponent, title: 'SoutheastCubing - Delegates' },
-  { path: 'delegates/:delegateName', component: DelegatesComponent, title: 'SoutheastCubing - Delegates' },
-  { path: 'home', component: HomeComponent },
-  { path: 'involvement', component: InvolvementComponent, title: 'SoutheastCubing - Get Involved' },
-  { path: 'involvement/:subTopicId', component: InvolvementComponent, title: 'SoutheastCubing - Get Involved' },
-  { path: 'championships', component: ChampionshipsComponent, title: 'SoutheastCubing - SE Champs' },
-  { path: 'championships/:championshipId', component: ChampionshipsComponent, title: 'SoutheastCubing - SE Champs' },
-  { path: 'organizers', component: OrganizersComponent, title: 'SoutheastCubing - Organizer Guidelines' },
-  { path: 'organizers/:subTopicId', component: OrganizersComponent, title: 'SoutheastCubing - Organizer Guidelines' },
-  { path: 'contact', component: ContactComponent, title: 'SoutheastCubing - Contact' },
-  { path: 'about', component: AboutComponent, title: 'SoutheastCubing - About' },
-  { path: 'about/:subTopicId', component: AboutComponent, title: 'SoutheastCubing - About' },
-  { path: 'cats', component: CatsComponent, title: 'SoutheastCubing - Cats' },
-  { path: 'cats/:catName', component: CatsComponent, title: 'SoutheastCubing - Cats' },
-  { path: '**', pathMatch: 'full',  component: PageNotFoundComponent, title: 'SoutheastCubing - Page Not Found' }, 
-];
 
 @NgModule({
   declarations: [
@@ -102,7 +77,6 @@ const moduleRoutes: Routes = [
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
-    RouterModule.forRoot(moduleRoutes),
     NoopAnimationsModule,
     MatMenuModule,
     IvyCarouselModule,
