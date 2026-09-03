@@ -26,12 +26,18 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The appli
 - restart server `service httpd restart` or start server `service httpd start`
 
 ## BE Development setup
-You will need the following files for the backend to run:
-- app.env
-- southeastcubing-org-api.json
+The backend needs two secret/config files that are never committed to the repo:
+- `.env` — environment variables consumed via Node's built-in `--env-file` flag
+  (email credentials, AWS keys, Contentful API keys, Discord webhook URL).
+- `southeastcubing-org-api.json` — a Google service account credentials file used to
+  authenticate against the Google Forms API (reading the staff sign-up form).
+
+Neither file is checked into source control, and there's no secrets manager for this
+project — request both files directly from Jacob (org admin) and share/receive them,
+then place them in `backend/`.
 
 ## BE Development server
-Run `node backend/app.js`
+Run `cd backend && node --env-file=.env app.js`
 
 ## BE Deployment
 - cd SoutheastCubing.org/backend
