@@ -14,7 +14,6 @@
     "node": ">=24.0.0"
   },
   "dependencies": {
-    "@google-cloud/local-auth": "^3.0.1",
     "@googleapis/forms": "^7.0.0",
     "aws-sdk": "^2.1691.0",
     "axios": "^1.20.0",

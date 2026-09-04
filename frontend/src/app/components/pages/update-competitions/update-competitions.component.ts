@@ -43,7 +43,7 @@ export class UpdateCompetitionsComponent implements OnInit {
     //   this.updateCompetitionsStatus = UpdateStatus.success;
     // });
     this.southeastcubingApi.updateCompetitions().pipe(take(1)).subscribe({
-      next: res => { 
+      next: () => { 
         this.updateCompetitionsStatus = UpdateStatus.success; 
       },
       error: err => { 

@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import moment from 'moment';
-import { Competition } from '../models/Competition';
 
 @Injectable({
   providedIn: 'root'

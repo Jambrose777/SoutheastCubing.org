@@ -18,7 +18,7 @@ export class NavComponent implements OnInit, OnDestroy {
   constructor(private navService: NavService) { }
 
   ngOnInit(): void {
-    this.subscriptions.add(this.navService.closeNavSubject.subscribe((closeNav) => {
+    this.subscriptions.add(this.navService.closeNavSubject.subscribe(() => {
       if (this.isNavActive) {
         this.toggleNav();
       }

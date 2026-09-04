@@ -160,12 +160,12 @@ export class ContactComponent implements OnInit, OnDestroy {
 
     // submit API Call
     this.subscriptions.add(this.southeastcubingApiService.contactSubmission(emailRequestBody).subscribe({
-      next: (res) => {
+      next: () => {
         this.emailApiStatus = EmailApiStatus.success;
         this.contactForm.enable();
         this.contactForm.reset();
       },
-      error: (error) => {
+      error: () => {
         if (this.hasHadError) {
           this.emailApiStatus = EmailApiStatus.doubleFailure;
         } else {
