@@ -10,7 +10,7 @@ import { FooterComponent } from './components/core/footer/footer.component';
 import { InvolvementComponent } from './components/pages/involvement/involvement.component';
 import { ClubsComponent } from './components/pages/clubs/clubs.component';
 import { CompetitionsComponent } from './components/pages/competitions/competitions.component';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { LoadingSpinnerComponent } from './components/shared/loading-spinner/loading-spinner.component';
 import { ChampionshipsComponent } from './components/pages/championships/championships.component';
@@ -39,50 +39,43 @@ import { SafeUrlPipe } from './pipes/safeUrl.pipe';
 import { SeMapComponent } from './components/shared/se-map/se-map.component';
 import { MarkdownModule } from 'ngx-markdown';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    HeaderComponent,
-    DelegatesComponent,
-    HomeComponent,
-    FooterComponent,
-    InvolvementComponent,
-    ClubsComponent,
-    CompetitionsComponent,
-    LoadingSpinnerComponent,
-    ChampionshipsComponent,
-    NavComponent,
-    SelectedCompetitionComponent,
-    SelectedClubComponent,
-    SelectedDelegateComponent,
-    SelectedChampionshipComponent,
-    SelectedSubTopicComponent,
-    OrganizersComponent,
-    ContactComponent,
-    AboutComponent,
-    SeFilterMapComponent,
-    EventListComponent,
-    PageNotFoundComponent,
-    CatsComponent,
-    SelectedCatComponent,
-    TeamsComponent,
-    DoucmentsComponent,
-    UpdateCompetitionsComponent,
-    SafeUrlPipe,
-    SeMapComponent,
-  ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    AppRoutingModule,
-    NoopAnimationsModule,
-    ReactiveFormsModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MarkdownModule.forRoot(),
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        HeaderComponent,
+        DelegatesComponent,
+        HomeComponent,
+        FooterComponent,
+        InvolvementComponent,
+        ClubsComponent,
+        CompetitionsComponent,
+        LoadingSpinnerComponent,
+        ChampionshipsComponent,
+        NavComponent,
+        SelectedCompetitionComponent,
+        SelectedClubComponent,
+        SelectedDelegateComponent,
+        SelectedChampionshipComponent,
+        SelectedSubTopicComponent,
+        OrganizersComponent,
+        ContactComponent,
+        AboutComponent,
+        SeFilterMapComponent,
+        EventListComponent,
+        PageNotFoundComponent,
+        CatsComponent,
+        SelectedCatComponent,
+        TeamsComponent,
+        DoucmentsComponent,
+        UpdateCompetitionsComponent,
+        SafeUrlPipe,
+        SeMapComponent,
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        NoopAnimationsModule,
+        ReactiveFormsModule,
+        MatSelectModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MarkdownModule.forRoot()], providers: [provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule { }
