@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "node --env-file=.env app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,6 +17,7 @@
     "@google-cloud/local-auth": "^3.0.1",
     "@googleapis/forms": "^7.0.0",
     "aws-sdk": "^2.1691.0",
+    "axios": "^1.20.0",
     "contentful": "^11.12.9",
     "cors": "^2.8.6",
     "express": "^5.2.1",

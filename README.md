@@ -1,19 +1,33 @@
 # SoutheastCubing
 
 This project is for the organization website SoutheastCubing.org.
-FE: Angular 22.1.5
-BE: NodeJs v24 LTS
+FE: Angular 22.1.5 (`frontend/`)
+BE: NodeJs v24 LTS (`backend/`)
 Content: Contentful CMS
 Deployment: AWS
+Package manager: pnpm (workspace linking `frontend/` and `backend/`)
+
+## Local development setup
+
+Install [pnpm](https://pnpm.io/installation), then from the repo root run
+`pnpm install` once to install both `frontend/` and `backend/` dependencies.
+
+Run `pnpm dev` from the repo root to start the frontend dev server (`ng serve`) and
+the backend (`node --env-file=.env app.js`) together. See "BE Development setup"
+below for the backend's required secret/config files before running this.
 
 ## FE Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+Run `pnpm --filter frontend dev` (or `cd frontend && pnpm dev`) for just the dev
+server. Navigate to `http://localhost:4200/`. The application will automatically
+reload if you change any of the source files.
 
 ## FE Deployment
 
-- Run `ng build --configuration production` to build the project. The build artifacts will be stored in the `dist/` directory.
-- Compress dist/
+- Run `cd frontend && pnpm build` (equivalent to `ng build --configuration production`)
+  to build the project. The build artifacts will be stored in the `frontend/dist/`
+  directory.
+- Compress `frontend/dist/`
 - Upload dist.zip file onto AWS S3
 - Make the dist.zip public using acl
 - Copy the URL for dist.zip
@@ -44,12 +58,13 @@ project — request both files directly from Jacob (org admin) and share/receive
 then place them in `backend/`.
 
 ## BE Development server
-Run `cd backend && node --env-file=.env app.js`
+Run `pnpm --filter backend dev` (or `cd backend && pnpm dev`), equivalent to
+`node --env-file=.env app.js`.
 
 ## BE Deployment
-- cd SoutheastCubing.org/backend
+- cd SoutheastCubing.org
 - git pull
-- npm i
+- pnpm install --filter backend
 - systemctl restart api.service
 
 ## BE Status
