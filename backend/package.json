@@ -9,6 +9,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "dependencies": {
     "@google-cloud/local-auth": "^3.0.1",
     "@googleapis/forms": "^2.0.7",

@@ -1,8 +1,8 @@
 # SoutheastCubing
 
 This project is for the organization website SoutheastCubing.org.
-FE: Angular 14.1.3
-BE: NodeJs v16.15.0
+FE: Angular 22.1.5
+BE: NodeJs v24 LTS
 Content: Contentful CMS
 Deployment: AWS
 
