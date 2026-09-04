@@ -71,10 +71,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "southeast-cubing:build:production"
+              "buildTarget": "southeast-cubing:build:production"
             },
             "development": {
-              "browserTarget": "southeast-cubing:build:development"
+              "buildTarget": "southeast-cubing:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -82,7 +82,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "southeast-cubing:build"
+            "buildTarget": "southeast-cubing:build"
           }
         },
         "test": {

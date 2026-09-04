@@ -12,7 +12,6 @@ import { ClubsComponent } from './components/pages/clubs/clubs.component';
 import { CompetitionsComponent } from './components/pages/competitions/competitions.component';
 import { HttpClientModule } from '@angular/common/http';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
 import { LoadingSpinnerComponent } from './components/shared/loading-spinner/loading-spinner.component';
 import { ChampionshipsComponent } from './components/pages/championships/championships.component';
 import { NavComponent } from './components/core/nav/nav.component';
@@ -25,9 +24,9 @@ import { OrganizersComponent } from './components/pages/organizers/organizers.co
 import { ContactComponent } from './components/pages/contact/contact.component';
 import { AboutComponent } from './components/pages/about/about.component';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatLegacySelectModule as MatSelectModule } from '@angular/material/legacy-select';
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { SeFilterMapComponent } from './components/shared/se-filter-map/se-filter-map.component';
 import { EventListComponent } from './components/shared/event-list/event-list.component';
 import { PageNotFoundComponent } from './components/pages/page-not-found/page-not-found.component';
@@ -77,7 +76,6 @@ import { MarkdownModule } from 'ngx-markdown';
     HttpClientModule,
     AppRoutingModule,
     NoopAnimationsModule,
-    MatMenuModule,
     ReactiveFormsModule,
     MatSelectModule,
     MatFormFieldModule,
