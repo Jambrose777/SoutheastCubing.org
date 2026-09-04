@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Competition } from 'src/app/models/Competition';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
@@ -18,6 +18,7 @@ import { MapPoint, MarkerColorClass } from 'src/app/models/Map';
     selector: 'se-competitions',
     templateUrl: './competitions.component.html',
     styleUrls: ['./competitions.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CompetitionsComponent implements OnInit, OnDestroy {

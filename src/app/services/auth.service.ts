@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import * as moment from 'moment';
+import moment from 'moment';
 import { map, Observable, of } from 'rxjs';
 import { LocalStorageService } from './local-storage.service';
 

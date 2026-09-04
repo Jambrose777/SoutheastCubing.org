@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Colors, StateColors, States } from 'src/app/shared/types';
 
 @Component({
     selector: 'se-filter-map',
     templateUrl: './se-filter-map.component.html',
     styleUrls: ['./se-filter-map.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SeFilterMapComponent implements OnInit {

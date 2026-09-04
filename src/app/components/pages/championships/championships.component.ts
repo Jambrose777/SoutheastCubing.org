@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Championship } from 'src/app/models/Championship';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -16,6 +16,7 @@ import { LinksService } from 'src/app/services/links.service';
     selector: 'se-championships',
     templateUrl: './championships.component.html',
     styleUrls: ['./championships.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ChampionshipsComponent implements OnInit, OnDestroy {

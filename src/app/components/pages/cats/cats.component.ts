@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Location } from '@angular/common';
 import { Cat } from 'src/app/models/Cat';
 import { Subscription } from 'rxjs';
@@ -14,6 +14,7 @@ import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Content
     selector: 'se-cats',
     templateUrl: './cats.component.html',
     styleUrls: ['./cats.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CatsComponent implements OnInit, OnDestroy {

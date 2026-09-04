@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { Delegate } from 'src/app/models/Delegate';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -16,6 +16,7 @@ import { LinksService } from 'src/app/services/links.service';
     selector: 'se-delegates',
     templateUrl: './delegates.component.html',
     styleUrls: ['./delegates.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DelegatesComponent implements OnInit, OnDestroy {

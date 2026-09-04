@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Cat } from 'src/app/models/Cat';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
@@ -7,6 +7,7 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
     selector: 'se-selected-cat',
     templateUrl: './selected-cat.component.html',
     styleUrls: ['./selected-cat.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SelectedCatComponent implements OnInit, OnDestroy {

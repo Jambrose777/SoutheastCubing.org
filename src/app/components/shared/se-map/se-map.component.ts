@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import * as L from 'leaflet';
 import { MapPoint } from 'src/app/models/Map';
 
@@ -6,6 +6,7 @@ import { MapPoint } from 'src/app/models/Map';
     selector: 'se-map',
     templateUrl: './se-map.component.html',
     styleUrls: ['./se-map.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SeMapComponent implements OnInit {

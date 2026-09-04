@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Subscription, take } from 'rxjs';
 import { SouteastcubingApiService } from 'src/app/services/souteastcubing-api.service';
 import { ThemeService } from 'src/app/services/theme.service';
@@ -15,6 +15,7 @@ enum UpdateStatus {
     selector: 'app-update-competitions',
     templateUrl: './update-competitions.component.html',
     styleUrls: ['./update-competitions.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class UpdateCompetitionsComponent implements OnInit {

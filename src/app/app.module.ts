@@ -10,7 +10,7 @@ import { FooterComponent } from './components/core/footer/footer.component';
 import { InvolvementComponent } from './components/pages/involvement/involvement.component';
 import { ClubsComponent } from './components/pages/clubs/clubs.component';
 import { CompetitionsComponent } from './components/pages/competitions/competitions.component';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { LoadingSpinnerComponent } from './components/shared/loading-spinner/loading-spinner.component';
 import { ChampionshipsComponent } from './components/pages/championships/championships.component';
@@ -77,5 +77,5 @@ import { MarkdownModule } from 'ngx-markdown';
         MatSelectModule,
         MatFormFieldModule,
         MatInputModule,
-        MarkdownModule.forRoot()], providers: [provideHttpClient(withInterceptorsFromDi())] })
+        MarkdownModule.forRoot()], providers: [provideHttpClient(withXhr(), withInterceptorsFromDi())] })
 export class AppModule { }

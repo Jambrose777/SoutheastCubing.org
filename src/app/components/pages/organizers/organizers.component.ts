@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -14,6 +14,7 @@ import { Subscription } from 'rxjs';
     selector: 'se-organizers',
     templateUrl: './organizers.component.html',
     styleUrls: ['./organizers.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class OrganizersComponent implements OnInit, OnDestroy {

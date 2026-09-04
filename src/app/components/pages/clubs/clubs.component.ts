@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Club } from 'src/app/models/Club';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
@@ -17,6 +17,7 @@ import { MapPoint } from 'src/app/models/Map';
     selector: 'se-clubs',
     templateUrl: './clubs.component.html',
     styleUrls: ['./clubs.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ClubsComponent implements OnInit, OnDestroy {

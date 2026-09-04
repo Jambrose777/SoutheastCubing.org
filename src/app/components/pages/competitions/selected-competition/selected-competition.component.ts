@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Competition } from 'src/app/models/Competition';
 import { LinksService } from 'src/app/services/links.service';
@@ -10,6 +10,7 @@ import { environment } from 'src/environments/environment';
     selector: 'se-selected-competition',
     templateUrl: './selected-competition.component.html',
     styleUrls: ['./selected-competition.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SelectedCompetitionComponent implements OnInit, OnDestroy {
