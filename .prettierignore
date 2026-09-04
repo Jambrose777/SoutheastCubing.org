@@ -1,0 +1,14 @@
+# Compiled output / caches — never format generated files
+frontend/dist
+frontend/.angular
+frontend/out-tsc
+frontend/coverage
+dist.zip
+
+# Dependencies
+node_modules
+frontend/node_modules
+backend/node_modules
+
+# Package manager lockfile — not meaningful to reformat
+pnpm-lock.yaml
