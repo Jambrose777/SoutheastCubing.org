@@ -1,101 +1,126 @@
 <div class="selected-item-container">
   <!-- Competition Name w/ WCA Logo & Link to competition on WCA -->
-  <a [href]="enviroment.links.wcaCompetition + selectedCompetition.id" target="_blank" *ngIf="!isMobile">
-    <h2 class="title-text">
-      {{selectedCompetition.name}}
-
-      <!-- WCA Logo -->
-      <img src="assets/wca_logo.svg" class="wca-logo">
-    </h2>
-  </a>
+  @if (!isMobile) {
+    <a [href]="enviroment.links.wcaCompetition + selectedCompetition.id" target="_blank">
+      <h2 class="title-text">
+        {{selectedCompetition.name}}
+        <!-- WCA Logo -->
+        <img src="assets/wca_logo.svg" class="wca-logo">
+      </h2>
+    </a>
+  }
 
   <!-- container for remaining details for styling -->
   <div class="competition-details">
     <!-- Link to WCA -->
-    <a [href]="enviroment.links.wcaCompetition + selectedCompetition.id" target="_blank" *ngIf="isMobile">
-      <img src="assets/wca_logo.svg" class="wca-logo-mobile">
-    </a>
+    @if (isMobile) {
+      <a [href]="enviroment.links.wcaCompetition + selectedCompetition.id" target="_blank">
+        <img src="assets/wca_logo.svg" class="wca-logo-mobile">
+      </a>
+    }
 
     <!-- Competition Event List -->
     <div class="event-container">
       <!-- Event List -->
-      <ng-container *ngFor="let event of selectedCompetition.event_ids">
+      @for (event of selectedCompetition.event_ids; track event) {
         <span [ngClass]="'cubing-icon event-' + event"></span>
-      </ng-container>
+      }
     </div>
 
     <!-- Basic Info Bubble -->
     <div class="detail-container">
       <div>City: <b>{{selectedCompetition.city}}</b></div>
-      <div *ngIf="!isMobile">Date: <b>{{selectedCompetition.full_date}}</b></div>
-      <div *ngIf="!selectedCompetition.venueUrl">Venue: <b>{{selectedCompetition.venue}}</b></div>
-      <a *ngIf="selectedCompetition.venueUrl" [href]="selectedCompetition.venueUrl" target="_blank">
+      @if (!isMobile) {
+        <div>Date: <b>{{selectedCompetition.full_date}}</b></div>
+      }
+      @if (!selectedCompetition.venueUrl) {
         <div>Venue: <b>{{selectedCompetition.venue}}</b></div>
-      </a>
+      }
+      @if (selectedCompetition.venueUrl) {
+        <a [href]="selectedCompetition.venueUrl" target="_blank">
+          <div>Venue: <b>{{selectedCompetition.venue}}</b></div>
+        </a>
+      }
       <a [href]="enviroment.links.googleMaps + selectedCompetition.venue_address" target="_blank">
         <div>Address: <b>{{selectedCompetition.venue_address}}</b></div>
       </a>
     </div>
 
     <!-- Location On Google Map View Bubble -->
-    <div class="detail-container map-container" *ngIf="!isMobile">
-      <iframe
-        width="260"
-        height="300"
-        class="map-iframe"
-        loading="lazy"
-        allowfullscreen
-        referrerpolicy="no-referrer-when-downgrade"
-        [src]="googleMapUrl | safeUrl">
-      </iframe>
-    </div>
+    @if (!isMobile) {
+      <div class="detail-container map-container">
+        <iframe
+          width="260"
+          height="300"
+          class="map-iframe"
+          loading="lazy"
+          allowfullscreen
+          referrerpolicy="no-referrer-when-downgrade"
+          [src]="googleMapUrl | safeUrl">
+        </iframe>
+      </div>
+    }
 
     <!-- Registration Information Bubble -->
     <div class="detail-container">
       <div>Competitor Limit: <b>{{selectedCompetition.competitor_limit}}</b></div>
 
       <!-- Info for Registration Status pre launch -->
-      <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.preLaunch" class="tiny-text-content">
-        Registration will open on <b>{{selectedCompetition.readable_registration_open}}</b>. We highly recommend
-        registering right when registration opens. Some competitions fill within seconds.
-      </div>
+      @if (selectedCompetition.registration_status === RegistrationStatus.preLaunch) {
+        <div class="tiny-text-content">
+          Registration will open on <b>{{selectedCompetition.readable_registration_open}}</b>. We highly recommend
+          registering right when registration opens. Some competitions fill within seconds.
+        </div>
+      }
 
       <!-- Info for Registration Status Closed -->
-      <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.closed">
-        Registration has closed. You can no longer register for this competition.
-      </div>
+      @if (selectedCompetition.registration_status === RegistrationStatus.closed) {
+        <div>
+          Registration has closed. You can no longer register for this competition.
+        </div>
+      }
 
       <!-- Info for Registration Status open with spots -->
-      <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.openWithSpots">
-        Registration is open! The competition is currently {{selectedCompetition.accepted_registrations /
-        selectedCompetition.competitor_limit | percent}} full.
-      </div>
+      @if (selectedCompetition.registration_status === RegistrationStatus.openWithSpots) {
+        <div>
+          Registration is open! The competition is currently {{selectedCompetition.accepted_registrations /
+          selectedCompetition.competitor_limit | percent}} full.
+        </div>
+      }
 
       <!-- Info for Registration Status open with a waiting list -->
-      <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.openWithWaitingList">
-        Registration is <b>full</b>. You can still register for the waiting list in case of any cancellations.
-      </div>
+      @if (selectedCompetition.registration_status === RegistrationStatus.openWithWaitingList) {
+        <div>
+          Registration is <b>full</b>. You can still register for the waiting list in case of any cancellations.
+        </div>
+      }
 
       <!-- Info for Registration Status open (Manual Competition) -->
-      <div *ngIf="selectedCompetition.registration_status === RegistrationStatus.open">
-        Registration is open! Please check the competition website for availability at this location.
-      </div>
+      @if (selectedCompetition.registration_status === RegistrationStatus.open) {
+        <div>
+          Registration is open! Please check the competition website for availability at this location.
+        </div>
+      }
 
       <!-- Register here link to WCA for certain Registration Statuses -->
-      <div
-        *ngIf="[RegistrationStatus.preLaunch, RegistrationStatus.openWithSpots, RegistrationStatus.openWithWaitingList, RegistrationStatus.open].includes(selectedCompetition.registration_status)">
-        <a class="btn" [href]="enviroment.links.wcaCompetition + selectedCompetition.id + '/register'" target="_blank">
-          Register Here
-          <i class="fa-solid fa-up-right-from-square fa-sm"></i>
-        </a>
-      </div>
+      @if ([RegistrationStatus.preLaunch, RegistrationStatus.openWithSpots, RegistrationStatus.openWithWaitingList, RegistrationStatus.open].includes(selectedCompetition.registration_status)) {
+        <div
+          >
+          <a class="btn" [href]="enviroment.links.wcaCompetition + selectedCompetition.id + '/register'" target="_blank">
+            Register Here
+            <i class="fa-solid fa-up-right-from-square fa-sm"></i>
+          </a>
+        </div>
+      }
 
       <!-- Staff Application -->
       <div>
-        <a *ngIf="selectedCompetition.is_in_staff_application" class="btn" [href]="linksService.applyToStaffForm" target="_blank">
-          Apply For Staff
-          <i class="fa-solid fa-up-right-from-square fa-sm"></i>
-        </a>
+        @if (selectedCompetition.is_in_staff_application) {
+          <a class="btn" [href]="linksService.applyToStaffForm" target="_blank">
+            Apply For Staff
+            <i class="fa-solid fa-up-right-from-square fa-sm"></i>
+          </a>
+        }
       </div>
     </div>
 

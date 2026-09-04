@@ -1,23 +1,31 @@
 <div class="selected-item-container">
   <!-- Delegate Name -->
-  <h2 class="title-text" *ngIf="!isMobile">
+  @if (!isMobile) {
+  <h2 class="title-text">
     {{selectedDelegate.name}}
   </h2>
+  }
 
   <!-- Delegate Status & Location  -->
   <div class="small-text-content">
-    {{selectedDelegate.delegateType}}<span *ngIf="!isMobile"> - {{selectedDelegate.state}}</span>
+    {{selectedDelegate.delegateType}}@if (!isMobile) {
+    <span> - {{selectedDelegate.state}}</span>
+    }
   </div>
 
   <!-- Delegate Photo -->
-  <div class="photo-container" *ngIf="selectedDelegate.photo">
+  @if (selectedDelegate.photo) {
+  <div class="photo-container">
     <img class="image medium-image" src="{{selectedDelegate.photo}}">
   </div>
+  }
 
   <!-- Short Delegate description -->
-  <div class="small-text-content" *ngIf="selectedDelegate.description">
+  @if (selectedDelegate.description) {
+  <div class="small-text-content">
     <markdown [data]="selectedDelegate.description"></markdown>
   </div>
+  }
 
   <!-- WCA Logo -->
   <a href="{{enviroment.links.wcaProfile + selectedDelegate.wcaid}}" target="_blank" class="wca-logo-container">

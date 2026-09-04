@@ -3,42 +3,51 @@
     <header id="header" [title]="title"></header>
 
     <!-- Loading Spinner -->
-    <loading-spinner *ngIf="loadingContent"></loading-spinner>
+    @if (loadingContent) {
+      <loading-spinner></loading-spinner>
+    }
 
     <!-- Information if there is no selected sub topic (ie. initial page for Involvement) -->
-    <ng-container *ngIf="!loadingContent && (isMobile || !selectedSubTopic)">
+    @if (!loadingContent && (isMobile || !selectedSubTopic)) {
       <div class="large-text-content">
         <markdown [data]="description"></markdown>
       </div>
-    </ng-container>
+    }
 
     <!-- Information for selected subTopic details -->
-    <se-selected-sub-topic *ngIf="selectedSubTopic && !isMobile" [selectedSubTopic]="selectedSubTopic">
-    </se-selected-sub-topic>
+    @if (selectedSubTopic && !isMobile) {
+      <se-selected-sub-topic [selectedSubTopic]="selectedSubTopic">
+      </se-selected-sub-topic>
+    }
   </div>
 
   <div class="secondary-pane">
     <!-- Loading Spinner -->
-    <loading-spinner *ngIf="loadingContent"></loading-spinner>
+    @if (loadingContent) {
+      <loading-spinner></loading-spinner>
+    }
 
     <!-- List for all loaded sub topics -->
-    <div class="list-container" *ngIf="!loadingContent">
-      <ng-container *ngFor="let subTopic of subTopics;">
-        <!-- Sub Topic Bubble -->
-        <div class="item-container clickable" style="--state-color:{{subTopic.color}}"
-          [ngClass]="{active: selectedSubTopic?.title === subTopic.title}">
-          <div class="item-row" (click)="selectSubTopic(subTopic)" id="{{subTopic.title}}">
-            <div class="item-title">
-              {{subTopic.title}}
+    @if (!loadingContent) {
+      <div class="list-container">
+        @for (subTopic of subTopics; track subTopic) {
+          <!-- Sub Topic Bubble -->
+          <div class="item-container clickable" style="--state-color:{{subTopic.color}}"
+            [ngClass]="{active: selectedSubTopic?.title === subTopic.title}">
+            <div class="item-row" (click)="selectSubTopic(subTopic)" id="{{subTopic.title}}">
+              <div class="item-title">
+                {{subTopic.title}}
+              </div>
             </div>
+            <!-- Information for selected Sub Topic details -->
+            @if (isMobile && selectedSubTopic?.title === subTopic.title) {
+              <se-selected-sub-topic
+                [selectedSubTopic]="selectedSubTopic">
+              </se-selected-sub-topic>
+            }
           </div>
-
-          <!-- Information for selected Sub Topic details -->
-          <se-selected-sub-topic *ngIf="isMobile && selectedSubTopic?.title === subTopic.title"
-            [selectedSubTopic]="selectedSubTopic">
-          </se-selected-sub-topic>
-        </div>
-      </ng-container>
-    </div>
+        }
+      </div>
+    }
   </div>
 </div>

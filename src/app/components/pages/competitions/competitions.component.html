@@ -3,23 +3,24 @@
     <header id="header" [title]="title" [useMediumBreakpoint]="true"></header>
 
     <!-- Loading Spinner -->
-    <loading-spinner *ngIf="loadingContent"></loading-spinner>
+    @if (loadingContent) {
+      <loading-spinner></loading-spinner>
+    }
 
     <!-- Information if there is no selected competition (ie. initial page for Competitions) -->
-    <ng-container *ngIf="!loadingContent && (isMobile || !selectedCompetition) && !filtersOpen">
+    @if (!loadingContent && (isMobile || !selectedCompetition) && !filtersOpen) {
       <div class="large-text-content">
         <markdown [data]="description"></markdown>
       </div>
-
-      <se-map 
-        *ngIf="competitionMapPoints"
-        [points]="competitionMapPoints"
-        [selectedPoint]="hoveredListCompetition"
-        [showLegend]="true"
-        (hoverPoint)="mapHoverEvent($event)"
-        (clickPoint)="mapClickEvent($event)"
-      ></se-map>
-
+      @if (competitionMapPoints) {
+        <se-map
+          [points]="competitionMapPoints"
+          [selectedPoint]="hoveredListCompetition"
+          [showLegend]="true"
+          (hoverPoint)="mapHoverEvent($event)"
+          (clickPoint)="mapClickEvent($event)"
+        ></se-map>
+      }
       <!-- section for external links text Bubble -->
       <div class="sub-text-container">
         <div class="sub-text-box">
@@ -29,12 +30,10 @@
             <a href="{{linksService.facebook}}" target="_blank">
               <i class="fa-brands fa-square-facebook fa-2xl clickable"></i>
             </a>
-            
             <!-- Discord -->
             <a href="{{linksService.discord}}" target="_blank">
               <i class="fa-brands fa-discord fa-2xl clickable"></i>
             </a>
-
             <!-- Instagram -->
             <a href="{{linksService.instagram}}" target="_blank">
               <i class="fa-brands fa-instagram fa-2xl clickable"></i>
@@ -42,53 +41,62 @@
           </div>
         </div>
       </div>
-    </ng-container>
+    }
 
     <!-- Filters -->
-    <ng-container *ngIf="filtersOpen">
+    @if (filtersOpen) {
       <div class="large-text-content">
         <markdown [data]="filtersDescription"></markdown>
       </div>
-
       <se-event-list [selectedEvents]="filters.events" (selectEventEmitter)="handleEventSelection($event)">
       </se-event-list>
       <se-filter-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-filter-map>
-    </ng-container>
+    }
 
     <!-- Information for selected competition details -->
-    <se-selected-competition *ngIf="selectedCompetition && !isMobile" [selectedCompetition]="selectedCompetition">
-    </se-selected-competition>
+    @if (selectedCompetition && !isMobile) {
+      <se-selected-competition [selectedCompetition]="selectedCompetition">
+      </se-selected-competition>
+    }
   </div>
   <div class="secondary-pane">
     <!-- Loading Spinner -->
-    <loading-spinner *ngIf="loadingCompetitions"></loading-spinner>
+    @if (loadingCompetitions) {
+      <loading-spinner></loading-spinner>
+    }
 
     <!-- Filters Icon -->
-    <div class="icon-row" (click)="toggleFiltersOpen()" *ngIf="!loadingCompetitions">
-      <i class="fa-solid fa-filter"></i>
-    </div>
+    @if (!loadingCompetitions) {
+      <div class="icon-row" (click)="toggleFiltersOpen()">
+        <i class="fa-solid fa-filter"></i>
+      </div>
+    }
 
-    <div id="competition-list-container" class="list-container" *ngIf="!loadingCompetitions">
-      <!-- List for all loaded competitions -->
-      <ng-container *ngFor="let competition of filteredCompetitions;">
-        <!-- Competition Bubble -->
-        <div class="item-container clickable" style="--state-color:{{StateColors[competition.state]}}"
-          [ngClass]="{active: selectedCompetition?.id === competition.id || hoveredMapCompetition === competition.id}"
-          (mouseover)="competitionHover(competition)" (mouseout)="competitionHover()">
-          <div class="item-row" (click)="selectCompetition(competition)" id="{{competition.id}}">
-            <div class="item-title">
-              {{competition.name}}
+    @if (!loadingCompetitions) {
+      <div id="competition-list-container" class="list-container">
+        <!-- List for all loaded competitions -->
+        @for (competition of filteredCompetitions; track competition) {
+          <!-- Competition Bubble -->
+          <div class="item-container clickable" style="--state-color:{{StateColors[competition.state]}}"
+            [ngClass]="{active: selectedCompetition?.id === competition.id || hoveredMapCompetition === competition.id}"
+            (mouseover)="competitionHover(competition)" (mouseout)="competitionHover()">
+            <div class="item-row" (click)="selectCompetition(competition)" id="{{competition.id}}">
+              <div class="item-title">
+                {{competition.name}}
+              </div>
+              <div class="item-sub-text">
+                {{competition.full_date}}
+              </div>
             </div>
-            <div class="item-sub-text">
-              {{competition.full_date}}
-            </div>
+            <!-- Information for selected competition details -->
+            @if (isMobile && selectedCompetition?.id === competition.id) {
+              <se-selected-competition
+                [selectedCompetition]="selectedCompetition">
+              </se-selected-competition>
+            }
           </div>
-          <!-- Information for selected competition details -->
-          <se-selected-competition *ngIf="isMobile && selectedCompetition?.id === competition.id"
-            [selectedCompetition]="selectedCompetition">
-          </se-selected-competition>
-        </div>
-      </ng-container>
-    </div>
+        }
+      </div>
+    }
   </div>
 </div>

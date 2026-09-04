@@ -1,6 +1,6 @@
 <div class="event-container">
-  <ng-container *ngFor="let event of Events">
+  @for (event of Events; track event) {
     <span [ngClass]="'cubing-icon event-' + event" (click)="eventClicked(event)"
-      style="color:{{(!selectedEvents?.length || selectedEvents.includes(event)) ? Colors.black : Colors.grey}}"></span>
-  </ng-container>
+    style="color:{{(!selectedEvents?.length || selectedEvents.includes(event)) ? Colors.black : Colors.grey}}"></span>
+  }
 </div>

@@ -1,16 +1,22 @@
 <div class="selected-item-container">
   <!-- Cat Name -->
-  <h2 class="title-text" *ngIf="!isMobile">
-    {{selectedCat.name}}
-  </h2>
+  @if (!isMobile) {
+    <h2 class="title-text">
+      {{selectedCat.name}}
+    </h2>
+  }
 
   <!-- Cat Photo -->
-  <div class="photo-container" *ngIf="selectedCat.photo">
-    <img class="image medium-image" src="{{selectedCat.photo}}">
-  </div>
+  @if (selectedCat.photo) {
+    <div class="photo-container">
+      <img class="image medium-image" src="{{selectedCat.photo}}">
+    </div>
+  }
 
   <!-- Short Cat description -->
-  <div class="small-text-content" *ngIf="selectedCat.description">
-    {{selectedCat.description}}
-  </div>
+  @if (selectedCat.description) {
+    <div class="small-text-content">
+      {{selectedCat.description}}
+    </div>
+  }
 </div>

@@ -1,21 +1,28 @@
 <div class="component-container">
   <div class="main-pane">
     <header id="header" [title]="title" [activateNavOnDefault]="true"></header>
-    <ng-container *ngIf="isMobile">
-      <loading-spinner *ngIf="loadingContent"></loading-spinner>
-      <div *ngIf="!loadingContent" class="large-text-content">
-        <markdown [data]="description"></markdown>
-      </div>
-    </ng-container>
+    @if (isMobile) {
+      @if (loadingContent) {
+        <loading-spinner></loading-spinner>
+      }
+      @if (!loadingContent) {
+        <div class="large-text-content">
+          <markdown [data]="description"></markdown>
+        </div>
+      }
+    }
   </div>
-  <div class="secondary-pane" *ngIf="!isMobile">
-    <!-- Loading Spinner -->
-    <loading-spinner *ngIf="loadingContent"></loading-spinner>
-
-    <ng-container *ngIf="!loadingContent && !isMobile">
-      <div class="large-text-content">
-        <markdown [data]="description"></markdown>
-      </div>
-    </ng-container>
-  </div>
+  @if (!isMobile) {
+    <div class="secondary-pane">
+      <!-- Loading Spinner -->
+      @if (loadingContent) {
+        <loading-spinner></loading-spinner>
+      }
+      @if (!loadingContent && !isMobile) {
+        <div class="large-text-content">
+          <markdown [data]="description"></markdown>
+        </div>
+      }
+    </div>
+  }
 </div>

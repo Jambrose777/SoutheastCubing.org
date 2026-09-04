@@ -3,12 +3,18 @@
   <h1 class="se-title" [ngClass]="{ 'medium-se-title': useMediumBreakpoint }">{{title}}</h1>
 
   <!-- Close Icon for when the nav is open -->
-  <i class="close-icon fa-solid fa-close fa-2xl clickable" *ngIf="isNavActive && !isMobile &&!activateNavOnDefault"
+  @if (isNavActive && !isMobile &&!activateNavOnDefault) {
+    <i class="close-icon fa-solid fa-close fa-2xl clickable"
     (click)="toggleNav(false)"></i>
+  }
 
   <!-- Nav system -->
-  <div class="nav-container" [ngClass]="{active: isNavActive, transition: transition}" *ngIf="!isMobile">
-    <se-nav [isNavActive]="isNavActive" [transition]="transition" (toggleNavEmitter)="toggleNav($event)"></se-nav>
-    <div class="nav-item-text" *ngIf="!isNavActive && !transition">Menu</div>
-  </div>
+  @if (!isMobile) {
+    <div class="nav-container" [ngClass]="{active: isNavActive, transition: transition}">
+      <se-nav [isNavActive]="isNavActive" [transition]="transition" (toggleNavEmitter)="toggleNav($event)"></se-nav>
+      @if (!isNavActive && !transition) {
+        <div class="nav-item-text">Menu</div>
+      }
+    </div>
+  }
 </div>

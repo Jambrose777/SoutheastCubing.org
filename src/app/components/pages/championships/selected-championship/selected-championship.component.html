@@ -1,67 +1,73 @@
-<div *ngIf="selectedChampionship" class="selected-item-container">
-  <!-- Championship Name -->
-  <a [href]="enviroment.links.wcaCompetition + selectedChampionship.id" target="_blank" class="name-container"
-    *ngIf="!isMobile">
-    <!-- Competition Logo -->
-    <img src="{{selectedChampionship.logo}}" class="competitiion-logo">
-
-    <h2 class="title-text">
-      {{selectedChampionship.name}}
-    </h2>
-
-    <!-- WCA Logo -->
-    <img src="assets/wca_logo.svg" class="wca-logo">
-  </a>
-
-  <!-- Championship Location -->
-  <div class="small-text-content">
-    <span *ngIf="!isMobile">{{selectedChampionship.city}} -</span>
-    <a [href]="enviroment.links.wcaCompetition + selectedChampionship.id" target="_blank" *ngIf="isMobile">
-      <img src="assets/wca_logo.svg" class="wca-logo-small">
-    </a>
-    {{selectedChampionship.date}}
-    <span *ngIf="selectedChampionship.competitors">- {{selectedChampionship.competitors}} Competitors</span>
-  </div>
-
-  <!-- Championship Photos in a carousel -->
-  <!-- Temporarily disabled: angular-responsive-carousel is incompatible with Angular 16+'s
-       Ivy-only compiler (story 003). Story 067 replaces it and restores this carousel. -->
-  <!-- <div class="photo-container" *ngIf="selectedChampionship.images">
+@if (selectedChampionship) {
+  <div class="selected-item-container">
+    <!-- Championship Name -->
+    @if (!isMobile) {
+      <a [href]="enviroment.links.wcaCompetition + selectedChampionship.id" target="_blank" class="name-container"
+        >
+        <!-- Competition Logo -->
+        <img src="{{selectedChampionship.logo}}" class="competitiion-logo">
+        <h2 class="title-text">
+          {{selectedChampionship.name}}
+        </h2>
+        <!-- WCA Logo -->
+        <img src="assets/wca_logo.svg" class="wca-logo">
+      </a>
+    }
+    <!-- Championship Location -->
+    <div class="small-text-content">
+      @if (!isMobile) {
+        <span>{{selectedChampionship.city}} -</span>
+      }
+      @if (isMobile) {
+        <a [href]="enviroment.links.wcaCompetition + selectedChampionship.id" target="_blank">
+          <img src="assets/wca_logo.svg" class="wca-logo-small">
+        </a>
+      }
+      {{selectedChampionship.date}}
+      @if (selectedChampionship.competitors) {
+        <span>- {{selectedChampionship.competitors}} Competitors</span>
+      }
+    </div>
+    <!-- Championship Photos in a carousel -->
+    <!-- Temporarily disabled: angular-responsive-carousel is incompatible with Angular 16+'s
+    Ivy-only compiler (story 003). Story 067 replaces it and restores this carousel. -->
+    <!-- <div class="photo-container" *ngIf="selectedChampionship.images">
     <carousel [images]="selectedChampionship.images" [cellsToShow]="1" [height]="300" [loop]="true" [autoplay]="true"
       [arrows]="false">
     </carousel>
   </div> -->
-
   <!-- Short Championship description -->
-  <div class="small-text-content" *ngIf="selectedChampionship.description">
-    <markdown [data]="selectedChampionship.description"></markdown>
-  </div>
-
-  <!-- Champions Table -->
-  <div class="champions-table" *ngIf="selectedChampionship.champions">
-    <div class="row header">
-      <div class="col-2 border"><span class="table-text"><b>Event</b></span></div>
-      <div class="col-3 border"><span class="table-text"><b>Southeast Champion</b></span></div>
-      <div class="col-3"><span class="table-text"><b>Overall Champion</b></span></div>
+  @if (selectedChampionship.description) {
+    <div class="small-text-content">
+      <markdown [data]="selectedChampionship.description"></markdown>
     </div>
-    <ng-container *ngFor="let champion of selectedChampionship.champions;">
-      <div class="row">
-        <div class="col-2 border"><span class="table-text"><b>{{champion.event}}</b></span></div>
-
-        <!-- If overall champion is provided, list each se champion and overall -->
-        <ng-container *ngIf="champion.overallChampName">
-          <div class="col-3 border"><span class="table-text">{{champion.seChampName}} -
-              {{champion.seChampResult}}</span></div>
-          <div class="col-3"><span class="table-text">{{champion.overallChampName}} -
-              {{champion.overallChampResult}}</span></div>
-        </ng-container>
-
-        <!-- If overall champion is not provided, list se champion for both -->
-        <ng-container *ngIf="!champion.overallChampName">
-          <div class="col-6"><span class="table-text">{{champion.seChampName}} - {{champion.seChampResult}}</span></div>
-        </ng-container>
+  }
+  <!-- Champions Table -->
+  @if (selectedChampionship.champions) {
+    <div class="champions-table">
+      <div class="row header">
+        <div class="col-2 border"><span class="table-text"><b>Event</b></span></div>
+        <div class="col-3 border"><span class="table-text"><b>Southeast Champion</b></span></div>
+        <div class="col-3"><span class="table-text"><b>Overall Champion</b></span></div>
       </div>
-    </ng-container>
-  </div>
+      @for (champion of selectedChampionship.champions; track champion) {
+        <div class="row">
+          <div class="col-2 border"><span class="table-text"><b>{{champion.event}}</b></span></div>
+          <!-- If overall champion is provided, list each se champion and overall -->
+          @if (champion.overallChampName) {
+            <div class="col-3 border"><span class="table-text">{{champion.seChampName}} -
+            {{champion.seChampResult}}</span></div>
+            <div class="col-3"><span class="table-text">{{champion.overallChampName}} -
+            {{champion.overallChampResult}}</span></div>
+          }
+          <!-- If overall champion is not provided, list se champion for both -->
+          @if (!champion.overallChampName) {
+            <div class="col-6"><span class="table-text">{{champion.seChampName}} - {{champion.seChampResult}}</span></div>
+          }
+        </div>
+      }
+    </div>
+  }
   <div>&nbsp;</div>
 </div>
+}

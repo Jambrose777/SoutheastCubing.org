@@ -6,22 +6,30 @@
       <div class="large-text-content">{{description}}</div>
 
       <!-- Refresh Competitions Button -->
-      <a *ngIf="updateCompetitionsStatus === 'default'" class="btn" (click)="updateCompetitions()">
-        Refresh Competitions
-        <i class="fa-solid fa-arrows-rotate fa-sm"></i>
-      </a>
-      
+      @if (updateCompetitionsStatus === 'default') {
+        <a class="btn" (click)="updateCompetitions()">
+          Refresh Competitions
+          <i class="fa-solid fa-arrows-rotate fa-sm"></i>
+        </a>
+      }
+
       <!-- Loading text for Registration Status open -->
-      <div *ngIf="updateCompetitionsStatus === 'updating'" class="btn loading-text">
-        Updating Competitions
-        <loading-spinner></loading-spinner>
-      </div>
+      @if (updateCompetitionsStatus === 'updating') {
+        <div class="btn loading-text">
+          Updating Competitions
+          <loading-spinner></loading-spinner>
+        </div>
+      }
 
       <!-- Success Message -->
-      <div *ngIf="updateCompetitionsStatus === 'success'" class="small-text-content success-color"><b>Successfully updated the competitions cache!</b></div>
+      @if (updateCompetitionsStatus === 'success') {
+        <div class="small-text-content success-color"><b>Successfully updated the competitions cache!</b></div>
+      }
 
       <!-- Error Message -->
-      <div *ngIf="updateCompetitionsStatus === 'failure'" class="small-text-content error-color"><b>{{errorMessage}}</b></div>
+      @if (updateCompetitionsStatus === 'failure') {
+        <div class="small-text-content error-color"><b>{{errorMessage}}</b></div>
+      }
     </div>
   </div>
   <div class="secondary-pane">

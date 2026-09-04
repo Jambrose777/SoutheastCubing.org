@@ -3,83 +3,84 @@
     <header id="header" [title]="title"></header>
 
     <!-- Loading Spinner -->
-    <loading-spinner *ngIf="loadingContent"></loading-spinner>
+    @if (loadingContent) {
+      <loading-spinner></loading-spinner>
+    }
 
-    <ng-container *ngIf="!loadingContent">
+    @if (!loadingContent) {
       <!-- Important Announcements -->
-      <ng-container *ngFor="let subTopic of subTopics;">
+      @for (subTopic of subTopics; track subTopic) {
         <div class="announcement-banner clickable" (click)="announcementClick(subTopic)" style="--banner-color:{{subTopic.color}}">
           <div class="items-container">
-            <div *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]" class="announcement-text">
-              <span>
-                {{subTopic.title}}
-                {{subTopic.description}}
-                {{subTopic.buttonText}}
-                <i *ngIf="subTopic.buttonIcon" class="fa-solid {{subTopic.buttonIcon}} fa-2xl"></i>
-                &nbsp;
-              </span>
-            </div>
+            @for (i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]; track i) {
+              <div class="announcement-text">
+                <span>
+                  {{subTopic.title}}
+                  {{subTopic.description}}
+                  {{subTopic.buttonText}}
+                  @if (subTopic.buttonIcon) {
+                    <i class="fa-solid {{subTopic.buttonIcon}} fa-2xl"></i>
+                  }
+                  &nbsp;
+                </span>
+              </div>
+            }
           </div>
         </div>
-      </ng-container>
-
+      }
       <!-- Photo Carousel on Mobile -->
       <!-- Temporarily disabled: angular-responsive-carousel is incompatible with Angular 16+'s
-           Ivy-only compiler (story 003). Story 067 replaces it and restores this carousel. -->
+      Ivy-only compiler (story 003). Story 067 replaces it and restores this carousel. -->
       <!-- <div class="mobile-home-photo-container" *ngIf="isMobile">
-        <carousel [images]="photos" [cellsToShow]="1" [height]="200" [loop]="true" [autoplay]="true" [arrows]="false">
-        </carousel>
-      </div> -->
-
-      <div class="large-text-content">
-        <markdown [data]="description"></markdown>
-      </div>
-
-      <!-- Icons for important external links, such as social media -->
-      <div class="badges">
-        <!-- Link to World Cube Association -->
-        <a href="{{enviroment.links.wca}}" target="_blank" class="wca-logo-container">
-          <img src="assets/wca_logo.svg" class="wca-logo">
-        </a>
-
-        <!-- Link to email Southeast Cubing -->
-        <a [routerLink]="'/contact'">
-          <i class="fa-solid fa-envelope fa-2xl clickable"></i>
-        </a>
-
-        <!-- Facebook -->
-        <a href="{{linksService.facebook}}" target="_blank">
-          <i class="fa-brands fa-square-facebook fa-2xl clickable"></i>
-        </a>
-
-        <!-- Discord -->
-        <a href="{{linksService.discord}}" target="_blank">
-          <i class="fa-brands fa-discord fa-2xl clickable"></i>
-        </a>
-
-        <!-- Instagram -->
-        <a href="{{linksService.instagram}}" target="_blank">
-          <i class="fa-brands fa-instagram fa-2xl clickable"></i>
-        </a>
-
-        <!-- Youtube -->
-        <a href="{{linksService.youtube}}" target="_blank">
-          <i class="fa-brands fa-youtube fa-2xl clickable"></i>
-        </a>
-      </div>
-    </ng-container>
-  </div>
-  <div class="secondary-pane" *ngIf="!isMobile">
+      <carousel [images]="photos" [cellsToShow]="1" [height]="200" [loop]="true" [autoplay]="true" [arrows]="false">
+      </carousel>
+    </div> -->
+    <div class="large-text-content">
+      <markdown [data]="description"></markdown>
+    </div>
+    <!-- Icons for important external links, such as social media -->
+    <div class="badges">
+      <!-- Link to World Cube Association -->
+      <a href="{{enviroment.links.wca}}" target="_blank" class="wca-logo-container">
+        <img src="assets/wca_logo.svg" class="wca-logo">
+      </a>
+      <!-- Link to email Southeast Cubing -->
+      <a [routerLink]="'/contact'">
+        <i class="fa-solid fa-envelope fa-2xl clickable"></i>
+      </a>
+      <!-- Facebook -->
+      <a href="{{linksService.facebook}}" target="_blank">
+        <i class="fa-brands fa-square-facebook fa-2xl clickable"></i>
+      </a>
+      <!-- Discord -->
+      <a href="{{linksService.discord}}" target="_blank">
+        <i class="fa-brands fa-discord fa-2xl clickable"></i>
+      </a>
+      <!-- Instagram -->
+      <a href="{{linksService.instagram}}" target="_blank">
+        <i class="fa-brands fa-instagram fa-2xl clickable"></i>
+      </a>
+      <!-- Youtube -->
+      <a href="{{linksService.youtube}}" target="_blank">
+        <i class="fa-brands fa-youtube fa-2xl clickable"></i>
+      </a>
+    </div>
+  }
+</div>
+@if (!isMobile) {
+  <div class="secondary-pane">
     <!-- Loading Spinner -->
-    <loading-spinner *ngIf="loadingContent"></loading-spinner>
-
-    <ng-container *ngIf="!loadingContent">
+    @if (loadingContent) {
+      <loading-spinner></loading-spinner>
+    }
+    @if (!loadingContent) {
       <!-- Temporarily disabled: angular-responsive-carousel is incompatible with Angular 16+'s
-           Ivy-only compiler (story 003). Story 067 replaces it and restores this carousel. -->
+      Ivy-only compiler (story 003). Story 067 replaces it and restores this carousel. -->
       <!-- <div class="home-photo-container">
-        <carousel [images]="photos" [cellsToShow]="1" [height]="500" [loop]="true" [autoplay]="true" [arrows]="false">
-        </carousel>
-      </div> -->
-    </ng-container>
-  </div>
+      <carousel [images]="photos" [cellsToShow]="1" [height]="500" [loop]="true" [autoplay]="true" [arrows]="false">
+      </carousel>
+    </div> -->
+  }
+</div>
+}
 </div>

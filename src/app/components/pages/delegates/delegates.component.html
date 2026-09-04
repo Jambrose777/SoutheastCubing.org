@@ -3,14 +3,15 @@
     <header id="header" [title]="title"></header>
 
     <!-- Loading Spinner -->
-    <loading-spinner *ngIf="loadingContent"></loading-spinner>
+    @if (loadingContent) {
+      <loading-spinner></loading-spinner>
+    }
 
     <!-- Information if there is no selected Delegate (ie. initial page for Delegates) -->
-    <ng-container *ngIf="!loadingContent && (isMobile || !selectedDelegate)">
+    @if (!loadingContent && (isMobile || !selectedDelegate)) {
       <div class="large-text-content">
         <markdown [data]="description"></markdown>
       </div>
-
       <!-- section for external link text Bubble -->
       <div class="sub-text-container">
         <div class="sub-text-box">
@@ -23,38 +24,45 @@
           </div>
         </div>
       </div>
-    </ng-container>
+    }
 
     <!-- Information for selected delegate details -->
-    <se-selected-delegate *ngIf="selectedDelegate && !isMobile" [selectedDelegate]="selectedDelegate">
-    </se-selected-delegate>
+    @if (selectedDelegate && !isMobile) {
+      <se-selected-delegate [selectedDelegate]="selectedDelegate">
+      </se-selected-delegate>
+    }
   </div>
   <div class="secondary-pane">
     <!-- Loading Spinner -->
-    <loading-spinner *ngIf="loadingDelegates"></loading-spinner>
+    @if (loadingDelegates) {
+      <loading-spinner></loading-spinner>
+    }
 
-    <div class="list-container" *ngIf="!loadingDelegates">
-      <!-- List for all loaded delegates -->
-      <ng-container *ngFor="let delegate of delegates;">
-        <!-- Delegate Bubble -->
-        <div class="item-container clickable" style="--state-color:{{StateColors[delegate.state]}}"
-          [ngClass]="{active: selectedDelegate?.name === delegate.name}">
-          <div class="item-row" (click)="selectDelegate(delegate)" id="{{delegate.name}}">
-            <img class="thumbnail" src="{{delegate.thumbnail}}">
-            <div class="item-title">
-              {{delegate.name}}
+    @if (!loadingDelegates) {
+      <div class="list-container">
+        <!-- List for all loaded delegates -->
+        @for (delegate of delegates; track delegate) {
+          <!-- Delegate Bubble -->
+          <div class="item-container clickable" style="--state-color:{{StateColors[delegate.state]}}"
+            [ngClass]="{active: selectedDelegate?.name === delegate.name}">
+            <div class="item-row" (click)="selectDelegate(delegate)" id="{{delegate.name}}">
+              <img class="thumbnail" src="{{delegate.thumbnail}}">
+              <div class="item-title">
+                {{delegate.name}}
+              </div>
+              <div class="item-sub-text">
+                {{delegate.state}}
+              </div>
             </div>
-            <div class="item-sub-text">
-              {{delegate.state}}
-            </div>
+            <!-- Information for selected competition details -->
+            @if (isMobile && selectedDelegate?.name === delegate.name) {
+              <se-selected-delegate
+                [selectedDelegate]="selectedDelegate">
+              </se-selected-delegate>
+            }
           </div>
-
-          <!-- Information for selected competition details -->
-          <se-selected-delegate *ngIf="isMobile && selectedDelegate?.name === delegate.name"
-            [selectedDelegate]="selectedDelegate">
-          </se-selected-delegate>
-        </div>
-      </ng-container>
-    </div>
+        }
+      </div>
+    }
   </div>
 </div>

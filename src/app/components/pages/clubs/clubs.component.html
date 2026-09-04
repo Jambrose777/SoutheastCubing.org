@@ -3,22 +3,23 @@
     <header id="header" [title]="title"></header>
 
     <!-- Loading Spinner -->
-    <loading-spinner *ngIf="loadingContent"></loading-spinner>
+    @if (loadingContent) {
+      <loading-spinner></loading-spinner>
+    }
 
     <!-- Information if there is no selected club (ie. initial page for Clubs) -->
-    <ng-container *ngIf="!loadingContent && (isMobile || !selectedClub) && !filtersOpen">
+    @if (!loadingContent && (isMobile || !selectedClub) && !filtersOpen) {
       <div class="large-text-content">
         <markdown [data]="description"></markdown>
       </div>
-
-      <se-map 
-        *ngIf="clubMapPoints"
-        [points]="clubMapPoints"
-        [selectedPoint]="hoveredListClub"
-        (hoverPoint)="mapHoverEvent($event)"
-        (clickPoint)="mapClickEvent($event)"
-      ></se-map>
-
+      @if (clubMapPoints) {
+        <se-map
+          [points]="clubMapPoints"
+          [selectedPoint]="hoveredListClub"
+          (hoverPoint)="mapHoverEvent($event)"
+          (clickPoint)="mapClickEvent($event)"
+        ></se-map>
+      }
       <div class="sub-text-container">
         <!-- Section for Start a new club form -->
         <div class="sub-text-box">
@@ -30,7 +31,6 @@
             </a>
           </div>
         </div>
-
         <!-- Section for contacting SEC about clubs -->
         <div class="sub-text-box">
           {{subText2}}
@@ -42,51 +42,60 @@
           </div>
         </div>
       </div>
-
-    </ng-container>
+    }
 
     <!-- Filters -->
-    <ng-container *ngIf="filtersOpen">
+    @if (filtersOpen) {
       <div class="large-text-content">
         <markdown [data]="filtersDescription"></markdown>
       </div>
       <se-filter-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-filter-map>
-    </ng-container>
+    }
 
     <!-- Information for selected club details -->
-    <se-selected-club *ngIf="selectedClub && !isMobile" [selectedClub]="selectedClub">
-    </se-selected-club>
+    @if (selectedClub && !isMobile) {
+      <se-selected-club [selectedClub]="selectedClub">
+      </se-selected-club>
+    }
   </div>
 
   <div class="secondary-pane">
     <!-- Loading Spinner -->
-    <loading-spinner *ngIf="loadingClubs"></loading-spinner>
+    @if (loadingClubs) {
+      <loading-spinner></loading-spinner>
+    }
 
     <!-- Filters Icon -->
-    <div class="icon-row" (click)="toggleFiltersOpen()" *ngIf="!loadingClubs">
-      <i class="fa-solid fa-filter"></i>
-    </div>
+    @if (!loadingClubs) {
+      <div class="icon-row" (click)="toggleFiltersOpen()">
+        <i class="fa-solid fa-filter"></i>
+      </div>
+    }
 
     <!-- List for all loaded clubs -->
-    <div id="club-list-container" class="list-container" *ngIf="!loadingClubs">
-      <ng-container *ngFor="let club of filteredClubs;">
-        <!-- Club Bubble -->
-        <div class="item-container clickable" style="--state-color:{{StateColors[club.state]}}"
-          [ngClass]="{active: selectedClub?.id === club.id || hoveredMapClub === club.id}"
-          (mouseover)="clubHover(club)" (mouseout)="clubHover()">
-          <div class="item-row" (click)="selectClub(club)" id="{{club.id}}">
-            <div class="item-title">
-              {{club.name}}
+    @if (!loadingClubs) {
+      <div id="club-list-container" class="list-container">
+        @for (club of filteredClubs; track club) {
+          <!-- Club Bubble -->
+          <div class="item-container clickable" style="--state-color:{{StateColors[club.state]}}"
+            [ngClass]="{active: selectedClub?.id === club.id || hoveredMapClub === club.id}"
+            (mouseover)="clubHover(club)" (mouseout)="clubHover()">
+            <div class="item-row" (click)="selectClub(club)" id="{{club.id}}">
+              <div class="item-title">
+                {{club.name}}
+              </div>
+              <div class="item-sub-text">
+                {{club.city}}
+              </div>
             </div>
-            <div class="item-sub-text">
-              {{club.city}}
-            </div>
+            <!-- Information for selected club details -->
+            @if (isMobile && selectedClub?.id === club.id) {
+              <se-selected-club [selectedClub]="selectedClub">
+              </se-selected-club>
+            }
           </div>
-          <!-- Information for selected club details -->
-          <se-selected-club *ngIf="isMobile && selectedClub?.id === club.id" [selectedClub]="selectedClub">
-          </se-selected-club>
-        </div>
-      </ng-container>
-    </div>
+        }
+      </div>
+    }
   </div>
 </div>
