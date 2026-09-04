@@ -15,8 +15,19 @@ AWS.config.update({
 // Create a new instance of the S3 class
 const s3 = new AWS.S3();
 
+// Feature flag gating whether saveCompetitionData() actually writes to S3. Defaults
+// to disabled so local smoke-testing never overwrites the real production
+// competitions.json file by accident - set AWS_S3_WRITE_ENABLED="true" (production's
+// env file does this) to actually write.
+const s3WriteEnabled = process.env.AWS_S3_WRITE_ENABLED === 'true';
+
 // Saves competitionData to S3 bucket
 function saveCompetitionData(comps) {
+  if (!s3WriteEnabled) {
+    logger.info('Skipping S3 write - AWS_S3_WRITE_ENABLED is not set to true.');
+    return;
+  }
+
   // Set the parameters for the file
   const params = {
       Bucket: 'southeast-cubing.org',

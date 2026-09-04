@@ -65,17 +65,17 @@ function sendEmail(req, res) {
 function getToEmail(emailType) {
   switch (emailType) {
     case EmailType.getInvolved:
-      return 'board@southeastcubing.org';
+      return process.env.EMAIL_TO_BOARD;
     case EmailType.clubs:
-      return 'clubs@southeastcubing.org';
+      return process.env.EMAIL_TO_CLUBS;
     case EmailType.organizing:
-      return 'competitions@southeastcubing.org';
+      return process.env.EMAIL_TO_COMPETITIONS;
     case EmailType.pastCompetition:
     case EmailType.socialMedia:
     case EmailType.software:
     case EmailType.general:
     default:
-      return 'contact@southeastcubing.org';
+      return process.env.EMAIL_TO_CONTACT;
   }
 }
 

@@ -28,9 +28,16 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The appli
 ## BE Development setup
 The backend needs two secret/config files that are never committed to the repo:
 - `.env` — environment variables consumed via Node's built-in `--env-file` flag
-  (email credentials, AWS keys, Contentful API keys, Discord webhook URL).
+  (email credentials, AWS keys, Contentful API keys, Discord webhook URL). `.env` is
+  gitignored and never committed - `backend/.env.template` is the only checked-in
+  reference for which variables exist and how to obtain each one. Copy
+  `backend/.env.template` to `backend/.env` and fill in the blanks - the template
+  only lists safe "Local Development" values (values that never touch real org
+  inboxes or the real Southeast Cubing Discord server).
 - `southeastcubing-org-api.json` — a Google service account credentials file used to
-  authenticate against the Google Forms API (reading the staff sign-up form).
+  authenticate against the Google Forms API (reading the staff sign-up form). If this
+  file is missing, the competitions update flow degrades gracefully (staff form data
+  is simply treated as empty) instead of breaking.
 
 Neither file is checked into source control, and there's no secrets manager for this
 project — request both files directly from Jacob (org admin) and share/receive them,

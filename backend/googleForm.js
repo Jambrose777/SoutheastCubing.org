@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const google = require('@googleapis/forms');
 
 // Logger
@@ -10,8 +11,18 @@ const formID = '1vtcLw_QPrS-ZDKG9XxsN192xPEdr0gCA7vIoRVlTZmI';
 
 // gets competitions listed on the Southeast Cubing Staff Google Form
 async function getCompetitionsInStaffForm() {
+  const credentialsPath = path.join(__dirname, 'southeastcubing-org-api.json');
+
+  // The Google service-account credentials file is gitignored and isn't always
+  // present locally degrade gracefully instead of throwing and breaking the 
+  // whole competitions update flow.
+  if (!fs.existsSync(credentialsPath)) {
+    logger.error('Missing Google service-account credentials file at ' + credentialsPath + ' - skipping staff form fetch.');
+    return [];
+  }
+
   const auth = new google.auth.GoogleAuth({
-    keyFile: path.join(__dirname, 'southeastcubing-org-api.json'),
+    keyFile: credentialsPath,
     scopes: ['https://www.googleapis.com/auth/forms.body.readonly'],
   });
   const forms = google.forms({
