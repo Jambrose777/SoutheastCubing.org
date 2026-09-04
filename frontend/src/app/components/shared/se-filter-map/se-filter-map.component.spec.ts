@@ -8,9 +8,8 @@ describe('SeFilterMapComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SeFilterMapComponent ]
-    })
-    .compileComponents();
+      declarations: [SeFilterMapComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SeFilterMapComponent);
     component = fixture.componentInstance;

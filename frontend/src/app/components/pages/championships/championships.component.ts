@@ -13,14 +13,14 @@ import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
 
 @Component({
-    selector: 'se-championships',
-    templateUrl: './championships.component.html',
-    styleUrls: ['./championships.component.scss'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'se-championships',
+  templateUrl: './championships.component.html',
+  styleUrls: ['./championships.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ChampionshipsComponent implements OnInit, OnDestroy {
-  isMobile: boolean
+  isMobile: boolean;
   StateColors = StateColors;
   enviroment = environment;
   title: string = 'Southeast Championship';
@@ -41,49 +41,61 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
     private location: Location,
     private screenSizeService: ScreenSizeService,
     public linksService: LinksService,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
+    this.subscriptions.add(
+      this.screenSizeService
+        .getIsMobileSubject()
+        .subscribe((isMobile) => (this.isMobile = isMobile)),
+    );
 
     // sets up main color for the championships page
     this.themeService.setMainPaneColor(Colors.blue);
 
     // collect championshipId from params
-    this.subscriptions.add(this.route.params.subscribe(params => {
-      this.selectedChampionshipIdFromRoute = params['championshipId'];
-    }));
+    this.subscriptions.add(
+      this.route.params.subscribe((params) => {
+        this.selectedChampionshipIdFromRoute = params['championshipId'];
+      }),
+    );
 
     // retireve formats data from the CMS Championships Page
-    this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.championships).subscribe(res => {
-      this.title = res.fields.title;
-      this.description = res.fields.description;
-      this.subText1 = res.fields.subText1;
-      this.loadingContent = false;
-    }));
+    this.subscriptions.add(
+      this.contentful.getContentfulEntry(ContentfulEntryId.championships).subscribe((res) => {
+        this.title = res.fields.title;
+        this.description = res.fields.description;
+        this.subText1 = res.fields.subText1;
+        this.loadingContent = false;
+      }),
+    );
 
     // retrieve, sorts, and formats the championships list from the CMS Championships
-    this.subscriptions.add(this.contentful.getContentfulGroup(ContentfulContentType.championships).subscribe(res => {
-      this.championships = res.items
-        .map(championship => ({
-          ...championship.fields,
-          logo: championship.fields.logo?.fields.file.url,
-          images: championship.fields.images?.map(image => ({ path: image.fields.file.url })),
-          state: championship.fields?.city.substring(championship.fields?.city.length - 2),
-          champions: championship.fields.champions?.map(champion => ({ ...champion.fields }))
-        }))
-        .sort((a: Championship, b: Championship) => a.year < b.year ? 1 : -1);
-      if (this.selectedChampionshipIdFromRoute) {
-        let foundChampionship = this.championships.find(championship => championship.id === this.selectedChampionshipIdFromRoute);
-        if (foundChampionship) {
-          this.selectChampionship(foundChampionship);
-        } else {
-          this.location.replaceState('/championships');
+    this.subscriptions.add(
+      this.contentful.getContentfulGroup(ContentfulContentType.championships).subscribe((res) => {
+        this.championships = res.items
+          .map((championship) => ({
+            ...championship.fields,
+            logo: championship.fields.logo?.fields.file.url,
+            images: championship.fields.images?.map((image) => ({ path: image.fields.file.url })),
+            state: championship.fields?.city.substring(championship.fields?.city.length - 2),
+            champions: championship.fields.champions?.map((champion) => ({ ...champion.fields })),
+          }))
+          .sort((a: Championship, b: Championship) => (a.year < b.year ? 1 : -1));
+        if (this.selectedChampionshipIdFromRoute) {
+          let foundChampionship = this.championships.find(
+            (championship) => championship.id === this.selectedChampionshipIdFromRoute,
+          );
+          if (foundChampionship) {
+            this.selectChampionship(foundChampionship);
+          } else {
+            this.location.replaceState('/championships');
+          }
         }
-      }
-      this.loadingChampionships = false;
-    }));
+        this.loadingChampionships = false;
+      }),
+    );
   }
 
   ngOnDestroy(): void {
@@ -107,14 +119,15 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
         this.themeService.setMainPaneColor(StateColors[this.selectedChampionship.state]);
 
         //scroll to top of main pane
-        document.getElementById("header")?.scrollIntoView();
+        document.getElementById('header')?.scrollIntoView();
       } else {
         setTimeout(() => {
-          document.getElementById(this.selectedChampionship.id)?.scrollIntoView({ behavior: 'smooth' });
+          document
+            .getElementById(this.selectedChampionship.id)
+            ?.scrollIntoView({ behavior: 'smooth' });
         }, 0);
       }
       this.location.replaceState('/championships/' + this.selectedChampionship.id);
     }
   }
-
 }

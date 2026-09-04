@@ -1,8 +1,7 @@
-@import "src/styles/color-pallet.scss";
-@import "src/styles/screen-sizes.scss";
+@import 'src/styles/color-pallet.scss';
+@import 'src/styles/screen-sizes.scss';
 
 .selected-item-container {
-
   .name-container {
     display: flex;
     flex-direction: row;
@@ -87,7 +86,6 @@
       padding: 0 3px;
     }
   }
-
 }
 
 @media only screen and (max-width: $medium-breakpoint) {

@@ -1,6 +1,6 @@
-@import "src/styles/color-pallet.scss";
+@import 'src/styles/color-pallet.scss';
 
-#se-map { 
+#se-map {
   height: 350px;
   width: 400px;
   margin: 0 auto 0 auto;
@@ -47,19 +47,19 @@
 }
 
 // marker colors for div created by leaflet
-::ng-deep .blue-marker { 
+::ng-deep .blue-marker {
   filter: hue-rotate(0deg);
 }
 
-::ng-deep .red-marker { 
+::ng-deep .red-marker {
   filter: hue-rotate(138deg);
 }
 
-::ng-deep .orange-marker { 
+::ng-deep .orange-marker {
   filter: hue-rotate(180deg);
 }
 
-::ng-deep .green-marker { 
+::ng-deep .green-marker {
   filter: hue-rotate(300deg);
 }
 

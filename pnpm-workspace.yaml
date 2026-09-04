@@ -1,6 +1,6 @@
 packages:
-  - "frontend"
-  - "backend"
+  - 'frontend'
+  - 'backend'
 allowBuilds:
   '@parcel/watcher': true
   aws-sdk: true

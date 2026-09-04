@@ -9,7 +9,7 @@
         <mat-select [formControl]="emailTypeControl">
           @for (emailTypeOption of emailTypeOptions; track emailTypeOption) {
             <mat-option [value]="emailTypeOption.value">
-              {{emailTypeOption.label}}
+              {{ emailTypeOption.label }}
             </mat-option>
           }
         </mat-select>
@@ -20,8 +20,7 @@
 
       <!-- Loading Spinner -->
       @if (emailTypeControl.value === EmailType.upcomingCompetition && loadingCompetitions) {
-        <loading-spinner>
-        </loading-spinner>
+        <loading-spinner> </loading-spinner>
       }
 
       @if (emailTypeControl.value === EmailType.upcomingCompetition && !loadingCompetitions) {
@@ -31,7 +30,7 @@
           <mat-select [(value)]="selectedCompetition">
             @for (competition of competitions; track competition) {
               <mat-option [value]="competition.id">
-                {{competition.name}}
+                {{ competition.name }}
               </mat-option>
             }
           </mat-select>
@@ -42,14 +41,17 @@
         <!-- Info about contacting organizers -->
         @if (selectedCompetition) {
           <div class="medium-text-content">
-            In order to contact the organizers about this competition, you will need to do so through the WCA Website.
-            You can access that here:
+            In order to contact the organizers about this competition, you will need to do so
+            through the WCA Website. You can access that here:
           </div>
           <!-- Contact Competitions Button -->
           <div>
-            <a class="btn" [href]="enviroment.links.wcaContact + selectedCompetition"
-              target="_blank">
-              <img src="assets/wca_logo.svg" class="wca-logo">
+            <a
+              class="btn"
+              [href]="enviroment.links.wcaContact + selectedCompetition"
+              target="_blank"
+            >
+              <img src="assets/wca_logo.svg" class="wca-logo" />
               Contact Organizers
               <i class="fa-regular fa-envelope fa-lg clickable"></i>
             </a>
@@ -62,7 +64,7 @@
           <!-- Name -->
           <mat-form-field class="form-field left-field">
             <mat-label>Your Name</mat-label>
-            <input matInput [formControl]="nameControl">
+            <input matInput [formControl]="nameControl" />
             @if (nameControl.hasError('required')) {
               <mat-error>Your name is required</mat-error>
             }
@@ -70,11 +72,9 @@
           <!-- Email -->
           <mat-form-field class="form-field right-field">
             <mat-label>Email</mat-label>
-            <input type="email" matInput [formControl]="emailControl">
+            <input type="email" matInput [formControl]="emailControl" />
             @if (emailControl.hasError('email') && !emailControl.hasError('required')) {
-              <mat-error>
-                Please enter a valid email address
-              </mat-error>
+              <mat-error> Please enter a valid email address </mat-error>
             }
             @if (emailControl.hasError('required')) {
               <mat-error>Email is required</mat-error>
@@ -85,7 +85,7 @@
           <!-- Subject -->
           <mat-form-field class="form-field left-field">
             <mat-label>Subject</mat-label>
-            <input matInput [formControl]="subjectControl">
+            <input matInput [formControl]="subjectControl" />
             @if (subjectControl.hasError('required')) {
               <mat-error>A subject is required</mat-error>
             }
@@ -94,7 +94,7 @@
           @if (emailTypeControl.value === EmailType.pastCompetition) {
             <mat-form-field class="form-field right-field">
               <mat-label>Competition Name</mat-label>
-              <input matInput [formControl]="competitionNameControl">
+              <input matInput [formControl]="competitionNameControl" />
               @if (competitionNameControl.hasError('required')) {
                 <mat-error>A Competition Name is required</mat-error>
               }
@@ -140,7 +140,8 @@
         @if (emailApiStatus === EmailApiStatus.doubleFailure) {
           <div class="small-text-content error-message">
             <i class="fa-solid fa-circle-xmark fa-sm"></i>
-            Unfortunately an error has occurred. If the issue persists, you can email us directly at contact&#64;southeastcubing.org.
+            Unfortunately an error has occurred. If the issue persists, you can email us directly at
+            contact&#64;southeastcubing.org.
           </div>
         }
       }
@@ -163,5 +164,4 @@
       </div>
     }
   </div>
-
 </div>

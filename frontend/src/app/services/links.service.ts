@@ -5,7 +5,7 @@ import { ContentfulEntryId } from '../models/Contentful';
 import { take } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LinksService {
   discord: string = environment.links.discord;
@@ -14,28 +14,29 @@ export class LinksService {
   youtube: string = environment.links.youtube;
   applyToStaffForm: string = environment.links.applyToStaffForm;
 
-  constructor(
-    private contentful: ContentfulService
-  ) { }
+  constructor(private contentful: ContentfulService) {}
 
   pullLinksFromContentful() {
     // retireve links data from the CMS to overwrite links
-    this.contentful.getContentfulEntry(ContentfulEntryId.linksConfiguration).pipe(take(1)).subscribe(res => {
-      if (res.fields.discord) {
-        this.discord = res.fields.discord;
-      }
-      if (res.fields.facebook) {
-        this.facebook = res.fields.facebook;
-      }
-      if (res.fields.instagram) {
-        this.instagram = res.fields.instagram;
-      }
-      if (res.fields.youtube) {
-        this.youtube = res.fields.youtube;
-      }
-      if (res.fields.applyToStaffForm) {
-        this.applyToStaffForm = res.fields.applyToStaffForm;
-      }
-    });
+    this.contentful
+      .getContentfulEntry(ContentfulEntryId.linksConfiguration)
+      .pipe(take(1))
+      .subscribe((res) => {
+        if (res.fields.discord) {
+          this.discord = res.fields.discord;
+        }
+        if (res.fields.facebook) {
+          this.facebook = res.fields.facebook;
+        }
+        if (res.fields.instagram) {
+          this.instagram = res.fields.instagram;
+        }
+        if (res.fields.youtube) {
+          this.youtube = res.fields.youtube;
+        }
+        if (res.fields.applyToStaffForm) {
+          this.applyToStaffForm = res.fields.applyToStaffForm;
+        }
+      });
   }
 }

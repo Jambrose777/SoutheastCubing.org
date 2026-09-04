@@ -1,8 +1,7 @@
-@import "src/styles/color-pallet.scss";
-@import "src/styles/screen-sizes.scss";
+@import 'src/styles/color-pallet.scss';
+@import 'src/styles/screen-sizes.scss';
 
 .selected-item-container {
-
   .title-text {
     margin: 0;
 
@@ -65,15 +64,11 @@
       margin-top: -2px;
     }
   }
-
 }
 
 @media only screen and (max-width: $small-breakpoint) {
-
   .selected-item-container {
-
     .competition-details {
-
       .event-container {
         padding-bottom: 10px;
         border-bottom: 2px dashed $se-black;
@@ -91,11 +86,11 @@
         box-shadow: none;
       }
 
-      .detail-container>div {
+      .detail-container > div {
         margin: 10px 0;
       }
 
-      .detail-container>a {
+      .detail-container > a {
         margin: 10px 0;
       }
 
@@ -103,6 +98,5 @@
         border: none;
       }
     }
-
   }
 }

@@ -23,20 +23,20 @@
       <div class="sub-text-container">
         <!-- Section for Start a new club form -->
         <div class="sub-text-box">
-          {{subText1}}
+          {{ subText1 }}
           <div>
             <a class="btn" [href]="subText1ButtonLink" target="_blank">
-              {{subText1ButtonText}}
+              {{ subText1ButtonText }}
               <i class="fa-solid fa-up-right-from-square fa-sm"></i>
             </a>
           </div>
         </div>
         <!-- Section for contacting SEC about clubs -->
         <div class="sub-text-box">
-          {{subText2}}
+          {{ subText2 }}
           <div>
             <a class="btn" [href]="subText2ButtonLink">
-              {{subText2ButtonText}}
+              {{ subText2ButtonText }}
               <i class="fa-regular fa-envelope fa-sm"></i>
             </a>
           </div>
@@ -49,13 +49,15 @@
       <div class="large-text-content">
         <markdown [data]="filtersDescription"></markdown>
       </div>
-      <se-filter-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-filter-map>
+      <se-filter-map
+        [selectedStates]="filters.states"
+        (selectStateEmitter)="handleStateSelection($event)"
+      ></se-filter-map>
     }
 
     <!-- Information for selected club details -->
     @if (selectedClub && !isMobile) {
-      <se-selected-club [selectedClub]="selectedClub">
-      </se-selected-club>
+      <se-selected-club [selectedClub]="selectedClub"> </se-selected-club>
     }
   </div>
 
@@ -77,21 +79,24 @@
       <div id="club-list-container" class="list-container">
         @for (club of filteredClubs; track club) {
           <!-- Club Bubble -->
-          <div class="item-container clickable" style="--state-color:{{StateColors[club.state]}}"
-            [ngClass]="{active: selectedClub?.id === club.id || hoveredMapClub === club.id}"
-            (mouseover)="clubHover(club)" (mouseout)="clubHover()">
-            <div class="item-row" (click)="selectClub(club)" id="{{club.id}}">
+          <div
+            class="item-container clickable"
+            style="--state-color:{{ StateColors[club.state] }}"
+            [ngClass]="{ active: selectedClub?.id === club.id || hoveredMapClub === club.id }"
+            (mouseover)="clubHover(club)"
+            (mouseout)="clubHover()"
+          >
+            <div class="item-row" (click)="selectClub(club)" id="{{ club.id }}">
               <div class="item-title">
-                {{club.name}}
+                {{ club.name }}
               </div>
               <div class="item-sub-text">
-                {{club.city}}
+                {{ club.city }}
               </div>
             </div>
             <!-- Information for selected club details -->
             @if (isMobile && selectedClub?.id === club.id) {
-              <se-selected-club [selectedClub]="selectedClub">
-              </se-selected-club>
+              <se-selected-club [selectedClub]="selectedClub"> </se-selected-club>
             }
           </div>
         }

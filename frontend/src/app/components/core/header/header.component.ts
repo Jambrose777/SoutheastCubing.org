@@ -3,11 +3,11 @@ import { Subscription } from 'rxjs';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 
 @Component({
-    selector: 'header',
-    templateUrl: './header.component.html',
-    styleUrls: ['./header.component.scss'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'header',
+  templateUrl: './header.component.html',
+  styleUrls: ['./header.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   isMobile: boolean;
@@ -18,13 +18,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   transition = false;
   subscriptions: Subscription = new Subscription();
 
-  constructor(
-    private screenSizeService: ScreenSizeService
-  ) { }
+  constructor(private screenSizeService: ScreenSizeService) {}
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
+    this.subscriptions.add(
+      this.screenSizeService
+        .getIsMobileSubject()
+        .subscribe((isMobile) => (this.isMobile = isMobile)),
+    );
 
     if (this.activateNavOnDefault) {
       this.toggleNav(this.activateNavOnDefault);
@@ -43,5 +45,4 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.transition = false;
     }, 500);
   }
-
 }

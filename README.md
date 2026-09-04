@@ -40,7 +40,9 @@ reload if you change any of the source files.
 - restart server `service httpd restart` or start server `service httpd start`
 
 ## BE Development setup
+
 The backend needs two secret/config files that are never committed to the repo:
+
 - `.env` — environment variables consumed via Node's built-in `--env-file` flag
   (email credentials, AWS keys, Contentful API keys, Discord webhook URL). `.env` is
   gitignored and never committed - `backend/.env.template` is the only checked-in
@@ -58,21 +60,26 @@ project — request both files directly from Jacob (org admin) and share/receive
 then place them in `backend/`.
 
 ## BE Development server
+
 Run `pnpm --filter backend dev` (or `cd backend && pnpm dev`), equivalent to
 `node --env-file=.env app.js`.
 
 ## BE Deployment
+
 - cd SoutheastCubing.org
 - git pull
 - pnpm install --filter backend
 - systemctl restart api.service
 
 ## BE Status
+
 - systemctl status api.service
 - systemctl status nginx
 
 # FE Fetch a new SSL certificate
+
 - sudo certbot --apache
 
 # BE Fetch a new SSL certificate
+
 - sudo certbot --nginx

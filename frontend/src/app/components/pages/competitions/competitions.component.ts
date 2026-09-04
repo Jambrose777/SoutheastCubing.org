@@ -15,11 +15,11 @@ import { SouteastcubingApiService } from 'src/app/services/souteastcubing-api.se
 import { MapPoint, MarkerColorClass } from 'src/app/models/Map';
 
 @Component({
-    selector: 'se-competitions',
-    templateUrl: './competitions.component.html',
-    styleUrls: ['./competitions.component.scss'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'se-competitions',
+  templateUrl: './competitions.component.html',
+  styleUrls: ['./competitions.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class CompetitionsComponent implements OnInit, OnDestroy {
   isMobile: boolean;
@@ -54,58 +54,81 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
     private location: Location,
     private screenSizeService: ScreenSizeService,
     public linksService: LinksService,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
+    this.subscriptions.add(
+      this.screenSizeService
+        .getIsMobileSubject()
+        .subscribe((isMobile) => (this.isMobile = isMobile)),
+    );
 
     // sets up main color for the competitions page
     this.themeService.setMainPaneColor(Colors.darkGrey);
 
     // collect competitionId from params
-    this.subscriptions.add(this.route.params.subscribe(params => {
-      this.selectedCompetitionIdFromRoute = params['competitionId'];
-    }));
+    this.subscriptions.add(
+      this.route.params.subscribe((params) => {
+        this.selectedCompetitionIdFromRoute = params['competitionId'];
+      }),
+    );
 
     // collect filters from query params
-    this.subscriptions.add(this.route.queryParams.subscribe(params => {
-      if (params['states']) {
-        this.filters.states = params['states']
-          .split(",")
-          .filter(state => ["Alabama", "Florida", "Georgia", "North Carolina", "South Carolina", "Tennessee"].includes(state));
-      }
-      if (params['events']) {
-        this.filters.events = params['events']
-          .split(",")
-          .filter(event => Events.includes(event));
-      }
-    }));
+    this.subscriptions.add(
+      this.route.queryParams.subscribe((params) => {
+        if (params['states']) {
+          this.filters.states = params['states']
+            .split(',')
+            .filter((state) =>
+              [
+                'Alabama',
+                'Florida',
+                'Georgia',
+                'North Carolina',
+                'South Carolina',
+                'Tennessee',
+              ].includes(state),
+            );
+        }
+        if (params['events']) {
+          this.filters.events = params['events']
+            .split(',')
+            .filter((event) => Events.includes(event));
+        }
+      }),
+    );
 
     // retireve and formats data from the CMS Competitions Page
-    this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.competitions).subscribe(res => {
-      this.title = res.fields.title;
-      this.description = res.fields.description;
-      this.subText = res.fields.subText1;
-      this.filtersDescription = res.fields.subTopics[0]?.fields.description;
-      this.loadingContent = false;
-    }));
+    this.subscriptions.add(
+      this.contentful.getContentfulEntry(ContentfulEntryId.competitions).subscribe((res) => {
+        this.title = res.fields.title;
+        this.description = res.fields.description;
+        this.subText = res.fields.subText1;
+        this.filtersDescription = res.fields.subTopics[0]?.fields.description;
+        this.loadingContent = false;
+      }),
+    );
 
     // retrieve the competitions list from WCA
-    this.subscriptions.add(this.southeastcubingApiService.getUpcomingCompetitions().subscribe(res => {
-      this.competitions = res;
-      this.filteredCompetitions = res;
-      this.filterCompetitions();
-      if (this.selectedCompetitionIdFromRoute) {
-        let foundCompetition = this.competitions.find(comp => comp.id === this.selectedCompetitionIdFromRoute);
-        if (foundCompetition) {
-          this.selectCompetition(foundCompetition);
-        } else {
-          this.updateUrl();
+    this.subscriptions.add(
+      this.southeastcubingApiService.getUpcomingCompetitions().subscribe((res) => {
+        this.competitions = res;
+        this.filteredCompetitions = res;
+        this.filterCompetitions();
+        if (this.selectedCompetitionIdFromRoute) {
+          let foundCompetition = this.competitions.find(
+            (comp) => comp.id === this.selectedCompetitionIdFromRoute,
+          );
+          if (foundCompetition) {
+            this.selectCompetition(foundCompetition);
+          } else {
+            this.updateUrl();
+          }
         }
-      }
-      this.loadingCompetitions = false;
-    }));
+        this.loadingCompetitions = false;
+      }),
+    );
   }
 
   ngOnDestroy(): void {
@@ -132,10 +155,12 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
         this.themeService.setMainPaneColor(StateColors[this.selectedCompetition.state]);
 
         //scroll to top of main pane
-        document.getElementById("header")?.scrollIntoView();
+        document.getElementById('header')?.scrollIntoView();
       } else {
         setTimeout(() => {
-          document.getElementById(this.selectedCompetition.id)?.scrollIntoView({ behavior: 'smooth' });
+          document
+            .getElementById(this.selectedCompetition.id)
+            ?.scrollIntoView({ behavior: 'smooth' });
         }, 0);
       }
       this.updateUrl();
@@ -185,10 +210,17 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   filterCompetitions() {
     this.filteredCompetitions = this.competitions;
     if (this.filters.states.length > 0) {
-      this.filteredCompetitions = this.filteredCompetitions.filter(comp => this.filters.states.includes(comp.state));
+      this.filteredCompetitions = this.filteredCompetitions.filter((comp) =>
+        this.filters.states.includes(comp.state),
+      );
     }
     if (this.filters.events.length > 0) {
-      this.filteredCompetitions = this.filteredCompetitions.filter(comp => this.filters.events.reduce((include, event) => include && comp.event_ids.includes(event), true));
+      this.filteredCompetitions = this.filteredCompetitions.filter((comp) =>
+        this.filters.events.reduce(
+          (include, event) => include && comp.event_ids.includes(event),
+          true,
+        ),
+      );
     }
 
     this.createMapPoints();
@@ -198,38 +230,42 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   updateUrl() {
     let queryParams = [];
     if (this.filters.states.length > 0) {
-      queryParams.push("states=" + this.filters.states.join(","));
+      queryParams.push('states=' + this.filters.states.join(','));
     }
     if (this.filters.events.length > 0) {
-      queryParams.push("events=" + this.filters.events.join(","));
+      queryParams.push('events=' + this.filters.events.join(','));
     }
-    this.location.replaceState('/competitions' +
-      (this.selectedCompetition ? '/' + this.selectedCompetition.id : '') +
-      (queryParams.length > 0 ? '?' + queryParams.join("&") : ''));
+    this.location.replaceState(
+      '/competitions' +
+        (this.selectedCompetition ? '/' + this.selectedCompetition.id : '') +
+        (queryParams.length > 0 ? '?' + queryParams.join('&') : ''),
+    );
   }
 
   // Scrolls to the secondary pane on mobile
   scrollToCompetitions() {
     if (this.isMobile) {
       setTimeout(() => {
-        document.getElementById('competition-list-container')?.scrollIntoView({ behavior: 'smooth' });
+        document
+          .getElementById('competition-list-container')
+          ?.scrollIntoView({ behavior: 'smooth' });
       }, 0);
     }
   }
 
   // Creates array for the map points with lats and longs
   createMapPoints() {
-    this.competitionMapPoints = this.filteredCompetitions.map(competition => ({
+    this.competitionMapPoints = this.filteredCompetitions.map((competition) => ({
       id: competition.id,
       lat: competition.latitude_degrees,
       long: competition.longitude_degrees,
-      colorClass: this.getRegistrationColor(competition.registration_status)
+      colorClass: this.getRegistrationColor(competition.registration_status),
     }));
   }
 
   // gets map marker color based on registration status
   getRegistrationColor(status: RegistrationStatus): MarkerColorClass {
-    if(status === RegistrationStatus.closed) {
+    if (status === RegistrationStatus.closed) {
       return MarkerColorClass.red;
     } else if (status === RegistrationStatus.open || status === RegistrationStatus.openWithSpots) {
       return MarkerColorClass.green;
@@ -247,15 +283,21 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
     // scroll competition into view if not visible
     setTimeout(() => {
       const target = document.getElementById(competitionId);
-      if (target && (target.getBoundingClientRect().bottom > window.innerHeight || target.getBoundingClientRect().top < 0)) {
-          target.scrollIntoView({ behavior: 'smooth' });
+      if (
+        target &&
+        (target.getBoundingClientRect().bottom > window.innerHeight ||
+          target.getBoundingClientRect().top < 0)
+      ) {
+        target.scrollIntoView({ behavior: 'smooth' });
       }
     }, 0);
   }
 
   // handles click event on map to open competition
   mapClickEvent(competitionId: string) {
-    const competition = this.filteredCompetitions.find(competition => competition.id === competitionId);
+    const competition = this.filteredCompetitions.find(
+      (competition) => competition.id === competitionId,
+    );
     this.selectCompetition(competition);
 
     // resets hovered event
@@ -273,7 +315,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
 
     if (this.filtersOpen) {
       // scroll to top on mobile
-      document.getElementById("header")?.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('header')?.scrollIntoView({ behavior: 'smooth' });
 
       // clear page from a selected competition on filter changes
       if (this.selectedCompetition) {
@@ -281,5 +323,4 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
       }
     }
   }
-
 }

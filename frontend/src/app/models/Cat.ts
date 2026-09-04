@@ -1,4 +1,4 @@
-import { Colors } from "../shared/types";
+import { Colors } from '../shared/types';
 
 export class Cat {
   description: string;

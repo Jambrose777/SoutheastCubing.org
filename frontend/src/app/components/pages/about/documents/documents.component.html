@@ -1,7 +1,12 @@
 <div class="document-container">
   @for (doc of documents; track doc) {
-    <a class="document-item btn" style="--document-item-color:{{doc.color}}" [href]="doc.link" target="_blank" >
-      <b>{{doc.name}}</b>
+    <a
+      class="document-item btn"
+      style="--document-item-color:{{ doc.color }}"
+      [href]="doc.link"
+      target="_blank"
+    >
+      <b>{{ doc.name }}</b>
     </a>
   }
 </div>

@@ -14,14 +14,14 @@ import { Colors, EmailApiStatus, EmailType } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
 
 @Component({
-    selector: 'se-contact',
-    templateUrl: './contact.component.html',
-    styleUrls: ['./contact.component.scss'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'se-contact',
+  templateUrl: './contact.component.html',
+  styleUrls: ['./contact.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ContactComponent implements OnInit, OnDestroy {
-  isMobile: boolean;;
+  isMobile: boolean;
   EmailApiStatus = EmailApiStatus;
   EmailType = EmailType;
   enviroment = environment;
@@ -53,7 +53,7 @@ export class ContactComponent implements OnInit, OnDestroy {
     email: new FormControl(null, [Validators.required, Validators.email]),
     subject: new FormControl(null, Validators.required),
     message: new FormControl(null, Validators.required),
-    competitionName: new FormControl(null)
+    competitionName: new FormControl(null),
   });
 
   get emailTypeControl(): FormControl {
@@ -87,49 +87,63 @@ export class ContactComponent implements OnInit, OnDestroy {
     private southeastcubingApiService: SouteastcubingApiService,
     private route: ActivatedRoute,
     private screenSizeService: ScreenSizeService,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
+    this.subscriptions.add(
+      this.screenSizeService
+        .getIsMobileSubject()
+        .subscribe((isMobile) => (this.isMobile = isMobile)),
+    );
 
     // sets up main color for the Contact page
     this.themeService.setMainPaneColor(Colors.yellow);
 
     // retireve formats data from the CMS Contact Page
-    this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.contact).subscribe(res => {
-      this.description = res.fields.description;
-      this.loadingContent = false;
-    }));
+    this.subscriptions.add(
+      this.contentful.getContentfulEntry(ContentfulEntryId.contact).subscribe((res) => {
+        this.description = res.fields.description;
+        this.loadingContent = false;
+      }),
+    );
 
     // retrieve the competitions list from WCA
-    this.subscriptions.add(this.southeastcubingApiService.getUpcomingCompetitions().subscribe(res => {
-      this.competitions = res;
-      this.loadingCompetitions = false;
-    }));
+    this.subscriptions.add(
+      this.southeastcubingApiService.getUpcomingCompetitions().subscribe((res) => {
+        this.competitions = res;
+        this.loadingCompetitions = false;
+      }),
+    );
 
     // retrieves IP Address if available
-    this.subscriptions.add(this.auth.getIpAddress().subscribe(res => {
-      this.ipAddress = res;
-    }));
+    this.subscriptions.add(
+      this.auth.getIpAddress().subscribe((res) => {
+        this.ipAddress = res;
+      }),
+    );
 
     // set up custom validators
-    this.subscriptions.add(this.emailTypeControl.valueChanges.subscribe(value => {
-      if (value === EmailType.pastCompetition) {
-        this.competitionNameControl.setValidators([Validators.required])
-      } else {
-        this.competitionNameControl.setValidators(null);
-      }
+    this.subscriptions.add(
+      this.emailTypeControl.valueChanges.subscribe((value) => {
+        if (value === EmailType.pastCompetition) {
+          this.competitionNameControl.setValidators([Validators.required]);
+        } else {
+          this.competitionNameControl.setValidators(null);
+        }
 
-      this.competitionNameControl.updateValueAndValidity();
-    }));
+        this.competitionNameControl.updateValueAndValidity();
+      }),
+    );
 
     // pull default values from query params
-    this.subscriptions.add(this.route.queryParams.subscribe(params => {
-      if (params['defaultEmailType']) {
-        this.emailTypeControl.setValue(params['defaultEmailType'])
-      }
-    }));
+    this.subscriptions.add(
+      this.route.queryParams.subscribe((params) => {
+        if (params['defaultEmailType']) {
+          this.emailTypeControl.setValue(params['defaultEmailType']);
+        }
+      }),
+    );
   }
 
   ngOnDestroy(): void {
@@ -154,28 +168,31 @@ export class ContactComponent implements OnInit, OnDestroy {
       email: this.emailControl.value,
       emailType: this.emailTypeControl.value,
       text: this.messageControl.value,
-      subject: this.emailTypeControl.value === EmailType.pastCompetition ? (this.competitionNameControl.value + ' - ' + this.subjectControl.value) : this.subjectControl.value,
+      subject:
+        this.emailTypeControl.value === EmailType.pastCompetition
+          ? this.competitionNameControl.value + ' - ' + this.subjectControl.value
+          : this.subjectControl.value,
       ip: this.ipAddress,
-    }
+    };
 
     // submit API Call
-    this.subscriptions.add(this.southeastcubingApiService.contactSubmission(emailRequestBody).subscribe({
-      next: () => {
-        this.emailApiStatus = EmailApiStatus.success;
-        this.contactForm.enable();
-        this.contactForm.reset();
-      },
-      error: () => {
-        if (this.hasHadError) {
-          this.emailApiStatus = EmailApiStatus.doubleFailure;
-        } else {
-          this.emailApiStatus = EmailApiStatus.failure;
-          this.hasHadError = true;
-        }
-        this.contactForm.enable();
-      }
-    }))
-
+    this.subscriptions.add(
+      this.southeastcubingApiService.contactSubmission(emailRequestBody).subscribe({
+        next: () => {
+          this.emailApiStatus = EmailApiStatus.success;
+          this.contactForm.enable();
+          this.contactForm.reset();
+        },
+        error: () => {
+          if (this.hasHadError) {
+            this.emailApiStatus = EmailApiStatus.doubleFailure;
+          } else {
+            this.emailApiStatus = EmailApiStatus.failure;
+            this.hasHadError = true;
+          }
+          this.contactForm.enable();
+        },
+      }),
+    );
   }
-
 }

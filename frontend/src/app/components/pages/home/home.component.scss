@@ -1,5 +1,5 @@
-@import "src/styles/color-pallet.scss";
-@import "src/styles/screen-sizes.scss";
+@import 'src/styles/color-pallet.scss';
+@import 'src/styles/screen-sizes.scss';
 
 :root {
   --duration: 5s;
@@ -7,9 +7,7 @@
 }
 
 .component-container {
-
   .main-pane {
-
     .announcement-banner {
       font-size: 20px;
       background-color: var(--banner-color);
@@ -55,7 +53,6 @@
         }
       }
     }
-
   }
 
   .secondary-pane {
@@ -71,7 +68,6 @@
     width: 95%;
     margin: auto;
   }
-
 }
 
 @media only screen and (max-width: $small-breakpoint) {
@@ -100,6 +96,10 @@
 }
 
 @keyframes infiniteScroll {
-  from {transform: translateX(0)}
-  to {transform: translateX(-50%)}
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }

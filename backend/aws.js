@@ -1,15 +1,15 @@
 const AWS = require('aws-sdk');
 
 // Logger
-const log4js = require("log4js");
+const log4js = require('log4js');
 const logger = log4js.getLogger();
-logger.level = "debug";
+logger.level = 'debug';
 
 // Set the region and access keys
 AWS.config.update({
   region: 'us-east-2',
   accessKeyId: process.env.AWS_ACCESS_KEY,
-  secretAccessKey: process.env.AWS_ACCESS_SECRET
+  secretAccessKey: process.env.AWS_ACCESS_SECRET,
 });
 
 // Create a new instance of the S3 class
@@ -30,9 +30,9 @@ function saveCompetitionData(comps) {
 
   // Set the parameters for the file
   const params = {
-      Bucket: 'southeast-cubing.org',
-      Key: 'competitions.json',
-      Body: JSON.stringify(comps)
+    Bucket: 'southeast-cubing.org',
+    Key: 'competitions.json',
+    Body: JSON.stringify(comps),
   };
 
   // Upload the file to S3
@@ -42,7 +42,7 @@ function saveCompetitionData(comps) {
     } else {
       logger.info('Competition file uploaded successfully to S3.');
     }
-  });  
+  });
 }
 
 function getCompetitionData(callback) {
@@ -58,7 +58,7 @@ function getCompetitionData(callback) {
       logger.error('Error retrieving file from S3: ', err);
     } else {
       logger.info('Successfully retrieved file from S3.');
-      return callback(JSON.parse(data.Body))
+      return callback(JSON.parse(data.Body));
     }
   });
 }

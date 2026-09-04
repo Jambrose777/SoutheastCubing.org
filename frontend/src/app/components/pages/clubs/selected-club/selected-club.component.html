@@ -2,21 +2,21 @@
   <!-- Club Name -->
   @if (!isMobile) {
     <h2 class="title-text">
-      {{selectedClub.name}}
+      {{ selectedClub.name }}
     </h2>
   }
 
   <!-- Club Location -->
   @if (!isMobile) {
     <div class="medium-text-content">
-      {{selectedClub.city}}
+      {{ selectedClub.city }}
     </div>
   }
 
   <!-- Club Photo -->
   @if (selectedClub.image) {
     <div class="photo-container">
-      <img class="image" src="{{selectedClub.image}}">
+      <img class="image" src="{{ selectedClub.image }}" />
     </div>
   }
 
@@ -34,11 +34,11 @@
         <b>Where?</b>
         <div class="detail-sub-container">
           @if (selectedClub.venue) {
-            <div>{{selectedClub.venue}}</div>
+            <div>{{ selectedClub.venue }}</div>
           }
           @if (selectedClub.address) {
             <a [href]="enviroment.links.googleMaps + selectedClub.address" target="_blank">
-              {{selectedClub.address}}
+              {{ selectedClub.address }}
             </a>
           }
         </div>
@@ -61,13 +61,13 @@
         <b>Contact</b>
         <div class="detail-sub-container">
           @if (selectedClub.contactName) {
-            <div>{{selectedClub.contactName}}</div>
+            <div>{{ selectedClub.contactName }}</div>
           }
           @if (selectedClub.contactInfo) {
-            <div>{{selectedClub.contactInfo}}</div>
+            <div>{{ selectedClub.contactInfo }}</div>
           }
           @if (selectedClub.contactEmail) {
-            <a class="btn" href="mailto:{{selectedClub.contactEmail}}" target="_blank">
+            <a class="btn" href="mailto:{{ selectedClub.contactEmail }}" target="_blank">
               Email
               <i class="fa-regular fa-envelope fa-sm"></i>
             </a>

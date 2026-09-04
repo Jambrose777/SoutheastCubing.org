@@ -24,18 +24,18 @@
       <!-- section for external links text Bubble -->
       <div class="sub-text-container">
         <div class="sub-text-box">
-          {{subText}}
+          {{ subText }}
           <div class="badges">
             <!-- Facebook -->
-            <a href="{{linksService.facebook}}" target="_blank">
+            <a href="{{ linksService.facebook }}" target="_blank">
               <i class="fa-brands fa-square-facebook fa-2xl clickable"></i>
             </a>
             <!-- Discord -->
-            <a href="{{linksService.discord}}" target="_blank">
+            <a href="{{ linksService.discord }}" target="_blank">
               <i class="fa-brands fa-discord fa-2xl clickable"></i>
             </a>
             <!-- Instagram -->
-            <a href="{{linksService.instagram}}" target="_blank">
+            <a href="{{ linksService.instagram }}" target="_blank">
               <i class="fa-brands fa-instagram fa-2xl clickable"></i>
             </a>
           </div>
@@ -48,9 +48,15 @@
       <div class="large-text-content">
         <markdown [data]="filtersDescription"></markdown>
       </div>
-      <se-event-list [selectedEvents]="filters.events" (selectEventEmitter)="handleEventSelection($event)">
+      <se-event-list
+        [selectedEvents]="filters.events"
+        (selectEventEmitter)="handleEventSelection($event)"
+      >
       </se-event-list>
-      <se-filter-map [selectedStates]="filters.states" (selectStateEmitter)="handleStateSelection($event)"></se-filter-map>
+      <se-filter-map
+        [selectedStates]="filters.states"
+        (selectStateEmitter)="handleStateSelection($event)"
+      ></se-filter-map>
     }
 
     <!-- Information for selected competition details -->
@@ -77,21 +83,32 @@
         <!-- List for all loaded competitions -->
         @for (competition of filteredCompetitions; track competition) {
           <!-- Competition Bubble -->
-          <div class="item-container clickable" style="--state-color:{{StateColors[competition.state]}}"
-            [ngClass]="{active: selectedCompetition?.id === competition.id || hoveredMapCompetition === competition.id}"
-            (mouseover)="competitionHover(competition)" (mouseout)="competitionHover()">
-            <div class="item-row" (click)="selectCompetition(competition)" id="{{competition.id}}">
+          <div
+            class="item-container clickable"
+            style="--state-color:{{ StateColors[competition.state] }}"
+            [ngClass]="{
+              active:
+                selectedCompetition?.id === competition.id ||
+                hoveredMapCompetition === competition.id,
+            }"
+            (mouseover)="competitionHover(competition)"
+            (mouseout)="competitionHover()"
+          >
+            <div
+              class="item-row"
+              (click)="selectCompetition(competition)"
+              id="{{ competition.id }}"
+            >
               <div class="item-title">
-                {{competition.name}}
+                {{ competition.name }}
               </div>
               <div class="item-sub-text">
-                {{competition.full_date}}
+                {{ competition.full_date }}
               </div>
             </div>
             <!-- Information for selected competition details -->
             @if (isMobile && selectedCompetition?.id === competition.id) {
-              <se-selected-competition
-                [selectedCompetition]="selectedCompetition">
+              <se-selected-competition [selectedCompetition]="selectedCompetition">
               </se-selected-competition>
             }
           </div>

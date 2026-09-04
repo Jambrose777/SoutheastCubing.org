@@ -8,7 +8,7 @@ export enum Colors {
   purple = '#BCABE3',
   orange = '#FFA460',
   red = '#E69291',
-  white = 'white'
+  white = 'white',
 }
 
 export enum RegistrationStatus {
@@ -20,29 +20,29 @@ export enum RegistrationStatus {
 }
 
 export const StateColors = {
-  'Alabama': Colors.orange,
-  'AL': Colors.orange,
-  'Georgia': Colors.blue,
-  'GA': Colors.blue,
-  'Florida': Colors.red,
-  'FL': Colors.red,
+  Alabama: Colors.orange,
+  AL: Colors.orange,
+  Georgia: Colors.blue,
+  GA: Colors.blue,
+  Florida: Colors.red,
+  FL: Colors.red,
   'North Carolina': Colors.green,
-  'NC': Colors.green,
+  NC: Colors.green,
   'South Carolina': Colors.purple,
-  'SC': Colors.purple,
-  'Tennessee': Colors.yellow,
-  'TN': Colors.yellow,
-  'Southeast': Colors.purple,
+  SC: Colors.purple,
+  Tennessee: Colors.yellow,
+  TN: Colors.yellow,
+  Southeast: Colors.purple,
   '??': Colors.grey,
-}
+};
 
 export enum States {
-  'AL' = 'Alabama',
-  'FL' = 'Florida',
-  'GA' = 'Georgia',
-  'NC' = 'North Carolina',
-  'SC' = 'South Carolina',
-  'TN' = 'Tennessee',
+  AL = 'Alabama',
+  FL = 'Florida',
+  GA = 'Georgia',
+  NC = 'North Carolina',
+  SC = 'South Carolina',
+  TN = 'Tennessee',
 }
 
 export enum EmailType {
@@ -61,7 +61,7 @@ export enum EmailApiStatus {
   pending = 'pending',
   success = 'success',
   failure = 'failure',
-  doubleFailure = 'doubleFailure'
+  doubleFailure = 'doubleFailure',
 }
 
 export const Events = [

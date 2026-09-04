@@ -4,18 +4,18 @@ var cors = require('cors');
 const schedule = require('node-schedule');
 
 // Logger
-const log4js = require("log4js");
+const log4js = require('log4js');
 const logger = log4js.getLogger();
-logger.level = "debug";
+logger.level = 'debug';
 
-const email = require('./email.js')
+const email = require('./email.js');
 const competitions = require('./competitions.js');
 
 const app = express();
 const port = 8080;
 
-app.use(express.json())
-app.use(morgan("[:date[iso]] [INFO] ip-:remote-addr :method :url :status :response-time ms"));
+app.use(express.json());
+app.use(morgan('[:date[iso]] [INFO] ip-:remote-addr :method :url :status :response-time ms'));
 app.use(cors());
 
 // load in competitions on bootup
@@ -71,5 +71,5 @@ app.get('/', async (req, res) => {
 });
 
 app.listen(port, function () {
-  logger.info(`Server Started. Listening on port ${port}`)
+  logger.info(`Server Started. Listening on port ${port}`);
 });

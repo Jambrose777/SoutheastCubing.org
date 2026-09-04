@@ -1,13 +1,21 @@
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import * as L from 'leaflet';
 import { MapPoint } from 'src/app/models/Map';
 
 @Component({
-    selector: 'se-map',
-    templateUrl: './se-map.component.html',
-    styleUrls: ['./se-map.component.scss'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'se-map',
+  templateUrl: './se-map.component.html',
+  styleUrls: ['./se-map.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class SeMapComponent implements OnInit {
   @Input() points: MapPoint[];
@@ -17,22 +25,22 @@ export class SeMapComponent implements OnInit {
   @Output() clickPoint = new EventEmitter<string>();
 
   map;
-  markers: { point: MapPoint, marker: any }[] = [];
+  markers: { point: MapPoint; marker: any }[] = [];
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit(): void {
     // setup base map
     this.map = L.map('se-map').setView([31.5, -84], 5);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(this.map);
 
     // add point markers to map
-    this.points.forEach(point => {
+    this.points.forEach((point) => {
       this.createMarker(point);
-    })
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -67,13 +75,12 @@ export class SeMapComponent implements OnInit {
 
   // selects point to make visually different on map
   selectPoint() {
-    this.markers.forEach(marker => {
+    this.markers.forEach((marker) => {
       if (marker.point.id === this.selectedPoint) {
         marker.marker._icon.classList.add('active-marker');
       } else {
         marker.marker._icon.classList.remove('active-marker');
       }
-    })
+    });
   }
-
 }

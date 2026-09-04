@@ -2,30 +2,33 @@
   <div class="selected-item-container">
     <!-- Championship Name -->
     @if (!isMobile) {
-      <a [href]="enviroment.links.wcaCompetition + selectedChampionship.id" target="_blank" class="name-container"
-        >
+      <a
+        [href]="enviroment.links.wcaCompetition + selectedChampionship.id"
+        target="_blank"
+        class="name-container"
+      >
         <!-- Competition Logo -->
-        <img src="{{selectedChampionship.logo}}" class="competitiion-logo">
+        <img src="{{ selectedChampionship.logo }}" class="competitiion-logo" />
         <h2 class="title-text">
-          {{selectedChampionship.name}}
+          {{ selectedChampionship.name }}
         </h2>
         <!-- WCA Logo -->
-        <img src="assets/wca_logo.svg" class="wca-logo">
+        <img src="assets/wca_logo.svg" class="wca-logo" />
       </a>
     }
     <!-- Championship Location -->
     <div class="small-text-content">
       @if (!isMobile) {
-        <span>{{selectedChampionship.city}} -</span>
+        <span>{{ selectedChampionship.city }} -</span>
       }
       @if (isMobile) {
         <a [href]="enviroment.links.wcaCompetition + selectedChampionship.id" target="_blank">
-          <img src="assets/wca_logo.svg" class="wca-logo-small">
+          <img src="assets/wca_logo.svg" class="wca-logo-small" />
         </a>
       }
-      {{selectedChampionship.date}}
+      {{ selectedChampionship.date }}
       @if (selectedChampionship.competitors) {
-        <span>- {{selectedChampionship.competitors}} Competitors</span>
+        <span>- {{ selectedChampionship.competitors }} Competitors</span>
       }
     </div>
     <!-- Championship Photos in a carousel -->
@@ -36,38 +39,58 @@
       [arrows]="false">
     </carousel>
   </div> -->
-  <!-- Short Championship description -->
-  @if (selectedChampionship.description) {
-    <div class="small-text-content">
-      <markdown [data]="selectedChampionship.description"></markdown>
-    </div>
-  }
-  <!-- Champions Table -->
-  @if (selectedChampionship.champions) {
-    <div class="champions-table">
-      <div class="row header">
-        <div class="col-2 border"><span class="table-text"><b>Event</b></span></div>
-        <div class="col-3 border"><span class="table-text"><b>Southeast Champion</b></span></div>
-        <div class="col-3"><span class="table-text"><b>Overall Champion</b></span></div>
+    <!-- Short Championship description -->
+    @if (selectedChampionship.description) {
+      <div class="small-text-content">
+        <markdown [data]="selectedChampionship.description"></markdown>
       </div>
-      @for (champion of selectedChampionship.champions; track champion) {
-        <div class="row">
-          <div class="col-2 border"><span class="table-text"><b>{{champion.event}}</b></span></div>
-          <!-- If overall champion is provided, list each se champion and overall -->
-          @if (champion.overallChampName) {
-            <div class="col-3 border"><span class="table-text">{{champion.seChampName}} -
-            {{champion.seChampResult}}</span></div>
-            <div class="col-3"><span class="table-text">{{champion.overallChampName}} -
-            {{champion.overallChampResult}}</span></div>
-          }
-          <!-- If overall champion is not provided, list se champion for both -->
-          @if (!champion.overallChampName) {
-            <div class="col-6"><span class="table-text">{{champion.seChampName}} - {{champion.seChampResult}}</span></div>
-          }
+    }
+    <!-- Champions Table -->
+    @if (selectedChampionship.champions) {
+      <div class="champions-table">
+        <div class="row header">
+          <div class="col-2 border">
+            <span class="table-text"><b>Event</b></span>
+          </div>
+          <div class="col-3 border">
+            <span class="table-text"><b>Southeast Champion</b></span>
+          </div>
+          <div class="col-3">
+            <span class="table-text"><b>Overall Champion</b></span>
+          </div>
         </div>
-      }
-    </div>
-  }
-  <div>&nbsp;</div>
-</div>
+        @for (champion of selectedChampionship.champions; track champion) {
+          <div class="row">
+            <div class="col-2 border">
+              <span class="table-text"
+                ><b>{{ champion.event }}</b></span
+              >
+            </div>
+            <!-- If overall champion is provided, list each se champion and overall -->
+            @if (champion.overallChampName) {
+              <div class="col-3 border">
+                <span class="table-text"
+                  >{{ champion.seChampName }} - {{ champion.seChampResult }}</span
+                >
+              </div>
+              <div class="col-3">
+                <span class="table-text"
+                  >{{ champion.overallChampName }} - {{ champion.overallChampResult }}</span
+                >
+              </div>
+            }
+            <!-- If overall champion is not provided, list se champion for both -->
+            @if (!champion.overallChampName) {
+              <div class="col-6">
+                <span class="table-text"
+                  >{{ champion.seChampName }} - {{ champion.seChampResult }}</span
+                >
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+    <div>&nbsp;</div>
+  </div>
 }

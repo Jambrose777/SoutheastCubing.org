@@ -1,6 +1,6 @@
-@import "src/styles/color-pallet.scss";
-@import "src/styles/screen-sizes.scss";
-@import "src/styles/constants.scss";
+@import 'src/styles/color-pallet.scss';
+@import 'src/styles/screen-sizes.scss';
+@import 'src/styles/constants.scss';
 
 // Z-indexes are needed here. The Image Carosel has Z-Index 10000 built into it, and the nav system needs to go over it.
 

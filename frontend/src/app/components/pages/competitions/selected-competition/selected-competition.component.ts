@@ -1,4 +1,11 @@
-import { Component, Input, OnDestroy, OnInit, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Competition } from 'src/app/models/Competition';
 import { LinksService } from 'src/app/services/links.service';
@@ -7,11 +14,11 @@ import { RegistrationStatus } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
 
 @Component({
-    selector: 'se-selected-competition',
-    templateUrl: './selected-competition.component.html',
-    styleUrls: ['./selected-competition.component.scss'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'se-selected-competition',
+  templateUrl: './selected-competition.component.html',
+  styleUrls: ['./selected-competition.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class SelectedCompetitionComponent implements OnInit, OnDestroy {
   isMobile: boolean;
@@ -24,11 +31,15 @@ export class SelectedCompetitionComponent implements OnInit, OnDestroy {
   constructor(
     private screenSizeService: ScreenSizeService,
     public linksService: LinksService,
-    ) { }
+  ) {}
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
+    this.subscriptions.add(
+      this.screenSizeService
+        .getIsMobileSubject()
+        .subscribe((isMobile) => (this.isMobile = isMobile)),
+    );
 
     // update Competition Details on init
     this.updateCompetitionDetails();
@@ -48,7 +59,7 @@ export class SelectedCompetitionComponent implements OnInit, OnDestroy {
   // updates dynamic details relating to the competition.
   updateCompetitionDetails(): void {
     // set up google map url with the competition's venue
-    this.googleMapUrl = this.enviroment.links.googleMapsApi + this.selectedCompetition.venue_address;
+    this.googleMapUrl =
+      this.enviroment.links.googleMapsApi + this.selectedCompetition.venue_address;
   }
-
 }

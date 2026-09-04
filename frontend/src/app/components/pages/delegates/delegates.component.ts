@@ -13,11 +13,11 @@ import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
 
 @Component({
-    selector: 'se-delegates',
-    templateUrl: './delegates.component.html',
-    styleUrls: ['./delegates.component.scss'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'se-delegates',
+  templateUrl: './delegates.component.html',
+  styleUrls: ['./delegates.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class DelegatesComponent implements OnInit, OnDestroy {
   isMobile: boolean;
@@ -43,51 +43,64 @@ export class DelegatesComponent implements OnInit, OnDestroy {
     private location: Location,
     private screenSizeService: ScreenSizeService,
     public linksService: LinksService,
-  ) {
-
-  }
+  ) {}
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
+    this.subscriptions.add(
+      this.screenSizeService
+        .getIsMobileSubject()
+        .subscribe((isMobile) => (this.isMobile = isMobile)),
+    );
 
     // sets up main color for the delegates page
     this.themeService.setMainPaneColor(Colors.green);
 
     // collect competitionId from params
-    this.subscriptions.add(this.route.params.subscribe(params => {
-      this.selectedDelegateNameFromRoute = params['delegateName'];
-    }));
+    this.subscriptions.add(
+      this.route.params.subscribe((params) => {
+        this.selectedDelegateNameFromRoute = params['delegateName'];
+      }),
+    );
 
     // retireve, sorts, and formats data from the CMS Delegates Entries
-    this.subscriptions.add(this.contentful.getContentfulGroup(ContentfulContentType.delegates).subscribe(res => {
-      this.delegates = res.items
-        .sort((a, b) => a['fields']['order'] - b.fields['order'])
-        .map(delegate => ({
-          ...delegate.fields,
-          photo: delegate.fields['photo']?.fields.file.url,
-          thumbnail: delegate.fields['thumbnail']?.fields.file.url,
-        } as Delegate));
-      if (this.selectedDelegateNameFromRoute) {
-        let foundDelegate = this.delegates.find(delegate => delegate.name.replace(/ +/g, "-") === this.selectedDelegateNameFromRoute);
-        if (foundDelegate) {
-          this.selectDelegate(foundDelegate);
-        } else {
-          this.location.replaceState('/delegates');
+    this.subscriptions.add(
+      this.contentful.getContentfulGroup(ContentfulContentType.delegates).subscribe((res) => {
+        this.delegates = res.items
+          .sort((a, b) => a['fields']['order'] - b.fields['order'])
+          .map(
+            (delegate) =>
+              ({
+                ...delegate.fields,
+                photo: delegate.fields['photo']?.fields.file.url,
+                thumbnail: delegate.fields['thumbnail']?.fields.file.url,
+              }) as Delegate,
+          );
+        if (this.selectedDelegateNameFromRoute) {
+          let foundDelegate = this.delegates.find(
+            (delegate) => delegate.name.replace(/ +/g, '-') === this.selectedDelegateNameFromRoute,
+          );
+          if (foundDelegate) {
+            this.selectDelegate(foundDelegate);
+          } else {
+            this.location.replaceState('/delegates');
+          }
         }
-      }
-      this.loadingDelegates = false;
-    }));
+        this.loadingDelegates = false;
+      }),
+    );
 
     // retireve and formats data from the CMS Delegate Page
-    this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.delegates).subscribe(res => {
-      this.title = res.fields.title;
-      this.description = res.fields.description;
-      this.subText = res.fields.subText1;
-      this.subTextButtonText = res.fields.subText1ButtonText;
-      this.subTextButtonLink = res.fields.subText1ButtonLink;
-      this.loadingContent = false;
-    }));
+    this.subscriptions.add(
+      this.contentful.getContentfulEntry(ContentfulEntryId.delegates).subscribe((res) => {
+        this.title = res.fields.title;
+        this.description = res.fields.description;
+        this.subText = res.fields.subText1;
+        this.subTextButtonText = res.fields.subText1ButtonText;
+        this.subTextButtonLink = res.fields.subText1ButtonLink;
+        this.loadingContent = false;
+      }),
+    );
   }
 
   ngOnDestroy(): void {
@@ -111,13 +124,15 @@ export class DelegatesComponent implements OnInit, OnDestroy {
         this.themeService.setMainPaneColor(StateColors[this.selectedDelegate.state]);
 
         //scroll to top of main pane
-        document.getElementById("header")?.scrollIntoView();
+        document.getElementById('header')?.scrollIntoView();
       } else {
         setTimeout(() => {
-          document.getElementById(this.selectedDelegate.name)?.scrollIntoView({ behavior: 'smooth' });
+          document
+            .getElementById(this.selectedDelegate.name)
+            ?.scrollIntoView({ behavior: 'smooth' });
         }, 0);
       }
-      this.location.replaceState('/delegates/' + this.selectedDelegate.name.replace(/ +/g, "-"));
+      this.location.replaceState('/delegates/' + this.selectedDelegate.name.replace(/ +/g, '-'));
     }
   }
 }

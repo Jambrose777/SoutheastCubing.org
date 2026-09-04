@@ -9,5 +9,5 @@ export enum MarkerColorClass {
   blue = 'blue-marker',
   red = 'red-marker',
   orange = 'orange-marker',
-  green = 'green-marker'
+  green = 'green-marker',
 }

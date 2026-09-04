@@ -5,11 +5,11 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
-    selector: 'se-selected-delegate',
-    templateUrl: './selected-delegate.component.html',
-    styleUrls: ['./selected-delegate.component.scss'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'se-selected-delegate',
+  templateUrl: './selected-delegate.component.html',
+  styleUrls: ['./selected-delegate.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class SelectedDelegateComponent implements OnInit, OnDestroy {
   isMobile: boolean;
@@ -17,17 +17,18 @@ export class SelectedDelegateComponent implements OnInit, OnDestroy {
   @Input() selectedDelegate: Delegate;
   subscriptions: Subscription = new Subscription();
 
-  constructor(
-    private screenSizeService: ScreenSizeService,
-    ) { }
+  constructor(private screenSizeService: ScreenSizeService) {}
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
+    this.subscriptions.add(
+      this.screenSizeService
+        .getIsMobileSubject()
+        .subscribe((isMobile) => (this.isMobile = isMobile)),
+    );
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
-
 }

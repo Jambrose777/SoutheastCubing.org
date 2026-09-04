@@ -1,4 +1,4 @@
-@import "src/styles/screen-sizes.scss";
+@import 'src/styles/screen-sizes.scss';
 
 .badges {
   height: 50px;
@@ -13,7 +13,7 @@
   margin: 10px 0 20px 20px;
 }
 
-.icon-row { 
+.icon-row {
   display: flex;
   flex-direction: row;
   margin: 16px 20px 0 20px;

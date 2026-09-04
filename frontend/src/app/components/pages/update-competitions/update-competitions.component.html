@@ -3,7 +3,7 @@
     <header id="header" [title]="title"></header>
 
     <div>
-      <div class="large-text-content">{{description}}</div>
+      <div class="large-text-content">{{ description }}</div>
 
       <!-- Refresh Competitions Button -->
       @if (updateCompetitionsStatus === 'default') {
@@ -23,15 +23,18 @@
 
       <!-- Success Message -->
       @if (updateCompetitionsStatus === 'success') {
-        <div class="small-text-content success-color"><b>Successfully updated the competitions cache!</b></div>
+        <div class="small-text-content success-color">
+          <b>Successfully updated the competitions cache!</b>
+        </div>
       }
 
       <!-- Error Message -->
       @if (updateCompetitionsStatus === 'failure') {
-        <div class="small-text-content error-color"><b>{{errorMessage}}</b></div>
+        <div class="small-text-content error-color">
+          <b>{{ errorMessage }}</b>
+        </div>
       }
     </div>
   </div>
-  <div class="secondary-pane">
-  </div>
+  <div class="secondary-pane"></div>
 </div>

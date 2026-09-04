@@ -1,4 +1,4 @@
-import { EmailType } from "../shared/types";
+import { EmailType } from '../shared/types';
 
 export class EmailRequestBody {
   name: string;

@@ -2,14 +2,14 @@
   <!-- Topic Title -->
   @if (!isMobile) {
     <h2 class="title-text">
-      {{selectedSubTopic.title}}
+      {{ selectedSubTopic.title }}
     </h2>
   }
 
   <!-- Topic Photo -->
   @if (selectedSubTopic.photo) {
     <div class="photo-container">
-      <img class="image medium-image" src="{{selectedSubTopic.photo}}">
+      <img class="image medium-image" src="{{ selectedSubTopic.photo }}" />
     </div>
   }
 
@@ -25,21 +25,19 @@
     <div>
       <!-- External -->
       @if (selectedSubTopic.buttonExternalLink) {
-        <a class="btn" [href]="selectedSubTopic.buttonExternalLink" target="_blank"
-          >
-          {{selectedSubTopic.buttonText}}
+        <a class="btn" [href]="selectedSubTopic.buttonExternalLink" target="_blank">
+          {{ selectedSubTopic.buttonText }}
           @if (selectedSubTopic.buttonIcon) {
-            <i class="fa-solid {{selectedSubTopic.buttonIcon}} fa-lg"></i>
+            <i class="fa-solid {{ selectedSubTopic.buttonIcon }} fa-lg"></i>
           }
         </a>
       }
       <!-- Internal -->
       @if (selectedSubTopic.buttonInternalLink) {
-        <a class="btn" [routerLink]="'/' + selectedSubTopic.buttonInternalLink"
-          >
-          {{selectedSubTopic.buttonText}}
+        <a class="btn" [routerLink]="'/' + selectedSubTopic.buttonInternalLink">
+          {{ selectedSubTopic.buttonText }}
           @if (selectedSubTopic.buttonIcon) {
-            <i class="fa-solid {{selectedSubTopic.buttonIcon}} fa-lg"></i>
+            <i class="fa-solid {{ selectedSubTopic.buttonIcon }} fa-lg"></i>
           }
         </a>
       }

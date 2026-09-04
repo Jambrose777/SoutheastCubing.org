@@ -14,11 +14,11 @@ import { LinksService } from 'src/app/services/links.service';
 import { MapPoint } from 'src/app/models/Map';
 
 @Component({
-    selector: 'se-clubs',
-    templateUrl: './clubs.component.html',
-    styleUrls: ['./clubs.component.scss'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'se-clubs',
+  templateUrl: './clubs.component.html',
+  styleUrls: ['./clubs.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class ClubsComponent implements OnInit, OnDestroy {
   isMobile: boolean;
@@ -56,59 +56,86 @@ export class ClubsComponent implements OnInit, OnDestroy {
     private location: Location,
     private screenSizeService: ScreenSizeService,
     public linksService: LinksService,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
+    this.subscriptions.add(
+      this.screenSizeService
+        .getIsMobileSubject()
+        .subscribe((isMobile) => (this.isMobile = isMobile)),
+    );
 
     // sets up main color for the clubs page
     this.themeService.setMainPaneColor(Colors.purple);
 
     // collect competitionId from params
-    this.subscriptions.add(this.route.params.subscribe(params => {
-      this.selectedClubIdFromRoute = params['clubId'];
-    }));
+    this.subscriptions.add(
+      this.route.params.subscribe((params) => {
+        this.selectedClubIdFromRoute = params['clubId'];
+      }),
+    );
 
     // collect filters from query params
-    this.subscriptions.add(this.route.queryParams.subscribe(params => {
-      if (params['states']) {
-        this.filters.states = params['states']
-          .split(",")
-          .filter(state => ["Alabama", "Florida", "Georgia", "North Carolina", "South Carolina", "Tennessee"].includes(state));
-      }
-    }));
+    this.subscriptions.add(
+      this.route.queryParams.subscribe((params) => {
+        if (params['states']) {
+          this.filters.states = params['states']
+            .split(',')
+            .filter((state) =>
+              [
+                'Alabama',
+                'Florida',
+                'Georgia',
+                'North Carolina',
+                'South Carolina',
+                'Tennessee',
+              ].includes(state),
+            );
+        }
+      }),
+    );
 
     // retireve formats data from the CMS Clubs Page
-    this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.clubs).subscribe(res => {
-      this.title = res.fields.title;
-      this.description = res.fields.description;
-      this.subText1 = res.fields.subText1;
-      this.subText1ButtonText = res.fields.subText1ButtonText;
-      this.subText1ButtonLink = res.fields.subText1ButtonLink;
-      this.subText2 = res.fields.subText2;
-      this.subText2ButtonText = res.fields.subText2ButtonText;
-      this.subText2ButtonLink = res.fields.subText2ButtonLink;
-      this.filtersDescription = res.fields.subTopics[0]?.fields.description;
-      this.loadingContent = false;
-    }));
+    this.subscriptions.add(
+      this.contentful.getContentfulEntry(ContentfulEntryId.clubs).subscribe((res) => {
+        this.title = res.fields.title;
+        this.description = res.fields.description;
+        this.subText1 = res.fields.subText1;
+        this.subText1ButtonText = res.fields.subText1ButtonText;
+        this.subText1ButtonLink = res.fields.subText1ButtonLink;
+        this.subText2 = res.fields.subText2;
+        this.subText2ButtonText = res.fields.subText2ButtonText;
+        this.subText2ButtonLink = res.fields.subText2ButtonLink;
+        this.filtersDescription = res.fields.subTopics[0]?.fields.description;
+        this.loadingContent = false;
+      }),
+    );
 
     // retrieve, sorts, and formats the clubs list from the CMS Clubs
-    this.subscriptions.add(this.contentful.getContentfulGroup(ContentfulContentType.clubs).subscribe(res => {
-      this.clubs = res.items
-        .map(club => ({ ...club.fields, image: club.fields.image?.fields.file.url, state: club.fields?.city.substring(club.fields?.city.length - 2) }))
-        .sort((a: Club, b: Club) => a.city == b.city ? (a.name > b.name ? 1 : -1) : (a.city > b.city ? 1 : -1));
-      this.filterClubs();
-      if (this.selectedClubIdFromRoute) {
-        let foundClub = this.clubs.find(comp => comp.id === this.selectedClubIdFromRoute);
-        if (foundClub) {
-          this.selectClub(foundClub);
-        } else {
-          this.updateUrl();
+    this.subscriptions.add(
+      this.contentful.getContentfulGroup(ContentfulContentType.clubs).subscribe((res) => {
+        this.clubs = res.items
+          .map((club) => ({
+            ...club.fields,
+            image: club.fields.image?.fields.file.url,
+            state: club.fields?.city.substring(club.fields?.city.length - 2),
+          }))
+          .sort((a: Club, b: Club) =>
+            a.city == b.city ? (a.name > b.name ? 1 : -1) : a.city > b.city ? 1 : -1,
+          );
+        this.filterClubs();
+        if (this.selectedClubIdFromRoute) {
+          let foundClub = this.clubs.find((comp) => comp.id === this.selectedClubIdFromRoute);
+          if (foundClub) {
+            this.selectClub(foundClub);
+          } else {
+            this.updateUrl();
+          }
         }
-      }
-      this.loadingClubs = false;
-    }));
+        this.loadingClubs = false;
+      }),
+    );
   }
 
   ngOnDestroy(): void {
@@ -135,7 +162,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
         this.themeService.setMainPaneColor(StateColors[this.selectedClub.state]);
 
         //scroll to top of main pane
-        document.getElementById("header")?.scrollIntoView();
+        document.getElementById('header')?.scrollIntoView();
       } else {
         setTimeout(() => {
           document.getElementById(this.selectedClub.id)?.scrollIntoView({ behavior: 'smooth' });
@@ -169,7 +196,9 @@ export class ClubsComponent implements OnInit, OnDestroy {
   filterClubs() {
     this.filteredClubs = this.clubs;
     if (this.filters.states.length > 0) {
-      this.filteredClubs = this.filteredClubs.filter(club => this.filters.states.includes(States[club.state]));
+      this.filteredClubs = this.filteredClubs.filter((club) =>
+        this.filters.states.includes(States[club.state]),
+      );
     }
 
     this.createMapPoints();
@@ -177,14 +206,16 @@ export class ClubsComponent implements OnInit, OnDestroy {
 
   // Updates URL to include filters
   updateUrl() {
-    this.location.replaceState('/clubs' +
-      (this.selectedClub ? '/' + this.selectedClub.id : '') +
-      (this.filters.states.length > 0 ? '?states=' + this.filters.states.join(",") : ''));
+    this.location.replaceState(
+      '/clubs' +
+        (this.selectedClub ? '/' + this.selectedClub.id : '') +
+        (this.filters.states.length > 0 ? '?states=' + this.filters.states.join(',') : ''),
+    );
   }
 
   // Scrolls to the secondary pane on mobile
   scrollToClubs() {
-    if(this.isMobile) {
+    if (this.isMobile) {
       setTimeout(() => {
         document.getElementById('club-list-container')?.scrollIntoView({ behavior: 'smooth' });
       }, 0);
@@ -193,11 +224,13 @@ export class ClubsComponent implements OnInit, OnDestroy {
 
   // Creates array for the map points with lats and longs
   createMapPoints() {
-    this.clubMapPoints = this.filteredClubs.map(club => ({
-      id: club.id,
-      lat: club.latitude,
-      long: club.longitude,
-    })).filter(club => club.lat && club.long);
+    this.clubMapPoints = this.filteredClubs
+      .map((club) => ({
+        id: club.id,
+        lat: club.latitude,
+        long: club.longitude,
+      }))
+      .filter((club) => club.lat && club.long);
   }
 
   // handles hover event on map
@@ -207,15 +240,19 @@ export class ClubsComponent implements OnInit, OnDestroy {
     // scroll club into view if not visible
     setTimeout(() => {
       const target = document.getElementById(clubId);
-      if (target && (target.getBoundingClientRect().bottom > window.innerHeight || target.getBoundingClientRect().top < 0)) {
-          target.scrollIntoView({ behavior: 'smooth' })
+      if (
+        target &&
+        (target.getBoundingClientRect().bottom > window.innerHeight ||
+          target.getBoundingClientRect().top < 0)
+      ) {
+        target.scrollIntoView({ behavior: 'smooth' });
       }
     }, 0);
   }
-  
+
   // handles click event on map to open club
   mapClickEvent(clubId: string) {
-    const club = this.filteredClubs.find(club => club.id === clubId);
+    const club = this.filteredClubs.find((club) => club.id === clubId);
     this.selectClub(club);
     // resets hovered event
     this.hoveredMapClub = '';
@@ -232,7 +269,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
 
     if (this.filtersOpen) {
       // scroll to top on mobile
-      document.getElementById("header")?.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('header')?.scrollIntoView({ behavior: 'smooth' });
 
       // clear page from a selected club on filter changes
       if (this.selectedClub) {
@@ -240,5 +277,4 @@ export class ClubsComponent implements OnInit, OnDestroy {
       }
     }
   }
-
 }

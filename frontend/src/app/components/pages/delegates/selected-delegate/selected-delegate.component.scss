@@ -1,5 +1,5 @@
-@import "src/styles/color-pallet.scss";
-@import "src/styles/screen-sizes.scss";
+@import 'src/styles/color-pallet.scss';
+@import 'src/styles/screen-sizes.scss';
 
 .selected-item-container {
   .wca-logo-container {
@@ -11,7 +11,6 @@
     width: 48px;
     cursor: pointer;
   }
-
 }
 
 @media only screen and (max-width: $small-breakpoint) {

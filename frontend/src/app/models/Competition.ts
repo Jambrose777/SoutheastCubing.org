@@ -1,4 +1,4 @@
-import { RegistrationStatus } from "../shared/types";
+import { RegistrationStatus } from '../shared/types';
 
 export class Competition {
   url: string;

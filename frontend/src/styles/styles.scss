@@ -1,5 +1,5 @@
-@import "color-pallet.scss";
-@import "screen-sizes.scss";
+@import 'color-pallet.scss';
+@import 'screen-sizes.scss';
 
 @font-face {
   font-family: 'Montserrat';
@@ -21,7 +21,10 @@ body {
   background: linear-gradient(to left top, $se-dark-grey, $se-grey);
 }
 
-h1, h2, b, strong {
+h1,
+h2,
+b,
+strong {
   font-family: 'MontserratBold';
 }
 

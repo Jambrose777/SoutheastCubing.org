@@ -2,16 +2,15 @@ import { Injectable } from '@angular/core';
 import moment from 'moment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 
 // Local Storage Serivce is used to connect to the local storage
 export class LocalStorageService {
-
-  constructor() { }
+  constructor() {}
 
   // Retrieves the competition from local storage
-  getIp(): { ip: string, timestamp: string } {
+  getIp(): { ip: string; timestamp: string } {
     return JSON.parse(localStorage.getItem('ip'));
   }
 

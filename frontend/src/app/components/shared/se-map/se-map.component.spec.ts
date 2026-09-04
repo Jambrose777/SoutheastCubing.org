@@ -8,9 +8,8 @@ describe('SeMapComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SeMapComponent ]
-    })
-    .compileComponents();
+      declarations: [SeMapComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SeMapComponent);
     component = fixture.componentInstance;

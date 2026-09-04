@@ -16,8 +16,7 @@
 
     <!-- Information for selected cat details -->
     @if (selectedCat && !isMobile) {
-      <se-selected-cat [selectedCat]="selectedCat">
-      </se-selected-cat>
+      <se-selected-cat [selectedCat]="selectedCat"> </se-selected-cat>
     }
   </div>
   <div class="secondary-pane">
@@ -31,19 +30,20 @@
         <!-- List for all loaded cats -->
         @for (cat of cats; track cat) {
           <!-- Cat Bubble -->
-          <div class="item-container clickable" style="--state-color:{{cat.color}}"
-            [ngClass]="{active: selectedCat?.name === cat.name}">
-            <div class="item-row" (click)="selectCat(cat)" id="{{cat.name}}">
-              <img class="thumbnail" src="{{cat.thumbnail}}">
+          <div
+            class="item-container clickable"
+            style="--state-color:{{ cat.color }}"
+            [ngClass]="{ active: selectedCat?.name === cat.name }"
+          >
+            <div class="item-row" (click)="selectCat(cat)" id="{{ cat.name }}">
+              <img class="thumbnail" src="{{ cat.thumbnail }}" />
               <div class="item-title">
-                {{cat.name}}
+                {{ cat.name }}
               </div>
             </div>
             <!-- Information for selected competition details -->
             @if (isMobile && selectedCat?.name === cat.name) {
-              <se-selected-cat
-                [selectedCat]="selectedCat">
-              </se-selected-cat>
+              <se-selected-cat [selectedCat]="selectedCat"> </se-selected-cat>
             }
           </div>
         }

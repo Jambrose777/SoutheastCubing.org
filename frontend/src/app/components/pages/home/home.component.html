@@ -10,16 +10,23 @@
     @if (!loadingContent) {
       <!-- Important Announcements -->
       @for (subTopic of subTopics; track subTopic) {
-        <div class="announcement-banner clickable" (click)="announcementClick(subTopic)" style="--banner-color:{{subTopic.color}}">
+        <div
+          class="announcement-banner clickable"
+          (click)="announcementClick(subTopic)"
+          style="--banner-color:{{ subTopic.color }}"
+        >
           <div class="items-container">
-            @for (i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]; track i) {
+            @for (
+              i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+              track i
+            ) {
               <div class="announcement-text">
                 <span>
-                  {{subTopic.title}}
-                  {{subTopic.description}}
-                  {{subTopic.buttonText}}
+                  {{ subTopic.title }}
+                  {{ subTopic.description }}
+                  {{ subTopic.buttonText }}
                   @if (subTopic.buttonIcon) {
-                    <i class="fa-solid {{subTopic.buttonIcon}} fa-2xl"></i>
+                    <i class="fa-solid {{ subTopic.buttonIcon }} fa-2xl"></i>
                   }
                   &nbsp;
                 </span>
@@ -35,52 +42,52 @@
       <carousel [images]="photos" [cellsToShow]="1" [height]="200" [loop]="true" [autoplay]="true" [arrows]="false">
       </carousel>
     </div> -->
-    <div class="large-text-content">
-      <markdown [data]="description"></markdown>
-    </div>
-    <!-- Icons for important external links, such as social media -->
-    <div class="badges">
-      <!-- Link to World Cube Association -->
-      <a href="{{enviroment.links.wca}}" target="_blank" class="wca-logo-container">
-        <img src="assets/wca_logo.svg" class="wca-logo">
-      </a>
-      <!-- Link to email Southeast Cubing -->
-      <a [routerLink]="'/contact'">
-        <i class="fa-solid fa-envelope fa-2xl clickable"></i>
-      </a>
-      <!-- Facebook -->
-      <a href="{{linksService.facebook}}" target="_blank">
-        <i class="fa-brands fa-square-facebook fa-2xl clickable"></i>
-      </a>
-      <!-- Discord -->
-      <a href="{{linksService.discord}}" target="_blank">
-        <i class="fa-brands fa-discord fa-2xl clickable"></i>
-      </a>
-      <!-- Instagram -->
-      <a href="{{linksService.instagram}}" target="_blank">
-        <i class="fa-brands fa-instagram fa-2xl clickable"></i>
-      </a>
-      <!-- Youtube -->
-      <a href="{{linksService.youtube}}" target="_blank">
-        <i class="fa-brands fa-youtube fa-2xl clickable"></i>
-      </a>
-    </div>
-  }
-</div>
-@if (!isMobile) {
-  <div class="secondary-pane">
-    <!-- Loading Spinner -->
-    @if (loadingContent) {
-      <loading-spinner></loading-spinner>
+      <div class="large-text-content">
+        <markdown [data]="description"></markdown>
+      </div>
+      <!-- Icons for important external links, such as social media -->
+      <div class="badges">
+        <!-- Link to World Cube Association -->
+        <a href="{{ enviroment.links.wca }}" target="_blank" class="wca-logo-container">
+          <img src="assets/wca_logo.svg" class="wca-logo" />
+        </a>
+        <!-- Link to email Southeast Cubing -->
+        <a [routerLink]="'/contact'">
+          <i class="fa-solid fa-envelope fa-2xl clickable"></i>
+        </a>
+        <!-- Facebook -->
+        <a href="{{ linksService.facebook }}" target="_blank">
+          <i class="fa-brands fa-square-facebook fa-2xl clickable"></i>
+        </a>
+        <!-- Discord -->
+        <a href="{{ linksService.discord }}" target="_blank">
+          <i class="fa-brands fa-discord fa-2xl clickable"></i>
+        </a>
+        <!-- Instagram -->
+        <a href="{{ linksService.instagram }}" target="_blank">
+          <i class="fa-brands fa-instagram fa-2xl clickable"></i>
+        </a>
+        <!-- Youtube -->
+        <a href="{{ linksService.youtube }}" target="_blank">
+          <i class="fa-brands fa-youtube fa-2xl clickable"></i>
+        </a>
+      </div>
     }
-    @if (!loadingContent) {
-      <!-- Temporarily disabled: angular-responsive-carousel is incompatible with Angular 16+'s
+  </div>
+  @if (!isMobile) {
+    <div class="secondary-pane">
+      <!-- Loading Spinner -->
+      @if (loadingContent) {
+        <loading-spinner></loading-spinner>
+      }
+      @if (!loadingContent) {
+        <!-- Temporarily disabled: angular-responsive-carousel is incompatible with Angular 16+'s
       Ivy-only compiler (story 003). Story 067 replaces it and restores this carousel. -->
-      <!-- <div class="home-photo-container">
+        <!-- <div class="home-photo-container">
       <carousel [images]="photos" [cellsToShow]="1" [height]="500" [loop]="true" [autoplay]="true" [arrows]="false">
       </carousel>
     </div> -->
+      }
+    </div>
   }
-</div>
-}
 </div>

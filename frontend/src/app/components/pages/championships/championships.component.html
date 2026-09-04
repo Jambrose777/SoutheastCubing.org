@@ -15,18 +15,18 @@
       <div class="sub-text-container">
         <!-- Section for links to follow -->
         <div class="sub-text-box">
-          {{subText1}}
+          {{ subText1 }}
           <div class="badges">
             <!-- Facebook -->
-            <a href="{{linksService.facebook}}" target="_blank">
+            <a href="{{ linksService.facebook }}" target="_blank">
               <i class="fa-brands fa-square-facebook fa-2xl clickable"></i>
             </a>
             <!-- Discord -->
-            <a href="{{linksService.discord}}" target="_blank">
+            <a href="{{ linksService.discord }}" target="_blank">
               <i class="fa-brands fa-discord fa-2xl clickable"></i>
             </a>
             <!-- Instagram -->
-            <a href="{{linksService.instagram}}" target="_blank">
+            <a href="{{ linksService.instagram }}" target="_blank">
               <i class="fa-brands fa-instagram fa-2xl clickable"></i>
             </a>
           </div>
@@ -52,21 +52,27 @@
       <div class="list-container">
         @for (championship of championships; track championship) {
           <!-- Championship Bubble -->
-          <div class="item-container clickable" style="--state-color:{{StateColors[championship.state]}}"
-            [ngClass]="{active: selectedChampionship?.id === championship.id}">
-            <div class="item-row" (click)="selectChampionship(championship)" id="{{championship.id}}">
-              <img class="thumbnail" src="{{championship.logo}}">
+          <div
+            class="item-container clickable"
+            style="--state-color:{{ StateColors[championship.state] }}"
+            [ngClass]="{ active: selectedChampionship?.id === championship.id }"
+          >
+            <div
+              class="item-row"
+              (click)="selectChampionship(championship)"
+              id="{{ championship.id }}"
+            >
+              <img class="thumbnail" src="{{ championship.logo }}" />
               <div class="item-title">
-                {{championship.name}}
+                {{ championship.name }}
               </div>
               <div class="item-sub-text">
-                {{championship.city}}
+                {{ championship.city }}
               </div>
             </div>
             <!-- Information for selected championship details -->
             @if (isMobile && selectedChampionship?.id === championship.id) {
-              <se-selected-championship
-                [selectedChampionship]="selectedChampionship">
+              <se-selected-championship [selectedChampionship]="selectedChampionship">
               </se-selected-championship>
             }
           </div>

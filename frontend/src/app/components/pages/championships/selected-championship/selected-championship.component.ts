@@ -5,11 +5,11 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
-    selector: 'se-selected-championship',
-    templateUrl: './selected-championship.component.html',
-    styleUrls: ['./selected-championship.component.scss'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'se-selected-championship',
+  templateUrl: './selected-championship.component.html',
+  styleUrls: ['./selected-championship.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class SelectedChampionshipComponent implements OnInit, OnDestroy {
   isMobile: boolean;
@@ -17,17 +17,18 @@ export class SelectedChampionshipComponent implements OnInit, OnDestroy {
   @Input() selectedChampionship: Championship;
   subscriptions: Subscription = new Subscription();
 
-  constructor(
-    private screenSizeService: ScreenSizeService,
-    ) { }
+  constructor(private screenSizeService: ScreenSizeService) {}
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
+    this.subscriptions.add(
+      this.screenSizeService
+        .getIsMobileSubject()
+        .subscribe((isMobile) => (this.isMobile = isMobile)),
+    );
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
-
 }

@@ -16,8 +16,7 @@
 
     <!-- Information for selected subTopic details -->
     @if (selectedSubTopic && !isMobile) {
-      <se-selected-sub-topic [selectedSubTopic]="selectedSubTopic">
-      </se-selected-sub-topic>
+      <se-selected-sub-topic [selectedSubTopic]="selectedSubTopic"> </se-selected-sub-topic>
     }
   </div>
 
@@ -32,18 +31,19 @@
       <div class="list-container">
         @for (subTopic of subTopics; track subTopic) {
           <!-- Sub Topic Bubble -->
-          <div class="item-container clickable" style="--state-color:{{subTopic.color}}"
-            [ngClass]="{active: selectedSubTopic?.title === subTopic.title}">
-            <div class="item-row" (click)="selectSubTopic(subTopic)" id="{{subTopic.title}}">
+          <div
+            class="item-container clickable"
+            style="--state-color:{{ subTopic.color }}"
+            [ngClass]="{ active: selectedSubTopic?.title === subTopic.title }"
+          >
+            <div class="item-row" (click)="selectSubTopic(subTopic)" id="{{ subTopic.title }}">
               <div class="item-title">
-                {{subTopic.title}}
+                {{ subTopic.title }}
               </div>
             </div>
             <!-- Information for selected Sub Topic details -->
             @if (isMobile && selectedSubTopic?.title === subTopic.title) {
-              <se-selected-sub-topic
-                [selectedSubTopic]="selectedSubTopic">
-              </se-selected-sub-topic>
+              <se-selected-sub-topic [selectedSubTopic]="selectedSubTopic"> </se-selected-sub-topic>
             }
           </div>
         }

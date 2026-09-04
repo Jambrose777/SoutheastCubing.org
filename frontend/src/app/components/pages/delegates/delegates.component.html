@@ -15,10 +15,10 @@
       <!-- section for external link text Bubble -->
       <div class="sub-text-container">
         <div class="sub-text-box">
-          {{subText}}
+          {{ subText }}
           <div>
             <a class="btn" [href]="subTextButtonLink" target="_blank">
-              {{subTextButtonText}}
+              {{ subTextButtonText }}
               <i class="fa-solid fa-up-right-from-square fa-sm"></i>
             </a>
           </div>
@@ -28,8 +28,7 @@
 
     <!-- Information for selected delegate details -->
     @if (selectedDelegate && !isMobile) {
-      <se-selected-delegate [selectedDelegate]="selectedDelegate">
-      </se-selected-delegate>
+      <se-selected-delegate [selectedDelegate]="selectedDelegate"> </se-selected-delegate>
     }
   </div>
   <div class="secondary-pane">
@@ -43,22 +42,23 @@
         <!-- List for all loaded delegates -->
         @for (delegate of delegates; track delegate) {
           <!-- Delegate Bubble -->
-          <div class="item-container clickable" style="--state-color:{{StateColors[delegate.state]}}"
-            [ngClass]="{active: selectedDelegate?.name === delegate.name}">
-            <div class="item-row" (click)="selectDelegate(delegate)" id="{{delegate.name}}">
-              <img class="thumbnail" src="{{delegate.thumbnail}}">
+          <div
+            class="item-container clickable"
+            style="--state-color:{{ StateColors[delegate.state] }}"
+            [ngClass]="{ active: selectedDelegate?.name === delegate.name }"
+          >
+            <div class="item-row" (click)="selectDelegate(delegate)" id="{{ delegate.name }}">
+              <img class="thumbnail" src="{{ delegate.thumbnail }}" />
               <div class="item-title">
-                {{delegate.name}}
+                {{ delegate.name }}
               </div>
               <div class="item-sub-text">
-                {{delegate.state}}
+                {{ delegate.state }}
               </div>
             </div>
             <!-- Information for selected competition details -->
             @if (isMobile && selectedDelegate?.name === delegate.name) {
-              <se-selected-delegate
-                [selectedDelegate]="selectedDelegate">
-              </se-selected-delegate>
+              <se-selected-delegate [selectedDelegate]="selectedDelegate"> </se-selected-delegate>
             }
           </div>
         }

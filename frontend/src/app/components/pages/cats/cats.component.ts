@@ -11,11 +11,11 @@ import { Colors } from 'src/app/shared/types';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 
 @Component({
-    selector: 'se-cats',
-    templateUrl: './cats.component.html',
-    styleUrls: ['./cats.component.scss'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'se-cats',
+  templateUrl: './cats.component.html',
+  styleUrls: ['./cats.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class CatsComponent implements OnInit, OnDestroy {
   isMobile: boolean;
@@ -27,7 +27,16 @@ export class CatsComponent implements OnInit, OnDestroy {
   loadingCats: boolean = true;
   selectedCat: Cat;
   subscriptions: Subscription = new Subscription();
-  availableColors: Colors[] = [Colors.blue, Colors.darkGrey, Colors.green, Colors.grey, Colors.yellow, Colors.purple, Colors.orange, Colors.red];
+  availableColors: Colors[] = [
+    Colors.blue,
+    Colors.darkGrey,
+    Colors.green,
+    Colors.grey,
+    Colors.yellow,
+    Colors.purple,
+    Colors.orange,
+    Colors.red,
+  ];
 
   constructor(
     private contentful: ContentfulService,
@@ -36,51 +45,65 @@ export class CatsComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private location: Location,
     private screenSizeService: ScreenSizeService,
-  ) {
-
-  }
+  ) {}
 
   ngOnInit(): void {
     // sets up responsive screensize
-    this.subscriptions.add(this.screenSizeService.getIsMobileSubject().subscribe(isMobile => this.isMobile = isMobile));
+    this.subscriptions.add(
+      this.screenSizeService
+        .getIsMobileSubject()
+        .subscribe((isMobile) => (this.isMobile = isMobile)),
+    );
 
     // sets up main color for the cats page
     this.themeService.setMainPaneColor(Colors.yellow);
 
     // collect competitionId from params
-    this.subscriptions.add(this.route.params.subscribe(params => {
-      this.selectedCatNameFromRoute = params['catName'];
-    }));
+    this.subscriptions.add(
+      this.route.params.subscribe((params) => {
+        this.selectedCatNameFromRoute = params['catName'];
+      }),
+    );
 
     // retireve, sorts, and formats data from the CMS Cats Entries
-    this.subscriptions.add(this.contentful.getContentfulGroup(ContentfulContentType.cats).subscribe(res => {
-      this.cats = res.items
-        .map(value => ({ value, sort: Math.random() }))
-        .sort((a, b) => a.sort - b.sort)
-        .map(({ value }) => value)
-        .map(cat => ({
-          ...cat.fields,
-          photo: cat.fields['photo']?.fields.file.url,
-          thumbnail: cat.fields['thumbnail']?.fields.file.url,
-          color:  this.availableColors[Math.floor(Math.random() * this.availableColors.length)],
-        } as Cat));
-      if (this.selectedCatNameFromRoute) {
-        let foundCat = this.cats?.find(cat => cat.name.replace(/ +/g, "-") === this.selectedCatNameFromRoute);
-        if (foundCat) {
-          this.selectCat(foundCat);
-        } else {
-          this.location.replaceState('/cats');
+    this.subscriptions.add(
+      this.contentful.getContentfulGroup(ContentfulContentType.cats).subscribe((res) => {
+        this.cats = res.items
+          .map((value) => ({ value, sort: Math.random() }))
+          .sort((a, b) => a.sort - b.sort)
+          .map(({ value }) => value)
+          .map(
+            (cat) =>
+              ({
+                ...cat.fields,
+                photo: cat.fields['photo']?.fields.file.url,
+                thumbnail: cat.fields['thumbnail']?.fields.file.url,
+                color:
+                  this.availableColors[Math.floor(Math.random() * this.availableColors.length)],
+              }) as Cat,
+          );
+        if (this.selectedCatNameFromRoute) {
+          let foundCat = this.cats?.find(
+            (cat) => cat.name.replace(/ +/g, '-') === this.selectedCatNameFromRoute,
+          );
+          if (foundCat) {
+            this.selectCat(foundCat);
+          } else {
+            this.location.replaceState('/cats');
+          }
         }
-      }
-      this.loadingCats = false;
-    }));
+        this.loadingCats = false;
+      }),
+    );
 
     // retireve and formats data from the CMS Cats Page
-    this.subscriptions.add(this.contentful.getContentfulEntry(ContentfulEntryId.cats).subscribe(res => {
-      this.title = res.fields.title;
-      this.description = res.fields.description;
-      this.loadingContent = false;
-    }));
+    this.subscriptions.add(
+      this.contentful.getContentfulEntry(ContentfulEntryId.cats).subscribe((res) => {
+        this.title = res.fields.title;
+        this.description = res.fields.description;
+        this.loadingContent = false;
+      }),
+    );
   }
 
   ngOnDestroy(): void {
@@ -104,13 +127,13 @@ export class CatsComponent implements OnInit, OnDestroy {
         this.themeService.setMainPaneColor(this.selectedCat.color);
 
         //scroll to top of main pane
-        document.getElementById("header")?.scrollIntoView();
+        document.getElementById('header')?.scrollIntoView();
       } else {
         setTimeout(() => {
           document.getElementById(this.selectedCat.name)?.scrollIntoView({ behavior: 'smooth' });
         }, 0);
       }
-      this.location.replaceState('/cats/' + this.selectedCat.name.replace(/ +/g, "-"));
+      this.location.replaceState('/cats/' + this.selectedCat.name.replace(/ +/g, '-'));
     }
   }
 }

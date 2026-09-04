@@ -1,5 +1,5 @@
-import { Competition } from "../models/Competition";
-import { RegistrationStatus } from "./types";
+import { Competition } from '../models/Competition';
+import { RegistrationStatus } from './types';
 import * as moment from 'moment';
 
 // Calculates the current registration status based on when registration is opened and closed
@@ -14,10 +14,10 @@ export function getRegistrationStatus(competition: Competition): RegistrationSta
     return RegistrationStatus.openWithWaitingList;
   } else {
     return RegistrationStatus.openWithSpots;
-  } 
+  }
 }
 
 // Provides a string that is easy to read in a specific format
 export function getReadableRegistrationOpen(competition: Competition): string {
-  return moment.utc(competition.registration_open).local().format("MMM D, YYYY [at] h:mm A");
+  return moment.utc(competition.registration_open).local().format('MMM D, YYYY [at] h:mm A');
 }

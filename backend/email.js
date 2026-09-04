@@ -1,9 +1,9 @@
 const nodemailer = require('nodemailer');
 
 // Logger
-const log4js = require("log4js");
+const log4js = require('log4js');
 const logger = log4js.getLogger();
-logger.level = "debug";
+logger.level = 'debug';
 
 // Email mailer
 const transporter = nodemailer.createTransport({
@@ -16,11 +16,13 @@ const transporter = nodemailer.createTransport({
 });
 
 // verify that the transporter is successfully setup
-transporter.verify()
+transporter
+  .verify()
   .then(() => {
-    logger.info('Email transporter successfully setup.')
-  }).catch(err => {
-    logger.fatal('Error setting up email transporter: ', err)
+    logger.info('Email transporter successfully setup.');
+  })
+  .catch((err) => {
+    logger.fatal('Error setting up email transporter: ', err);
   });
 
 const EmailType = {
@@ -31,7 +33,7 @@ const EmailType = {
   software: 'software',
   general: 'general',
   organizing: 'organizing',
-}
+};
 
 // Sends email from notifications@southeastcubing.org to requested entity
 function sendEmail(req, res) {
@@ -41,23 +43,22 @@ function sendEmail(req, res) {
   } else if (!req.body.emailType || !EmailType[req.body.emailType]) {
     res.status(400).json({ message: 'must provide a valid emailType.' });
   } else {
-
     // Send email
-    transporter.sendMail({
-      from: `"${req.body.name}" <${process.env.EMAIL_USER}>`,
-      replyTo: req.body.email,
-      to: getToEmail(req.body.emailType),
-      subject: getEmailSubject(req.body.subject),
-      text: getEmailText(req.body.name, req.body.email, req.body.text, req.body.ip),
-    })
-      .then(info => {
+    transporter
+      .sendMail({
+        from: `"${req.body.name}" <${process.env.EMAIL_USER}>`,
+        replyTo: req.body.email,
+        to: getToEmail(req.body.emailType),
+        subject: getEmailSubject(req.body.subject),
+        text: getEmailText(req.body.name, req.body.email, req.body.text, req.body.ip),
+      })
+      .then((info) => {
         res.send({ status: 'success' });
       })
-      .catch(err => {
+      .catch((err) => {
         logger.error('ip-' + req.ip + ' Error sending email: ', err);
         res.status(500).json({ message: err });
       });
-      
   }
 }
 
@@ -90,7 +91,9 @@ function getEmailText(name, email, text, ip) {
   if (ip) {
     emailText += ' - ' + ip;
   }
-  emailText += '\n\nPlease note: all messages sent through this form are unauthenticated. If the person is asking for a request relating to them (ie. cancelling a registration, updating their name), make sure to recieve verification with the persons email as seen on WCA.\n\nThey\'ve sent the following message:\n\n' + text;
+  emailText +=
+    "\n\nPlease note: all messages sent through this form are unauthenticated. If the person is asking for a request relating to them (ie. cancelling a registration, updating their name), make sure to recieve verification with the persons email as seen on WCA.\n\nThey've sent the following message:\n\n" +
+    text;
 
   return emailText;
 }

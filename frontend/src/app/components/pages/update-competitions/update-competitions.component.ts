@@ -8,27 +8,28 @@ enum UpdateStatus {
   default = 'default',
   updating = 'updating',
   success = 'success',
-  failure = 'failure'
+  failure = 'failure',
 }
 
 @Component({
-    selector: 'app-update-competitions',
-    templateUrl: './update-competitions.component.html',
-    styleUrls: ['./update-competitions.component.scss'],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'app-update-competitions',
+  templateUrl: './update-competitions.component.html',
+  styleUrls: ['./update-competitions.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false,
 })
 export class UpdateCompetitionsComponent implements OnInit {
   title: string = 'Competitions';
   subscriptions: Subscription = new Subscription();
-  description: string = 'This page is meant for admin use only. Admins can click the button below to fetch the list of competitions from WCA and update the global cache. This action is limited to once an hour. Refreshes happen automatically at midnight everyday, however this can be used to immediately update for recently announced competitions.';
+  description: string =
+    'This page is meant for admin use only. Admins can click the button below to fetch the list of competitions from WCA and update the global cache. This action is limited to once an hour. Refreshes happen automatically at midnight everyday, however this can be used to immediately update for recently announced competitions.';
   updateCompetitionsStatus: UpdateStatus = UpdateStatus.default;
   errorMessage: string;
 
   constructor(
     private themeService: ThemeService,
     private southeastcubingApi: SouteastcubingApiService,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     // sets up main color for the competitions page
@@ -42,15 +43,17 @@ export class UpdateCompetitionsComponent implements OnInit {
     // this.southeastcubingApi.updateCompetitions().pipe(take(1)).subscribe(res => {
     //   this.updateCompetitionsStatus = UpdateStatus.success;
     // });
-    this.southeastcubingApi.updateCompetitions().pipe(take(1)).subscribe({
-      next: () => { 
-        this.updateCompetitionsStatus = UpdateStatus.success; 
-      },
-      error: err => { 
-        this.updateCompetitionsStatus = UpdateStatus.failure; 
-        this.errorMessage = err?.error?.message;
-      }
-    });
+    this.southeastcubingApi
+      .updateCompetitions()
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          this.updateCompetitionsStatus = UpdateStatus.success;
+        },
+        error: (err) => {
+          this.updateCompetitionsStatus = UpdateStatus.failure;
+          this.errorMessage = err?.error?.message;
+        },
+      });
   }
-
 }

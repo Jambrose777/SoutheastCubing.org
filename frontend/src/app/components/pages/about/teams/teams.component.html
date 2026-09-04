@@ -5,19 +5,23 @@
     <div class="team-container">
       <div class="team-row">
         <div class="team-title">
-          <b>{{team.name}}</b>
+          <b>{{ team.name }}</b>
         </div>
         <div class="team-description">
-          {{team.description}}
+          {{ team.description }}
         </div>
         <div class="team-persons-container">
           <!-- {{team.persons}} -->
           @for (teamMember of team.teamMembers; track teamMember) {
-            <div class="team-person" style="--team-member-color:{{teamMember.color}}">
-              <b>{{teamMember.name}}</b>
-              {{teamMember.title}}
+            <div class="team-person" style="--team-member-color:{{ teamMember.color }}">
+              <b>{{ teamMember.name }}</b>
+              {{ teamMember.title }}
               @if (teamMember.thumbnail) {
-                <img class="thumbnail" [ngClass]="{ 'extra-spacing': !teamMember.title }" src="{{teamMember.thumbnail}}">
+                <img
+                  class="thumbnail"
+                  [ngClass]="{ 'extra-spacing': !teamMember.title }"
+                  src="{{ teamMember.thumbnail }}"
+                />
               }
             </div>
           }
