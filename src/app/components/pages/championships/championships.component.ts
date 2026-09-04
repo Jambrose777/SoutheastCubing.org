@@ -13,9 +13,10 @@ import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
 
 @Component({
-  selector: 'se-championships',
-  templateUrl: './championships.component.html',
-  styleUrls: ['./championships.component.scss']
+    selector: 'se-championships',
+    templateUrl: './championships.component.html',
+    styleUrls: ['./championships.component.scss'],
+    standalone: false
 })
 export class ChampionshipsComponent implements OnInit, OnDestroy {
   isMobile: boolean

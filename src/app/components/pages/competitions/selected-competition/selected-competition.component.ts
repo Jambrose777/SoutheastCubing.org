@@ -7,9 +7,10 @@ import { RegistrationStatus } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'se-selected-competition',
-  templateUrl: './selected-competition.component.html',
-  styleUrls: ['./selected-competition.component.scss']
+    selector: 'se-selected-competition',
+    templateUrl: './selected-competition.component.html',
+    styleUrls: ['./selected-competition.component.scss'],
+    standalone: false
 })
 export class SelectedCompetitionComponent implements OnInit, OnDestroy {
   isMobile: boolean;

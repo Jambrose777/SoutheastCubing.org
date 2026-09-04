@@ -13,9 +13,10 @@ import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
 
 @Component({
-  selector: 'se-delegates',
-  templateUrl: './delegates.component.html',
-  styleUrls: ['./delegates.component.scss']
+    selector: 'se-delegates',
+    templateUrl: './delegates.component.html',
+    styleUrls: ['./delegates.component.scss'],
+    standalone: false
 })
 export class DelegatesComponent implements OnInit, OnDestroy {
   isMobile: boolean;

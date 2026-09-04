@@ -11,9 +11,10 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'se-involvement',
-  templateUrl: './involvement.component.html',
-  styleUrls: ['./involvement.component.scss']
+    selector: 'se-involvement',
+    templateUrl: './involvement.component.html',
+    styleUrls: ['./involvement.component.scss'],
+    standalone: false
 })
 export class InvolvementComponent implements OnInit, OnDestroy {
   isMobile: boolean;

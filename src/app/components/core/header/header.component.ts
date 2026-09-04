@@ -3,9 +3,10 @@ import { Subscription } from 'rxjs';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 
 @Component({
-  selector: 'header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+    selector: 'header',
+    templateUrl: './header.component.html',
+    styleUrls: ['./header.component.scss'],
+    standalone: false
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   isMobile: boolean;

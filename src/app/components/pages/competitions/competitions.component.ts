@@ -15,9 +15,10 @@ import { SouteastcubingApiService } from 'src/app/services/souteastcubing-api.se
 import { MapPoint, MarkerColorClass } from 'src/app/models/Map';
 
 @Component({
-  selector: 'se-competitions',
-  templateUrl: './competitions.component.html',
-  styleUrls: ['./competitions.component.scss']
+    selector: 'se-competitions',
+    templateUrl: './competitions.component.html',
+    styleUrls: ['./competitions.component.scss'],
+    standalone: false
 })
 export class CompetitionsComponent implements OnInit, OnDestroy {
   isMobile: boolean;

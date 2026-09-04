@@ -12,9 +12,10 @@ enum UpdateStatus {
 }
 
 @Component({
-  selector: 'app-update-competitions',
-  templateUrl: './update-competitions.component.html',
-  styleUrls: ['./update-competitions.component.scss']
+    selector: 'app-update-competitions',
+    templateUrl: './update-competitions.component.html',
+    styleUrls: ['./update-competitions.component.scss'],
+    standalone: false
 })
 export class UpdateCompetitionsComponent implements OnInit {
   title: string = 'Competitions';

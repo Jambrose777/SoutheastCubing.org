@@ -3,9 +3,10 @@ import * as L from 'leaflet';
 import { MapPoint } from 'src/app/models/Map';
 
 @Component({
-  selector: 'se-map',
-  templateUrl: './se-map.component.html',
-  styleUrls: ['./se-map.component.scss']
+    selector: 'se-map',
+    templateUrl: './se-map.component.html',
+    styleUrls: ['./se-map.component.scss'],
+    standalone: false
 })
 export class SeMapComponent implements OnInit {
   @Input() points: MapPoint[];

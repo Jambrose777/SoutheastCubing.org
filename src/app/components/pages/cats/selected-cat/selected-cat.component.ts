@@ -4,9 +4,10 @@ import { Cat } from 'src/app/models/Cat';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 
 @Component({
-  selector: 'se-selected-cat',
-  templateUrl: './selected-cat.component.html',
-  styleUrls: ['./selected-cat.component.scss']
+    selector: 'se-selected-cat',
+    templateUrl: './selected-cat.component.html',
+    styleUrls: ['./selected-cat.component.scss'],
+    standalone: false
 })
 export class SelectedCatComponent implements OnInit, OnDestroy {
   isMobile: boolean;

@@ -4,9 +4,10 @@ import { SubTopic } from 'src/app/models/SubTopic';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 
 @Component({
-  selector: 'se-selected-sub-topic',
-  templateUrl: './selected-sub-topic.component.html',
-  styleUrls: ['./selected-sub-topic.component.scss']
+    selector: 'se-selected-sub-topic',
+    templateUrl: './selected-sub-topic.component.html',
+    styleUrls: ['./selected-sub-topic.component.scss'],
+    standalone: false
 })
 export class SelectedSubTopicComponent implements OnInit, OnDestroy {
   isMobile: boolean;

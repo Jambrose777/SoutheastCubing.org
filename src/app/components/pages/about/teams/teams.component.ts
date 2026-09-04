@@ -2,9 +2,10 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Team } from 'src/app/models/Team';
 
 @Component({
-  selector: 'se-teams',
-  templateUrl: './teams.component.html',
-  styleUrls: ['./teams.component.scss']
+    selector: 'se-teams',
+    templateUrl: './teams.component.html',
+    styleUrls: ['./teams.component.scss'],
+    standalone: false
 })
 export class TeamsComponent implements OnInit {
   @Input() teams: Team[];

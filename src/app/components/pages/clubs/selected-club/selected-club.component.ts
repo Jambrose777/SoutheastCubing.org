@@ -5,9 +5,10 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'se-selected-club',
-  templateUrl: './selected-club.component.html',
-  styleUrls: ['./selected-club.component.scss']
+    selector: 'se-selected-club',
+    templateUrl: './selected-club.component.html',
+    styleUrls: ['./selected-club.component.scss'],
+    standalone: false
 })
 export class SelectedClubComponent implements OnInit, OnDestroy {
   isMobile: boolean;

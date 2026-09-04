@@ -14,9 +14,10 @@ import { LinksService } from 'src/app/services/links.service';
 import { MapPoint } from 'src/app/models/Map';
 
 @Component({
-  selector: 'se-clubs',
-  templateUrl: './clubs.component.html',
-  styleUrls: ['./clubs.component.scss']
+    selector: 'se-clubs',
+    templateUrl: './clubs.component.html',
+    styleUrls: ['./clubs.component.scss'],
+    standalone: false
 })
 export class ClubsComponent implements OnInit, OnDestroy {
   isMobile: boolean;

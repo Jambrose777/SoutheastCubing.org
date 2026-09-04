@@ -5,9 +5,10 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
-  selector: 'se-selected-championship',
-  templateUrl: './selected-championship.component.html',
-  styleUrls: ['./selected-championship.component.scss']
+    selector: 'se-selected-championship',
+    templateUrl: './selected-championship.component.html',
+    styleUrls: ['./selected-championship.component.scss'],
+    standalone: false
 })
 export class SelectedChampionshipComponent implements OnInit, OnDestroy {
   isMobile: boolean;

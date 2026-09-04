@@ -3,9 +3,10 @@ import { Subscription } from 'rxjs';
 import { NavService } from 'src/app/services/nav.service';
 
 @Component({
-  selector: 'se-nav',
-  templateUrl: './nav.component.html',
-  styleUrls: ['./nav.component.scss']
+    selector: 'se-nav',
+    templateUrl: './nav.component.html',
+    styleUrls: ['./nav.component.scss'],
+    standalone: false
 })
 export class NavComponent implements OnInit, OnDestroy {
   @Input() isNavActive = false;

@@ -7,9 +7,10 @@ import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
 
 @Component({
-  selector: 'se-page-not-found',
-  templateUrl: './page-not-found.component.html',
-  styleUrls: ['./page-not-found.component.scss']
+    selector: 'se-page-not-found',
+    templateUrl: './page-not-found.component.html',
+    styleUrls: ['./page-not-found.component.scss'],
+    standalone: false
 })
 export class PageNotFoundComponent implements OnInit, OnDestroy {
   isMobile: boolean;

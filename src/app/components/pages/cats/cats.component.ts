@@ -11,9 +11,10 @@ import { Colors } from 'src/app/shared/types';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 
 @Component({
-  selector: 'se-cats',
-  templateUrl: './cats.component.html',
-  styleUrls: ['./cats.component.scss']
+    selector: 'se-cats',
+    templateUrl: './cats.component.html',
+    styleUrls: ['./cats.component.scss'],
+    standalone: false
 })
 export class CatsComponent implements OnInit, OnDestroy {
   isMobile: boolean;

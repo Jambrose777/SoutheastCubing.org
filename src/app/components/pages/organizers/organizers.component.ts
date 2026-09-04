@@ -11,9 +11,10 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'se-organizers',
-  templateUrl: './organizers.component.html',
-  styleUrls: ['./organizers.component.scss']
+    selector: 'se-organizers',
+    templateUrl: './organizers.component.html',
+    styleUrls: ['./organizers.component.scss'],
+    standalone: false
 })
 export class OrganizersComponent implements OnInit, OnDestroy {
   isMobile: boolean;
