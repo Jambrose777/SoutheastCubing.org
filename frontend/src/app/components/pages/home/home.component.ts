@@ -1,23 +1,32 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { environment } from 'src/environments/environment';
 import { SubTopic } from 'src/app/models/SubTopic';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
+import { HeaderComponent } from '../../core/header/header.component';
+import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
+import { MarkdownComponent } from 'ngx-markdown';
 
 @Component({
   selector: 'se-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [HeaderComponent, LoadingSpinnerComponent, MarkdownComponent, RouterLink],
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  private contentful = inject(ContentfulService);
+  private themeService = inject(ThemeService);
+  private router = inject(Router);
+  private screenSizeService = inject(ScreenSizeService);
+  linksService = inject(LinksService);
+
   isMobile: boolean;
   enviroment = environment;
   title: string = 'Southeast Cubing';
@@ -26,14 +35,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   loadingContent: boolean = true;
   subTopics: SubTopic[];
   subscriptions: Subscription = new Subscription();
-
-  constructor(
-    private contentful: ContentfulService,
-    private themeService: ThemeService,
-    private router: Router,
-    private screenSizeService: ScreenSizeService,
-    public linksService: LinksService,
-  ) {}
 
   ngOnInit(): void {
     // sets up responsive screensize

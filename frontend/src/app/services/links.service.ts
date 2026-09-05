@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { ContentfulService } from './contentful.service';
 import { ContentfulEntryId } from '../models/Contentful';
@@ -8,13 +8,13 @@ import { take } from 'rxjs';
   providedIn: 'root',
 })
 export class LinksService {
+  private contentful = inject(ContentfulService);
+
   discord: string = environment.links.discord;
   facebook: string = environment.links.facebook;
   instagram: string = environment.links.instagram;
   youtube: string = environment.links.youtube;
   applyToStaffForm: string = environment.links.applyToStaffForm;
-
-  constructor(private contentful: ContentfulService) {}
 
   pullLinksFromContentful() {
     // retireve links data from the CMS to overwrite links

@@ -8,7 +8,7 @@ describe('SelectedSubTopicComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [SelectedSubTopicComponent],
+      imports: [SelectedSubTopicComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SelectedSubTopicComponent);

@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Competition } from 'src/app/models/Competition';
@@ -12,15 +12,38 @@ import { SouteastcubingApiService } from 'src/app/services/souteastcubing-api.se
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, EmailApiStatus, EmailType } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
+import { HeaderComponent } from '../../core/header/header.component';
+import { MatFormField, MatLabel, MatSelect, MatOption, MatError } from '@angular/material/select';
+import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
+import { MatInput } from '@angular/material/input';
+import { MarkdownComponent } from 'ngx-markdown';
 
 @Component({
   selector: 'se-contact',
   templateUrl: './contact.component.html',
   styleUrls: ['./contact.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [
+    HeaderComponent,
+    ReactiveFormsModule,
+    MatFormField,
+    MatLabel,
+    MatSelect,
+    MatOption,
+    MatError,
+    LoadingSpinnerComponent,
+    MatInput,
+    MarkdownComponent,
+  ],
 })
 export class ContactComponent implements OnInit, OnDestroy {
+  private contentful = inject(ContentfulService);
+  private themeService = inject(ThemeService);
+  private auth = inject(AuthService);
+  private southeastcubingApiService = inject(SouteastcubingApiService);
+  private route = inject(ActivatedRoute);
+  private screenSizeService = inject(ScreenSizeService);
+
   isMobile: boolean;
   EmailApiStatus = EmailApiStatus;
   EmailType = EmailType;
@@ -79,15 +102,6 @@ export class ContactComponent implements OnInit, OnDestroy {
   get competitionNameControl(): FormControl {
     return this.contactForm.get('competitionName') as FormControl;
   }
-
-  constructor(
-    private contentful: ContentfulService,
-    private themeService: ThemeService,
-    private auth: AuthService,
-    private southeastcubingApiService: SouteastcubingApiService,
-    private route: ActivatedRoute,
-    private screenSizeService: ScreenSizeService,
-  ) {}
 
   ngOnInit(): void {
     // sets up responsive screensize

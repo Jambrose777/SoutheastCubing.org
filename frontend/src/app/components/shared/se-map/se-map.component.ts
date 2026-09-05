@@ -1,9 +1,8 @@
 import {
   Component,
-  EventEmitter,
-  Input,
+  input,
   OnInit,
-  Output,
+  output,
   SimpleChanges,
   ChangeDetectionStrategy,
   OnChanges,
@@ -16,14 +15,13 @@ import { MapPoint } from 'src/app/models/Map';
   templateUrl: './se-map.component.html',
   styleUrls: ['./se-map.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
 })
 export class SeMapComponent implements OnInit, OnChanges {
-  @Input() points: MapPoint[];
-  @Input() selectedPoint: string;
-  @Input() showLegend: boolean;
-  @Output() hoverPoint = new EventEmitter<string>();
-  @Output() clickPoint = new EventEmitter<string>();
+  points = input.required<MapPoint[]>();
+  selectedPoint = input<string>();
+  showLegend = input<boolean>();
+  hoverPoint = output<string>();
+  clickPoint = output<string>();
 
   map;
   markers: { point: MapPoint; marker: any }[] = [];
@@ -39,7 +37,7 @@ export class SeMapComponent implements OnInit, OnChanges {
     }).addTo(this.map);
 
     // add point markers to map
-    this.points.forEach((point) => {
+    this.points().forEach((point) => {
       this.createMarker(point);
     });
   }
@@ -65,7 +63,7 @@ export class SeMapComponent implements OnInit, OnChanges {
       this.hoverPoint.emit(point.id);
     });
     marker.on('mouseout', () => {
-      this.hoverPoint.emit();
+      this.hoverPoint.emit(undefined);
     });
     marker.on('click', () => {
       this.clickPoint.emit(point.id);
@@ -77,7 +75,7 @@ export class SeMapComponent implements OnInit, OnChanges {
   // selects point to make visually different on map
   selectPoint() {
     this.markers.forEach((marker) => {
-      if (marker.point.id === this.selectedPoint) {
+      if (marker.point.id === this.selectedPoint()) {
         marker.marker._icon.classList.add('active-marker');
       } else {
         marker.marker._icon.classList.remove('active-marker');

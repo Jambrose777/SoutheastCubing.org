@@ -8,7 +8,7 @@ describe('SeFilterMapComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [SeFilterMapComponent],
+      imports: [SeFilterMapComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SeFilterMapComponent);

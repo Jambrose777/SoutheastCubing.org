@@ -8,7 +8,7 @@ describe('CatsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CatsComponent],
+      imports: [CatsComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CatsComponent);

@@ -2,42 +2,42 @@
   <!-- Topic Title -->
   @if (!isMobile) {
     <h2 class="title-text">
-      {{ selectedSubTopic.title }}
+      {{ selectedSubTopic().title }}
     </h2>
   }
 
   <!-- Topic Photo -->
-  @if (selectedSubTopic.photo) {
+  @if (selectedSubTopic().photo) {
     <div class="photo-container">
-      <img class="image medium-image" src="{{ selectedSubTopic.photo }}" />
+      <img class="image medium-image" src="{{ selectedSubTopic().photo }}" />
     </div>
   }
 
   <!-- Topic Description -->
-  @if (selectedSubTopic.description) {
+  @if (selectedSubTopic().description) {
     <div class="medium-text-content">
-      <markdown [data]="selectedSubTopic.description"></markdown>
+      <markdown [data]="selectedSubTopic().description"></markdown>
     </div>
   }
 
   <!-- Button for link to relevant page -->
-  @if (selectedSubTopic.buttonText) {
+  @if (selectedSubTopic().buttonText) {
     <div>
       <!-- External -->
-      @if (selectedSubTopic.buttonExternalLink) {
-        <a class="btn" [href]="selectedSubTopic.buttonExternalLink" target="_blank">
-          {{ selectedSubTopic.buttonText }}
-          @if (selectedSubTopic.buttonIcon) {
-            <i class="fa-solid {{ selectedSubTopic.buttonIcon }} fa-lg"></i>
+      @if (selectedSubTopic().buttonExternalLink) {
+        <a class="btn" [href]="selectedSubTopic().buttonExternalLink" target="_blank">
+          {{ selectedSubTopic().buttonText }}
+          @if (selectedSubTopic().buttonIcon) {
+            <i class="fa-solid {{ selectedSubTopic().buttonIcon }} fa-lg"></i>
           }
         </a>
       }
       <!-- Internal -->
-      @if (selectedSubTopic.buttonInternalLink) {
-        <a class="btn" [routerLink]="'/' + selectedSubTopic.buttonInternalLink">
-          {{ selectedSubTopic.buttonText }}
-          @if (selectedSubTopic.buttonIcon) {
-            <i class="fa-solid {{ selectedSubTopic.buttonIcon }} fa-lg"></i>
+      @if (selectedSubTopic().buttonInternalLink) {
+        <a class="btn" [routerLink]="'/' + selectedSubTopic().buttonInternalLink">
+          {{ selectedSubTopic().buttonText }}
+          @if (selectedSubTopic().buttonIcon) {
+            <i class="fa-solid {{ selectedSubTopic().buttonIcon }} fa-lg"></i>
           }
         </a>
       }

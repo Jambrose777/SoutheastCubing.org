@@ -1,24 +1,24 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ScreenSizeService } from './services/screen-size.service';
 import { LinksService } from './services/links.service';
+import { RouterOutlet } from '@angular/router';
+import { FooterComponent } from './components/core/footer/footer.component';
 
 @Component({
   selector: 'se-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [RouterOutlet, FooterComponent],
 })
 export class AppComponent implements OnInit, OnDestroy {
+  private screenSizeService = inject(ScreenSizeService);
+  private linksService = inject(LinksService);
+
   title = 'southeast-cubing';
   isMobile: boolean;
   subscriptions: Subscription = new Subscription();
-
-  constructor(
-    private screenSizeService: ScreenSizeService,
-    private linksService: LinksService,
-  ) {}
 
   ngOnInit(): void {
     this.screenSizeService.setUpScreenSize();

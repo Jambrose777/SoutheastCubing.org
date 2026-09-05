@@ -2,21 +2,21 @@
   <!-- Cat Name -->
   @if (!isMobile) {
     <h2 class="title-text">
-      {{ selectedCat.name }}
+      {{ selectedCat().name }}
     </h2>
   }
 
   <!-- Cat Photo -->
-  @if (selectedCat.photo) {
+  @if (selectedCat().photo) {
     <div class="photo-container">
-      <img class="image medium-image" src="{{ selectedCat.photo }}" />
+      <img class="image medium-image" src="{{ selectedCat().photo }}" />
     </div>
   }
 
   <!-- Short Cat description -->
-  @if (selectedCat.description) {
+  @if (selectedCat().description) {
     <div class="small-text-content">
-      {{ selectedCat.description }}
+      {{ selectedCat().description }}
     </div>
   }
 </div>

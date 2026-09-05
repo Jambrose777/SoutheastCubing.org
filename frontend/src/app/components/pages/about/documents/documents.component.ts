@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { DocumentLink } from 'src/app/models/Document';
 
 @Component({
@@ -6,10 +6,9 @@ import { DocumentLink } from 'src/app/models/Document';
   templateUrl: './documents.component.html',
   styleUrls: ['./documents.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
 })
 export class DoucmentsComponent {
-  @Input() documents: DocumentLink[];
+  documents = input<DocumentLink[]>();
 
   constructor() {}
 }

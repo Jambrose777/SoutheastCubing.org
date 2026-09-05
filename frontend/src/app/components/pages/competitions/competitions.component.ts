@@ -1,4 +1,11 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  input,
+  OnDestroy,
+  OnInit,
+  ChangeDetectionStrategy,
+  inject,
+} from '@angular/core';
 import { Competition } from 'src/app/models/Competition';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
@@ -7,21 +14,46 @@ import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { NavService } from 'src/app/services/nav.service';
 import { environment } from 'src/environments/environment';
 import { ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
+import { Location, NgClass } from '@angular/common';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
 import { SouteastcubingApiService } from 'src/app/services/souteastcubing-api.service';
 import { MapPoint, MarkerColorClass } from 'src/app/models/Map';
+import { HeaderComponent } from '../../core/header/header.component';
+import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
+import { MarkdownComponent } from 'ngx-markdown';
+import { SeMapComponent } from '../../shared/se-map/se-map.component';
+import { EventListComponent } from '../../shared/event-list/event-list.component';
+import { SeFilterMapComponent } from '../../shared/se-filter-map/se-filter-map.component';
+import { SelectedCompetitionComponent } from './selected-competition/selected-competition.component';
 
 @Component({
   selector: 'se-competitions',
   templateUrl: './competitions.component.html',
   styleUrls: ['./competitions.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [
+    HeaderComponent,
+    LoadingSpinnerComponent,
+    MarkdownComponent,
+    SeMapComponent,
+    EventListComponent,
+    SeFilterMapComponent,
+    SelectedCompetitionComponent,
+    NgClass,
+  ],
 })
 export class CompetitionsComponent implements OnInit, OnDestroy {
+  private contentful = inject(ContentfulService);
+  private southeastcubingApiService = inject(SouteastcubingApiService);
+  private themeService = inject(ThemeService);
+  private navService = inject(NavService);
+  private route = inject(ActivatedRoute);
+  private location = inject(Location);
+  private screenSizeService = inject(ScreenSizeService);
+  linksService = inject(LinksService);
+
   isMobile: boolean;
   StateColors = StateColors;
   environment = environment;
@@ -32,7 +64,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   loadingContent: boolean = true;
   loadingCompetitions: boolean = true;
   selectedCompetition: Competition;
-  selectedCompetitionIdFromRoute: string;
+  competitionId = input<string>();
   hoveredMapCompetition: string;
   hoveredListCompetition: string;
   subText: string = '';
@@ -45,17 +77,6 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   competitionMapPoints: MapPoint[];
   subscriptions: Subscription = new Subscription();
 
-  constructor(
-    private contentful: ContentfulService,
-    private southeastcubingApiService: SouteastcubingApiService,
-    private themeService: ThemeService,
-    private navService: NavService,
-    private route: ActivatedRoute,
-    private location: Location,
-    private screenSizeService: ScreenSizeService,
-    public linksService: LinksService,
-  ) {}
-
   ngOnInit(): void {
     // sets up responsive screensize
     this.subscriptions.add(
@@ -66,13 +87,6 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
 
     // sets up main color for the competitions page
     this.themeService.setMainPaneColor(Colors.darkGrey);
-
-    // collect competitionId from params
-    this.subscriptions.add(
-      this.route.params.subscribe((params) => {
-        this.selectedCompetitionIdFromRoute = params['competitionId'];
-      }),
-    );
 
     // collect filters from query params
     this.subscriptions.add(
@@ -116,9 +130,9 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
         this.competitions = res;
         this.filteredCompetitions = res;
         this.filterCompetitions();
-        if (this.selectedCompetitionIdFromRoute) {
+        if (this.competitionId()) {
           const foundCompetition = this.competitions.find(
-            (comp) => comp.id === this.selectedCompetitionIdFromRoute,
+            (comp) => comp.id === this.competitionId(),
           );
           if (foundCompetition) {
             this.selectCompetition(foundCompetition);

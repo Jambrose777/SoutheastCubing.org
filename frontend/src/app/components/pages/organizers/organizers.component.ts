@@ -1,43 +1,56 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  input,
+  OnDestroy,
+  OnInit,
+  ChangeDetectionStrategy,
+  inject,
+} from '@angular/core';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
-import { Location } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { Location, NgClass } from '@angular/common';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
+import { HeaderComponent } from '../../core/header/header.component';
+import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
+import { MarkdownComponent } from 'ngx-markdown';
+import { SelectedSubTopicComponent } from '../../shared/selected-sub-topic/selected-sub-topic.component';
 
 @Component({
   selector: 'se-organizers',
   templateUrl: './organizers.component.html',
   styleUrls: ['./organizers.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [
+    HeaderComponent,
+    LoadingSpinnerComponent,
+    MarkdownComponent,
+    SelectedSubTopicComponent,
+    NgClass,
+  ],
 })
 export class OrganizersComponent implements OnInit, OnDestroy {
+  private contentful = inject(ContentfulService);
+  private themeService = inject(ThemeService);
+  private navService = inject(NavService);
+  private location = inject(Location);
+  private screenSizeService = inject(ScreenSizeService);
+
   isMobile: boolean;
   title: string = 'Organizer Guidelines';
   description: string = '';
   loadingContent: boolean = true;
   subTopics: SubTopic[];
   selectedSubTopic: SubTopic;
-  selectedSubTopicTitleFromRoute: string;
+  subTopicId = input<string>();
   subText: string;
   subTextButtonText: string = '';
   subTextButtonLink: string = '';
   subscriptions: Subscription = new Subscription();
-
-  constructor(
-    private contentful: ContentfulService,
-    private themeService: ThemeService,
-    private navService: NavService,
-    private route: ActivatedRoute,
-    private location: Location,
-    private screenSizeService: ScreenSizeService,
-  ) {}
 
   ngOnInit(): void {
     // sets up responsive screensize
@@ -49,13 +62,6 @@ export class OrganizersComponent implements OnInit, OnDestroy {
 
     // sets up main color for the Organizers page
     this.themeService.setMainPaneColor(Colors.yellow);
-
-    // collect subTopicId from params
-    this.subscriptions.add(
-      this.route.params.subscribe((params) => {
-        this.selectedSubTopicTitleFromRoute = params['subTopicId'];
-      }),
-    );
 
     // retireve formats data from the CMS Organizers Page
     this.subscriptions.add(
@@ -72,10 +78,9 @@ export class OrganizersComponent implements OnInit, OnDestroy {
         this.subTextButtonLink = res.fields.subText1ButtonLink;
 
         // select topic based on route information
-        if (this.selectedSubTopicTitleFromRoute) {
+        if (this.subTopicId()) {
           const foundSubTopic = this.subTopics.find(
-            (subTopic) =>
-              subTopic.title.replace(/ +/g, '-') === this.selectedSubTopicTitleFromRoute,
+            (subTopic) => subTopic.title.replace(/ +/g, '-') === this.subTopicId(),
           );
           if (foundSubTopic) {
             this.selectSubTopic(foundSubTopic);

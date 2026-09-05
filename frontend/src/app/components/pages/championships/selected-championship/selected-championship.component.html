@@ -1,16 +1,16 @@
-@if (selectedChampionship) {
+@if (selectedChampionship()) {
   <div class="selected-item-container">
     <!-- Championship Name -->
     @if (!isMobile) {
       <a
-        [href]="enviroment.links.wcaCompetition + selectedChampionship.id"
+        [href]="enviroment.links.wcaCompetition + selectedChampionship().id"
         target="_blank"
         class="name-container"
       >
         <!-- Competition Logo -->
-        <img src="{{ selectedChampionship.logo }}" class="competitiion-logo" />
+        <img src="{{ selectedChampionship().logo }}" class="competitiion-logo" />
         <h2 class="title-text">
-          {{ selectedChampionship.name }}
+          {{ selectedChampionship().name }}
         </h2>
         <!-- WCA Logo -->
         <img src="assets/wca_logo.svg" class="wca-logo" />
@@ -19,35 +19,35 @@
     <!-- Championship Location -->
     <div class="small-text-content">
       @if (!isMobile) {
-        <span>{{ selectedChampionship.city }} -</span>
+        <span>{{ selectedChampionship().city }} -</span>
       }
       @if (isMobile) {
-        <a [href]="enviroment.links.wcaCompetition + selectedChampionship.id" target="_blank">
+        <a [href]="enviroment.links.wcaCompetition + selectedChampionship().id" target="_blank">
           <img src="assets/wca_logo.svg" class="wca-logo-small" />
         </a>
       }
-      {{ selectedChampionship.date }}
-      @if (selectedChampionship.competitors) {
-        <span>- {{ selectedChampionship.competitors }} Competitors</span>
+      {{ selectedChampionship().date }}
+      @if (selectedChampionship().competitors) {
+        <span>- {{ selectedChampionship().competitors }} Competitors</span>
       }
     </div>
     <!-- Championship Photos in a carousel -->
     <!-- Temporarily disabled: angular-responsive-carousel is incompatible with Angular 16+'s
     Ivy-only compiler. Replacing it with a supported alternative to restore this carousel is
     tracked as separate backlog work. -->
-    <!-- <div class="photo-container" *ngIf="selectedChampionship.images">
-    <carousel [images]="selectedChampionship.images" [cellsToShow]="1" [height]="300" [loop]="true" [autoplay]="true"
+    <!-- <div class="photo-container" *ngIf="selectedChampionship().images">
+    <carousel [images]="selectedChampionship().images" [cellsToShow]="1" [height]="300" [loop]="true" [autoplay]="true"
       [arrows]="false">
     </carousel>
   </div> -->
     <!-- Short Championship description -->
-    @if (selectedChampionship.description) {
+    @if (selectedChampionship().description) {
       <div class="small-text-content">
-        <markdown [data]="selectedChampionship.description"></markdown>
+        <markdown [data]="selectedChampionship().description"></markdown>
       </div>
     }
     <!-- Champions Table -->
-    @if (selectedChampionship.champions) {
+    @if (selectedChampionship().champions) {
       <div class="champions-table">
         <div class="row header">
           <div class="col-2 border">
@@ -60,7 +60,7 @@
             <span class="table-text"><b>Overall Champion</b></span>
           </div>
         </div>
-        @for (champion of selectedChampionship.champions; track champion) {
+        @for (champion of selectedChampionship().champions; track champion) {
           <div class="row">
             <div class="col-2 border">
               <span class="table-text"

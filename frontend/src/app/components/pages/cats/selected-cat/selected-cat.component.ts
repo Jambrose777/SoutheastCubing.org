@@ -1,4 +1,11 @@
-import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  input,
+  OnDestroy,
+  OnInit,
+  ChangeDetectionStrategy,
+  inject,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Cat } from 'src/app/models/Cat';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
@@ -8,14 +15,13 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
   templateUrl: './selected-cat.component.html',
   styleUrls: ['./selected-cat.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
 })
 export class SelectedCatComponent implements OnInit, OnDestroy {
-  isMobile: boolean;
-  @Input() selectedCat: Cat;
-  subscriptions: Subscription = new Subscription();
+  private screenSizeService = inject(ScreenSizeService);
 
-  constructor(private screenSizeService: ScreenSizeService) {}
+  isMobile: boolean;
+  selectedCat = input<Cat>();
+  subscriptions: Subscription = new Subscription();
 
   ngOnInit(): void {
     // sets up responsive screensize

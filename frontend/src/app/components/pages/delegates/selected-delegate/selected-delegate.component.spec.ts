@@ -8,7 +8,7 @@ describe('SelectedDelegateComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [SelectedDelegateComponent],
+      imports: [SelectedDelegateComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SelectedDelegateComponent);

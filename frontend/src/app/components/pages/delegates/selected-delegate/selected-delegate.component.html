@@ -2,35 +2,35 @@
   <!-- Delegate Name -->
   @if (!isMobile) {
     <h2 class="title-text">
-      {{ selectedDelegate.name }}
+      {{ selectedDelegate().name }}
     </h2>
   }
 
   <!-- Delegate Status & Location  -->
   <div class="small-text-content">
-    {{ selectedDelegate.delegateType }}
+    {{ selectedDelegate().delegateType }}
     @if (!isMobile) {
-      <span> - {{ selectedDelegate.state }}</span>
+      <span> - {{ selectedDelegate().state }}</span>
     }
   </div>
 
   <!-- Delegate Photo -->
-  @if (selectedDelegate.photo) {
+  @if (selectedDelegate().photo) {
     <div class="photo-container">
-      <img class="image medium-image" src="{{ selectedDelegate.photo }}" />
+      <img class="image medium-image" src="{{ selectedDelegate().photo }}" />
     </div>
   }
 
   <!-- Short Delegate description -->
-  @if (selectedDelegate.description) {
+  @if (selectedDelegate().description) {
     <div class="small-text-content">
-      <markdown [data]="selectedDelegate.description"></markdown>
+      <markdown [data]="selectedDelegate().description"></markdown>
     </div>
   }
 
   <!-- WCA Logo -->
   <a
-    href="{{ enviroment.links.wcaProfile + selectedDelegate.wcaid }}"
+    href="{{ enviroment.links.wcaProfile + selectedDelegate().wcaid }}"
     target="_blank"
     class="wca-logo-container"
   >

@@ -1,24 +1,34 @@
-import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  input,
+  OnDestroy,
+  OnInit,
+  ChangeDetectionStrategy,
+  inject,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
+import { RouterLink } from '@angular/router';
+import { NgClass } from '@angular/common';
+import { NavComponent } from '../nav/nav.component';
 
 @Component({
   selector: 'se-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [RouterLink, NgClass, NavComponent],
 })
 export class HeaderComponent implements OnInit, OnDestroy {
+  private screenSizeService = inject(ScreenSizeService);
+
   isMobile: boolean;
-  @Input() title: string = 'Southeast Cubing';
-  @Input() useMediumBreakpoint: boolean = false;
-  @Input() activateNavOnDefault: boolean = false;
+  title = input<string>('Southeast Cubing');
+  useMediumBreakpoint = input<boolean>(false);
+  activateNavOnDefault = input<boolean>(false);
   isNavActive = false;
   transition = false;
   subscriptions: Subscription = new Subscription();
-
-  constructor(private screenSizeService: ScreenSizeService) {}
 
   ngOnInit(): void {
     // sets up responsive screensize
@@ -28,8 +38,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
         .subscribe((isMobile) => (this.isMobile = isMobile)),
     );
 
-    if (this.activateNavOnDefault) {
-      this.toggleNav(this.activateNavOnDefault);
+    if (this.activateNavOnDefault()) {
+      this.toggleNav(this.activateNavOnDefault());
     }
   }
 

@@ -1,4 +1,11 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  input,
+  OnDestroy,
+  OnInit,
+  ChangeDetectionStrategy,
+  inject,
+} from '@angular/core';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { Delegate } from 'src/app/models/Delegate';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -6,25 +13,41 @@ import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, StateColors } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
-import { Location } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { Location, NgClass } from '@angular/common';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
+import { HeaderComponent } from '../../core/header/header.component';
+import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
+import { MarkdownComponent } from 'ngx-markdown';
+import { SelectedDelegateComponent } from './selected-delegate/selected-delegate.component';
 
 @Component({
   selector: 'se-delegates',
   templateUrl: './delegates.component.html',
   styleUrls: ['./delegates.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [
+    HeaderComponent,
+    LoadingSpinnerComponent,
+    MarkdownComponent,
+    SelectedDelegateComponent,
+    NgClass,
+  ],
 })
 export class DelegatesComponent implements OnInit, OnDestroy {
+  private contentful = inject(ContentfulService);
+  private themeService = inject(ThemeService);
+  private navService = inject(NavService);
+  private location = inject(Location);
+  private screenSizeService = inject(ScreenSizeService);
+  linksService = inject(LinksService);
+
   isMobile: boolean;
   StateColors = StateColors;
   enviroment = environment;
   delegates: Delegate[];
-  selectedDelegateNameFromRoute: string;
+  delegateName = input<string>();
   title: string = 'Southeast Delegates';
   description: string = '';
   subText: string = '';
@@ -34,16 +57,6 @@ export class DelegatesComponent implements OnInit, OnDestroy {
   loadingDelegates: boolean = true;
   selectedDelegate: Delegate;
   subscriptions: Subscription = new Subscription();
-
-  constructor(
-    private contentful: ContentfulService,
-    private themeService: ThemeService,
-    private navService: NavService,
-    private route: ActivatedRoute,
-    private location: Location,
-    private screenSizeService: ScreenSizeService,
-    public linksService: LinksService,
-  ) {}
 
   ngOnInit(): void {
     // sets up responsive screensize
@@ -55,13 +68,6 @@ export class DelegatesComponent implements OnInit, OnDestroy {
 
     // sets up main color for the delegates page
     this.themeService.setMainPaneColor(Colors.green);
-
-    // collect competitionId from params
-    this.subscriptions.add(
-      this.route.params.subscribe((params) => {
-        this.selectedDelegateNameFromRoute = params['delegateName'];
-      }),
-    );
 
     // retireve, sorts, and formats data from the CMS Delegates Entries
     this.subscriptions.add(
@@ -76,9 +82,9 @@ export class DelegatesComponent implements OnInit, OnDestroy {
                 thumbnail: delegate.fields['thumbnail']?.fields.file.url,
               }) as Delegate,
           );
-        if (this.selectedDelegateNameFromRoute) {
+        if (this.delegateName()) {
           const foundDelegate = this.delegates.find(
-            (delegate) => delegate.name.replace(/ +/g, '-') === this.selectedDelegateNameFromRoute,
+            (delegate) => delegate.name.replace(/ +/g, '-') === this.delegateName(),
           );
           if (foundDelegate) {
             this.selectDelegate(foundDelegate);

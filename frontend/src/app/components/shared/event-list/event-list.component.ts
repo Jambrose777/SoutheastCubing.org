@@ -1,18 +1,19 @@
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { Colors, Events } from 'src/app/shared/types';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'se-event-list',
   templateUrl: './event-list.component.html',
   styleUrls: ['./event-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [NgClass],
 })
 export class EventListComponent {
   Events = Events;
   Colors = Colors;
-  @Input() selectedEvents: string[];
-  @Output() selectEventEmitter = new EventEmitter<string>();
+  selectedEvents = input<string[]>();
+  selectEventEmitter = output<string>();
 
   constructor() {}
 

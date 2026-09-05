@@ -8,7 +8,7 @@ describe('EventListComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [EventListComponent],
+      imports: [EventListComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EventListComponent);

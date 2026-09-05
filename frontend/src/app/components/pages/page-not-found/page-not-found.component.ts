@@ -1,30 +1,31 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
+import { HeaderComponent } from '../../core/header/header.component';
+import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
+import { MarkdownComponent } from 'ngx-markdown';
 
 @Component({
   selector: 'se-page-not-found',
   templateUrl: './page-not-found.component.html',
   styleUrls: ['./page-not-found.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [HeaderComponent, LoadingSpinnerComponent, MarkdownComponent],
 })
 export class PageNotFoundComponent implements OnInit, OnDestroy {
+  private contentful = inject(ContentfulService);
+  private themeService = inject(ThemeService);
+  private screenSizeService = inject(ScreenSizeService);
+
   isMobile: boolean;
   title: string = 'Page Not Found';
   description: string = '';
   loadingContent: boolean = true;
   subscriptions: Subscription = new Subscription();
-
-  constructor(
-    private contentful: ContentfulService,
-    private themeService: ThemeService,
-    private screenSizeService: ScreenSizeService,
-  ) {}
 
   ngOnInit(): void {
     // sets up responsive screensize

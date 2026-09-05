@@ -1,15 +1,16 @@
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { Team } from 'src/app/models/Team';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'se-teams',
   templateUrl: './teams.component.html',
   styleUrls: ['./teams.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [NgClass],
 })
 export class TeamsComponent {
-  @Input() teams: Team[];
+  teams = input<Team[]>();
 
   constructor() {}
 }

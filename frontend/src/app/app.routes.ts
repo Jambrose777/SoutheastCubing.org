@@ -1,5 +1,4 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { CompetitionsComponent } from './components/pages/competitions/competitions.component';
 import { UpdateCompetitionsComponent } from './components/pages/update-competitions/update-competitions.component';
 import { ClubsComponent } from './components/pages/clubs/clubs.component';
@@ -13,7 +12,7 @@ import { AboutComponent } from './components/pages/about/about.component';
 import { CatsComponent } from './components/pages/cats/cats.component';
 import { PageNotFoundComponent } from './components/pages/page-not-found/page-not-found.component';
 
-const routes: Routes = [
+export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
   {
     path: 'competitions',
@@ -77,9 +76,3 @@ const routes: Routes = [
     title: 'SoutheastCubing - Page Not Found',
   },
 ];
-
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule],
-})
-export class AppRoutingModule {}

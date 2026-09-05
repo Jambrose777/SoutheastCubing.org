@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { EmailRequestBody } from '../models/EmailRequestBody';
 import { Observable, map } from 'rxjs';
@@ -10,7 +10,7 @@ import { getRegistrationStatus, getReadableRegistrationOpen } from '../shared/co
   providedIn: 'root',
 })
 export class SouteastcubingApiService {
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
 
   contactSubmission(body: EmailRequestBody) {
     return this.http.post(`${environment.links.southeastCubingApi}/email`, body);

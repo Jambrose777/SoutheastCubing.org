@@ -1,26 +1,48 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { Location } from '@angular/common';
+import {
+  Component,
+  input,
+  OnDestroy,
+  OnInit,
+  ChangeDetectionStrategy,
+  inject,
+} from '@angular/core';
+import { Location, NgClass } from '@angular/common';
 import { Cat } from 'src/app/models/Cat';
 import { Subscription } from 'rxjs';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { NavService } from 'src/app/services/nav.service';
-import { ActivatedRoute } from '@angular/router';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Colors } from 'src/app/shared/types';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
+import { HeaderComponent } from '../../core/header/header.component';
+import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
+import { MarkdownComponent } from 'ngx-markdown';
+import { SelectedCatComponent } from './selected-cat/selected-cat.component';
 
 @Component({
   selector: 'se-cats',
   templateUrl: './cats.component.html',
   styleUrls: ['./cats.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [
+    HeaderComponent,
+    LoadingSpinnerComponent,
+    MarkdownComponent,
+    SelectedCatComponent,
+    NgClass,
+  ],
 })
 export class CatsComponent implements OnInit, OnDestroy {
+  private contentful = inject(ContentfulService);
+  private themeService = inject(ThemeService);
+  private navService = inject(NavService);
+  private location = inject(Location);
+  private screenSizeService = inject(ScreenSizeService);
+
   isMobile: boolean;
   cats: Cat[];
-  selectedCatNameFromRoute: string;
+  catName = input<string>();
   title: string = 'Southeast Cats';
   description: string = '';
   loadingContent: boolean = true;
@@ -38,15 +60,6 @@ export class CatsComponent implements OnInit, OnDestroy {
     Colors.red,
   ];
 
-  constructor(
-    private contentful: ContentfulService,
-    private themeService: ThemeService,
-    private navService: NavService,
-    private route: ActivatedRoute,
-    private location: Location,
-    private screenSizeService: ScreenSizeService,
-  ) {}
-
   ngOnInit(): void {
     // sets up responsive screensize
     this.subscriptions.add(
@@ -57,13 +70,6 @@ export class CatsComponent implements OnInit, OnDestroy {
 
     // sets up main color for the cats page
     this.themeService.setMainPaneColor(Colors.yellow);
-
-    // collect competitionId from params
-    this.subscriptions.add(
-      this.route.params.subscribe((params) => {
-        this.selectedCatNameFromRoute = params['catName'];
-      }),
-    );
 
     // retireve, sorts, and formats data from the CMS Cats Entries
     this.subscriptions.add(
@@ -82,9 +88,9 @@ export class CatsComponent implements OnInit, OnDestroy {
                   this.availableColors[Math.floor(Math.random() * this.availableColors.length)],
               }) as Cat,
           );
-        if (this.selectedCatNameFromRoute) {
+        if (this.catName()) {
           const foundCat = this.cats?.find(
-            (cat) => cat.name.replace(/ +/g, '-') === this.selectedCatNameFromRoute,
+            (cat) => cat.name.replace(/ +/g, '-') === this.catName(),
           );
           if (foundCat) {
             this.selectCat(foundCat);

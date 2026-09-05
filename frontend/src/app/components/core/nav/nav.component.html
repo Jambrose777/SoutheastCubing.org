@@ -2,12 +2,12 @@
   <div
     class="navigation"
     (click)="toggleNav()"
-    [ngClass]="{ active: isNavActive, transitioned: !transition }"
+    [ngClass]="{ active: isNavActive(), transitioned: !transition() }"
   >
     <span
       style="--i: 5; --x: -1; --y: -1"
       class="blue-cube"
-      [routerLink]="isNavActive ? '/home' : []"
+      [routerLink]="isNavActive() ? '/home' : []"
     >
       <i class="fa-solid fa-home fa-2xl clickable"></i>
       <div class="hidden-text">Home</div>
@@ -15,7 +15,7 @@
     <span
       style="--i: 2; --x: 0; --y: -1"
       class="grey-cube"
-      [routerLink]="isNavActive ? '/competitions' : []"
+      [routerLink]="isNavActive() ? '/competitions' : []"
     >
       <i class="fa-solid fa-table-list fa-2xl clickable"></i>
       <div class="hidden-text">Competitions</div>
@@ -23,7 +23,7 @@
     <span
       style="--i: 6; --x: 1; --y: -1"
       class="purple-cube"
-      [routerLink]="isNavActive ? '/clubs' : []"
+      [routerLink]="isNavActive() ? '/clubs' : []"
     >
       <i class="fa-solid fa-location-dot fa-2xl clickable"></i>
       <div class="hidden-text">Clubs</div>
@@ -31,7 +31,7 @@
     <span
       style="--i: 0; --x: -1; --y: 0"
       class="red-cube"
-      [routerLink]="isNavActive ? '/involvement' : []"
+      [routerLink]="isNavActive() ? '/involvement' : []"
     >
       <i class="fa-solid fa-handshake-angle fa-2xl clickable"></i>
       <div class="hidden-text">Get Involved</div>
@@ -39,7 +39,7 @@
     <span
       style="--i: 8; --x: 0; --y: 0"
       class="black-cube"
-      [routerLink]="isNavActive ? '/championships' : []"
+      [routerLink]="isNavActive() ? '/championships' : []"
     >
       <i class="fa-solid fa-trophy fa-2xl clickable"></i>
       <div class="hidden-text">SE Champs</div>
@@ -47,7 +47,7 @@
     <span
       style="--i: 1; --x: 1; --y: 0"
       class="green-cube"
-      [routerLink]="isNavActive ? '/delegates' : []"
+      [routerLink]="isNavActive() ? '/delegates' : []"
     >
       <i class="fa-solid fa-address-card fa-2xl clickable"></i>
       <div class="hidden-text">Delegates</div>
@@ -55,7 +55,7 @@
     <span
       style="--i: 4; --x: -1; --y: 1"
       class="white-cube"
-      [routerLink]="isNavActive ? '/organizers' : []"
+      [routerLink]="isNavActive() ? '/organizers' : []"
     >
       <i class="fa-solid fa-file-lines fa-2xl clickable"></i>
       <div class="hidden-text">Organizers</div>
@@ -63,7 +63,7 @@
     <span
       style="--i: 3; --x: 0; --y: 1"
       class="orange-cube"
-      [routerLink]="isNavActive ? '/about' : []"
+      [routerLink]="isNavActive() ? '/about' : []"
     >
       <i class="fa-solid fa-circle-info fa-2xl clickable"></i>
       <div class="hidden-text">About SECI</div>
@@ -71,7 +71,7 @@
     <span
       style="--i: 7; --x: 1; --y: 1"
       class="yellow-cube"
-      [routerLink]="isNavActive ? '/contact' : []"
+      [routerLink]="isNavActive() ? '/contact' : []"
     >
       <i class="fa-solid fa-envelope fa-2xl clickable"></i>
       <div class="hidden-text">Contact</div>

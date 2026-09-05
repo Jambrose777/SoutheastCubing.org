@@ -1,23 +1,31 @@
-import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  input,
+  OnDestroy,
+  OnInit,
+  ChangeDetectionStrategy,
+  inject,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Delegate } from 'src/app/models/Delegate';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { environment } from 'src/environments/environment';
+import { MarkdownComponent } from 'ngx-markdown';
 
 @Component({
   selector: 'se-selected-delegate',
   templateUrl: './selected-delegate.component.html',
   styleUrls: ['./selected-delegate.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [MarkdownComponent],
 })
 export class SelectedDelegateComponent implements OnInit, OnDestroy {
+  private screenSizeService = inject(ScreenSizeService);
+
   isMobile: boolean;
   enviroment = environment;
-  @Input() selectedDelegate: Delegate;
+  selectedDelegate = input<Delegate>();
   subscriptions: Subscription = new Subscription();
-
-  constructor(private screenSizeService: ScreenSizeService) {}
 
   ngOnInit(): void {
     // sets up responsive screensize

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import moment from 'moment';
 import { map, Observable, of } from 'rxjs';
 import { LocalStorageService } from './local-storage.service';
@@ -8,10 +8,8 @@ import { LocalStorageService } from './local-storage.service';
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(
-    private http: HttpClient,
-    private localstorage: LocalStorageService,
-  ) {}
+  private http = inject(HttpClient);
+  private localstorage = inject(LocalStorageService);
 
   getIpAddress(): Observable<string> {
     // checks if ip is stored in local storage for the same day (psudo-cache) to not spam the geolocation with too many requests.

@@ -1,4 +1,11 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  input,
+  OnDestroy,
+  OnInit,
+  ChangeDetectionStrategy,
+  inject,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { SubTopic } from 'src/app/models/SubTopic';
@@ -8,18 +15,37 @@ import { NavService } from 'src/app/services/nav.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
-import { Location } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { Location, NgClass } from '@angular/common';
 import { DocumentLink } from 'src/app/models/Document';
+import { HeaderComponent } from '../../core/header/header.component';
+import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
+import { MarkdownComponent } from 'ngx-markdown';
+import { SelectedSubTopicComponent } from '../../shared/selected-sub-topic/selected-sub-topic.component';
+import { TeamsComponent } from './teams/teams.component';
+import { DoucmentsComponent } from './documents/documents.component';
 
 @Component({
   selector: 'se-about',
   templateUrl: './about.component.html',
   styleUrls: ['./about.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [
+    HeaderComponent,
+    LoadingSpinnerComponent,
+    MarkdownComponent,
+    SelectedSubTopicComponent,
+    TeamsComponent,
+    DoucmentsComponent,
+    NgClass,
+  ],
 })
 export class AboutComponent implements OnInit, OnDestroy {
+  private contentful = inject(ContentfulService);
+  private themeService = inject(ThemeService);
+  private screenSizeService = inject(ScreenSizeService);
+  private location = inject(Location);
+  private navService = inject(NavService);
+
   isMobile: boolean;
   title: string = 'About SECI';
   description: string = '';
@@ -28,19 +54,10 @@ export class AboutComponent implements OnInit, OnDestroy {
   loadingDocuments: boolean = true;
   subTopics: SubTopic[];
   selectedSubTopic: SubTopic;
-  selectedSubTopicTitleFromRoute: string;
+  subTopicId = input<string>();
   teams: Team[];
   documents: DocumentLink[];
   subscriptions: Subscription = new Subscription();
-
-  constructor(
-    private contentful: ContentfulService,
-    private themeService: ThemeService,
-    private screenSizeService: ScreenSizeService,
-    private location: Location,
-    private navService: NavService,
-    private route: ActivatedRoute,
-  ) {}
 
   ngOnInit(): void {
     // sets up responsive screensize
@@ -52,13 +69,6 @@ export class AboutComponent implements OnInit, OnDestroy {
 
     // sets up main color for the Involvement page
     this.themeService.setMainPaneColor(Colors.orange);
-
-    // collect subTopicId from params
-    this.subscriptions.add(
-      this.route.params.subscribe((params) => {
-        this.selectedSubTopicTitleFromRoute = params['subTopicId'];
-      }),
-    );
 
     // retireve formats data from the CMS Involvement Page
     this.subscriptions.add(
@@ -79,10 +89,9 @@ export class AboutComponent implements OnInit, OnDestroy {
         ];
 
         // select a subtopic based on url on load
-        if (this.selectedSubTopicTitleFromRoute) {
+        if (this.subTopicId()) {
           const foundSubTopic = this.subTopics.find(
-            (subTopic) =>
-              subTopic.title.replace(/ +/g, '-') === this.selectedSubTopicTitleFromRoute,
+            (subTopic) => subTopic.title.replace(/ +/g, '-') === this.subTopicId(),
           );
           if (foundSubTopic) {
             this.selectSubTopic(foundSubTopic);

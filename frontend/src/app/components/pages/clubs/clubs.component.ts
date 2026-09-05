@@ -1,4 +1,11 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  input,
+  OnDestroy,
+  OnInit,
+  ChangeDetectionStrategy,
+  inject,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Club } from 'src/app/models/Club';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
@@ -7,20 +14,42 @@ import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, StateColors, States } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
-import { Location } from '@angular/common';
+import { Location, NgClass } from '@angular/common';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
 import { MapPoint } from 'src/app/models/Map';
+import { HeaderComponent } from '../../core/header/header.component';
+import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
+import { MarkdownComponent } from 'ngx-markdown';
+import { SeMapComponent } from '../../shared/se-map/se-map.component';
+import { SeFilterMapComponent } from '../../shared/se-filter-map/se-filter-map.component';
+import { SelectedClubComponent } from './selected-club/selected-club.component';
 
 @Component({
   selector: 'se-clubs',
   templateUrl: './clubs.component.html',
   styleUrls: ['./clubs.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [
+    HeaderComponent,
+    LoadingSpinnerComponent,
+    MarkdownComponent,
+    SeMapComponent,
+    SeFilterMapComponent,
+    SelectedClubComponent,
+    NgClass,
+  ],
 })
 export class ClubsComponent implements OnInit, OnDestroy {
+  private contentful = inject(ContentfulService);
+  private themeService = inject(ThemeService);
+  private navService = inject(NavService);
+  private route = inject(ActivatedRoute);
+  private location = inject(Location);
+  private screenSizeService = inject(ScreenSizeService);
+  linksService = inject(LinksService);
+
   isMobile: boolean;
   StateColors = StateColors;
   enviroment = environment;
@@ -31,7 +60,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
   clubs: Club[];
   filteredClubs: Club[];
   selectedClub: Club;
-  selectedClubIdFromRoute: string;
+  clubId = input<string>();
   subText1: string = '';
   subText1ButtonText: string = '';
   subText1ButtonLink: string = '';
@@ -48,16 +77,6 @@ export class ClubsComponent implements OnInit, OnDestroy {
   filtersOpen: boolean = false;
   subscriptions: Subscription = new Subscription();
 
-  constructor(
-    private contentful: ContentfulService,
-    private themeService: ThemeService,
-    private navService: NavService,
-    private route: ActivatedRoute,
-    private location: Location,
-    private screenSizeService: ScreenSizeService,
-    public linksService: LinksService,
-  ) {}
-
   ngOnInit(): void {
     // sets up responsive screensize
     this.subscriptions.add(
@@ -68,13 +87,6 @@ export class ClubsComponent implements OnInit, OnDestroy {
 
     // sets up main color for the clubs page
     this.themeService.setMainPaneColor(Colors.purple);
-
-    // collect competitionId from params
-    this.subscriptions.add(
-      this.route.params.subscribe((params) => {
-        this.selectedClubIdFromRoute = params['clubId'];
-      }),
-    );
 
     // collect filters from query params
     this.subscriptions.add(
@@ -125,8 +137,8 @@ export class ClubsComponent implements OnInit, OnDestroy {
             a.city == b.city ? (a.name > b.name ? 1 : -1) : a.city > b.city ? 1 : -1,
           );
         this.filterClubs();
-        if (this.selectedClubIdFromRoute) {
-          const foundClub = this.clubs.find((comp) => comp.id === this.selectedClubIdFromRoute);
+        if (this.clubId()) {
+          const foundClub = this.clubs.find((comp) => comp.id === this.clubId());
           if (foundClub) {
             this.selectClub(foundClub);
           } else {

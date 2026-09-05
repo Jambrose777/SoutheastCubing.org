@@ -1,5 +1,5 @@
 <div class="document-container">
-  @for (doc of documents; track doc) {
+  @for (doc of documents(); track doc) {
     <a
       class="document-item btn"
       style="--document-item-color:{{ doc.color }}"

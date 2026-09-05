@@ -48,13 +48,10 @@ module.exports = tseslint.config(
         'error',
         { type: 'element', prefix: 'se', style: 'kebab-case' },
       ],
-      // These three rules push toward standalone components, inject(), and
-      // OnPush change detection — each of those is a substantial, deliberate
-      // migration of its own (already tracked as separate backlog work) rather
-      // than something to fold into a formatting/linting setup story, so they're
-      // switched off here for now instead of being mass-fixed.
-      '@angular-eslint/prefer-standalone': 'off',
-      '@angular-eslint/prefer-inject': 'off',
+      // OnPush change detection is a substantial, deliberate migration of its
+      // own (already tracked as separate backlog work) rather than something
+      // to fold into a formatting/linting setup story, so it's switched off
+      // here for now instead of being mass-fixed.
       '@angular-eslint/prefer-on-push-component-change-detection': 'off',
       // Reducing `any` usage across the frontend is its own dedicated cleanup
       // effort; leaving this off here avoids mixing that work into this story.

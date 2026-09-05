@@ -1,4 +1,11 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  input,
+  OnDestroy,
+  OnInit,
+  ChangeDetectionStrategy,
+  inject,
+} from '@angular/core';
 import { Championship } from 'src/app/models/Championship';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -6,20 +13,36 @@ import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, StateColors } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
-import { Location } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { Location, NgClass } from '@angular/common';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
+import { HeaderComponent } from '../../core/header/header.component';
+import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
+import { MarkdownComponent } from 'ngx-markdown';
+import { SelectedChampionshipComponent } from './selected-championship/selected-championship.component';
 
 @Component({
   selector: 'se-championships',
   templateUrl: './championships.component.html',
   styleUrls: ['./championships.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+  imports: [
+    HeaderComponent,
+    LoadingSpinnerComponent,
+    MarkdownComponent,
+    SelectedChampionshipComponent,
+    NgClass,
+  ],
 })
 export class ChampionshipsComponent implements OnInit, OnDestroy {
+  private contentful = inject(ContentfulService);
+  private themeService = inject(ThemeService);
+  private navService = inject(NavService);
+  private location = inject(Location);
+  private screenSizeService = inject(ScreenSizeService);
+  linksService = inject(LinksService);
+
   isMobile: boolean;
   StateColors = StateColors;
   enviroment = environment;
@@ -29,19 +52,9 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
   loadingChampionships: boolean = true;
   championships: Championship[];
   selectedChampionship: Championship;
-  selectedChampionshipIdFromRoute: string;
+  championshipId = input<string>();
   subText1: string = '';
   subscriptions: Subscription = new Subscription();
-
-  constructor(
-    private contentful: ContentfulService,
-    private themeService: ThemeService,
-    private navService: NavService,
-    private route: ActivatedRoute,
-    private location: Location,
-    private screenSizeService: ScreenSizeService,
-    public linksService: LinksService,
-  ) {}
 
   ngOnInit(): void {
     // sets up responsive screensize
@@ -53,13 +66,6 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
 
     // sets up main color for the championships page
     this.themeService.setMainPaneColor(Colors.blue);
-
-    // collect championshipId from params
-    this.subscriptions.add(
-      this.route.params.subscribe((params) => {
-        this.selectedChampionshipIdFromRoute = params['championshipId'];
-      }),
-    );
 
     // retireve formats data from the CMS Championships Page
     this.subscriptions.add(
@@ -83,9 +89,9 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
             champions: championship.fields.champions?.map((champion) => ({ ...champion.fields })),
           }))
           .sort((a: Championship, b: Championship) => (a.year < b.year ? 1 : -1));
-        if (this.selectedChampionshipIdFromRoute) {
+        if (this.championshipId()) {
           const foundChampionship = this.championships.find(
-            (championship) => championship.id === this.selectedChampionshipIdFromRoute,
+            (championship) => championship.id === this.championshipId(),
           );
           if (foundChampionship) {
             this.selectChampionship(foundChampionship);
