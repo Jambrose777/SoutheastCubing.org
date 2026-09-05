@@ -16,6 +16,24 @@ Run `pnpm dev` from the repo root to start the frontend dev server (`ng serve`) 
 the backend (`node --env-file=.env app.js`) together. See "BE Development setup"
 below for the backend's required secret/config files before running this.
 
+## Linting & formatting
+
+Prettier and ESLint are configured at the repo root and cover both `frontend/src/`
+and `backend/` (there's no separate config for either) — see `.prettierrc` and
+`eslint.config.js`.
+
+- `pnpm run format` — formats the whole repo (`.ts`, `.html`, `.scss`, `.json`,
+  `.md`) with Prettier.
+- `pnpm run format:check` — checks formatting without writing; useful in CI or to
+  verify before committing.
+- `pnpm run lint` — lints `frontend/src/` (`@angular-eslint`) and `backend/` with
+  ESLint.
+- `pnpm run lint:fix` — same as above, auto-fixing what it can.
+
+A `husky` + `lint-staged` pre-commit hook runs both automatically against staged
+files on every `git commit` and blocks the commit if either fails, so these scripts
+mainly matter for running them manually ahead of time.
+
 ## FE Development server
 
 Run `pnpm --filter frontend dev` (or `cd frontend && pnpm dev`) for just the dev
