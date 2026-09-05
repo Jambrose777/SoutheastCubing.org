@@ -80,7 +80,7 @@ export class AboutComponent implements OnInit, OnDestroy {
 
         // select a subtopic based on url on load
         if (this.selectedSubTopicTitleFromRoute) {
-          let foundSubTopic = this.subTopics.find(
+          const foundSubTopic = this.subTopics.find(
             (subTopic) =>
               subTopic.title.replace(/ +/g, '-') === this.selectedSubTopicTitleFromRoute,
           );

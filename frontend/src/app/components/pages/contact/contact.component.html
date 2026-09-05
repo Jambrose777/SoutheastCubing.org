@@ -1,6 +1,6 @@
 <div class="component-container">
   <div class="main-pane">
-    <header id="header" [title]="title"></header>
+    <se-header id="header" [title]="title"></se-header>
 
     <form [formGroup]="contactForm" class="form">
       <!-- Email Type -->
@@ -20,7 +20,7 @@
 
       <!-- Loading Spinner -->
       @if (emailTypeControl.value === EmailType.upcomingCompetition && loadingCompetitions) {
-        <loading-spinner> </loading-spinner>
+        <se-loading-spinner> </se-loading-spinner>
       }
 
       @if (emailTypeControl.value === EmailType.upcomingCompetition && !loadingCompetitions) {
@@ -120,7 +120,7 @@
         }
         <!-- Loading Spinner -->
         @if (emailApiStatus === EmailApiStatus.pending) {
-          <loading-spinner></loading-spinner>
+          <se-loading-spinner></se-loading-spinner>
         }
         <!-- Success -->
         @if (emailApiStatus === EmailApiStatus.success) {
@@ -151,7 +151,7 @@
   <div class="secondary-pane">
     <!-- Loading Spinner -->
     @if (loadingContent) {
-      <loading-spinner></loading-spinner>
+      <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- FAQ -->

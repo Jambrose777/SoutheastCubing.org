@@ -5,6 +5,7 @@ import {
   OnInit,
   SimpleChanges,
   ChangeDetectionStrategy,
+  OnChanges,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Competition } from 'src/app/models/Competition';
@@ -20,7 +21,7 @@ import { environment } from 'src/environments/environment';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class SelectedCompetitionComponent implements OnInit, OnDestroy {
+export class SelectedCompetitionComponent implements OnInit, OnDestroy, OnChanges {
   isMobile: boolean;
   RegistrationStatus = RegistrationStatus;
   enviroment = environment;

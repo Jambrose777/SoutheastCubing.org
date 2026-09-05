@@ -6,6 +6,7 @@ import {
   Output,
   SimpleChanges,
   ChangeDetectionStrategy,
+  OnChanges,
 } from '@angular/core';
 import * as L from 'leaflet';
 import { MapPoint } from 'src/app/models/Map';
@@ -17,7 +18,7 @@ import { MapPoint } from 'src/app/models/Map';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class SeMapComponent implements OnInit {
+export class SeMapComponent implements OnInit, OnChanges {
   @Input() points: MapPoint[];
   @Input() selectedPoint: string;
   @Input() showLegend: boolean;
@@ -52,7 +53,7 @@ export class SeMapComponent implements OnInit {
 
   createMarker(point: MapPoint) {
     // create marker
-    let marker = L.marker([point.lat, point.long]).addTo(this.map);
+    const marker = L.marker([point.lat, point.long]).addTo(this.map);
 
     // set marker color
     if (point.colorClass) {

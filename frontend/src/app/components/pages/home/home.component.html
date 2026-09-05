@@ -1,10 +1,10 @@
 <div class="component-container">
   <div class="main-pane">
-    <header id="header" [title]="title"></header>
+    <se-header id="header" [title]="title"></se-header>
 
     <!-- Loading Spinner -->
     @if (loadingContent) {
-      <loading-spinner></loading-spinner>
+      <se-loading-spinner></se-loading-spinner>
     }
 
     @if (!loadingContent) {
@@ -79,7 +79,7 @@
     <div class="secondary-pane">
       <!-- Loading Spinner -->
       @if (loadingContent) {
-        <loading-spinner></loading-spinner>
+        <se-loading-spinner></se-loading-spinner>
       }
       @if (!loadingContent) {
         <!-- Temporarily disabled: angular-responsive-carousel is incompatible with Angular 16+'s

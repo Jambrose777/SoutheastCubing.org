@@ -1,19 +1,17 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
-  selector: 'footer',
+  selector: 'se-footer',
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class FooterComponent implements OnInit {
+export class FooterComponent {
   isNavActive = false;
   transition = false;
 
   constructor() {}
-
-  ngOnInit(): void {}
 
   // Opens / Closes the nav controls
   toggleNav(toggled: boolean) {

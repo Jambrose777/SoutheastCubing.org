@@ -1,11 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Colors, StateColors, States } from 'src/app/shared/types';
 
 @Component({
@@ -15,7 +8,7 @@ import { Colors, StateColors, States } from 'src/app/shared/types';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class SeFilterMapComponent implements OnInit {
+export class SeFilterMapComponent {
   StateColors = StateColors;
   Colors = Colors;
   States = States;
@@ -23,8 +16,6 @@ export class SeFilterMapComponent implements OnInit {
   @Output() selectStateEmitter = new EventEmitter<States>();
 
   constructor() {}
-
-  ngOnInit(): void {}
 
   stateClicked(state: States) {
     this.selectStateEmitter.emit(state);

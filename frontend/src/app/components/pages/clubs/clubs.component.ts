@@ -126,7 +126,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
           );
         this.filterClubs();
         if (this.selectedClubIdFromRoute) {
-          let foundClub = this.clubs.find((comp) => comp.id === this.selectedClubIdFromRoute);
+          const foundClub = this.clubs.find((comp) => comp.id === this.selectedClubIdFromRoute);
           if (foundClub) {
             this.selectClub(foundClub);
           } else {

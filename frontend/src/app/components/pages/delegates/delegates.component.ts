@@ -77,7 +77,7 @@ export class DelegatesComponent implements OnInit, OnDestroy {
               }) as Delegate,
           );
         if (this.selectedDelegateNameFromRoute) {
-          let foundDelegate = this.delegates.find(
+          const foundDelegate = this.delegates.find(
             (delegate) => delegate.name.replace(/ +/g, '-') === this.selectedDelegateNameFromRoute,
           );
           if (foundDelegate) {

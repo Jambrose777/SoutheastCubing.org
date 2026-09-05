@@ -4,7 +4,7 @@ import { ScreenSizeService } from './services/screen-size.service';
 import { LinksService } from './services/links.service';
 
 @Component({
-  selector: 'app-root',
+  selector: 'se-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,

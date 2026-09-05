@@ -65,7 +65,7 @@ export class InvolvementComponent implements OnInit, OnDestroy {
           color: Colors[subTopic.fields.color],
         }));
         if (this.selectedSubTopicTitleFromRoute) {
-          let foundSubTopic = this.subTopics.find(
+          const foundSubTopic = this.subTopics.find(
             (subTopic) =>
               subTopic.title.replace(/ +/g, '-') === this.selectedSubTopicTitleFromRoute,
           );

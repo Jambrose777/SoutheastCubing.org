@@ -1,14 +1,12 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
-  selector: 'loading-spinner',
+  selector: 'se-loading-spinner',
   templateUrl: './loading-spinner.component.html',
   styleUrls: ['./loading-spinner.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class LoadingSpinnerComponent implements OnInit {
+export class LoadingSpinnerComponent {
   constructor() {}
-
-  ngOnInit(): void {}
 }

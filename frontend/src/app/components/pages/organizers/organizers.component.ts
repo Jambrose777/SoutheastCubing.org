@@ -73,7 +73,7 @@ export class OrganizersComponent implements OnInit, OnDestroy {
 
         // select topic based on route information
         if (this.selectedSubTopicTitleFromRoute) {
-          let foundSubTopic = this.subTopics.find(
+          const foundSubTopic = this.subTopics.find(
             (subTopic) =>
               subTopic.title.replace(/ +/g, '-') === this.selectedSubTopicTitleFromRoute,
           );

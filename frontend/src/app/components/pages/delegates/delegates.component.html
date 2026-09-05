@@ -1,10 +1,10 @@
 <div class="component-container">
   <div class="main-pane">
-    <header id="header" [title]="title"></header>
+    <se-header id="header" [title]="title"></se-header>
 
     <!-- Loading Spinner -->
     @if (loadingContent) {
-      <loading-spinner></loading-spinner>
+      <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- Information if there is no selected Delegate (ie. initial page for Delegates) -->
@@ -34,7 +34,7 @@
   <div class="secondary-pane">
     <!-- Loading Spinner -->
     @if (loadingDelegates) {
-      <loading-spinner></loading-spinner>
+      <se-loading-spinner></se-loading-spinner>
     }
 
     @if (!loadingDelegates) {

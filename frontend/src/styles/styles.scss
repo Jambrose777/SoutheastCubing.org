@@ -62,7 +62,7 @@ p {
   overflow-y: scroll;
   box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
 
-  header {
+  se-header {
     z-index: 10001;
     position: sticky;
     top: 0;
@@ -233,7 +233,7 @@ p {
   box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
 }
 
-loading-spinner {
+se-loading-spinner {
   margin: auto;
 }
 

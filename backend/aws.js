@@ -36,7 +36,7 @@ function saveCompetitionData(comps) {
   };
 
   // Upload the file to S3
-  s3.upload(params, (err, data) => {
+  s3.upload(params, (err) => {
     if (err) {
       logger.error('Error uploading file to S3: ', err);
     } else {

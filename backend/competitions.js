@@ -65,7 +65,7 @@ function fetchCompetitions() {
       lastChecked.isBefore(moment().set('hour', 0).set('minute', 0).set('second', 0))
     ) {
       logger.info('Fetching competitions from wca since AWS data is stale.');
-      getCompetitionsFromWCA().then((comps) => {
+      getCompetitionsFromWCA().then(() => {
         logger.info('Successfully Fetched competitions from wca.');
       });
     }

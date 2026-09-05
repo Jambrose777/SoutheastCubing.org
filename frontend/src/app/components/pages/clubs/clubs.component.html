@@ -1,10 +1,10 @@
 <div class="component-container">
   <div class="main-pane">
-    <header id="header" [title]="title"></header>
+    <se-header id="header" [title]="title"></se-header>
 
     <!-- Loading Spinner -->
     @if (loadingContent) {
-      <loading-spinner></loading-spinner>
+      <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- Information if there is no selected club (ie. initial page for Clubs) -->
@@ -64,7 +64,7 @@
   <div class="secondary-pane">
     <!-- Loading Spinner -->
     @if (loadingClubs) {
-      <loading-spinner></loading-spinner>
+      <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- Filters Icon -->

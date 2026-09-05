@@ -117,7 +117,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
         this.filteredCompetitions = res;
         this.filterCompetitions();
         if (this.selectedCompetitionIdFromRoute) {
-          let foundCompetition = this.competitions.find(
+          const foundCompetition = this.competitions.find(
             (comp) => comp.id === this.selectedCompetitionIdFromRoute,
           );
           if (foundCompetition) {
@@ -228,7 +228,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
 
   // Updates URL to include filters
   updateUrl() {
-    let queryParams = [];
+    const queryParams = [];
     if (this.filters.states.length > 0) {
       queryParams.push('states=' + this.filters.states.join(','));
     }

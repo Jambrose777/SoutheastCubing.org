@@ -12,7 +12,7 @@ enum UpdateStatus {
 }
 
 @Component({
-  selector: 'app-update-competitions',
+  selector: 'se-update-competitions',
   templateUrl: './update-competitions.component.html',
   styleUrls: ['./update-competitions.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,

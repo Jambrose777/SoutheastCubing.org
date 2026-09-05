@@ -52,7 +52,7 @@ function sendEmail(req, res) {
         subject: getEmailSubject(req.body.subject),
         text: getEmailText(req.body.name, req.body.email, req.body.text, req.body.ip),
       })
-      .then((info) => {
+      .then(() => {
         res.send({ status: 'success' });
       })
       .catch((err) => {

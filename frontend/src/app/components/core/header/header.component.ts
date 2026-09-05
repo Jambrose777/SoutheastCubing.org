@@ -3,7 +3,7 @@ import { Subscription } from 'rxjs';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 
 @Component({
-  selector: 'header',
+  selector: 'se-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
   changeDetection: ChangeDetectionStrategy.Eager,

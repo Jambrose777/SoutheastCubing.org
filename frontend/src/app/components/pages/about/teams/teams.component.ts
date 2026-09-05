@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Team } from 'src/app/models/Team';
 
 @Component({
@@ -8,10 +8,8 @@ import { Team } from 'src/app/models/Team';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class TeamsComponent implements OnInit {
+export class TeamsComponent {
   @Input() teams: Team[];
 
   constructor() {}
-
-  ngOnInit(): void {}
 }

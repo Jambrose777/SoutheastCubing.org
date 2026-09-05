@@ -83,7 +83,7 @@ export class CatsComponent implements OnInit, OnDestroy {
               }) as Cat,
           );
         if (this.selectedCatNameFromRoute) {
-          let foundCat = this.cats?.find(
+          const foundCat = this.cats?.find(
             (cat) => cat.name.replace(/ +/g, '-') === this.selectedCatNameFromRoute,
           );
           if (foundCat) {

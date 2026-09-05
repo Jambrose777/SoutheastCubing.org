@@ -1,9 +1,9 @@
 <div class="component-container">
   <div class="main-pane">
-    <header id="header" [title]="title" [activateNavOnDefault]="true"></header>
+    <se-header id="header" [title]="title" [activateNavOnDefault]="true"></se-header>
     @if (isMobile) {
       @if (loadingContent) {
-        <loading-spinner></loading-spinner>
+        <se-loading-spinner></se-loading-spinner>
       }
       @if (!loadingContent) {
         <div class="large-text-content">
@@ -16,7 +16,7 @@
     <div class="secondary-pane">
       <!-- Loading Spinner -->
       @if (loadingContent) {
-        <loading-spinner></loading-spinner>
+        <se-loading-spinner></se-loading-spinner>
       }
       @if (!loadingContent && !isMobile) {
         <div class="large-text-content">

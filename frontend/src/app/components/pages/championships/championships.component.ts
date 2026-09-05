@@ -84,7 +84,7 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
           }))
           .sort((a: Championship, b: Championship) => (a.year < b.year ? 1 : -1));
         if (this.selectedChampionshipIdFromRoute) {
-          let foundChampionship = this.championships.find(
+          const foundChampionship = this.championships.find(
             (championship) => championship.id === this.selectedChampionshipIdFromRoute,
           );
           if (foundChampionship) {

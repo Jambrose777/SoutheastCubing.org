@@ -1,11 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Colors, Events } from 'src/app/shared/types';
 
 @Component({
@@ -15,15 +8,13 @@ import { Colors, Events } from 'src/app/shared/types';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class EventListComponent implements OnInit {
+export class EventListComponent {
   Events = Events;
   Colors = Colors;
   @Input() selectedEvents: string[];
   @Output() selectEventEmitter = new EventEmitter<string>();
 
   constructor() {}
-
-  ngOnInit(): void {}
 
   eventClicked(event: string) {
     this.selectEventEmitter.emit(event);

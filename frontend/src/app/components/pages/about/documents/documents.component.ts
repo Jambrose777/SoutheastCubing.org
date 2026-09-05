@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { DocumentLink } from 'src/app/models/Document';
 
 @Component({
@@ -8,10 +8,8 @@ import { DocumentLink } from 'src/app/models/Document';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class DoucmentsComponent implements OnInit {
+export class DoucmentsComponent {
   @Input() documents: DocumentLink[];
 
   constructor() {}
-
-  ngOnInit(): void {}
 }
