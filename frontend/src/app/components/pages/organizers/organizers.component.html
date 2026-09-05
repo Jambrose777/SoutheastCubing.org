@@ -1,24 +1,24 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title"></se-header>
+    <se-header id="header" [title]="title()"></se-header>
 
     <!-- Loading Spinner -->
-    @if (loadingContent) {
+    @if (loadingContent()) {
       <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- Information if there is no selected sub topic (ie. initial page for Involvement) -->
-    @if (!loadingContent && (isMobile || !selectedSubTopic)) {
+    @if (!loadingContent() && (isMobile() || !selectedSubTopic())) {
       <div class="large-text-content">
-        <markdown [data]="description"></markdown>
+        <markdown [data]="description()"></markdown>
       </div>
       <!-- section for external link text Bubble -->
       <div class="sub-text-container">
         <div class="sub-text-box">
-          {{ subText }}
+          {{ subText() }}
           <div>
-            <a class="btn" [href]="subTextButtonLink" target="_blank">
-              {{ subTextButtonText }}
+            <a class="btn" [href]="subTextButtonLink()" target="_blank">
+              {{ subTextButtonText() }}
               <i class="fa-solid fa-up-right-from-square fa-sm"></i>
             </a>
           </div>
@@ -27,26 +27,26 @@
     }
 
     <!-- Information for selected subTopic details -->
-    @if (selectedSubTopic && !isMobile) {
-      <se-selected-sub-topic [selectedSubTopic]="selectedSubTopic"> </se-selected-sub-topic>
+    @if (selectedSubTopic() && !isMobile()) {
+      <se-selected-sub-topic [selectedSubTopic]="selectedSubTopic()"> </se-selected-sub-topic>
     }
   </div>
 
   <div class="secondary-pane">
     <!-- Loading Spinner -->
-    @if (loadingContent) {
+    @if (loadingContent()) {
       <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- List for all loaded sub topics -->
-    @if (!loadingContent) {
+    @if (!loadingContent()) {
       <div class="list-container">
-        @for (subTopic of subTopics; track subTopic) {
+        @for (subTopic of subTopics(); track subTopic) {
           <!-- Sub Topic Bubble -->
           <div
             class="item-container clickable"
             style="--state-color:{{ subTopic.color }}"
-            [ngClass]="{ active: selectedSubTopic?.title === subTopic.title }"
+            [ngClass]="{ active: selectedSubTopic()?.title === subTopic.title }"
           >
             <div class="item-row" (click)="selectSubTopic(subTopic)" id="{{ subTopic.title }}">
               <div class="item-title">
@@ -54,8 +54,9 @@
               </div>
             </div>
             <!-- Information for selected Sub Topic details -->
-            @if (isMobile && selectedSubTopic?.title === subTopic.title) {
-              <se-selected-sub-topic [selectedSubTopic]="selectedSubTopic"> </se-selected-sub-topic>
+            @if (isMobile() && selectedSubTopic()?.title === subTopic.title) {
+              <se-selected-sub-topic [selectedSubTopic]="selectedSubTopic()">
+              </se-selected-sub-topic>
             }
           </div>
         }

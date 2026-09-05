@@ -1,55 +1,55 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title"></se-header>
+    <se-header id="header" [title]="title()"></se-header>
 
     <!-- Loading Spinner -->
-    @if (loadingContent) {
+    @if (loadingContent()) {
       <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- Information if there is no selected sub topic (ie. initial page for Involvement) -->
-    @if (!loadingContent && (isMobile || !selectedSubTopic)) {
+    @if (!loadingContent() && (isMobile() || !selectedSubTopic())) {
       <div class="large-text-content">
-        <markdown [data]="description"></markdown>
+        <markdown [data]="description()"></markdown>
       </div>
     }
 
     <!-- Information for selected subTopic details -->
     @if (
-      selectedSubTopic &&
-      !isMobile &&
-      selectedSubTopic?.title !== 'Who We Are' &&
-      selectedSubTopic?.title !== 'Documents'
+      selectedSubTopic() &&
+      !isMobile() &&
+      selectedSubTopic()?.title !== 'Who We Are' &&
+      selectedSubTopic()?.title !== 'Documents'
     ) {
-      <se-selected-sub-topic [selectedSubTopic]="selectedSubTopic"> </se-selected-sub-topic>
+      <se-selected-sub-topic [selectedSubTopic]="selectedSubTopic()"> </se-selected-sub-topic>
     }
 
     <!-- Information when Who We Are is selected -->
-    @if (selectedSubTopic && !isMobile && selectedSubTopic?.title === 'Who We Are') {
-      <se-teams [teams]="teams"> </se-teams>
+    @if (selectedSubTopic() && !isMobile() && selectedSubTopic()?.title === 'Who We Are') {
+      <se-teams [teams]="teams()"> </se-teams>
     }
 
     <!-- Information when Documents is selected -->
-    @if (selectedSubTopic && !isMobile && selectedSubTopic?.title === 'Documents') {
-      <se-documents [documents]="documents"> </se-documents>
+    @if (selectedSubTopic() && !isMobile() && selectedSubTopic()?.title === 'Documents') {
+      <se-documents [documents]="documents()"> </se-documents>
     }
   </div>
 
   <div class="secondary-pane">
     <!-- Loading Spinner -->
-    @if (loadingContent) {
+    @if (loadingContent()) {
       <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- List for all loaded sub topics -->
-    @if (!loadingContent) {
+    @if (!loadingContent()) {
       <div class="list-container">
-        @for (subTopic of subTopics; track subTopic) {
+        @for (subTopic of subTopics(); track subTopic) {
           <!-- Sub Topic Bubble -->
           <div
             class="item-container clickable"
             style="--state-color:{{ subTopic.color }}"
-            [ngClass]="{ active: selectedSubTopic?.title === subTopic.title }"
+            [ngClass]="{ active: selectedSubTopic()?.title === subTopic.title }"
           >
             <div class="item-row" (click)="selectSubTopic(subTopic)" id="{{ subTopic.title }}">
               <div class="item-title">
@@ -58,28 +58,29 @@
             </div>
             <!-- Information for selected Sub Topic details -->
             @if (
-              isMobile &&
-              selectedSubTopic?.title === subTopic.title &&
-              selectedSubTopic?.title !== 'Who We Are' &&
-              selectedSubTopic?.title !== 'Documents'
+              isMobile() &&
+              selectedSubTopic()?.title === subTopic.title &&
+              selectedSubTopic()?.title !== 'Who We Are' &&
+              selectedSubTopic()?.title !== 'Documents'
             ) {
-              <se-selected-sub-topic [selectedSubTopic]="selectedSubTopic"> </se-selected-sub-topic>
+              <se-selected-sub-topic [selectedSubTopic]="selectedSubTopic()">
+              </se-selected-sub-topic>
             }
             <!-- Information when Who We Are is selected -->
             @if (
-              isMobile &&
-              selectedSubTopic?.title === subTopic.title &&
-              selectedSubTopic?.title === 'Who We Are'
+              isMobile() &&
+              selectedSubTopic()?.title === subTopic.title &&
+              selectedSubTopic()?.title === 'Who We Are'
             ) {
-              <se-teams [teams]="teams"> </se-teams>
+              <se-teams [teams]="teams()"> </se-teams>
             }
             <!-- Information when Documents is selected -->
             @if (
-              isMobile &&
-              selectedSubTopic?.title === subTopic.title &&
-              selectedSubTopic?.title === 'Documents'
+              isMobile() &&
+              selectedSubTopic()?.title === subTopic.title &&
+              selectedSubTopic()?.title === 'Documents'
             ) {
-              <se-documents [documents]="documents"> </se-documents>
+              <se-documents [documents]="documents()"> </se-documents>
             }
           </div>
         }

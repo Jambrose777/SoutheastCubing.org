@@ -1,24 +1,24 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title"></se-header>
+    <se-header id="header" [title]="title()"></se-header>
 
     <!-- Loading Spinner -->
-    @if (loadingContent) {
+    @if (loadingContent()) {
       <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- Information if there is no selected Delegate (ie. initial page for Delegates) -->
-    @if (!loadingContent && (isMobile || !selectedDelegate)) {
+    @if (!loadingContent() && (isMobile() || !selectedDelegate())) {
       <div class="large-text-content">
-        <markdown [data]="description"></markdown>
+        <markdown [data]="description()"></markdown>
       </div>
       <!-- section for external link text Bubble -->
       <div class="sub-text-container">
         <div class="sub-text-box">
-          {{ subText }}
+          {{ subText() }}
           <div>
-            <a class="btn" [href]="subTextButtonLink" target="_blank">
-              {{ subTextButtonText }}
+            <a class="btn" [href]="subTextButtonLink()" target="_blank">
+              {{ subTextButtonText() }}
               <i class="fa-solid fa-up-right-from-square fa-sm"></i>
             </a>
           </div>
@@ -27,25 +27,25 @@
     }
 
     <!-- Information for selected delegate details -->
-    @if (selectedDelegate && !isMobile) {
-      <se-selected-delegate [selectedDelegate]="selectedDelegate"> </se-selected-delegate>
+    @if (selectedDelegate() && !isMobile()) {
+      <se-selected-delegate [selectedDelegate]="selectedDelegate()"> </se-selected-delegate>
     }
   </div>
   <div class="secondary-pane">
     <!-- Loading Spinner -->
-    @if (loadingDelegates) {
+    @if (loadingDelegates()) {
       <se-loading-spinner></se-loading-spinner>
     }
 
-    @if (!loadingDelegates) {
+    @if (!loadingDelegates()) {
       <div class="list-container">
         <!-- List for all loaded delegates -->
-        @for (delegate of delegates; track delegate) {
+        @for (delegate of delegates(); track delegate) {
           <!-- Delegate Bubble -->
           <div
             class="item-container clickable"
             style="--state-color:{{ StateColors[delegate.state] }}"
-            [ngClass]="{ active: selectedDelegate?.name === delegate.name }"
+            [ngClass]="{ active: selectedDelegate()?.name === delegate.name }"
           >
             <div class="item-row" (click)="selectDelegate(delegate)" id="{{ delegate.name }}">
               <img class="thumbnail" src="{{ delegate.thumbnail }}" />
@@ -57,8 +57,8 @@
               </div>
             </div>
             <!-- Information for selected competition details -->
-            @if (isMobile && selectedDelegate?.name === delegate.name) {
-              <se-selected-delegate [selectedDelegate]="selectedDelegate"> </se-selected-delegate>
+            @if (isMobile() && selectedDelegate()?.name === delegate.name) {
+              <se-selected-delegate [selectedDelegate]="selectedDelegate()"> </se-selected-delegate>
             }
           </div>
         }

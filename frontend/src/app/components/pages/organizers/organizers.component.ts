@@ -5,7 +5,9 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
+  signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -24,7 +26,7 @@ import { SelectedSubTopicComponent } from '../../shared/selected-sub-topic/selec
   selector: 'se-organizers',
   templateUrl: './organizers.component.html',
   styleUrls: ['./organizers.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,
     LoadingSpinnerComponent,
@@ -40,46 +42,44 @@ export class OrganizersComponent implements OnInit, OnDestroy {
   private location = inject(Location);
   private screenSizeService = inject(ScreenSizeService);
 
-  isMobile: boolean;
-  title: string = 'Organizer Guidelines';
-  description: string = '';
-  loadingContent: boolean = true;
-  subTopics: SubTopic[];
-  selectedSubTopic: SubTopic;
+  // Derived from the service's observable via toSignal() so OnPush change
+  // detection picks up resize-driven updates
+  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
+    initialValue: this.screenSizeService.isMobile,
+  });
+  title = signal('Organizer Guidelines');
+  description = signal('');
+  loadingContent = signal(true);
+  subTopics = signal<SubTopic[]>(undefined);
+  selectedSubTopic = signal<SubTopic>(undefined);
   subTopicId = input<string>();
-  subText: string;
-  subTextButtonText: string = '';
-  subTextButtonLink: string = '';
+  subText = signal<string>(undefined);
+  subTextButtonText = signal('');
+  subTextButtonLink = signal('');
   subscriptions: Subscription = new Subscription();
 
   ngOnInit(): void {
-    // sets up responsive screensize
-    this.subscriptions.add(
-      this.screenSizeService
-        .getIsMobileSubject()
-        .subscribe((isMobile) => (this.isMobile = isMobile)),
-    );
-
     // sets up main color for the Organizers page
     this.themeService.setMainPaneColor(Colors.yellow);
 
     // retireve formats data from the CMS Organizers Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.organizers).subscribe((res) => {
-        this.title = res.fields.title;
-        this.description = res.fields.description;
-        this.subTopics = res.fields.subTopics?.map((subTopic) => ({
+        this.title.set(res.fields.title);
+        this.description.set(res.fields.description);
+        const subTopics = res.fields.subTopics?.map((subTopic) => ({
           ...subTopic.fields,
           photo: subTopic.fields['photo']?.fields.file.url,
           color: Colors[subTopic.fields.color],
         }));
-        this.subText = res.fields.subText1;
-        this.subTextButtonText = res.fields.subText1ButtonText;
-        this.subTextButtonLink = res.fields.subText1ButtonLink;
+        this.subTopics.set(subTopics);
+        this.subText.set(res.fields.subText1);
+        this.subTextButtonText.set(res.fields.subText1ButtonText);
+        this.subTextButtonLink.set(res.fields.subText1ButtonLink);
 
         // select topic based on route information
         if (this.subTopicId()) {
-          const foundSubTopic = this.subTopics.find(
+          const foundSubTopic = subTopics.find(
             (subTopic) => subTopic.title.replace(/ +/g, '-') === this.subTopicId(),
           );
           if (foundSubTopic) {
@@ -88,7 +88,7 @@ export class OrganizersComponent implements OnInit, OnDestroy {
             this.location.replaceState('/organizers');
           }
         }
-        this.loadingContent = false;
+        this.loadingContent.set(false);
       }),
     );
   }
@@ -103,13 +103,13 @@ export class OrganizersComponent implements OnInit, OnDestroy {
     this.navService.closeNav();
 
     // deselect a sub topic if it is already selected
-    if (this.selectedSubTopic?.title === subTopic.title) {
-      this.selectedSubTopic = undefined;
+    if (this.selectedSubTopic()?.title === subTopic.title) {
+      this.selectedSubTopic.set(undefined);
       this.themeService.setMainPaneColor(Colors.yellow);
       this.location.replaceState('/organizers');
     } else {
-      this.selectedSubTopic = subTopic;
-      if (!this.isMobile) {
+      this.selectedSubTopic.set(subTopic);
+      if (!this.isMobile()) {
         // sets the left pane color based on state value
         this.themeService.setMainPaneColor(subTopic.color);
 
@@ -117,12 +117,10 @@ export class OrganizersComponent implements OnInit, OnDestroy {
         document.getElementById('header')?.scrollIntoView();
       } else {
         setTimeout(() => {
-          document
-            .getElementById(this.selectedSubTopic.title)
-            ?.scrollIntoView({ behavior: 'smooth' });
+          document.getElementById(subTopic.title)?.scrollIntoView({ behavior: 'smooth' });
         }, 0);
       }
-      this.location.replaceState('/organizers/' + this.selectedSubTopic.title.replace(/ +/g, '-'));
+      this.location.replaceState('/organizers/' + subTopic.title.replace(/ +/g, '-'));
     }
   }
 }

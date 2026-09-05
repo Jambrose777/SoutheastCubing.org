@@ -1,12 +1,5 @@
-import {
-  Component,
-  input,
-  OnDestroy,
-  OnInit,
-  ChangeDetectionStrategy,
-  inject,
-} from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, input, ChangeDetectionStrategy, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Cat } from 'src/app/models/Cat';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 
@@ -14,25 +7,16 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
   selector: 'se-selected-cat',
   templateUrl: './selected-cat.component.html',
   styleUrls: ['./selected-cat.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SelectedCatComponent implements OnInit, OnDestroy {
+export class SelectedCatComponent {
   private screenSizeService = inject(ScreenSizeService);
 
-  isMobile: boolean;
+  // Derived from the service's observable via toSignal() so OnPush change
+  // detection picks up resize-driven updates
+  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
+    initialValue: this.screenSizeService.isMobile,
+  });
+
   selectedCat = input<Cat>();
-  subscriptions: Subscription = new Subscription();
-
-  ngOnInit(): void {
-    // sets up responsive screensize
-    this.subscriptions.add(
-      this.screenSizeService
-        .getIsMobileSubject()
-        .subscribe((isMobile) => (this.isMobile = isMobile)),
-    );
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
-  }
 }

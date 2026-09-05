@@ -16,7 +16,7 @@ import { RouterLink } from '@angular/router';
   selector: 'se-nav',
   templateUrl: './nav.component.html',
   styleUrls: ['./nav.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgClass, RouterLink],
 })
 export class NavComponent implements OnInit, OnDestroy {

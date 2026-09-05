@@ -14,7 +14,7 @@ import { MapPoint } from 'src/app/models/Map';
   selector: 'se-map',
   templateUrl: './se-map.component.html',
   styleUrls: ['./se-map.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SeMapComponent implements OnInit, OnChanges {
   points = input.required<MapPoint[]>();

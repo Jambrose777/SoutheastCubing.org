@@ -1,39 +1,39 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title"></se-header>
+    <se-header id="header" [title]="title()"></se-header>
 
     <!-- Loading Spinner -->
-    @if (loadingContent) {
+    @if (loadingContent()) {
       <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- Information if there is no selected Cat (ie. initial page for Cats) -->
-    @if (!loadingContent && (isMobile || !selectedCat)) {
+    @if (!loadingContent() && (isMobile() || !selectedCat())) {
       <div class="large-text-content">
-        <markdown [data]="description"></markdown>
+        <markdown [data]="description()"></markdown>
       </div>
     }
 
     <!-- Information for selected cat details -->
-    @if (selectedCat && !isMobile) {
-      <se-selected-cat [selectedCat]="selectedCat"> </se-selected-cat>
+    @if (selectedCat() && !isMobile()) {
+      <se-selected-cat [selectedCat]="selectedCat()"> </se-selected-cat>
     }
   </div>
   <div class="secondary-pane">
     <!-- Loading Spinner -->
-    @if (loadingCats) {
+    @if (loadingCats()) {
       <se-loading-spinner></se-loading-spinner>
     }
 
-    @if (!loadingCats) {
+    @if (!loadingCats()) {
       <div class="list-container">
         <!-- List for all loaded cats -->
-        @for (cat of cats; track cat) {
+        @for (cat of cats(); track cat) {
           <!-- Cat Bubble -->
           <div
             class="item-container clickable"
             style="--state-color:{{ cat.color }}"
-            [ngClass]="{ active: selectedCat?.name === cat.name }"
+            [ngClass]="{ active: selectedCat()?.name === cat.name }"
           >
             <div class="item-row" (click)="selectCat(cat)" id="{{ cat.name }}">
               <img class="thumbnail" src="{{ cat.thumbnail }}" />
@@ -42,8 +42,8 @@
               </div>
             </div>
             <!-- Information for selected competition details -->
-            @if (isMobile && selectedCat?.name === cat.name) {
-              <se-selected-cat [selectedCat]="selectedCat"> </se-selected-cat>
+            @if (isMobile() && selectedCat()?.name === cat.name) {
+              <se-selected-cat [selectedCat]="selectedCat()"> </se-selected-cat>
             }
           </div>
         }

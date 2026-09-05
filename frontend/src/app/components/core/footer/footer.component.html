@@ -1,16 +1,19 @@
-<div class="footer" [ngClass]="{ active: isNavActive, transition: !isNavActive && transition }">
+<div
+  class="footer"
+  [ngClass]="{ active: isNavActive(), transition: !isNavActive() && transition() }"
+>
   <!-- Nav system -->
-  <div class="nav-container" [ngClass]="{ active: isNavActive, transition: transition }">
+  <div class="nav-container" [ngClass]="{ active: isNavActive(), transition: transition() }">
     <se-nav
-      [isNavActive]="isNavActive"
-      [transition]="transition"
+      [isNavActive]="isNavActive()"
+      [transition]="transition()"
       (toggleNavEmitter)="toggleNav($event)"
     ></se-nav>
   </div>
 
   <!-- Close Icon for when the nav is open -->
-  @if (isNavActive || transition) {
+  @if (isNavActive() || transition()) {
     <i class="close-icon fa-solid fa-close fa-2xl clickable" (click)="toggleNav(false)"></i>
   }
-  <div class="nav-item-text">{{ isNavActive || transition ? 'Close' : 'Menu' }}</div>
+  <div class="nav-item-text">{{ navItemText() }}</div>
 </div>

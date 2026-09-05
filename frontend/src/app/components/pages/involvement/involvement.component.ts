@@ -5,7 +5,9 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
+  signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -24,7 +26,7 @@ import { SelectedSubTopicComponent } from '../../shared/selected-sub-topic/selec
   selector: 'se-involvement',
   templateUrl: './involvement.component.html',
   styleUrls: ['./involvement.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,
     LoadingSpinnerComponent,
@@ -40,38 +42,37 @@ export class InvolvementComponent implements OnInit, OnDestroy {
   private location = inject(Location);
   private screenSizeService = inject(ScreenSizeService);
 
-  isMobile: boolean;
-  title: string = 'Get Involved';
-  description: string = '';
-  loadingContent: boolean = true;
-  subTopics: SubTopic[];
-  selectedSubTopic: SubTopic;
+  // Derived from the service's observable via toSignal() so OnPush change
+  // detection picks up resize-driven updates
+  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
+    initialValue: this.screenSizeService.isMobile,
+  });
+
+  title = signal('Get Involved');
+  description = signal('');
+  loadingContent = signal(true);
+  subTopics = signal<SubTopic[]>(undefined);
+  selectedSubTopic = signal<SubTopic>(undefined);
   subTopicId = input<string>();
   subscriptions: Subscription = new Subscription();
 
   ngOnInit(): void {
-    // sets up responsive screensize
-    this.subscriptions.add(
-      this.screenSizeService
-        .getIsMobileSubject()
-        .subscribe((isMobile) => (this.isMobile = isMobile)),
-    );
-
     // sets up main color for the Involvement page
     this.themeService.setMainPaneColor(Colors.red);
 
     // retireve formats data from the CMS Involvement Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.involvement).subscribe((res) => {
-        this.title = res.fields.title;
-        this.description = res.fields.description;
-        this.subTopics = res.fields.subTopics.map((subTopic) => ({
+        this.title.set(res.fields.title);
+        this.description.set(res.fields.description);
+        const subTopics = res.fields.subTopics.map((subTopic) => ({
           ...subTopic.fields,
           photo: subTopic.fields['photo']?.fields.file.url,
           color: Colors[subTopic.fields.color],
         }));
+        this.subTopics.set(subTopics);
         if (this.subTopicId()) {
-          const foundSubTopic = this.subTopics.find(
+          const foundSubTopic = subTopics.find(
             (subTopic) => subTopic.title.replace(/ +/g, '-') === this.subTopicId(),
           );
           if (foundSubTopic) {
@@ -80,7 +81,7 @@ export class InvolvementComponent implements OnInit, OnDestroy {
             this.location.replaceState('/involvement');
           }
         }
-        this.loadingContent = false;
+        this.loadingContent.set(false);
       }),
     );
   }
@@ -95,13 +96,13 @@ export class InvolvementComponent implements OnInit, OnDestroy {
     this.navService.closeNav();
 
     // deselect a sub topic if it is already selected
-    if (this.selectedSubTopic?.title === subTopic.title) {
-      this.selectedSubTopic = undefined;
+    if (this.selectedSubTopic()?.title === subTopic.title) {
+      this.selectedSubTopic.set(undefined);
       this.themeService.setMainPaneColor(Colors.red);
       this.location.replaceState('/involvement');
     } else {
-      this.selectedSubTopic = subTopic;
-      if (!this.isMobile) {
+      this.selectedSubTopic.set(subTopic);
+      if (!this.isMobile()) {
         // sets the left pane color based on state value
         this.themeService.setMainPaneColor(subTopic.color);
 
@@ -109,12 +110,10 @@ export class InvolvementComponent implements OnInit, OnDestroy {
         document.getElementById('header')?.scrollIntoView();
       } else {
         setTimeout(() => {
-          document
-            .getElementById(this.selectedSubTopic.title)
-            ?.scrollIntoView({ behavior: 'smooth' });
+          document.getElementById(subTopic.title)?.scrollIntoView({ behavior: 'smooth' });
         }, 0);
       }
-      this.location.replaceState('/involvement/' + this.selectedSubTopic.title.replace(/ +/g, '-'));
+      this.location.replaceState('/involvement/' + subTopic.title.replace(/ +/g, '-'));
     }
   }
 }

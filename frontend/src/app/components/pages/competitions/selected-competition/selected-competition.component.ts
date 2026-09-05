@@ -1,14 +1,5 @@
-import {
-  Component,
-  input,
-  OnDestroy,
-  OnInit,
-  SimpleChanges,
-  ChangeDetectionStrategy,
-  OnChanges,
-  inject,
-} from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, input, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Competition } from 'src/app/models/Competition';
 import { LinksService } from 'src/app/services/links.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
@@ -21,47 +12,26 @@ import { SafeUrlPipe } from '../../../../pipes/safeUrl.pipe';
   selector: 'se-selected-competition',
   templateUrl: './selected-competition.component.html',
   styleUrls: ['./selected-competition.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgClass, PercentPipe, SafeUrlPipe],
 })
-export class SelectedCompetitionComponent implements OnInit, OnDestroy, OnChanges {
+export class SelectedCompetitionComponent {
   private screenSizeService = inject(ScreenSizeService);
   linksService = inject(LinksService);
 
-  isMobile: boolean;
+  // Derived from the service's observable via toSignal() so OnPush change
+  // detection picks up resize-driven updates
+  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
+    initialValue: this.screenSizeService.isMobile,
+  });
+
   RegistrationStatus = RegistrationStatus;
   enviroment = environment;
   selectedCompetition = input<Competition>();
-  subscriptions: Subscription = new Subscription();
-  googleMapUrl: string;
 
-  ngOnInit(): void {
-    // sets up responsive screensize
-    this.subscriptions.add(
-      this.screenSizeService
-        .getIsMobileSubject()
-        .subscribe((isMobile) => (this.isMobile = isMobile)),
-    );
-
-    // update Competition Details on init
-    this.updateCompetitionDetails();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    // changes to selectedCompetition
-    if (changes['selectedCompetition']) {
-      this.updateCompetitionDetails();
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
-  }
-
-  // updates dynamic details relating to the competition.
-  updateCompetitionDetails(): void {
-    // set up google map url with the competition's venue
-    this.googleMapUrl =
-      this.enviroment.links.googleMapsApi + this.selectedCompetition().venue_address;
-  }
+  // Derived purely from the selectedCompetition input signal, so a computed()
+  // keeps this in sync automatically without needing ngOnInit/ngOnChanges.
+  googleMapUrl = computed(
+    () => this.enviroment.links.googleMapsApi + this.selectedCompetition()?.venue_address,
+  );
 }

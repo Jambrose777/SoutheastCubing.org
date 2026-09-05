@@ -1,7 +1,7 @@
 @if (selectedChampionship()) {
   <div class="selected-item-container">
     <!-- Championship Name -->
-    @if (!isMobile) {
+    @if (!isMobile()) {
       <a
         [href]="enviroment.links.wcaCompetition + selectedChampionship().id"
         target="_blank"
@@ -18,10 +18,10 @@
     }
     <!-- Championship Location -->
     <div class="small-text-content">
-      @if (!isMobile) {
+      @if (!isMobile()) {
         <span>{{ selectedChampionship().city }} -</span>
       }
-      @if (isMobile) {
+      @if (isMobile()) {
         <a [href]="enviroment.links.wcaCompetition + selectedChampionship().id" target="_blank">
           <img src="assets/wca_logo.svg" class="wca-logo-small" />
         </a>

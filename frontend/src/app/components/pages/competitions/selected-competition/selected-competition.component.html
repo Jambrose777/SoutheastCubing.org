@@ -1,6 +1,6 @@
 <div class="selected-item-container">
   <!-- Competition Name w/ WCA Logo & Link to competition on WCA -->
-  @if (!isMobile) {
+  @if (!isMobile()) {
     <a [href]="enviroment.links.wcaCompetition + selectedCompetition().id" target="_blank">
       <h2 class="title-text">
         {{ selectedCompetition().name }}
@@ -13,7 +13,7 @@
   <!-- container for remaining details for styling -->
   <div class="competition-details">
     <!-- Link to WCA -->
-    @if (isMobile) {
+    @if (isMobile()) {
       <a [href]="enviroment.links.wcaCompetition + selectedCompetition().id" target="_blank">
         <img src="assets/wca_logo.svg" class="wca-logo-mobile" />
       </a>
@@ -32,7 +32,7 @@
       <div>
         City: <b>{{ selectedCompetition().city }}</b>
       </div>
-      @if (!isMobile) {
+      @if (!isMobile()) {
         <div>
           Date: <b>{{ selectedCompetition().full_date }}</b>
         </div>
@@ -57,7 +57,7 @@
     </div>
 
     <!-- Location On Google Map View Bubble -->
-    @if (!isMobile) {
+    @if (!isMobile()) {
       <div class="detail-container map-container">
         <iframe
           width="260"
@@ -66,7 +66,7 @@
           loading="lazy"
           allowfullscreen
           referrerpolicy="no-referrer-when-downgrade"
-          [src]="googleMapUrl | safeUrl"
+          [src]="googleMapUrl() | safeUrl"
         >
         </iframe>
       </div>

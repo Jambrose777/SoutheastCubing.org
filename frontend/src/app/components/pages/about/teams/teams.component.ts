@@ -6,11 +6,9 @@ import { NgClass } from '@angular/common';
   selector: 'se-teams',
   templateUrl: './teams.component.html',
   styleUrls: ['./teams.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgClass],
 })
 export class TeamsComponent {
   teams = input<Team[]>();
-
-  constructor() {}
 }

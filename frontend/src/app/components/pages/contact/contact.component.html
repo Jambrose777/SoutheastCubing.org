@@ -1,6 +1,6 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title"></se-header>
+    <se-header id="header" [title]="title()"></se-header>
 
     <form [formGroup]="contactForm" class="form">
       <!-- Email Type -->
@@ -19,16 +19,16 @@
       </mat-form-field>
 
       <!-- Loading Spinner -->
-      @if (emailTypeControl.value === EmailType.upcomingCompetition && loadingCompetitions) {
+      @if (emailTypeControl.value === EmailType.upcomingCompetition && loadingCompetitions()) {
         <se-loading-spinner> </se-loading-spinner>
       }
 
-      @if (emailTypeControl.value === EmailType.upcomingCompetition && !loadingCompetitions) {
+      @if (emailTypeControl.value === EmailType.upcomingCompetition && !loadingCompetitions()) {
         <!-- Competition -->
         <mat-form-field class="form-field">
           <mat-label>Competition</mat-label>
           <mat-select [(value)]="selectedCompetition">
-            @for (competition of competitions; track competition) {
+            @for (competition of competitions(); track competition) {
               <mat-option [value]="competition.id">
                 {{ competition.name }}
               </mat-option>
@@ -110,7 +110,7 @@
           }
         </mat-form-field>
         <!-- Submit Button -->
-        @if (emailApiStatus !== EmailApiStatus.pending) {
+        @if (emailApiStatus() !== EmailApiStatus.pending) {
           <div>
             <a class="btn" (click)="onSubmit()">
               Submit
@@ -119,25 +119,25 @@
           </div>
         }
         <!-- Loading Spinner -->
-        @if (emailApiStatus === EmailApiStatus.pending) {
+        @if (emailApiStatus() === EmailApiStatus.pending) {
           <se-loading-spinner></se-loading-spinner>
         }
         <!-- Success -->
-        @if (emailApiStatus === EmailApiStatus.success) {
+        @if (emailApiStatus() === EmailApiStatus.success) {
           <div class="small-text-content success-message">
             <i class="fa-solid fa-circle-check fa-sm"></i>
             Your message has successfully sent!
           </div>
         }
         <!-- Failure -->
-        @if (emailApiStatus === EmailApiStatus.failure) {
+        @if (emailApiStatus() === EmailApiStatus.failure) {
           <div class="small-text-content error-message">
             <i class="fa-solid fa-circle-xmark fa-sm"></i>
             Unfortunately an error has occurred. Please try again.
           </div>
         }
         <!-- Double Failure -->
-        @if (emailApiStatus === EmailApiStatus.doubleFailure) {
+        @if (emailApiStatus() === EmailApiStatus.doubleFailure) {
           <div class="small-text-content error-message">
             <i class="fa-solid fa-circle-xmark fa-sm"></i>
             Unfortunately an error has occurred. If the issue persists, you can email us directly at
@@ -150,16 +150,16 @@
 
   <div class="secondary-pane">
     <!-- Loading Spinner -->
-    @if (loadingContent) {
+    @if (loadingContent()) {
       <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- FAQ -->
-    @if (!loadingContent) {
+    @if (!loadingContent()) {
       <div class="list-container">
         <h2>Frequently Asked Questions</h2>
         <div>
-          <markdown [data]="description"></markdown>
+          <markdown [data]="description()"></markdown>
         </div>
       </div>
     }

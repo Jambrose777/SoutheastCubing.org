@@ -1,4 +1,12 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import {
+  Component,
+  OnDestroy,
+  OnInit,
+  ChangeDetectionStrategy,
+  inject,
+  signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -13,7 +21,7 @@ import { MarkdownComponent } from 'ngx-markdown';
   selector: 'se-page-not-found',
   templateUrl: './page-not-found.component.html',
   styleUrls: ['./page-not-found.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [HeaderComponent, LoadingSpinnerComponent, MarkdownComponent],
 })
 export class PageNotFoundComponent implements OnInit, OnDestroy {
@@ -21,29 +29,27 @@ export class PageNotFoundComponent implements OnInit, OnDestroy {
   private themeService = inject(ThemeService);
   private screenSizeService = inject(ScreenSizeService);
 
-  isMobile: boolean;
-  title: string = 'Page Not Found';
-  description: string = '';
-  loadingContent: boolean = true;
+  // Derived from the service's observable via toSignal() so OnPush change
+  // detection picks up resize-driven updates
+  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
+    initialValue: this.screenSizeService.isMobile,
+  });
+
+  title = signal('Page Not Found');
+  description = signal('');
+  loadingContent = signal(true);
   subscriptions: Subscription = new Subscription();
 
   ngOnInit(): void {
-    // sets up responsive screensize
-    this.subscriptions.add(
-      this.screenSizeService
-        .getIsMobileSubject()
-        .subscribe((isMobile) => (this.isMobile = isMobile)),
-    );
-
     // sets up main color for the home page
     this.themeService.setMainPaneColor(Colors.darkGrey);
 
     // retireve and formats data from the CMS home Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.pageNotFound).subscribe((res) => {
-        this.title = res.fields.title;
-        this.description = res.fields.description;
-        this.loadingContent = false;
+        this.title.set(res.fields.title);
+        this.description.set(res.fields.description);
+        this.loadingContent.set(false);
       }),
     );
   }

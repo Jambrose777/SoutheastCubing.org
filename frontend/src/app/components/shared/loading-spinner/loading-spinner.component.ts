@@ -4,8 +4,6 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
   selector: 'se-loading-spinner',
   templateUrl: './loading-spinner.component.html',
   styleUrls: ['./loading-spinner.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LoadingSpinnerComponent {
-  constructor() {}
-}
+export class LoadingSpinnerComponent {}

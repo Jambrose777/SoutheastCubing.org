@@ -5,7 +5,9 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
+  signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Championship } from 'src/app/models/Championship';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -26,7 +28,7 @@ import { SelectedChampionshipComponent } from './selected-championship/selected-
   selector: 'se-championships',
   templateUrl: './championships.component.html',
   styleUrls: ['./championships.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,
     LoadingSpinnerComponent,
@@ -43,44 +45,42 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
   private screenSizeService = inject(ScreenSizeService);
   linksService = inject(LinksService);
 
-  isMobile: boolean;
+  // Derived from the service's observable via toSignal() so OnPush change
+  // detection picks up resize-driven updates
+  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
+    initialValue: this.screenSizeService.isMobile,
+  });
+
   StateColors = StateColors;
   enviroment = environment;
-  title: string = 'Southeast Championship';
-  description: string = '';
-  loadingContent: boolean = true;
-  loadingChampionships: boolean = true;
-  championships: Championship[];
-  selectedChampionship: Championship;
+  title = signal('Southeast Championship');
+  description = signal('');
+  loadingContent = signal(true);
+  loadingChampionships = signal(true);
+  championships = signal<Championship[]>(undefined);
+  selectedChampionship = signal<Championship>(undefined);
   championshipId = input<string>();
-  subText1: string = '';
+  subText1 = signal('');
   subscriptions: Subscription = new Subscription();
 
   ngOnInit(): void {
-    // sets up responsive screensize
-    this.subscriptions.add(
-      this.screenSizeService
-        .getIsMobileSubject()
-        .subscribe((isMobile) => (this.isMobile = isMobile)),
-    );
-
     // sets up main color for the championships page
     this.themeService.setMainPaneColor(Colors.blue);
 
     // retireve formats data from the CMS Championships Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.championships).subscribe((res) => {
-        this.title = res.fields.title;
-        this.description = res.fields.description;
-        this.subText1 = res.fields.subText1;
-        this.loadingContent = false;
+        this.title.set(res.fields.title);
+        this.description.set(res.fields.description);
+        this.subText1.set(res.fields.subText1);
+        this.loadingContent.set(false);
       }),
     );
 
     // retrieve, sorts, and formats the championships list from the CMS Championships
     this.subscriptions.add(
       this.contentful.getContentfulGroup(ContentfulContentType.championships).subscribe((res) => {
-        this.championships = res.items
+        const championships = res.items
           .map((championship) => ({
             ...championship.fields,
             logo: championship.fields.logo?.fields.file.url,
@@ -89,8 +89,9 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
             champions: championship.fields.champions?.map((champion) => ({ ...champion.fields })),
           }))
           .sort((a: Championship, b: Championship) => (a.year < b.year ? 1 : -1));
+        this.championships.set(championships);
         if (this.championshipId()) {
-          const foundChampionship = this.championships.find(
+          const foundChampionship = championships.find(
             (championship) => championship.id === this.championshipId(),
           );
           if (foundChampionship) {
@@ -99,7 +100,7 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
             this.location.replaceState('/championships');
           }
         }
-        this.loadingChampionships = false;
+        this.loadingChampionships.set(false);
       }),
     );
   }
@@ -114,26 +115,24 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
     this.navService.closeNav();
 
     // deselect a championship if it is already selected
-    if (this.selectedChampionship?.name === championship.name) {
-      this.selectedChampionship = undefined;
+    if (this.selectedChampionship()?.name === championship.name) {
+      this.selectedChampionship.set(undefined);
       this.themeService.setMainPaneColor(Colors.blue);
       this.location.replaceState('/championships');
     } else {
-      this.selectedChampionship = championship;
-      if (!this.isMobile) {
+      this.selectedChampionship.set(championship);
+      if (!this.isMobile()) {
         // sets the left pane color based on state value
-        this.themeService.setMainPaneColor(StateColors[this.selectedChampionship.state]);
+        this.themeService.setMainPaneColor(StateColors[championship.state]);
 
         //scroll to top of main pane
         document.getElementById('header')?.scrollIntoView();
       } else {
         setTimeout(() => {
-          document
-            .getElementById(this.selectedChampionship.id)
-            ?.scrollIntoView({ behavior: 'smooth' });
+          document.getElementById(championship.id)?.scrollIntoView({ behavior: 'smooth' });
         }, 0);
       }
-      this.location.replaceState('/championships/' + this.selectedChampionship.id);
+      this.location.replaceState('/championships/' + championship.id);
     }
   }
 }

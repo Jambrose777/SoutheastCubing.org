@@ -1,6 +1,6 @@
 <div class="selected-item-container">
   <!-- Delegate Name -->
-  @if (!isMobile) {
+  @if (!isMobile()) {
     <h2 class="title-text">
       {{ selectedDelegate().name }}
     </h2>
@@ -9,7 +9,7 @@
   <!-- Delegate Status & Location  -->
   <div class="small-text-content">
     {{ selectedDelegate().delegateType }}
-    @if (!isMobile) {
+    @if (!isMobile()) {
       <span> - {{ selectedDelegate().state }}</span>
     }
   </div>

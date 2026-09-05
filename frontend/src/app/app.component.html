@@ -1,11 +1,11 @@
 <div class="project-container">
   <!-- Seperate view for mobile, including background and footer -->
-  @if (!isMobile) {
+  @if (!isMobile()) {
     <div class="desktop-container">
       <router-outlet></router-outlet>
     </div>
   }
-  @if (isMobile) {
+  @if (isMobile()) {
     <div class="mobile-container">
       <router-outlet></router-outlet>
     </div>

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { NavComponent } from '../nav/nav.component';
 
@@ -6,21 +6,21 @@ import { NavComponent } from '../nav/nav.component';
   selector: 'se-footer',
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgClass, NavComponent],
 })
 export class FooterComponent {
-  isNavActive = false;
-  transition = false;
+  isNavActive = signal(false);
+  transition = signal(false);
 
-  constructor() {}
+  navItemText = computed(() => (this.isNavActive() || this.transition() ? 'Close' : 'Menu'));
 
   // Opens / Closes the nav controls
   toggleNav(toggled: boolean) {
-    this.isNavActive = toggled;
-    this.transition = true;
+    this.isNavActive.set(toggled);
+    this.transition.set(true);
     setTimeout(() => {
-      this.transition = false;
+      this.transition.set(false);
     }, 500);
   }
 }

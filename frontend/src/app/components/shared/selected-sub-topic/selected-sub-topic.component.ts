@@ -1,12 +1,5 @@
-import {
-  Component,
-  input,
-  OnDestroy,
-  OnInit,
-  ChangeDetectionStrategy,
-  inject,
-} from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, input, ChangeDetectionStrategy, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { MarkdownComponent } from 'ngx-markdown';
@@ -16,26 +9,16 @@ import { RouterLink } from '@angular/router';
   selector: 'se-selected-sub-topic',
   templateUrl: './selected-sub-topic.component.html',
   styleUrls: ['./selected-sub-topic.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MarkdownComponent, RouterLink],
 })
-export class SelectedSubTopicComponent implements OnInit, OnDestroy {
+export class SelectedSubTopicComponent {
   private screenSizeService = inject(ScreenSizeService);
 
-  isMobile: boolean;
+  // Derived from the service's observable via toSignal() so OnPush change
+  // detection picks up resize-driven updates
+  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
+    initialValue: this.screenSizeService.isMobile,
+  });
   selectedSubTopic = input<SubTopic>();
-  subscriptions: Subscription = new Subscription();
-
-  ngOnInit(): void {
-    // sets up responsive screensize
-    this.subscriptions.add(
-      this.screenSizeService
-        .getIsMobileSubject()
-        .subscribe((isMobile) => (this.isMobile = isMobile)),
-    );
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
-  }
 }

@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 import { ScreenSizeService } from './services/screen-size.service';
 import { LinksService } from './services/links.service';
@@ -9,7 +10,7 @@ import { FooterComponent } from './components/core/footer/footer.component';
   selector: 'se-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet, FooterComponent],
 })
 export class AppComponent implements OnInit, OnDestroy {
@@ -17,18 +18,17 @@ export class AppComponent implements OnInit, OnDestroy {
   private linksService = inject(LinksService);
 
   title = 'southeast-cubing';
-  isMobile: boolean;
+
+  // Derived from the service's observable via toSignal() so OnPush change
+  // detection picks up resize-driven updates
+  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
+    initialValue: this.screenSizeService.isMobile,
+  });
+
   subscriptions: Subscription = new Subscription();
 
   ngOnInit(): void {
     this.screenSizeService.setUpScreenSize();
-
-    // sets up responsive screensize
-    this.subscriptions.add(
-      this.screenSizeService
-        .getIsMobileSubject()
-        .subscribe((isMobile) => (this.isMobile = isMobile)),
-    );
 
     // call links service to setup link overrides
     this.linksService.pullLinksFromContentful();

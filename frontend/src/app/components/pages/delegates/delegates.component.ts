@@ -5,7 +5,9 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
+  signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { Delegate } from 'src/app/models/Delegate';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -26,7 +28,7 @@ import { SelectedDelegateComponent } from './selected-delegate/selected-delegate
   selector: 'se-delegates',
   templateUrl: './delegates.component.html',
   styleUrls: ['./delegates.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,
     LoadingSpinnerComponent,
@@ -43,36 +45,34 @@ export class DelegatesComponent implements OnInit, OnDestroy {
   private screenSizeService = inject(ScreenSizeService);
   linksService = inject(LinksService);
 
-  isMobile: boolean;
+  // Derived from the service's observable via toSignal() so OnPush change
+  // detection picks up resize-driven updates
+  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
+    initialValue: this.screenSizeService.isMobile,
+  });
+
   StateColors = StateColors;
   enviroment = environment;
-  delegates: Delegate[];
+  delegates = signal<Delegate[]>(undefined);
   delegateName = input<string>();
-  title: string = 'Southeast Delegates';
-  description: string = '';
-  subText: string = '';
-  subTextButtonText: string = '';
-  subTextButtonLink: string = '';
-  loadingContent: boolean = true;
-  loadingDelegates: boolean = true;
-  selectedDelegate: Delegate;
+  title = signal('Southeast Delegates');
+  description = signal('');
+  subText = signal('');
+  subTextButtonText = signal('');
+  subTextButtonLink = signal('');
+  loadingContent = signal(true);
+  loadingDelegates = signal(true);
+  selectedDelegate = signal<Delegate>(undefined);
   subscriptions: Subscription = new Subscription();
 
   ngOnInit(): void {
-    // sets up responsive screensize
-    this.subscriptions.add(
-      this.screenSizeService
-        .getIsMobileSubject()
-        .subscribe((isMobile) => (this.isMobile = isMobile)),
-    );
-
     // sets up main color for the delegates page
     this.themeService.setMainPaneColor(Colors.green);
 
     // retireve, sorts, and formats data from the CMS Delegates Entries
     this.subscriptions.add(
       this.contentful.getContentfulGroup(ContentfulContentType.delegates).subscribe((res) => {
-        this.delegates = res.items
+        const delegates = res.items
           .sort((a, b) => a['fields']['order'] - b.fields['order'])
           .map(
             (delegate) =>
@@ -82,8 +82,9 @@ export class DelegatesComponent implements OnInit, OnDestroy {
                 thumbnail: delegate.fields['thumbnail']?.fields.file.url,
               }) as Delegate,
           );
+        this.delegates.set(delegates);
         if (this.delegateName()) {
-          const foundDelegate = this.delegates.find(
+          const foundDelegate = delegates.find(
             (delegate) => delegate.name.replace(/ +/g, '-') === this.delegateName(),
           );
           if (foundDelegate) {
@@ -92,19 +93,19 @@ export class DelegatesComponent implements OnInit, OnDestroy {
             this.location.replaceState('/delegates');
           }
         }
-        this.loadingDelegates = false;
+        this.loadingDelegates.set(false);
       }),
     );
 
     // retireve and formats data from the CMS Delegate Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.delegates).subscribe((res) => {
-        this.title = res.fields.title;
-        this.description = res.fields.description;
-        this.subText = res.fields.subText1;
-        this.subTextButtonText = res.fields.subText1ButtonText;
-        this.subTextButtonLink = res.fields.subText1ButtonLink;
-        this.loadingContent = false;
+        this.title.set(res.fields.title);
+        this.description.set(res.fields.description);
+        this.subText.set(res.fields.subText1);
+        this.subTextButtonText.set(res.fields.subText1ButtonText);
+        this.subTextButtonLink.set(res.fields.subText1ButtonLink);
+        this.loadingContent.set(false);
       }),
     );
   }
@@ -119,26 +120,24 @@ export class DelegatesComponent implements OnInit, OnDestroy {
     this.navService.closeNav();
 
     // Check if clicking an active delegate, and delselect the delegate if so.
-    if (this.selectedDelegate?.name === delegate.name) {
-      this.selectedDelegate = undefined;
+    if (this.selectedDelegate()?.name === delegate.name) {
+      this.selectedDelegate.set(undefined);
       this.themeService.setMainPaneColor(Colors.green); //resets left pane
       this.location.replaceState('/delegates');
     } else {
-      this.selectedDelegate = delegate;
-      if (!this.isMobile) {
+      this.selectedDelegate.set(delegate);
+      if (!this.isMobile()) {
         // sets the left pane color based on state value
-        this.themeService.setMainPaneColor(StateColors[this.selectedDelegate.state]);
+        this.themeService.setMainPaneColor(StateColors[delegate.state]);
 
         //scroll to top of main pane
         document.getElementById('header')?.scrollIntoView();
       } else {
         setTimeout(() => {
-          document
-            .getElementById(this.selectedDelegate.name)
-            ?.scrollIntoView({ behavior: 'smooth' });
+          document.getElementById(delegate.name)?.scrollIntoView({ behavior: 'smooth' });
         }, 0);
       }
-      this.location.replaceState('/delegates/' + this.selectedDelegate.name.replace(/ +/g, '-'));
+      this.location.replaceState('/delegates/' + delegate.name.replace(/ +/g, '-'));
     }
   }
 }

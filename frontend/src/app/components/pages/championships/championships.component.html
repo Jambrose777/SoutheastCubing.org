@@ -1,21 +1,21 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title" [useMediumBreakpoint]="true"></se-header>
+    <se-header id="header" [title]="title()" [useMediumBreakpoint]="true"></se-header>
 
     <!-- Loading Spinner -->
-    @if (loadingContent) {
+    @if (loadingContent()) {
       <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- Information if there is no selected championship (ie. initial page for Championships) -->
-    @if (!loadingContent && (isMobile || !selectedChampionship)) {
+    @if (!loadingContent() && (isMobile() || !selectedChampionship())) {
       <div class="large-text-content">
-        <markdown [data]="description"></markdown>
+        <markdown [data]="description()"></markdown>
       </div>
       <div class="sub-text-container">
         <!-- Section for links to follow -->
         <div class="sub-text-box">
-          {{ subText1 }}
+          {{ subText1() }}
           <div class="badges">
             <!-- Facebook -->
             <a href="{{ linksService.facebook }}" target="_blank">
@@ -35,27 +35,27 @@
     }
 
     <!-- Information for selected championship details -->
-    @if (selectedChampionship && !isMobile) {
-      <se-selected-championship [selectedChampionship]="selectedChampionship">
+    @if (selectedChampionship() && !isMobile()) {
+      <se-selected-championship [selectedChampionship]="selectedChampionship()">
       </se-selected-championship>
     }
   </div>
 
   <div class="secondary-pane">
     <!-- Loading Spinner -->
-    @if (loadingChampionships) {
+    @if (loadingChampionships()) {
       <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- List for all loaded championships -->
-    @if (!loadingChampionships) {
+    @if (!loadingChampionships()) {
       <div class="list-container">
-        @for (championship of championships; track championship) {
+        @for (championship of championships(); track championship) {
           <!-- Championship Bubble -->
           <div
             class="item-container clickable"
             style="--state-color:{{ StateColors[championship.state] }}"
-            [ngClass]="{ active: selectedChampionship?.id === championship.id }"
+            [ngClass]="{ active: selectedChampionship()?.id === championship.id }"
           >
             <div
               class="item-row"
@@ -71,8 +71,8 @@
               </div>
             </div>
             <!-- Information for selected championship details -->
-            @if (isMobile && selectedChampionship?.id === championship.id) {
-              <se-selected-championship [selectedChampionship]="selectedChampionship">
+            @if (isMobile() && selectedChampionship()?.id === championship.id) {
+              <se-selected-championship [selectedChampionship]="selectedChampionship()">
               </se-selected-championship>
             }
           </div>

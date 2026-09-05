@@ -1,20 +1,20 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title" [useMediumBreakpoint]="true"></se-header>
+    <se-header id="header" [title]="title()" [useMediumBreakpoint]="true"></se-header>
 
     <!-- Loading Spinner -->
-    @if (loadingContent) {
+    @if (loadingContent()) {
       <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- Information if there is no selected competition (ie. initial page for Competitions) -->
-    @if (!loadingContent && (isMobile || !selectedCompetition) && !filtersOpen) {
+    @if (!loadingContent() && (isMobile() || !selectedCompetition()) && !filtersOpen()) {
       <div class="large-text-content">
-        <markdown [data]="description"></markdown>
+        <markdown [data]="description()"></markdown>
       </div>
-      @if (competitionMapPoints) {
+      @if (competitionMapPoints()) {
         <se-map
-          [points]="competitionMapPoints"
+          [points]="competitionMapPoints()"
           [selectedPoint]="hoveredListCompetition"
           [showLegend]="true"
           (hoverPoint)="mapHoverEvent($event)"
@@ -24,7 +24,7 @@
       <!-- section for external links text Bubble -->
       <div class="sub-text-container">
         <div class="sub-text-box">
-          {{ subText }}
+          {{ subText() }}
           <div class="badges">
             <!-- Facebook -->
             <a href="{{ linksService.facebook }}" target="_blank">
@@ -44,51 +44,51 @@
     }
 
     <!-- Filters -->
-    @if (filtersOpen) {
+    @if (filtersOpen()) {
       <div class="large-text-content">
-        <markdown [data]="filtersDescription"></markdown>
+        <markdown [data]="filtersDescription()"></markdown>
       </div>
       <se-event-list
-        [selectedEvents]="filters.events"
+        [selectedEvents]="filters().events"
         (selectEventEmitter)="handleEventSelection($event)"
       >
       </se-event-list>
       <se-filter-map
-        [selectedStates]="filters.states"
+        [selectedStates]="filters().states"
         (selectStateEmitter)="handleStateSelection($event)"
       ></se-filter-map>
     }
 
     <!-- Information for selected competition details -->
-    @if (selectedCompetition && !isMobile) {
-      <se-selected-competition [selectedCompetition]="selectedCompetition">
+    @if (selectedCompetition() && !isMobile()) {
+      <se-selected-competition [selectedCompetition]="selectedCompetition()">
       </se-selected-competition>
     }
   </div>
   <div class="secondary-pane">
     <!-- Loading Spinner -->
-    @if (loadingCompetitions) {
+    @if (loadingCompetitions()) {
       <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- Filters Icon -->
-    @if (!loadingCompetitions) {
+    @if (!loadingCompetitions()) {
       <div class="icon-row" (click)="toggleFiltersOpen()">
         <i class="fa-solid fa-filter"></i>
       </div>
     }
 
-    @if (!loadingCompetitions) {
+    @if (!loadingCompetitions()) {
       <div id="competition-list-container" class="list-container">
         <!-- List for all loaded competitions -->
-        @for (competition of filteredCompetitions; track competition) {
+        @for (competition of filteredCompetitions(); track competition) {
           <!-- Competition Bubble -->
           <div
             class="item-container clickable"
             style="--state-color:{{ StateColors[competition.state] }}"
             [ngClass]="{
               active:
-                selectedCompetition?.id === competition.id ||
+                selectedCompetition()?.id === competition.id ||
                 hoveredMapCompetition === competition.id,
             }"
             (mouseover)="competitionHover(competition)"
@@ -107,8 +107,8 @@
               </div>
             </div>
             <!-- Information for selected competition details -->
-            @if (isMobile && selectedCompetition?.id === competition.id) {
-              <se-selected-competition [selectedCompetition]="selectedCompetition">
+            @if (isMobile() && selectedCompetition()?.id === competition.id) {
+              <se-selected-competition [selectedCompetition]="selectedCompetition()">
               </se-selected-competition>
             }
           </div>

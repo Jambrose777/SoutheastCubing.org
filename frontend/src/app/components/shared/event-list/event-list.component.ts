@@ -1,4 +1,4 @@
-import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { Colors, Events } from 'src/app/shared/types';
 import { NgClass } from '@angular/common';
 
@@ -6,7 +6,7 @@ import { NgClass } from '@angular/common';
   selector: 'se-event-list',
   templateUrl: './event-list.component.html',
   styleUrls: ['./event-list.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgClass],
 })
 export class EventListComponent {
@@ -15,7 +15,16 @@ export class EventListComponent {
   selectedEvents = input<string[]>();
   selectEventEmitter = output<string>();
 
-  constructor() {}
+  // Precomputed colors for each event based on the selected events.
+  eventColors = computed<Record<string, string>>(() => {
+    const selected = this.selectedEvents();
+    return Object.fromEntries(
+      this.Events.map((event) => [
+        event,
+        !selected?.length || selected.includes(event) ? Colors.black : Colors.grey,
+      ]),
+    );
+  });
 
   eventClicked(event: string) {
     this.selectEventEmitter.emit(event);

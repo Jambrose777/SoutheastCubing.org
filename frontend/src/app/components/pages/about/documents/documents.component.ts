@@ -5,10 +5,8 @@ import { DocumentLink } from 'src/app/models/Document';
   selector: 'se-documents',
   templateUrl: './documents.component.html',
   styleUrls: ['./documents.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DoucmentsComponent {
   documents = input<DocumentLink[]>();
-
-  constructor() {}
 }

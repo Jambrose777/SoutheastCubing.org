@@ -48,11 +48,6 @@ module.exports = tseslint.config(
         'error',
         { type: 'element', prefix: 'se', style: 'kebab-case' },
       ],
-      // OnPush change detection is a substantial, deliberate migration of its
-      // own (already tracked as separate backlog work) rather than something
-      // to fold into a formatting/linting setup story, so it's switched off
-      // here for now instead of being mass-fixed.
-      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
       // Reducing `any` usage across the frontend is its own dedicated cleanup
       // effort; leaving this off here avoids mixing that work into this story.
       '@typescript-eslint/no-explicit-any': 'off',

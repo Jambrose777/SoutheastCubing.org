@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { Subscription, take } from 'rxjs';
 import { SouteastcubingApiService } from 'src/app/services/souteastcubing-api.service';
 import { ThemeService } from 'src/app/services/theme.service';
@@ -17,7 +17,7 @@ enum UpdateStatus {
   selector: 'se-update-competitions',
   templateUrl: './update-competitions.component.html',
   styleUrls: ['./update-competitions.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [HeaderComponent, LoadingSpinnerComponent],
 })
 export class UpdateCompetitionsComponent implements OnInit {
@@ -28,8 +28,8 @@ export class UpdateCompetitionsComponent implements OnInit {
   subscriptions: Subscription = new Subscription();
   description: string =
     'This page is meant for admin use only. Admins can click the button below to fetch the list of competitions from WCA and update the global cache. This action is limited to once an hour. Refreshes happen automatically at midnight everyday, however this can be used to immediately update for recently announced competitions.';
-  updateCompetitionsStatus: UpdateStatus = UpdateStatus.default;
-  errorMessage: string;
+  updateCompetitionsStatus = signal(UpdateStatus.default);
+  errorMessage = signal<string>(undefined);
 
   ngOnInit(): void {
     // sets up main color for the competitions page
@@ -38,21 +38,18 @@ export class UpdateCompetitionsComponent implements OnInit {
 
   // makes call to update competitions on the Southeastcubing API
   updateCompetitions() {
-    this.updateCompetitionsStatus = UpdateStatus.updating;
+    this.updateCompetitionsStatus.set(UpdateStatus.updating);
 
-    // this.southeastcubingApi.updateCompetitions().pipe(take(1)).subscribe(res => {
-    //   this.updateCompetitionsStatus = UpdateStatus.success;
-    // });
     this.southeastcubingApi
       .updateCompetitions()
       .pipe(take(1))
       .subscribe({
         next: () => {
-          this.updateCompetitionsStatus = UpdateStatus.success;
+          this.updateCompetitionsStatus.set(UpdateStatus.success);
         },
         error: (err) => {
-          this.updateCompetitionsStatus = UpdateStatus.failure;
-          this.errorMessage = err?.error?.message;
+          this.updateCompetitionsStatus.set(UpdateStatus.failure);
+          this.errorMessage.set(err?.error?.message);
         },
       });
   }

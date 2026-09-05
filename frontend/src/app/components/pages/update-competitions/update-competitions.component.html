@@ -6,7 +6,7 @@
       <div class="large-text-content">{{ description }}</div>
 
       <!-- Refresh Competitions Button -->
-      @if (updateCompetitionsStatus === 'default') {
+      @if (updateCompetitionsStatus() === 'default') {
         <a class="btn" (click)="updateCompetitions()">
           Refresh Competitions
           <i class="fa-solid fa-arrows-rotate fa-sm"></i>
@@ -14,7 +14,7 @@
       }
 
       <!-- Loading text for Registration Status open -->
-      @if (updateCompetitionsStatus === 'updating') {
+      @if (updateCompetitionsStatus() === 'updating') {
         <div class="btn loading-text">
           Updating Competitions
           <se-loading-spinner></se-loading-spinner>
@@ -22,16 +22,16 @@
       }
 
       <!-- Success Message -->
-      @if (updateCompetitionsStatus === 'success') {
+      @if (updateCompetitionsStatus() === 'success') {
         <div class="small-text-content success-color">
           <b>Successfully updated the competitions cache!</b>
         </div>
       }
 
       <!-- Error Message -->
-      @if (updateCompetitionsStatus === 'failure') {
+      @if (updateCompetitionsStatus() === 'failure') {
         <div class="small-text-content error-color">
-          <b>{{ errorMessage }}</b>
+          <b>{{ errorMessage() }}</b>
         </div>
       }
     </div>

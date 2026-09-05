@@ -5,7 +5,9 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
+  signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { SubTopic } from 'src/app/models/SubTopic';
@@ -28,7 +30,7 @@ import { DoucmentsComponent } from './documents/documents.component';
   selector: 'se-about',
   templateUrl: './about.component.html',
   styleUrls: ['./about.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,
     LoadingSpinnerComponent,
@@ -46,51 +48,50 @@ export class AboutComponent implements OnInit, OnDestroy {
   private location = inject(Location);
   private navService = inject(NavService);
 
-  isMobile: boolean;
-  title: string = 'About SECI';
-  description: string = '';
-  loadingContent: boolean = true;
-  loadingTeams: boolean = true;
-  loadingDocuments: boolean = true;
-  subTopics: SubTopic[];
-  selectedSubTopic: SubTopic;
+  // Derived from the service's observable via toSignal() so OnPush change
+  // detection picks up resize-driven updates
+  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
+    initialValue: this.screenSizeService.isMobile,
+  });
+
+  title = signal('About SECI');
+  description = signal('');
+  loadingContent = signal(true);
+  loadingTeams = signal(true);
+  loadingDocuments = signal(true);
+  subTopics = signal<SubTopic[]>([]);
+  selectedSubTopic = signal<SubTopic>(undefined);
   subTopicId = input<string>();
-  teams: Team[];
-  documents: DocumentLink[];
+  teams = signal<Team[]>(undefined);
+  documents = signal<DocumentLink[]>(undefined);
   subscriptions: Subscription = new Subscription();
 
   ngOnInit(): void {
-    // sets up responsive screensize
-    this.subscriptions.add(
-      this.screenSizeService
-        .getIsMobileSubject()
-        .subscribe((isMobile) => (this.isMobile = isMobile)),
-    );
-
     // sets up main color for the Involvement page
     this.themeService.setMainPaneColor(Colors.orange);
 
     // retireve formats data from the CMS Involvement Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.about).subscribe((res) => {
-        this.title = res.fields.title;
-        this.description = res.fields.description;
-        this.subTopics = res.fields.subTopics.map((subTopic) => ({
+        this.title.set(res.fields.title);
+        this.description.set(res.fields.description);
+        let subTopics: SubTopic[] = res.fields.subTopics.map((subTopic) => ({
           ...subTopic.fields,
           photo: subTopic.fields['photo']?.fields.file.url,
           color: Colors[subTopic.fields.color],
         }));
 
         // Add additional custom Pages as SubTopics
-        this.subTopics = [
+        subTopics = [
           { title: 'Who We Are', color: Colors.yellow },
-          ...this.subTopics,
+          ...subTopics,
           { title: 'Documents', color: Colors.purple },
         ];
+        this.subTopics.set(subTopics);
 
         // select a subtopic based on url on load
         if (this.subTopicId()) {
-          const foundSubTopic = this.subTopics.find(
+          const foundSubTopic = subTopics.find(
             (subTopic) => subTopic.title.replace(/ +/g, '-') === this.subTopicId(),
           );
           if (foundSubTopic) {
@@ -99,37 +100,41 @@ export class AboutComponent implements OnInit, OnDestroy {
             this.location.replaceState('/about');
           }
         }
-        this.loadingContent = false;
+        this.loadingContent.set(false);
       }),
     );
 
     // retrieve teams list from the CMS Teams
     this.subscriptions.add(
       this.contentful.getContentfulGroup(ContentfulContentType.teams).subscribe((res) => {
-        this.teams = res.items
-          .map((team) => ({
-            ...team.fields,
-            teamMembers: team.fields.teamMembers.map((teamMember) => ({
-              ...teamMember.fields,
-              color: Colors[teamMember.fields.color] || Colors.grey,
-              thumbnail: teamMember.fields['thumbnail']?.fields.file.url,
-            })),
-          }))
-          .sort((a: Team, b: Team) => (a.order > b.order ? 1 : -1));
-        this.loadingTeams = false;
+        this.teams.set(
+          res.items
+            .map((team) => ({
+              ...team.fields,
+              teamMembers: team.fields.teamMembers.map((teamMember) => ({
+                ...teamMember.fields,
+                color: Colors[teamMember.fields.color] || Colors.grey,
+                thumbnail: teamMember.fields['thumbnail']?.fields.file.url,
+              })),
+            }))
+            .sort((a: Team, b: Team) => (a.order > b.order ? 1 : -1)),
+        );
+        this.loadingTeams.set(false);
       }),
     );
 
     // retrieve Documents list from the CMS Teams
     this.subscriptions.add(
       this.contentful.getContentfulGroup(ContentfulContentType.documents).subscribe((res) => {
-        this.documents = res.items
-          .map((document) => ({
-            ...document.fields,
-            color: Colors[document.fields.color] || Colors.grey,
-          }))
-          .sort((a: Team, b: Team) => (a.order > b.order ? 1 : -1));
-        this.loadingDocuments = false;
+        this.documents.set(
+          res.items
+            .map((document) => ({
+              ...document.fields,
+              color: Colors[document.fields.color] || Colors.grey,
+            }))
+            .sort((a: Team, b: Team) => (a.order > b.order ? 1 : -1)),
+        );
+        this.loadingDocuments.set(false);
       }),
     );
   }
@@ -144,13 +149,13 @@ export class AboutComponent implements OnInit, OnDestroy {
     this.navService.closeNav();
 
     // deselect a sub topic if it is already selected
-    if (this.selectedSubTopic?.title === subTopic.title) {
-      this.selectedSubTopic = undefined;
+    if (this.selectedSubTopic()?.title === subTopic.title) {
+      this.selectedSubTopic.set(undefined);
       this.themeService.setMainPaneColor(Colors.red);
       this.location.replaceState('/about');
     } else {
-      this.selectedSubTopic = subTopic;
-      if (!this.isMobile) {
+      this.selectedSubTopic.set(subTopic);
+      if (!this.isMobile()) {
         // sets the left pane color based on state value
         this.themeService.setMainPaneColor(subTopic.color);
 
@@ -158,12 +163,10 @@ export class AboutComponent implements OnInit, OnDestroy {
         document.getElementById('header')?.scrollIntoView();
       } else {
         setTimeout(() => {
-          document
-            .getElementById(this.selectedSubTopic.title)
-            ?.scrollIntoView({ behavior: 'smooth' });
+          document.getElementById(subTopic.title)?.scrollIntoView({ behavior: 'smooth' });
         }, 0);
       }
-      this.location.replaceState('/about/' + this.selectedSubTopic.title.replace(/ +/g, '-'));
+      this.location.replaceState('/about/' + subTopic.title.replace(/ +/g, '-'));
     }
   }
 }

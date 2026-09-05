@@ -5,7 +5,9 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
+  signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Location, NgClass } from '@angular/common';
 import { Cat } from 'src/app/models/Cat';
 import { Subscription } from 'rxjs';
@@ -24,7 +26,7 @@ import { SelectedCatComponent } from './selected-cat/selected-cat.component';
   selector: 'se-cats',
   templateUrl: './cats.component.html',
   styleUrls: ['./cats.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,
     LoadingSpinnerComponent,
@@ -40,14 +42,19 @@ export class CatsComponent implements OnInit, OnDestroy {
   private location = inject(Location);
   private screenSizeService = inject(ScreenSizeService);
 
-  isMobile: boolean;
-  cats: Cat[];
+  // Derived from the service's observable via toSignal() so OnPush change
+  // detection picks up resize-driven updates
+  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
+    initialValue: this.screenSizeService.isMobile,
+  });
+
+  cats = signal<Cat[]>(undefined);
   catName = input<string>();
-  title: string = 'Southeast Cats';
-  description: string = '';
-  loadingContent: boolean = true;
-  loadingCats: boolean = true;
-  selectedCat: Cat;
+  title = signal('Southeast Cats');
+  description = signal('');
+  loadingContent = signal(true);
+  loadingCats = signal(true);
+  selectedCat = signal<Cat>(undefined);
   subscriptions: Subscription = new Subscription();
   availableColors: Colors[] = [
     Colors.blue,
@@ -61,20 +68,13 @@ export class CatsComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
-    // sets up responsive screensize
-    this.subscriptions.add(
-      this.screenSizeService
-        .getIsMobileSubject()
-        .subscribe((isMobile) => (this.isMobile = isMobile)),
-    );
-
     // sets up main color for the cats page
     this.themeService.setMainPaneColor(Colors.yellow);
 
     // retireve, sorts, and formats data from the CMS Cats Entries
     this.subscriptions.add(
       this.contentful.getContentfulGroup(ContentfulContentType.cats).subscribe((res) => {
-        this.cats = res.items
+        const cats = res.items
           .map((value) => ({ value, sort: Math.random() }))
           .sort((a, b) => a.sort - b.sort)
           .map(({ value }) => value)
@@ -88,26 +88,25 @@ export class CatsComponent implements OnInit, OnDestroy {
                   this.availableColors[Math.floor(Math.random() * this.availableColors.length)],
               }) as Cat,
           );
+        this.cats.set(cats);
         if (this.catName()) {
-          const foundCat = this.cats?.find(
-            (cat) => cat.name.replace(/ +/g, '-') === this.catName(),
-          );
+          const foundCat = cats?.find((cat) => cat.name.replace(/ +/g, '-') === this.catName());
           if (foundCat) {
             this.selectCat(foundCat);
           } else {
             this.location.replaceState('/cats');
           }
         }
-        this.loadingCats = false;
+        this.loadingCats.set(false);
       }),
     );
 
     // retireve and formats data from the CMS Cats Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.cats).subscribe((res) => {
-        this.title = res.fields.title;
-        this.description = res.fields.description;
-        this.loadingContent = false;
+        this.title.set(res.fields.title);
+        this.description.set(res.fields.description);
+        this.loadingContent.set(false);
       }),
     );
   }
@@ -122,24 +121,24 @@ export class CatsComponent implements OnInit, OnDestroy {
     this.navService.closeNav();
 
     // Check if clicking an active cat, and delselect the cat if so.
-    if (this.selectedCat?.name === cat.name) {
-      this.selectedCat = undefined;
+    if (this.selectedCat()?.name === cat.name) {
+      this.selectedCat.set(undefined);
       this.themeService.setMainPaneColor(Colors.green); //resets left pane
       this.location.replaceState('/cats');
     } else {
-      this.selectedCat = cat;
-      if (!this.isMobile) {
+      this.selectedCat.set(cat);
+      if (!this.isMobile()) {
         // sets the left pane color based on state value
-        this.themeService.setMainPaneColor(this.selectedCat.color);
+        this.themeService.setMainPaneColor(cat.color);
 
         //scroll to top of main pane
         document.getElementById('header')?.scrollIntoView();
       } else {
         setTimeout(() => {
-          document.getElementById(this.selectedCat.name)?.scrollIntoView({ behavior: 'smooth' });
+          document.getElementById(cat.name)?.scrollIntoView({ behavior: 'smooth' });
         }, 0);
       }
-      this.location.replaceState('/cats/' + this.selectedCat.name.replace(/ +/g, '-'));
+      this.location.replaceState('/cats/' + cat.name.replace(/ +/g, '-'));
     }
   }
 }

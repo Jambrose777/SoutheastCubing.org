@@ -1,13 +1,13 @@
 <div class="selected-item-container">
   <!-- Club Name -->
-  @if (!isMobile) {
+  @if (!isMobile()) {
     <h2 class="title-text">
       {{ selectedClub().name }}
     </h2>
   }
 
   <!-- Club Location -->
-  @if (!isMobile) {
+  @if (!isMobile()) {
     <div class="medium-text-content">
       {{ selectedClub().city }}
     </div>

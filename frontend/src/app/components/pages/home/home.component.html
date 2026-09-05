@@ -1,15 +1,15 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title"></se-header>
+    <se-header id="header" [title]="title()"></se-header>
 
     <!-- Loading Spinner -->
-    @if (loadingContent) {
+    @if (loadingContent()) {
       <se-loading-spinner></se-loading-spinner>
     }
 
-    @if (!loadingContent) {
+    @if (!loadingContent()) {
       <!-- Important Announcements -->
-      @for (subTopic of subTopics; track subTopic) {
+      @for (subTopic of subTopics(); track subTopic) {
         <div
           class="announcement-banner clickable"
           (click)="announcementClick(subTopic)"
@@ -44,7 +44,7 @@
       </carousel>
     </div> -->
       <div class="large-text-content">
-        <markdown [data]="description"></markdown>
+        <markdown [data]="description()"></markdown>
       </div>
       <!-- Icons for important external links, such as social media -->
       <div class="badges">
@@ -75,13 +75,13 @@
       </div>
     }
   </div>
-  @if (!isMobile) {
+  @if (!isMobile()) {
     <div class="secondary-pane">
       <!-- Loading Spinner -->
-      @if (loadingContent) {
+      @if (loadingContent()) {
         <se-loading-spinner></se-loading-spinner>
       }
-      @if (!loadingContent) {
+      @if (!loadingContent()) {
         <!-- Temporarily disabled: angular-responsive-carousel is incompatible with Angular 16+'s
       Ivy-only compiler. Replacing it with a supported alternative to restore this carousel is
       tracked as separate backlog work. -->

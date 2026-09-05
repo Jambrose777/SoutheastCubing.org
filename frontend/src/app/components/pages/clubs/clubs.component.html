@@ -1,20 +1,20 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title"></se-header>
+    <se-header id="header" [title]="title()"></se-header>
 
     <!-- Loading Spinner -->
-    @if (loadingContent) {
+    @if (loadingContent()) {
       <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- Information if there is no selected club (ie. initial page for Clubs) -->
-    @if (!loadingContent && (isMobile || !selectedClub) && !filtersOpen) {
+    @if (!loadingContent() && (isMobile() || !selectedClub()) && !filtersOpen()) {
       <div class="large-text-content">
-        <markdown [data]="description"></markdown>
+        <markdown [data]="description()"></markdown>
       </div>
-      @if (clubMapPoints) {
+      @if (clubMapPoints()) {
         <se-map
-          [points]="clubMapPoints"
+          [points]="clubMapPoints()"
           [selectedPoint]="hoveredListClub"
           (hoverPoint)="mapHoverEvent($event)"
           (clickPoint)="mapClickEvent($event)"
@@ -23,20 +23,20 @@
       <div class="sub-text-container">
         <!-- Section for Start a new club form -->
         <div class="sub-text-box">
-          {{ subText1 }}
+          {{ subText1() }}
           <div>
-            <a class="btn" [href]="subText1ButtonLink" target="_blank">
-              {{ subText1ButtonText }}
+            <a class="btn" [href]="subText1ButtonLink()" target="_blank">
+              {{ subText1ButtonText() }}
               <i class="fa-solid fa-up-right-from-square fa-sm"></i>
             </a>
           </div>
         </div>
         <!-- Section for contacting SEC about clubs -->
         <div class="sub-text-box">
-          {{ subText2 }}
+          {{ subText2() }}
           <div>
-            <a class="btn" [href]="subText2ButtonLink">
-              {{ subText2ButtonText }}
+            <a class="btn" [href]="subText2ButtonLink()">
+              {{ subText2ButtonText() }}
               <i class="fa-regular fa-envelope fa-sm"></i>
             </a>
           </div>
@@ -45,44 +45,44 @@
     }
 
     <!-- Filters -->
-    @if (filtersOpen) {
+    @if (filtersOpen()) {
       <div class="large-text-content">
-        <markdown [data]="filtersDescription"></markdown>
+        <markdown [data]="filtersDescription()"></markdown>
       </div>
       <se-filter-map
-        [selectedStates]="filters.states"
+        [selectedStates]="filters().states"
         (selectStateEmitter)="handleStateSelection($event)"
       ></se-filter-map>
     }
 
     <!-- Information for selected club details -->
-    @if (selectedClub && !isMobile) {
-      <se-selected-club [selectedClub]="selectedClub"> </se-selected-club>
+    @if (selectedClub() && !isMobile()) {
+      <se-selected-club [selectedClub]="selectedClub()"> </se-selected-club>
     }
   </div>
 
   <div class="secondary-pane">
     <!-- Loading Spinner -->
-    @if (loadingClubs) {
+    @if (loadingClubs()) {
       <se-loading-spinner></se-loading-spinner>
     }
 
     <!-- Filters Icon -->
-    @if (!loadingClubs) {
+    @if (!loadingClubs()) {
       <div class="icon-row" (click)="toggleFiltersOpen()">
         <i class="fa-solid fa-filter"></i>
       </div>
     }
 
     <!-- List for all loaded clubs -->
-    @if (!loadingClubs) {
+    @if (!loadingClubs()) {
       <div id="club-list-container" class="list-container">
-        @for (club of filteredClubs; track club) {
+        @for (club of filteredClubs(); track club) {
           <!-- Club Bubble -->
           <div
             class="item-container clickable"
             style="--state-color:{{ StateColors[club.state] }}"
-            [ngClass]="{ active: selectedClub?.id === club.id || hoveredMapClub === club.id }"
+            [ngClass]="{ active: selectedClub()?.id === club.id || hoveredMapClub === club.id }"
             (mouseover)="clubHover(club)"
             (mouseout)="clubHover()"
           >
@@ -95,8 +95,8 @@
               </div>
             </div>
             <!-- Information for selected club details -->
-            @if (isMobile && selectedClub?.id === club.id) {
-              <se-selected-club [selectedClub]="selectedClub"> </se-selected-club>
+            @if (isMobile() && selectedClub()?.id === club.id) {
+              <se-selected-club [selectedClub]="selectedClub()"> </se-selected-club>
             }
           </div>
         }

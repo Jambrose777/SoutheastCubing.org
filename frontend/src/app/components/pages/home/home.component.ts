@@ -1,4 +1,12 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import {
+  Component,
+  OnDestroy,
+  OnInit,
+  ChangeDetectionStrategy,
+  inject,
+  signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
@@ -17,7 +25,7 @@ import { MarkdownComponent } from 'ngx-markdown';
   selector: 'se-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [HeaderComponent, LoadingSpinnerComponent, MarkdownComponent, RouterLink],
 })
 export class HomeComponent implements OnInit, OnDestroy {
@@ -27,37 +35,36 @@ export class HomeComponent implements OnInit, OnDestroy {
   private screenSizeService = inject(ScreenSizeService);
   linksService = inject(LinksService);
 
-  isMobile: boolean;
+  // Derived from the service's observable via toSignal() so OnPush change
+  // detection picks up resize-driven updates
+  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
+    initialValue: this.screenSizeService.isMobile,
+  });
   enviroment = environment;
-  title: string = 'Southeast Cubing';
-  description: string = '';
-  photos: string[] = [];
-  loadingContent: boolean = true;
-  subTopics: SubTopic[];
+  title = signal('Southeast Cubing');
+  description = signal('');
+  photos = signal<string[]>([]);
+  loadingContent = signal(true);
+  subTopics = signal<SubTopic[]>(undefined);
   subscriptions: Subscription = new Subscription();
 
   ngOnInit(): void {
-    // sets up responsive screensize
-    this.subscriptions.add(
-      this.screenSizeService
-        .getIsMobileSubject()
-        .subscribe((isMobile) => (this.isMobile = isMobile)),
-    );
-
     // sets up main color for the home page
     this.themeService.setMainPaneColor(Colors.blue);
 
     // retireve and formats data from the CMS home Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.home).subscribe((res) => {
-        this.title = res.fields.title;
-        this.description = res.fields.description;
-        this.subTopics = res.fields.subTopics?.map((subTopic) => ({
-          ...subTopic.fields,
-          color: Colors[subTopic.fields.color],
-        }));
-        this.photos = res.fields.photos?.map((photo) => ({ path: photo.fields.file.url }));
-        this.loadingContent = false;
+        this.title.set(res.fields.title);
+        this.description.set(res.fields.description);
+        this.subTopics.set(
+          res.fields.subTopics?.map((subTopic) => ({
+            ...subTopic.fields,
+            color: Colors[subTopic.fields.color],
+          })),
+        );
+        this.photos.set(res.fields.photos?.map((photo) => ({ path: photo.fields.file.url })));
+        this.loadingContent.set(false);
       }),
     );
   }

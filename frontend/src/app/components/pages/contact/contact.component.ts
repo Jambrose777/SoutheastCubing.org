@@ -1,4 +1,12 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import {
+  Component,
+  OnDestroy,
+  OnInit,
+  ChangeDetectionStrategy,
+  inject,
+  signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -22,7 +30,7 @@ import { MarkdownComponent } from 'ngx-markdown';
   selector: 'se-contact',
   templateUrl: './contact.component.html',
   styleUrls: ['./contact.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,
     ReactiveFormsModule,
@@ -44,20 +52,31 @@ export class ContactComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private screenSizeService = inject(ScreenSizeService);
 
-  isMobile: boolean;
+  // Derived from the service's observable via toSignal() so OnPush change
+  // detection picks up resize-driven updates
+  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
+    initialValue: this.screenSizeService.isMobile,
+  });
+
   EmailApiStatus = EmailApiStatus;
   EmailType = EmailType;
   enviroment = environment;
-  title: string = 'Contact';
-  description: string = '';
-  loadingContent: boolean = true;
-  loadingCompetitions: boolean = true;
-  competitions: Competition[] = [];
-  selectedCompetition: Competition;
+  title = signal('Contact');
+  description = signal('');
+  loadingContent = signal(true);
+  loadingCompetitions = signal(true);
+  competitions = signal<Competition[]>([]);
+  emailApiStatus = signal(EmailApiStatus.none);
+
   ipAddress: string;
-  emailApiStatus: EmailApiStatus = EmailApiStatus.none;
   hasHadError = false;
   subscriptions: Subscription = new Subscription();
+
+  // Bound two-way via mat-select's [(value)] in this component's own
+  // template, which already triggers OnPush change detection on its own, so
+  // this stays a plain field instead of a signal (a signal can't be the
+  // target of banana-in-a-box two-way binding syntax).
+  selectedCompetition: Competition;
 
   emailTypeOptions = [
     { value: EmailType.upcomingCompetition, label: 'An upcoming WCA competition' },
@@ -104,29 +123,22 @@ export class ContactComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // sets up responsive screensize
-    this.subscriptions.add(
-      this.screenSizeService
-        .getIsMobileSubject()
-        .subscribe((isMobile) => (this.isMobile = isMobile)),
-    );
-
     // sets up main color for the Contact page
     this.themeService.setMainPaneColor(Colors.yellow);
 
     // retireve formats data from the CMS Contact Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.contact).subscribe((res) => {
-        this.description = res.fields.description;
-        this.loadingContent = false;
+        this.description.set(res.fields.description);
+        this.loadingContent.set(false);
       }),
     );
 
     // retrieve the competitions list from WCA
     this.subscriptions.add(
       this.southeastcubingApiService.getUpcomingCompetitions().subscribe((res) => {
-        this.competitions = res;
-        this.loadingCompetitions = false;
+        this.competitions.set(res);
+        this.loadingCompetitions.set(false);
       }),
     );
 
@@ -165,7 +177,7 @@ export class ContactComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    this.emailApiStatus = EmailApiStatus.none;
+    this.emailApiStatus.set(EmailApiStatus.none);
     // check for a valid form
     if (!this.contactForm.valid) {
       this.contactForm.markAllAsTouched();
@@ -173,7 +185,7 @@ export class ContactComponent implements OnInit, OnDestroy {
     }
 
     // setup form for submission
-    this.emailApiStatus = EmailApiStatus.pending;
+    this.emailApiStatus.set(EmailApiStatus.pending);
     this.contactForm.disable();
 
     // compile request
@@ -193,15 +205,15 @@ export class ContactComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.southeastcubingApiService.contactSubmission(emailRequestBody).subscribe({
         next: () => {
-          this.emailApiStatus = EmailApiStatus.success;
+          this.emailApiStatus.set(EmailApiStatus.success);
           this.contactForm.enable();
           this.contactForm.reset();
         },
         error: () => {
           if (this.hasHadError) {
-            this.emailApiStatus = EmailApiStatus.doubleFailure;
+            this.emailApiStatus.set(EmailApiStatus.doubleFailure);
           } else {
-            this.emailApiStatus = EmailApiStatus.failure;
+            this.emailApiStatus.set(EmailApiStatus.failure);
             this.hasHadError = true;
           }
           this.contactForm.enable();
