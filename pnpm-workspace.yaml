@@ -9,3 +9,20 @@ allowBuilds:
   msgpackr-extract: true
 minimumReleaseAgeExclude:
   - nodemailer@10.0.0
+overrides:
+  # These two overrides only exist to patch vulnerable transitive deps of
+  # @angular-devkit/build-angular's legacy webpack-dev-server/karma tooling
+  # chain - they use caret ranges so they won't block future patch/minor
+  # security fixes, but if a future Angular major upgrade needs a *major*
+  # bump of qs/uuid past these ranges, re-check with `pnpm audit` and
+  # `pnpm why qs`/`pnpm why uuid` whether they're still needed before keeping
+  # them.
+  # Both moderate qs vulnerabilities (GHSA-x5fp-wj9c-mxmx, GHSA-4mjr-xmp4-gh2g)
+  # only remain on the webpack-dev-server/karma dev-tooling chain pulled in by
+  # @angular-devkit/build-angular - backend and the rest of the frontend tree
+  # already resolve to a patched qs on their own.
+  qs: ^6.16.0
+  # The uuid vulnerability (GHSA-w5hq-g745-h8pq) on the same dev-tooling chain
+  # comes from sockjs specifically; scoped to that parent so it doesn't touch
+  # aws-sdk's own (older, out-of-scope) uuid dependency.
+  sockjs>uuid: ^11.1.1
