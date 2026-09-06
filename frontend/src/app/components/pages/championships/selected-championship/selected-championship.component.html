@@ -5,6 +5,7 @@
       <a
         [href]="enviroment.links.wcaCompetition + selectedChampionship().id"
         target="_blank"
+        rel="noopener noreferrer"
         class="name-container"
       >
         <!-- Competition Logo -->
@@ -32,7 +33,11 @@
         <span>{{ selectedChampionship().city }} -</span>
       }
       @if (isMobile()) {
-        <a [href]="enviroment.links.wcaCompetition + selectedChampionship().id" target="_blank">
+        <a
+          [href]="enviroment.links.wcaCompetition + selectedChampionship().id"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <img ngSrc="assets/wca_logo.svg" width="293" height="293" class="wca-logo-small" />
         </a>
       }

@@ -48,7 +48,11 @@
             <div>{{ selectedClub().venue }}</div>
           }
           @if (selectedClub().address) {
-            <a [href]="enviroment.links.googleMaps + selectedClub().address" target="_blank">
+            <a
+              [href]="enviroment.links.googleMaps + selectedClub().address"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {{ selectedClub().address }}
             </a>
           }
@@ -78,13 +82,23 @@
             <div>{{ selectedClub().contactInfo }}</div>
           }
           @if (selectedClub().contactEmail) {
-            <a class="btn" href="mailto:{{ selectedClub().contactEmail }}" target="_blank">
+            <a
+              class="btn"
+              href="mailto:{{ selectedClub().contactEmail }}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Email
               <i class="fa-regular fa-envelope fa-sm"></i>
             </a>
           }
           @if (selectedClub().website) {
-            <a class="btn" [href]="selectedClub().website" target="_blank">
+            <a
+              class="btn"
+              [href]="selectedClub().website"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Website
               <i class="fa-solid fa-up-right-from-square fa-sm"></i>
             </a>

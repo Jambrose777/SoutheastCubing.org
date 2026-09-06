@@ -36,7 +36,12 @@
     <div>
       <!-- External -->
       @if (selectedSubTopic().buttonExternalLink) {
-        <a class="btn" [href]="selectedSubTopic().buttonExternalLink" target="_blank">
+        <a
+          class="btn"
+          [href]="selectedSubTopic().buttonExternalLink"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           {{ selectedSubTopic().buttonText }}
           @if (selectedSubTopic().buttonIcon) {
             <i class="fa-solid {{ selectedSubTopic().buttonIcon }} fa-lg"></i>
