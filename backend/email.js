@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const { stripNewlines } = require('./utils/sanitize');
 
 // Logger
 const log4js = require('log4js');
@@ -43,14 +44,19 @@ function sendEmail(req, res) {
   } else if (!req.body.emailType || !EmailType[req.body.emailType]) {
     res.status(400).json({ message: 'must provide a valid emailType.' });
   } else {
+    // Strip \r/\n from user-supplied fields that end up in email headers
+    const name = stripNewlines(req.body.name);
+    const email = stripNewlines(req.body.email);
+    const subject = stripNewlines(req.body.subject);
+
     // Send email
     transporter
       .sendMail({
-        from: `"${req.body.name}" <${process.env.EMAIL_USER}>`,
-        replyTo: req.body.email,
+        from: `"${name}" <${process.env.EMAIL_USER}>`,
+        replyTo: email,
         to: getToEmail(req.body.emailType),
-        subject: getEmailSubject(req.body.subject),
-        text: getEmailText(req.body.name, req.body.email, req.body.text, req.body.ip),
+        subject: getEmailSubject(subject),
+        text: getEmailText(name, email, req.body.text, req.body.ip),
       })
       .then(() => {
         res.send({ status: 'success' });
