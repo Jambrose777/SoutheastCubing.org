@@ -48,7 +48,7 @@
           <!-- Sub Topic Bubble -->
           <div
             class="item-container clickable"
-            style="--state-color:{{ subTopic.color }}"
+            [style.--state-color]="subTopic.color"
             [ngClass]="{ active: selectedSubTopic()?.title === subTopic.title }"
           >
             <div class="item-row" (click)="selectSubTopic(subTopic)" id="{{ subTopic.title }}">

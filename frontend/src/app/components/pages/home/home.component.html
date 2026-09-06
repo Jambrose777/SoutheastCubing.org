@@ -13,7 +13,7 @@
         <div
           class="announcement-banner clickable"
           (click)="announcementClick(subTopic)"
-          style="--banner-color:{{ subTopic.color }}"
+          [style.--banner-color]="subTopic.color"
         >
           <div class="items-container">
             @for (

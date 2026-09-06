@@ -54,7 +54,7 @@
           <!-- Championship Bubble -->
           <div
             class="item-container clickable"
-            style="--state-color:{{ StateColors[championship.state] }}"
+            [style.--state-color]="StateColors[championship.state]"
             [ngClass]="{ active: selectedChampionship()?.id === championship.id }"
           >
             <div

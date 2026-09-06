@@ -13,7 +13,7 @@
         <div class="team-persons-container">
           <!-- {{team.persons}} -->
           @for (teamMember of team.teamMembers; track teamMember) {
-            <div class="team-person" style="--team-member-color:{{ teamMember.color }}">
+            <div class="team-person" [style.--team-member-color]="teamMember.color">
               <b>{{ teamMember.name }}</b>
               {{ teamMember.title }}
               @if (teamMember.thumbnail) {

@@ -85,7 +85,7 @@
           <!-- Competition Bubble -->
           <div
             class="item-container clickable"
-            style="--state-color:{{ StateColors[competition.state] }}"
+            [style.--state-color]="StateColors[competition.state]"
             [ngClass]="{
               active:
                 selectedCompetition()?.id === competition.id ||

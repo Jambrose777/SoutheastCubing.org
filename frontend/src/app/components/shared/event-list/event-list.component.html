@@ -3,7 +3,7 @@
     <span
       [ngClass]="'cubing-icon event-' + event"
       (click)="eventClicked(event)"
-      style="color:{{ eventColors()[event] }}"
+      [style.color]="eventColors()[event]"
     ></span>
   }
 </div>

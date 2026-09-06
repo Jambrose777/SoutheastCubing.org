@@ -2,7 +2,7 @@
   @for (doc of documents(); track doc) {
     <a
       class="document-item btn"
-      style="--document-item-color:{{ doc.color }}"
+      [style.--document-item-color]="doc.color"
       [href]="doc.link"
       target="_blank"
     >

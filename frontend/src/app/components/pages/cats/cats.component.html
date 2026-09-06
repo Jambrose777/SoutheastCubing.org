@@ -32,7 +32,7 @@
           <!-- Cat Bubble -->
           <div
             class="item-container clickable"
-            style="--state-color:{{ cat.color }}"
+            [style.--state-color]="cat.color"
             [ngClass]="{ active: selectedCat()?.name === cat.name }"
           >
             <div class="item-row" (click)="selectCat(cat)" id="{{ cat.name }}">
