@@ -1,28 +1,27 @@
-@import 'src/styles/color-pallet.scss';
-@import 'src/styles/constants.scss';
-@import 'src/styles/screen-sizes.scss';
+@use 'src/styles/constants';
+@use 'src/styles/screen-sizes';
 
 .project-container {
   display: flex;
   flex-direction: column;
 
   .desktop-container {
-    width: calc(100vw - 2 * $website-border-size);
-    height: calc(100vh - 2 * $website-border-size);
-    padding: $website-border-size;
+    width: calc(100vw - 2 * constants.$website-border-size);
+    height: calc(100vh - 2 * constants.$website-border-size);
+    padding: constants.$website-border-size;
   }
 
   .mobile-container {
-    height: calc(100% - $footer-height + 10px);
+    height: calc(100% - constants.$footer-height + 10px);
     overflow-y: scroll;
   }
 
   se-footer {
-    height: calc($footer-height - 10px);
+    height: calc(constants.$footer-height - 10px);
   }
 }
 
-@media only screen and (max-width: $small-breakpoint) {
+@media only screen and (max-width: screen-sizes.$small-breakpoint) {
   .project-container {
     height: 100vh;
     max-height: -webkit-fill-available;

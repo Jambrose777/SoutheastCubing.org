@@ -1,4 +1,4 @@
-@import 'src/styles/color-pallet.scss';
+@use 'src/styles/color-pallet';
 
 #se-map {
   height: 350px;
@@ -8,7 +8,7 @@
 }
 
 .map-legend {
-  background-color: $se-yellow;
+  background-color: color-pallet.$se-yellow;
   margin-top: -19px;
   z-index: 1001; // above leaflet base layer
   position: relative;

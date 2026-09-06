@@ -1,8 +1,7 @@
-@import 'src/styles/color-pallet.scss';
-@import 'src/styles/screen-sizes.scss';
+@use 'src/styles/color-pallet';
 
 .secondary-pane {
   .large-text-content {
-    color: $se-grey;
+    color: color-pallet.$se-grey;
   }
 }

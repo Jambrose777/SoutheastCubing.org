@@ -1,5 +1,5 @@
-@import 'src/styles/color-pallet.scss';
-@import 'src/styles/screen-sizes.scss';
+@use 'src/styles/color-pallet';
+@use 'src/styles/screen-sizes';
 
 .selected-item-container {
   .title-text {
@@ -42,7 +42,7 @@
     .detail-container {
       width: 230px;
       height: 270px;
-      border: solid 5px $se-black;
+      border: solid 5px color-pallet.$se-black;
       border-radius: 15px;
       margin: 20px;
       padding: 15px;
@@ -68,12 +68,12 @@
   }
 }
 
-@media only screen and (max-width: $small-breakpoint) {
+@media only screen and (max-width: screen-sizes.$small-breakpoint) {
   .selected-item-container {
     .competition-details {
       .event-container {
         padding-bottom: 10px;
-        border-bottom: 2px dashed $se-black;
+        border-bottom: 2px dashed color-pallet.$se-black;
       }
 
       .detail-container {
@@ -81,7 +81,7 @@
         height: fit-content;
         border: none;
         border-radius: 0px;
-        border-bottom: 2px dashed $se-black;
+        border-bottom: 2px dashed color-pallet.$se-black;
         margin: 0;
         padding: 0;
         font-size: 20px;

@@ -1,5 +1,5 @@
-@import 'src/styles/color-pallet.scss';
-@import 'src/styles/screen-sizes.scss';
+@use 'src/styles/color-pallet';
+@use 'src/styles/screen-sizes';
 
 .selected-item-container {
   .name-container {
@@ -35,7 +35,7 @@
   }
 
   .champions-table {
-    border: 3px solid $se-black;
+    border: 3px solid color-pallet.$se-black;
     border-radius: 10px;
     width: 80%;
     margin: 30px auto 20px auto;
@@ -47,11 +47,11 @@
       display: flex;
       flex-direction: row;
       width: 100%;
-      border-bottom: 1px solid $se-black;
+      border-bottom: 1px solid color-pallet.$se-black;
     }
 
     .border {
-      border-right: 1px solid $se-black;
+      border-right: 1px solid color-pallet.$se-black;
     }
 
     .col-1,
@@ -91,7 +91,7 @@
   }
 }
 
-@media only screen and (max-width: $medium-breakpoint) {
+@media only screen and (max-width: screen-sizes.$medium-breakpoint) {
   .title-text {
     font-size: 32px;
   }
@@ -101,7 +101,7 @@
   }
 }
 
-@media only screen and (max-width: $small-breakpoint) {
+@media only screen and (max-width: screen-sizes.$small-breakpoint) {
   .photo-container {
     width: 90%;
   }

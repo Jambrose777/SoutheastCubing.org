@@ -1,5 +1,5 @@
-@import 'color-pallet.scss';
-@import 'screen-sizes.scss';
+@use 'color-pallet';
+@use 'screen-sizes';
 
 @font-face {
   font-family: 'Montserrat';
@@ -18,7 +18,7 @@
 body {
   font-family: 'Montserrat';
   margin: 0;
-  background: linear-gradient(to left top, $se-dark-grey, $se-grey);
+  background: linear-gradient(to left top, color-pallet.$se-dark-grey, color-pallet.$se-grey);
 }
 
 h1,
@@ -74,7 +74,7 @@ p {
   display: flex;
   width: 50%;
   height: 100%;
-  background-color: $se-black;
+  background-color: color-pallet.$se-black;
   flex-direction: column;
   border-radius: 0 10px 10px 0;
   box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
@@ -174,7 +174,7 @@ p {
 
 .clickable {
   cursor: pointer;
-  color: $se-black;
+  color: color-pallet.$se-black;
 }
 
 .sub-text-container {
@@ -203,10 +203,10 @@ p {
 
 .btn {
   width: fit-content;
-  border: 3px solid $se-black;
+  border: 3px solid color-pallet.$se-black;
   border-radius: 30px;
   padding: 10px;
-  background-color: $se-grey;
+  background-color: color-pallet.$se-grey;
   cursor: pointer;
   margin: 0 auto;
   display: block;
@@ -243,9 +243,9 @@ se-loading-spinner {
   margin: auto;
 }
 
-@media only screen and (max-width: $small-breakpoint) {
+@media only screen and (max-width: screen-sizes.$small-breakpoint) {
   body {
-    background: $se-black;
+    background: color-pallet.$se-black;
   }
 
   .component-container {

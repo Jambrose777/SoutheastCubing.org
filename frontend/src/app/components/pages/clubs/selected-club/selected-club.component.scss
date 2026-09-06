@@ -1,5 +1,5 @@
-@import 'src/styles/color-pallet.scss';
-@import 'src/styles/screen-sizes.scss';
+@use 'src/styles/color-pallet';
+@use 'src/styles/screen-sizes';
 
 .selected-item-container {
   .club-details-row {
@@ -14,7 +14,7 @@
   .detail-container {
     width: 200px;
     height: 200px;
-    border: solid 5px $se-black;
+    border: solid 5px color-pallet.$se-black;
     border-radius: 15px;
     margin: 20px;
     padding: 15px;
@@ -35,12 +35,12 @@
   }
 }
 
-@media only screen and (max-width: $small-breakpoint) {
+@media only screen and (max-width: screen-sizes.$small-breakpoint) {
   .detail-container {
     width: 100% !important;
     height: fit-content !important;
     border: none !important;
-    border-bottom: dashed 2px $se-black !important;
+    border-bottom: dashed 2px color-pallet.$se-black !important;
     border-radius: 0 !important;
     margin: 10px 0 0 0 !important;
     padding: 0 !important;

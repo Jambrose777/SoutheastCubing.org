@@ -1,4 +1,4 @@
-@import 'src/styles/color-pallet.scss';
+@use 'src/styles/color-pallet';
 
 .loading-text {
   display: flex;
@@ -6,9 +6,9 @@
 }
 
 .error-color {
-  color: $se-dark-red;
+  color: color-pallet.$se-dark-red;
 }
 
 .success-color {
-  color: $se-dark-green;
+  color: color-pallet.$se-dark-green;
 }

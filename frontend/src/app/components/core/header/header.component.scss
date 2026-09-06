@@ -1,5 +1,4 @@
-@import 'src/styles/color-pallet.scss';
-@import 'src/styles/screen-sizes.scss';
+@use 'src/styles/screen-sizes';
 
 // Z-indexes are needed here. The Image Carosel has Z-Index 10000 built into it, and the nav system needs to go over it.
 
@@ -61,7 +60,7 @@
   }
 }
 
-@media only screen and (max-width: $medium-breakpoint) {
+@media only screen and (max-width: screen-sizes.$medium-breakpoint) {
   .medium-se-title {
     font-size: 24px;
   }
@@ -74,7 +73,7 @@
   }
 }
 
-@media only screen and (max-width: $small-breakpoint) {
+@media only screen and (max-width: screen-sizes.$small-breakpoint) {
   .se-logo {
     height: calc(100% - 20px) !important;
     margin: 10px !important;

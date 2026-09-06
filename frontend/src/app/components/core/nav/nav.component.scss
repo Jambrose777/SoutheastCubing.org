@@ -1,6 +1,6 @@
-@import 'src/styles/color-pallet.scss';
-@import 'src/styles/screen-sizes.scss';
-@import 'src/styles/constants.scss';
+@use 'src/styles/color-pallet';
+@use 'src/styles/screen-sizes';
+@use 'src/styles/constants';
 
 .menu {
   position: relative;
@@ -36,7 +36,7 @@
     width 0.5s,
     height 0.5s;
   transition-delay: calc(0.1s * var(--i) + 1);
-  border: 1px solid $se-black;
+  border: 1px solid color-pallet.$se-black;
   box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
 }
 
@@ -63,7 +63,7 @@
 .menu .navigation.active span {
   width: 100px;
   height: 100px;
-  border: 2px solid $se-black;
+  border: 2px solid color-pallet.$se-black;
   border-radius: 5px;
   transform: translate(calc(133px * var(--x)), calc(133px * var(--y)));
   transition-delay: 0.5s;
@@ -74,7 +74,7 @@
 }
 
 .black-cube {
-  background-color: $se-black;
+  background-color: color-pallet.$se-black;
   color: white;
 
   .clickable {
@@ -83,27 +83,27 @@
 }
 
 .blue-cube {
-  background-color: $se-blue;
+  background-color: color-pallet.$se-blue;
 }
 
 .green-cube {
-  background-color: $se-green;
+  background-color: color-pallet.$se-green;
 }
 
 .grey-cube {
-  background-color: $se-grey;
+  background-color: color-pallet.$se-grey;
 }
 
 .orange-cube {
-  background-color: $se-orange;
+  background-color: color-pallet.$se-orange;
 }
 
 .purple-cube {
-  background-color: $se-purple;
+  background-color: color-pallet.$se-purple;
 }
 
 .red-cube {
-  background-color: $se-red;
+  background-color: color-pallet.$se-red;
 }
 
 .white-cube {
@@ -111,7 +111,7 @@
 }
 
 .yellow-cube {
-  background-color: $se-yellow;
+  background-color: color-pallet.$se-yellow;
 }
 
 .active {
@@ -143,12 +143,12 @@
   }
 }
 
-@media only screen and (max-width: $small-breakpoint) {
+@media only screen and (max-width: screen-sizes.$small-breakpoint) {
   .menu .navigation.active span {
     transform: translate(calc(120px * var(--x)), calc(120px * var(--y)));
   }
 
   .menu {
-    height: $footer-height;
+    height: constants.$footer-height;
   }
 }

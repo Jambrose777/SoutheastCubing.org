@@ -1,12 +1,11 @@
-@import 'src/styles/color-pallet.scss';
-@import 'src/styles/screen-sizes.scss';
+@use 'src/styles/color-pallet';
 
 .list-container {
   margin: 30px 20px 0 20px;
 }
 
 .team-container {
-  border-bottom: 3px dashed $se-dark-grey;
+  border-bottom: 3px dashed color-pallet.$se-dark-grey;
   margin-bottom: 20px;
 
   .team-row {

@@ -1,5 +1,4 @@
-@import 'src/styles/color-pallet.scss';
-@import 'src/styles/screen-sizes.scss';
+@use 'src/styles/screen-sizes';
 
 :root {
   --duration: 5s;
@@ -71,7 +70,7 @@
   }
 }
 
-@media only screen and (max-width: $small-breakpoint) {
+@media only screen and (max-width: screen-sizes.$small-breakpoint) {
   .badges {
     font-size: 16px !important;
     height: 80px !important;

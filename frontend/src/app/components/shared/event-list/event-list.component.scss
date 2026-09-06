@@ -1,4 +1,4 @@
-@import 'src/styles/screen-sizes.scss';
+@use 'src/styles/screen-sizes';
 
 .event-container {
   width: calc(100% - 60px);
@@ -15,7 +15,7 @@
   cursor: pointer;
 }
 
-@media only screen and (max-width: $small-breakpoint) {
+@media only screen and (max-width: screen-sizes.$small-breakpoint) {
   .event-container {
     width: calc(100% - 10px);
     margin: 0 5px;
