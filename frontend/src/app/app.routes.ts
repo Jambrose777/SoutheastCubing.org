@@ -1,78 +1,142 @@
 import { Routes } from '@angular/router';
-import { CompetitionsComponent } from './components/pages/competitions/competitions.component';
-import { UpdateCompetitionsComponent } from './components/pages/update-competitions/update-competitions.component';
-import { ClubsComponent } from './components/pages/clubs/clubs.component';
-import { DelegatesComponent } from './components/pages/delegates/delegates.component';
-import { HomeComponent } from './components/pages/home/home.component';
-import { InvolvementComponent } from './components/pages/involvement/involvement.component';
-import { ChampionshipsComponent } from './components/pages/championships/championships.component';
-import { OrganizersComponent } from './components/pages/organizers/organizers.component';
-import { ContactComponent } from './components/pages/contact/contact.component';
-import { AboutComponent } from './components/pages/about/about.component';
-import { CatsComponent } from './components/pages/cats/cats.component';
-import { PageNotFoundComponent } from './components/pages/page-not-found/page-not-found.component';
 
+// Several pages need two route entries (bare path + path with an optional
+// trailing id param); each pair shares a single `loadComponent` callback
+// below.
+const loadCompetitions = () =>
+  import('./components/pages/competitions/competitions.component').then(
+    (m) => m.CompetitionsComponent,
+  );
+const loadClubs = () =>
+  import('./components/pages/clubs/clubs.component').then((m) => m.ClubsComponent);
+const loadDelegates = () =>
+  import('./components/pages/delegates/delegates.component').then((m) => m.DelegatesComponent);
+const loadInvolvement = () =>
+  import('./components/pages/involvement/involvement.component').then(
+    (m) => m.InvolvementComponent,
+  );
+const loadChampionships = () =>
+  import('./components/pages/championships/championships.component').then(
+    (m) => m.ChampionshipsComponent,
+  );
+const loadOrganizers = () =>
+  import('./components/pages/organizers/organizers.component').then((m) => m.OrganizersComponent);
+const loadAbout = () =>
+  import('./components/pages/about/about.component').then((m) => m.AboutComponent);
+const loadCats = () =>
+  import('./components/pages/cats/cats.component').then((m) => m.CatsComponent);
+
+// Every route below uses `loadComponent` (rather than eager `component: X`) so
+// visiting any single page only downloads that page's compiled JS, not every
+// other page's, up front.
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
   {
     path: 'competitions',
-    component: CompetitionsComponent,
+    loadComponent: loadCompetitions,
     title: 'SoutheastCubing - Competitions',
   },
   {
     path: 'competitions/:competitionId',
-    component: CompetitionsComponent,
+    loadComponent: loadCompetitions,
     title: 'SoutheastCubing - Competitions',
   },
   {
     path: 'update-competitions',
-    component: UpdateCompetitionsComponent,
+    loadComponent: () =>
+      import('./components/pages/update-competitions/update-competitions.component').then(
+        (m) => m.UpdateCompetitionsComponent,
+      ),
     title: 'SoutheastCubing - Update Competitions',
   },
-  { path: 'clubs', component: ClubsComponent, title: 'SoutheastCubing - Clubs' },
-  { path: 'clubs/:clubId', component: ClubsComponent, title: 'SoutheastCubing - Clubs' },
-  { path: 'delegates', component: DelegatesComponent, title: 'SoutheastCubing - Delegates' },
   {
-    path: 'delegates/:delegateName',
-    component: DelegatesComponent,
+    path: 'clubs',
+    loadComponent: loadClubs,
+    title: 'SoutheastCubing - Clubs',
+  },
+  {
+    path: 'clubs/:clubId',
+    loadComponent: loadClubs,
+    title: 'SoutheastCubing - Clubs',
+  },
+  {
+    path: 'delegates',
+    loadComponent: loadDelegates,
     title: 'SoutheastCubing - Delegates',
   },
-  { path: 'home', component: HomeComponent },
-  { path: 'involvement', component: InvolvementComponent, title: 'SoutheastCubing - Get Involved' },
+  {
+    path: 'delegates/:delegateName',
+    loadComponent: loadDelegates,
+    title: 'SoutheastCubing - Delegates',
+  },
+  {
+    path: 'home',
+    loadComponent: () =>
+      import('./components/pages/home/home.component').then((m) => m.HomeComponent),
+  },
+  {
+    path: 'involvement',
+    loadComponent: loadInvolvement,
+    title: 'SoutheastCubing - Get Involved',
+  },
   {
     path: 'involvement/:subTopicId',
-    component: InvolvementComponent,
+    loadComponent: loadInvolvement,
     title: 'SoutheastCubing - Get Involved',
   },
   {
     path: 'championships',
-    component: ChampionshipsComponent,
+    loadComponent: loadChampionships,
     title: 'SoutheastCubing - SE Champs',
   },
   {
     path: 'championships/:championshipId',
-    component: ChampionshipsComponent,
+    loadComponent: loadChampionships,
     title: 'SoutheastCubing - SE Champs',
   },
   {
     path: 'organizers',
-    component: OrganizersComponent,
+    loadComponent: loadOrganizers,
     title: 'SoutheastCubing - Organizer Guidelines',
   },
   {
     path: 'organizers/:subTopicId',
-    component: OrganizersComponent,
+    loadComponent: loadOrganizers,
     title: 'SoutheastCubing - Organizer Guidelines',
   },
-  { path: 'contact', component: ContactComponent, title: 'SoutheastCubing - Contact' },
-  { path: 'about', component: AboutComponent, title: 'SoutheastCubing - About' },
-  { path: 'about/:subTopicId', component: AboutComponent, title: 'SoutheastCubing - About' },
-  { path: 'cats', component: CatsComponent, title: 'SoutheastCubing - Cats' },
-  { path: 'cats/:catName', component: CatsComponent, title: 'SoutheastCubing - Cats' },
+  {
+    path: 'contact',
+    loadComponent: () =>
+      import('./components/pages/contact/contact.component').then((m) => m.ContactComponent),
+    title: 'SoutheastCubing - Contact',
+  },
+  {
+    path: 'about',
+    loadComponent: loadAbout,
+    title: 'SoutheastCubing - About',
+  },
+  {
+    path: 'about/:subTopicId',
+    loadComponent: loadAbout,
+    title: 'SoutheastCubing - About',
+  },
+  {
+    path: 'cats',
+    loadComponent: loadCats,
+    title: 'SoutheastCubing - Cats',
+  },
+  {
+    path: 'cats/:catName',
+    loadComponent: loadCats,
+    title: 'SoutheastCubing - Cats',
+  },
   {
     path: '**',
     pathMatch: 'full',
-    component: PageNotFoundComponent,
+    loadComponent: () =>
+      import('./components/pages/page-not-found/page-not-found.component').then(
+        (m) => m.PageNotFoundComponent,
+      ),
     title: 'SoutheastCubing - Page Not Found',
   },
 ];
