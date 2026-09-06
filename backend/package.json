@@ -1,11 +1,11 @@
 {
-  "name": "jacobambrose.me-api",
+  "name": "southeastcubing-org-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "node --env-file=.env app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"No automated tests configured for backend — smoke test manually via node app.js\" && exit 0"
   },
   "keywords": [],
   "author": "",
