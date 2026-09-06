@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
+import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { NavService } from 'src/app/services/nav.service';
@@ -67,11 +68,19 @@ export class OrganizersComponent implements OnInit, OnDestroy {
       this.contentful.getContentfulEntry(ContentfulEntryId.organizers).subscribe((res) => {
         this.title.set(res.fields.title);
         this.description.set(res.fields.description);
-        const subTopics = res.fields.subTopics?.map((subTopic) => ({
-          ...subTopic.fields,
-          photo: subTopic.fields['photo']?.fields.file.url,
-          color: Colors[subTopic.fields.color],
-        }));
+        const subTopics = res.fields.subTopics?.map((subTopic) => {
+          const photoSize = scaleToDisplaySize(
+            subTopic.fields['photo']?.fields.file.details?.image?.width,
+            subTopic.fields['photo']?.fields.file.details?.image?.height,
+          );
+          return {
+            ...subTopic.fields,
+            photo: subTopic.fields['photo']?.fields.file.url,
+            photoWidth: photoSize.width,
+            photoHeight: photoSize.height,
+            color: Colors[subTopic.fields.color],
+          };
+        });
         this.subTopics.set(subTopics);
         this.subText.set(res.fields.subText1);
         this.subTextButtonText.set(res.fields.subText1ButtonText);

@@ -25,6 +25,7 @@ import { MatFormField, MatLabel, MatSelect, MatOption, MatError } from '@angular
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 import { MatInput } from '@angular/material/input';
 import { MarkdownComponent } from 'ngx-markdown';
+import { NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'se-contact',
@@ -42,6 +43,7 @@ import { MarkdownComponent } from 'ngx-markdown';
     LoadingSpinnerComponent,
     MatInput,
     MarkdownComponent,
+    NgOptimizedImage,
   ],
 })
 export class ContactComponent implements OnInit, OnDestroy {

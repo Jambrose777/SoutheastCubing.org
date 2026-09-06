@@ -9,7 +9,18 @@
   <!-- Cat Photo -->
   @if (selectedCat().photo) {
     <div class="photo-container">
-      <img class="image medium-image" src="{{ selectedCat().photo }}" />
+      <!-- Keyed by the (memoized) photo URL so a new <img> is created 
+       whenever a different cat is selected - but not on every unrelated 
+       change-detection run. -->
+      @for (photo of photoAsArray(); track photo) {
+        <img
+          ngSrc="{{ photo }}"
+          [width]="selectedCat().photoWidth"
+          [height]="selectedCat().photoHeight"
+          priority
+          class="image medium-image"
+        />
+      }
     </div>
   }
 

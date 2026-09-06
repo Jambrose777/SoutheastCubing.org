@@ -3,6 +3,8 @@ export class Club {
   name: string;
   description?: string;
   image?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   city: string;
   venue?: string;
   address?: string;

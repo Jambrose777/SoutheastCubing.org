@@ -36,7 +36,12 @@
             [ngClass]="{ active: selectedCat()?.name === cat.name }"
           >
             <div class="item-row" (click)="selectCat(cat)" id="{{ cat.name }}">
-              <img class="thumbnail" src="{{ cat.thumbnail }}" />
+              <img
+                ngSrc="{{ cat.thumbnail }}"
+                [width]="cat.thumbnailWidth"
+                [height]="cat.thumbnailHeight"
+                class="thumbnail"
+              />
               <div class="item-title">
                 {{ cat.name }}
               </div>

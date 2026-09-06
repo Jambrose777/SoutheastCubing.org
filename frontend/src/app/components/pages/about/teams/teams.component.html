@@ -18,9 +18,11 @@
               {{ teamMember.title }}
               @if (teamMember.thumbnail) {
                 <img
+                  ngSrc="{{ teamMember.thumbnail }}"
+                  [width]="teamMember.thumbnailWidth"
+                  [height]="teamMember.thumbnailHeight"
                   class="thumbnail"
                   [ngClass]="{ 'extra-spacing': !teamMember.title }"
-                  src="{{ teamMember.thumbnail }}"
                 />
               }
             </div>

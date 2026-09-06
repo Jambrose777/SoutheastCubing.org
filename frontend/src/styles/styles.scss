@@ -102,6 +102,10 @@ p {
         width: 60px;
         margin: 5px;
         border-radius: 10px;
+        // Source photos aren't guaranteed to be square, so crop (rather than
+        // stretch) them to fit this fixed-size box now that NgOptimizedImage
+        // sets each image's real intrinsic width/height as HTML attributes.
+        object-fit: cover;
       }
 
       .item-row {
@@ -225,6 +229,8 @@ p {
 .image {
   max-height: 300px;
   max-width: 80%;
+  width: auto;
+  height: auto;
   border-radius: 10px;
 }
 

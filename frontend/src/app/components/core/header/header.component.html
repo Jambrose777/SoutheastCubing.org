@@ -1,5 +1,12 @@
 <div class="header">
-  <img src="assets/SECILogoColor.png" class="se-logo" [routerLink]="'/home'" />
+  <img
+    ngSrc="assets/SECILogoColor-header.png"
+    width="240"
+    height="120"
+    priority
+    class="se-logo"
+    [routerLink]="'/home'"
+  />
   <h1 class="se-title" [ngClass]="{ 'medium-se-title': useMediumBreakpoint() }">{{ title() }}</h1>
 
   <!-- Close Icon for when the nav is open -->

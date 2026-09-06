@@ -5,7 +5,7 @@ import { LinksService } from 'src/app/services/links.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { RegistrationStatus } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
-import { NgClass, PercentPipe } from '@angular/common';
+import { NgClass, NgOptimizedImage, PercentPipe } from '@angular/common';
 import { SafeUrlPipe } from '../../../../pipes/safeUrl.pipe';
 
 @Component({
@@ -13,7 +13,7 @@ import { SafeUrlPipe } from '../../../../pipes/safeUrl.pipe';
   templateUrl: './selected-competition.component.html',
   styleUrls: ['./selected-competition.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgClass, PercentPipe, SafeUrlPipe],
+  imports: [NgClass, PercentPipe, SafeUrlPipe, NgOptimizedImage],
 })
 export class SelectedCompetitionComponent {
   private screenSizeService = inject(ScreenSizeService);

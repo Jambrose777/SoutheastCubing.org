@@ -48,7 +48,12 @@
             [ngClass]="{ active: selectedDelegate()?.name === delegate.name }"
           >
             <div class="item-row" (click)="selectDelegate(delegate)" id="{{ delegate.name }}">
-              <img class="thumbnail" src="{{ delegate.thumbnail }}" />
+              <img
+                ngSrc="{{ delegate.thumbnail }}"
+                [width]="delegate.thumbnailWidth"
+                [height]="delegate.thumbnailHeight"
+                class="thumbnail"
+              />
               <div class="item-title">
                 {{ delegate.name }}
               </div>

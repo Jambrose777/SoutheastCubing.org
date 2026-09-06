@@ -9,13 +9,14 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
+import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { Delegate } from 'src/app/models/Delegate';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, StateColors } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
-import { Location, NgClass } from '@angular/common';
+import { Location, NgClass, NgOptimizedImage } from '@angular/common';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
@@ -35,6 +36,7 @@ import { SelectedDelegateComponent } from './selected-delegate/selected-delegate
     MarkdownComponent,
     SelectedDelegateComponent,
     NgClass,
+    NgOptimizedImage,
   ],
 })
 export class DelegatesComponent implements OnInit, OnDestroy {
@@ -74,14 +76,29 @@ export class DelegatesComponent implements OnInit, OnDestroy {
       this.contentful.getContentfulGroup(ContentfulContentType.delegates).subscribe((res) => {
         const delegates = res.items
           .sort((a, b) => a['fields']['order'] - b.fields['order'])
-          .map(
-            (delegate) =>
-              ({
-                ...delegate.fields,
-                photo: delegate.fields['photo']?.fields.file.url,
-                thumbnail: delegate.fields['thumbnail']?.fields.file.url,
-              }) as Delegate,
-          );
+          .map((delegate) => {
+            const photoSize = scaleToDisplaySize(
+              delegate.fields['photo']?.fields.file.details?.image?.width,
+              delegate.fields['photo']?.fields.file.details?.image?.height,
+            );
+            // Delegate thumbnails render in a 60x60 box; scale the native
+            // Contentful asset down (max ~120px, covering a 2x-density srcset)
+            // instead of shipping the full-resolution upload for a tiny thumbnail.
+            const thumbnailSize = scaleToDisplaySize(
+              delegate.fields['thumbnail']?.fields.file.details?.image?.width,
+              delegate.fields['thumbnail']?.fields.file.details?.image?.height,
+              120,
+            );
+            return {
+              ...delegate.fields,
+              photo: delegate.fields['photo']?.fields.file.url,
+              photoWidth: photoSize.width,
+              photoHeight: photoSize.height,
+              thumbnail: delegate.fields['thumbnail']?.fields.file.url,
+              thumbnailWidth: thumbnailSize.width,
+              thumbnailHeight: thumbnailSize.height,
+            } as Delegate;
+          });
         this.delegates.set(delegates);
         if (this.delegateName()) {
           const foundDelegate = delegates.find(

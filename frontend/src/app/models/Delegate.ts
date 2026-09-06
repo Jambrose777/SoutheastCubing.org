@@ -5,8 +5,12 @@ export class Delegate {
   name: string;
   order: number;
   photo: string;
+  photoWidth: number;
+  photoHeight: number;
   state: string;
   thumbnail: string;
+  thumbnailWidth: number;
+  thumbnailHeight: number;
   wcaid: string;
 }
 

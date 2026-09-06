@@ -5,7 +5,7 @@
       <h2 class="title-text">
         {{ selectedCompetition().name }}
         <!-- WCA Logo -->
-        <img src="assets/wca_logo.svg" class="wca-logo" />
+        <img ngSrc="assets/wca_logo.svg" width="293" height="293" class="wca-logo" />
       </h2>
     </a>
   }
@@ -15,7 +15,7 @@
     <!-- Link to WCA -->
     @if (isMobile()) {
       <a [href]="enviroment.links.wcaCompetition + selectedCompetition().id" target="_blank">
-        <img src="assets/wca_logo.svg" class="wca-logo-mobile" />
+        <img ngSrc="assets/wca_logo.svg" width="293" height="293" class="wca-logo-mobile" />
       </a>
     }
 

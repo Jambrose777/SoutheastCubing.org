@@ -10,6 +10,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
+import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { Team } from 'src/app/models/Team';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -75,11 +76,19 @@ export class AboutComponent implements OnInit, OnDestroy {
       this.contentful.getContentfulEntry(ContentfulEntryId.about).subscribe((res) => {
         this.title.set(res.fields.title);
         this.description.set(res.fields.description);
-        let subTopics: SubTopic[] = res.fields.subTopics.map((subTopic) => ({
-          ...subTopic.fields,
-          photo: subTopic.fields['photo']?.fields.file.url,
-          color: Colors[subTopic.fields.color],
-        }));
+        let subTopics: SubTopic[] = res.fields.subTopics.map((subTopic) => {
+          const photoSize = scaleToDisplaySize(
+            subTopic.fields['photo']?.fields.file.details?.image?.width,
+            subTopic.fields['photo']?.fields.file.details?.image?.height,
+          );
+          return {
+            ...subTopic.fields,
+            photo: subTopic.fields['photo']?.fields.file.url,
+            photoWidth: photoSize.width,
+            photoHeight: photoSize.height,
+            color: Colors[subTopic.fields.color],
+          };
+        });
 
         // Add additional custom Pages as SubTopics
         subTopics = [
@@ -111,11 +120,23 @@ export class AboutComponent implements OnInit, OnDestroy {
           res.items
             .map((team) => ({
               ...team.fields,
-              teamMembers: team.fields.teamMembers.map((teamMember) => ({
-                ...teamMember.fields,
-                color: Colors[teamMember.fields.color] || Colors.grey,
-                thumbnail: teamMember.fields['thumbnail']?.fields.file.url,
-              })),
+              teamMembers: team.fields.teamMembers.map((teamMember) => {
+                // Team member thumbnails render in a 60x60 box; scale the native
+                // Contentful asset down (max ~120px, covering a 2x-density srcset)
+                // instead of shipping the full-resolution upload for a tiny thumbnail.
+                const thumbnailSize = scaleToDisplaySize(
+                  teamMember.fields['thumbnail']?.fields.file.details?.image?.width,
+                  teamMember.fields['thumbnail']?.fields.file.details?.image?.height,
+                  120,
+                );
+                return {
+                  ...teamMember.fields,
+                  color: Colors[teamMember.fields.color] || Colors.grey,
+                  thumbnail: teamMember.fields['thumbnail']?.fields.file.url,
+                  thumbnailWidth: thumbnailSize.width,
+                  thumbnailHeight: thumbnailSize.height,
+                };
+              }),
             }))
             .sort((a: Team, b: Team) => (a.order > b.order ? 1 : -1)),
         );

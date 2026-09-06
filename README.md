@@ -54,7 +54,7 @@ reload if you change any of the source files.
 - remove current contents `rm -rf *`
 - import dist file into EC2 instance `wget {S3 Object URL}` Replace {} with URL from S3 Object
 - unzip the compressed folder `unzip dist.zip`
-- move files into correct folder `mv dist/southeast-cubing/* .`
+- move files into correct folder `mv dist/southeast-cubing/browser/* .`
 - restart server `service httpd restart` or start server `service httpd start`
 
 ## BE Development setup

@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Location, NgClass } from '@angular/common';
+import { Location, NgClass, NgOptimizedImage } from '@angular/common';
 import { Cat } from 'src/app/models/Cat';
 import { Subscription } from 'rxjs';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -17,6 +17,7 @@ import { NavService } from 'src/app/services/nav.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Colors } from 'src/app/shared/types';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
+import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 import { MarkdownComponent } from 'ngx-markdown';
@@ -33,6 +34,7 @@ import { SelectedCatComponent } from './selected-cat/selected-cat.component';
     MarkdownComponent,
     SelectedCatComponent,
     NgClass,
+    NgOptimizedImage,
   ],
 })
 export class CatsComponent implements OnInit, OnDestroy {
@@ -78,16 +80,30 @@ export class CatsComponent implements OnInit, OnDestroy {
           .map((value) => ({ value, sort: Math.random() }))
           .sort((a, b) => a.sort - b.sort)
           .map(({ value }) => value)
-          .map(
-            (cat) =>
-              ({
-                ...cat.fields,
-                photo: cat.fields['photo']?.fields.file.url,
-                thumbnail: cat.fields['thumbnail']?.fields.file.url,
-                color:
-                  this.availableColors[Math.floor(Math.random() * this.availableColors.length)],
-              }) as Cat,
-          );
+          .map((cat) => {
+            const photoSize = scaleToDisplaySize(
+              cat.fields['photo']?.fields.file.details?.image?.width,
+              cat.fields['photo']?.fields.file.details?.image?.height,
+            );
+            // Cat thumbnails render in a 60x60 box; scale the native Contentful
+            // asset down (max ~120px, covering a 2x-density srcset) instead of
+            // shipping the full-resolution upload for a tiny thumbnail.
+            const thumbnailSize = scaleToDisplaySize(
+              cat.fields['thumbnail']?.fields.file.details?.image?.width,
+              cat.fields['thumbnail']?.fields.file.details?.image?.height,
+              120,
+            );
+            return {
+              ...cat.fields,
+              photo: cat.fields['photo']?.fields.file.url,
+              photoWidth: photoSize.width,
+              photoHeight: photoSize.height,
+              thumbnail: cat.fields['thumbnail']?.fields.file.url,
+              thumbnailWidth: thumbnailSize.width,
+              thumbnailHeight: thumbnailSize.height,
+              color: this.availableColors[Math.floor(Math.random() * this.availableColors.length)],
+            } as Cat;
+          });
         this.cats.set(cats);
         if (this.catName()) {
           const foundCat = cats?.find((cat) => cat.name.replace(/ +/g, '-') === this.catName());

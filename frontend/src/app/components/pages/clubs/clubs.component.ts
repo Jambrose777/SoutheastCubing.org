@@ -11,6 +11,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { Club } from 'src/app/models/Club';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
+import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
@@ -131,11 +132,19 @@ export class ClubsComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.contentful.getContentfulGroup(ContentfulContentType.clubs).subscribe((res) => {
         const clubs = res.items
-          .map((club) => ({
-            ...club.fields,
-            image: club.fields.image?.fields.file.url,
-            state: club.fields?.city.substring(club.fields?.city.length - 2),
-          }))
+          .map((club) => {
+            const imageSize = scaleToDisplaySize(
+              club.fields.image?.fields.file.details?.image?.width,
+              club.fields.image?.fields.file.details?.image?.height,
+            );
+            return {
+              ...club.fields,
+              image: club.fields.image?.fields.file.url,
+              imageWidth: imageSize.width,
+              imageHeight: imageSize.height,
+              state: club.fields?.city.substring(club.fields?.city.length - 2),
+            };
+          })
           .sort((a: Club, b: Club) =>
             a.city == b.city ? (a.name > b.name ? 1 : -1) : a.city > b.city ? 1 : -1,
           );

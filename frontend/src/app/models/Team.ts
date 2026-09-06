@@ -10,4 +10,6 @@ export class TeamMember {
   color?: string;
   title?: string;
   thumbnail?: string;
+  thumbnailWidth?: number;
+  thumbnailHeight?: number;
 }

@@ -14,8 +14,9 @@ import { ContentfulService } from 'src/app/services/contentful.service';
 import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, StateColors } from 'src/app/shared/types';
+import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { environment } from 'src/environments/environment';
-import { Location, NgClass } from '@angular/common';
+import { Location, NgClass, NgOptimizedImage } from '@angular/common';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
@@ -35,6 +36,7 @@ import { SelectedChampionshipComponent } from './selected-championship/selected-
     MarkdownComponent,
     SelectedChampionshipComponent,
     NgClass,
+    NgOptimizedImage,
   ],
 })
 export class ChampionshipsComponent implements OnInit, OnDestroy {
@@ -81,13 +83,33 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.contentful.getContentfulGroup(ContentfulContentType.championships).subscribe((res) => {
         const championships = res.items
-          .map((championship) => ({
-            ...championship.fields,
-            logo: championship.fields.logo?.fields.file.url,
-            images: championship.fields.images?.map((image) => ({ path: image.fields.file.url })),
-            state: championship.fields?.city.substring(championship.fields?.city.length - 2),
-            champions: championship.fields.champions?.map((champion) => ({ ...champion.fields })),
-          }))
+          .map((championship) => {
+            // Note: the list thumbnail crops this into a square box via CSS
+            // `object-fit: cover, which is only correct because every logo
+            // asset uploaded to Contentful is a square. If
+            // NgOptimizedImage's NG02952 aspect-ratio-mismatch warning
+            // reappears for a logo here, that's not a code bug to fix - it
+            // means a genuinely non-square logo was uploaded and needs to be
+            // re-cropped/padded to a square in Contentful.
+            const logoSize = scaleToDisplaySize(
+              championship.fields.logo?.fields.file.details?.image?.width,
+              championship.fields.logo?.fields.file.details?.image?.height,
+              160,
+            );
+            return {
+              ...championship.fields,
+              logo: championship.fields.logo?.fields.file.url,
+              logoWidth: logoSize.width,
+              logoHeight: logoSize.height,
+              images: championship.fields.images?.map((image) => ({
+                path: image.fields.file.url,
+              })),
+              state: championship.fields?.city.substring(championship.fields?.city.length - 2),
+              champions: championship.fields.champions?.map((champion) => ({
+                ...champion.fields,
+              })),
+            };
+          })
           .sort((a: Championship, b: Championship) => (a.year < b.year ? 1 : -1));
         this.championships.set(championships);
         if (this.championshipId()) {

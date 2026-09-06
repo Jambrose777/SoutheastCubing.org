@@ -8,12 +8,22 @@
         class="name-container"
       >
         <!-- Competition Logo -->
-        <img src="{{ selectedChampionship().logo }}" class="competitiion-logo" />
+        <!-- Keyed by the (memoized) logo URL so a new <img> is created 
+         whenever a different championship is selected - but not on every 
+         unrelated change-detection run. -->
+        @for (logo of logoAsArray(); track logo) {
+          <img
+            ngSrc="{{ logo }}"
+            [width]="selectedChampionship().logoWidth"
+            [height]="selectedChampionship().logoHeight"
+            class="competitiion-logo"
+          />
+        }
         <h2 class="title-text">
           {{ selectedChampionship().name }}
         </h2>
         <!-- WCA Logo -->
-        <img src="assets/wca_logo.svg" class="wca-logo" />
+        <img ngSrc="assets/wca_logo.svg" width="293" height="293" class="wca-logo" />
       </a>
     }
     <!-- Championship Location -->
@@ -23,7 +33,7 @@
       }
       @if (isMobile()) {
         <a [href]="enviroment.links.wcaCompetition + selectedChampionship().id" target="_blank">
-          <img src="assets/wca_logo.svg" class="wca-logo-small" />
+          <img ngSrc="assets/wca_logo.svg" width="293" height="293" class="wca-logo-small" />
         </a>
       }
       {{ selectedChampionship().date }}

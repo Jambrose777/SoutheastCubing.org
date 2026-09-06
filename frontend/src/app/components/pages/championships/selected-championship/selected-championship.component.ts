@@ -1,8 +1,9 @@
-import { Component, input, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Championship } from 'src/app/models/Championship';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { environment } from 'src/environments/environment';
+import { NgOptimizedImage } from '@angular/common';
 import { MarkdownComponent } from 'ngx-markdown';
 
 @Component({
@@ -10,7 +11,7 @@ import { MarkdownComponent } from 'ngx-markdown';
   templateUrl: './selected-championship.component.html',
   styleUrls: ['./selected-championship.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MarkdownComponent],
+  imports: [MarkdownComponent, NgOptimizedImage],
 })
 export class SelectedChampionshipComponent {
   private screenSizeService = inject(ScreenSizeService);
@@ -23,4 +24,11 @@ export class SelectedChampionshipComponent {
 
   enviroment = environment;
   selectedChampionship = input<Championship>();
+
+  // Single-item array for the @for that keys the logo <img>, memoized so its
+  // reference only changes when the logo URL itself changes.
+  logoAsArray = computed(() => {
+    const logo = this.selectedChampionship()?.logo;
+    return logo ? [logo] : [];
+  });
 }

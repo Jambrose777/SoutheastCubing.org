@@ -62,7 +62,17 @@
               (click)="selectChampionship(championship)"
               id="{{ championship.id }}"
             >
-              <img class="thumbnail" src="{{ championship.logo }}" />
+              <!-- Relies on the Contentful logo asset being square. If
+              NG02952 warning (aspect-ratio mismatch) reappears here,
+              audit/re-crop the Contentful asset rather than changing this
+              binding; see the comment on `logoSize` in
+              championships.component.ts. -->
+              <img
+                ngSrc="{{ championship.logo }}"
+                [width]="championship.logoWidth"
+                [height]="championship.logoHeight"
+                class="thumbnail"
+              />
               <div class="item-title">
                 {{ championship.name }}
               </div>

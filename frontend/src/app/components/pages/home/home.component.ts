@@ -17,6 +17,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
+import { NgOptimizedImage } from '@angular/common';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 import { MarkdownComponent } from 'ngx-markdown';
@@ -26,7 +27,13 @@ import { MarkdownComponent } from 'ngx-markdown';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [HeaderComponent, LoadingSpinnerComponent, MarkdownComponent, RouterLink],
+  imports: [
+    HeaderComponent,
+    LoadingSpinnerComponent,
+    MarkdownComponent,
+    RouterLink,
+    NgOptimizedImage,
+  ],
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);

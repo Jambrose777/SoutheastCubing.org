@@ -16,7 +16,18 @@
   <!-- Club Photo -->
   @if (selectedClub().image) {
     <div class="photo-container">
-      <img class="image" src="{{ selectedClub().image }}" />
+      <!-- Keyed by the (memoized) image URL so a new <img> is created 
+       whenever a different club is selected - but not on every unrelated 
+       change-detection run. -->
+      @for (image of imageAsArray(); track image) {
+        <img
+          ngSrc="{{ image }}"
+          [width]="selectedClub().imageWidth"
+          [height]="selectedClub().imageHeight"
+          priority
+          class="image"
+        />
+      }
     </div>
   }
 

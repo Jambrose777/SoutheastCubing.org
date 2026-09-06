@@ -6,6 +6,8 @@ export class Championship {
   date: string;
   images: { path: string }[];
   logo: string;
+  logoWidth: number;
+  logoHeight: number;
   description: string;
   competitors: number;
   champions: Champion[];
