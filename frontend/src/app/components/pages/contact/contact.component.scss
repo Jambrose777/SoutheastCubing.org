@@ -81,16 +81,19 @@ mat-option {
   font-family: 'Montserrat';
 }
 
-// Angular Material v17 removed the legacy (pre-MDC) form-field/select components, so these
-// overrides now target the MDC-based class names (.mat-mdc-*) instead of the old .mat-form-field-*
-// ones, to preserve the same visual appearance under the MDC-based components.
-::ng-deep .mat-mdc-form-field-flex {
-  border-radius: 5px;
-  background-color: darken($se-yellow, 3%);
+// The following ::ng-deep rules style Angular Material's MDC-based form field internals
+// (.mat-mdc-* classes), which aren't reachable through the component's own view encapsulation.
+::ng-deep .mat-mdc-text-field-wrapper {
+  border-radius: 5px !important;
+  background-color: darken($se-yellow, 3%) !important;
 }
 
-::ng-deep .mat-mdc-form-field-flex:hover {
-  background-color: darken($se-yellow, 5%);
+::ng-deep .mat-mdc-text-field-wrapper:hover {
+  background-color: darken($se-yellow, 5%) !important;
+}
+
+::ng-deep .mat-mdc-form-field-focus-overlay {
+  opacity: 0 !important;
 }
 
 ::ng-deep .mat-mdc-form-field-infix {
@@ -99,7 +102,6 @@ mat-option {
 
 ::ng-deep .mat-mdc-select-panel {
   max-height: none !important;
-  margin-top: 40px !important;
 }
 
 ::ng-deep textarea {
