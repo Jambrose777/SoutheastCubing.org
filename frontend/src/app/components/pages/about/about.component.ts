@@ -7,7 +7,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
@@ -49,11 +48,7 @@ export class AboutComponent implements OnInit, OnDestroy {
   private location = inject(Location);
   private navService = inject(NavService);
 
-  // Derived from the service's observable via toSignal() so OnPush change
-  // detection picks up resize-driven updates
-  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
-    initialValue: this.screenSizeService.isMobile,
-  });
+  isMobile = this.screenSizeService.isMobile;
 
   title = signal('About SECI');
   description = signal('');

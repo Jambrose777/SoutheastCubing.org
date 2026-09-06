@@ -1,5 +1,4 @@
 import { Component, input, ChangeDetectionStrategy, inject, computed } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { Delegate } from 'src/app/models/Delegate';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { environment } from 'src/environments/environment';
@@ -16,11 +15,7 @@ import { MarkdownComponent } from 'ngx-markdown';
 export class SelectedDelegateComponent {
   private screenSizeService = inject(ScreenSizeService);
 
-  // Derived from the service's observable via toSignal() so OnPush change
-  // detection picks up resize-driven updates
-  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
-    initialValue: this.screenSizeService.isMobile,
-  });
+  isMobile = this.screenSizeService.isMobile;
 
   enviroment = environment;
   selectedDelegate = input<Delegate>();

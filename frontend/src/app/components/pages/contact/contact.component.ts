@@ -6,7 +6,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -54,11 +53,7 @@ export class ContactComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private screenSizeService = inject(ScreenSizeService);
 
-  // Derived from the service's observable via toSignal() so OnPush change
-  // detection picks up resize-driven updates
-  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
-    initialValue: this.screenSizeService.isMobile,
-  });
+  isMobile = this.screenSizeService.isMobile;
 
   EmailApiStatus = EmailApiStatus;
   EmailType = EmailType;

@@ -7,7 +7,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { Club } from 'src/app/models/Club';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
@@ -53,11 +52,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
   private screenSizeService = inject(ScreenSizeService);
   linksService = inject(LinksService);
 
-  // Derived from the service's observable via toSignal() so OnPush change
-  // detection picks up resize-driven updates
-  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
-    initialValue: this.screenSizeService.isMobile,
-  });
+  isMobile = this.screenSizeService.isMobile;
 
   StateColors = StateColors;
   enviroment = environment;

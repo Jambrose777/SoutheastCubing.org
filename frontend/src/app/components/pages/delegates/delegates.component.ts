@@ -7,7 +7,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { Delegate } from 'src/app/models/Delegate';
@@ -47,11 +46,7 @@ export class DelegatesComponent implements OnInit, OnDestroy {
   private screenSizeService = inject(ScreenSizeService);
   linksService = inject(LinksService);
 
-  // Derived from the service's observable via toSignal() so OnPush change
-  // detection picks up resize-driven updates
-  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
-    initialValue: this.screenSizeService.isMobile,
-  });
+  isMobile = this.screenSizeService.isMobile;
 
   StateColors = StateColors;
   enviroment = environment;

@@ -1,33 +1,25 @@
-import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ScreenSizeService {
-  isMobile = false;
   mobileScreenSize = 950;
-  isMobileSubject = new Subject<boolean>();
+
+  // A signal always replays its current value to new readers synchronously,
+  // so consumers can read it directly with no timing workaround needed.
+  isMobile = signal(false);
 
   constructor() {}
 
   setUpScreenSize() {
-    this.isMobile = window.innerWidth <= this.mobileScreenSize;
+    this.isMobile.set(window.innerWidth <= this.mobileScreenSize);
     window.addEventListener('resize', () => {
-      if (!this.isMobile && window.innerWidth <= this.mobileScreenSize) {
-        this.isMobile = true;
-        this.isMobileSubject.next(this.isMobile);
-      } else if (this.isMobile && window.innerWidth > this.mobileScreenSize) {
-        this.isMobile = false;
-        this.isMobileSubject.next(this.isMobile);
+      if (!this.isMobile() && window.innerWidth <= this.mobileScreenSize) {
+        this.isMobile.set(true);
+      } else if (this.isMobile() && window.innerWidth > this.mobileScreenSize) {
+        this.isMobile.set(false);
       }
     });
-  }
-
-  getIsMobileSubject() {
-    setTimeout(() => {
-      this.isMobileSubject.next(this.isMobile);
-    }, 0);
-    return this.isMobileSubject;
   }
 }

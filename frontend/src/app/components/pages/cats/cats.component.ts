@@ -7,7 +7,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { Location, NgClass, NgOptimizedImage } from '@angular/common';
 import { Cat } from 'src/app/models/Cat';
 import { Subscription } from 'rxjs';
@@ -44,11 +43,7 @@ export class CatsComponent implements OnInit, OnDestroy {
   private location = inject(Location);
   private screenSizeService = inject(ScreenSizeService);
 
-  // Derived from the service's observable via toSignal() so OnPush change
-  // detection picks up resize-driven updates
-  isMobile = toSignal(this.screenSizeService.getIsMobileSubject(), {
-    initialValue: this.screenSizeService.isMobile,
-  });
+  isMobile = this.screenSizeService.isMobile;
 
   cats = signal<Cat[]>(undefined);
   catName = input<string>();

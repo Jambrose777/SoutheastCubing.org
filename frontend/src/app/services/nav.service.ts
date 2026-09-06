@@ -1,19 +1,18 @@
-import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NavService {
-  closeNavSubject = new Subject<boolean>();
+  // `closeNav()` represents a one-off event, not state, so an
+  // ever-incrementing counter guarantees every call produces a
+  // new value, so every call is observed downstream.
+  private closeNavTrigger = signal(0);
+  closeNavSignal = this.closeNavTrigger.asReadonly();
 
   constructor() {}
 
-  getCloseNavSubject(): Subject<boolean> {
-    return this.closeNavSubject;
-  }
-
   closeNav() {
-    this.closeNavSubject.next(true);
+    this.closeNavTrigger.update((count) => count + 1);
   }
 }
