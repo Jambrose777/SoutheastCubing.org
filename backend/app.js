@@ -43,6 +43,9 @@ app.post('/email', async (req, res) => {
     email.sendEmail(req, res);
   } catch (e) {
     logger.error('ip-' + req.ip + ' POST /email ', e);
+    if (!res.headersSent) {
+      res.status(500).json({ message: 'Internal server error' });
+    }
   }
 });
 
@@ -51,6 +54,9 @@ app.get('/competitions', async (req, res) => {
     competitions.getCompetitions(req, res);
   } catch (e) {
     logger.error('ip-' + req.ip + ' GET /competitions ', e);
+    if (!res.headersSent) {
+      res.status(500).json({ message: 'Internal server error' });
+    }
   }
 });
 
@@ -59,6 +65,9 @@ app.get('/update-competitions', async (req, res) => {
     competitions.updateCompetitions(req, res);
   } catch (e) {
     logger.error('ip-' + req.ip + ' GET /update-competitions ', e);
+    if (!res.headersSent) {
+      res.status(500).json({ message: 'Internal server error' });
+    }
   }
 });
 
