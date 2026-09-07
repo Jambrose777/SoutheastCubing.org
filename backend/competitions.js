@@ -11,7 +11,7 @@ const googleForm = require('./googleForm.js');
 const contentful = require('./contentful.js');
 const discord = require('./discord.js');
 
-let competitions;
+let competitions = [];
 let lastChecked;
 
 // Gets competitions from cache
