@@ -86,6 +86,14 @@ function getCompetitionsFromWCA() {
           // fetch info on contentful competition from WCA
           const wcaCompetition = await getWCACompetition(res.data, contentfulComp.fields.id);
 
+          // Drop this manual competition entirely if its WCA lookup failed
+          if (!wcaCompetition) {
+            logger.warn(
+              `Dropping manual competition "${contentfulComp.fields.name}" (${contentfulComp.fields.id}) - WCA lookup failed.`,
+            );
+            return null;
+          }
+
           return {
             ...wcaCompetition,
             name: contentfulComp.fields.name,
@@ -101,10 +109,10 @@ function getCompetitionsFromWCA() {
         }),
       );
 
-      // Filter out past competitions from Contentful
-      contentfulCompetitions = contentfulCompetitions.filter((comp) =>
-        moment(comp.end_date).isAfter(moment().add(-1, 'day')),
-      );
+      // Filter out competitions whose WCA lookup failed, then past competitions
+      contentfulCompetitions = contentfulCompetitions
+        .filter((comp) => comp)
+        .filter((comp) => moment(comp.end_date).isAfter(moment().add(-1, 'day')));
 
       // fetch competitions with a staff application
       let competitionsWithStaffApp = await googleForm.getCompetitionsInStaffForm();
@@ -206,6 +214,9 @@ function getRegistrationsFromWCA(competition) {
       .then((res) => res.data.length)
       .catch((err) => {
         logger.error(`Failed to fetch registrations from wca for ${competition.id}: `, err);
+        // Don't let one competition's failed lookup break the whole fetch cycle -
+        // treat it as having 0 registrations rather than propagating undefined.
+        return 0;
       });
   }
 }
@@ -223,6 +234,9 @@ function getWCACompetition(competitions, competitionId) {
       .then((res) => res.data)
       .catch((err) => {
         logger.error(`Failed to fetch competition from wca for ${competitionId}: `, err);
+        // Signal failure explicitly so callers can drop this competition instead of
+        // spreading undefined fields into a broken/incomplete record.
+        return null;
       });
   }
 }
