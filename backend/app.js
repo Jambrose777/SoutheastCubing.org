@@ -10,6 +10,7 @@ logger.level = 'debug';
 
 const email = require('./email.js');
 const competitions = require('./competitions.js');
+const db = require('./db.js');
 
 const app = express();
 const port = 8080;
@@ -19,6 +20,12 @@ app.use(morgan('[:date[iso]] [INFO] ip-:remote-addr :method :url :status :respon
 // Scope CORS to an explicit allowlist (prod domain(s) + local dev server) instead of
 // allowing any origin, so unrelated sites can't make cross-origin requests to the API.
 app.use(cors({ origin: process.env.CORS_ORIGIN.split(',') }));
+
+// Confirm the pooled DSQL connection actually works on boot - logged only, not
+// blocking startup, since nothing reads/writes the database yet
+db.verifyConnection()
+  .then(() => logger.info('Successfully connected to the dev DSQL cluster.'))
+  .catch((e) => logger.error('Failed to connect to the dev DSQL cluster: ', e));
 
 // load in competitions on bootup
 try {

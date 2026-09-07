@@ -8,8 +8,8 @@ logger.level = 'debug';
 // Set the region and access keys
 AWS.config.update({
   region: 'us-east-2',
-  accessKeyId: process.env.AWS_ACCESS_KEY,
-  secretAccessKey: process.env.AWS_ACCESS_SECRET,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 
 // Create a new instance of the S3 class

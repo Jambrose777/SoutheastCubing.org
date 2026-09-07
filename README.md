@@ -77,6 +77,26 @@ Neither file is checked into source control, and there's no secrets manager for 
 project — request both files directly from Jacob (org admin) and share/receive them,
 then place them in `backend/`.
 
+### Dev Aurora DSQL cluster
+
+The backend also connects to a dev Aurora DSQL cluster (`backend/db.js`) using IAM
+token authentication — no database password to request. `backend/.env` needs:
+
+- `DSQL_ENDPOINT` — the dev cluster's endpoint (ask Jacob).
+- `DSQL_GRANT_IAM_ARN` — your own IAM user's ARN, only needed once to run the
+  one-time role bootstrap below.
+
+Ask Jacob to create you an IAM user granted `dsql:DbConnect` (used by the running
+backend) and `dsql:DbConnectAdmin` (used only by the bootstrap script below) on the
+cluster, and set its access key/secret as your own `AWS_ACCESS_KEY_ID`/
+`AWS_SECRET_ACCESS_KEY` (see above). With those in place, run the one-time role
+bootstrap — it links your IAM user to the non-admin `app_dev` database role the
+backend authenticates as (`backend/scripts/bootstrap-dsql-role.js`):
+
+```bash
+pnpm --filter backend bootstrap-dsql-role
+```
+
 ## BE Development server
 
 Run `pnpm --filter backend dev` (or `cd backend && pnpm dev`), equivalent to

@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "node --env-file=.env app.js",
+    "bootstrap-dsql-role": "node --env-file=.env scripts/bootstrap-dsql-role.js",
     "test": "echo \"No automated tests configured for backend — smoke test manually via node app.js\" && exit 0"
   },
   "keywords": [],
@@ -14,6 +15,7 @@
     "node": ">=24.0.0"
   },
   "dependencies": {
+    "@aws-sdk/dsql-signer": "^3.1127.0",
     "@googleapis/forms": "^7.0.0",
     "aws-sdk": "^2.1691.0",
     "axios": "^1.20.0",
@@ -25,6 +27,7 @@
     "moment-timezone": "^0.6.3",
     "morgan": "^1.12.0",
     "node-schedule": "^2.1.1",
-    "nodemailer": "^10.0.0"
+    "nodemailer": "^10.0.0",
+    "pg": "^8.23.0"
   }
 }
