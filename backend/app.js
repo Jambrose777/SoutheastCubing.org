@@ -62,7 +62,7 @@ app.get('/competitions', async (req, res) => {
   }
 });
 
-app.get('/update-competitions', async (req, res) => {
+app.post('/update-competitions', async (req, res) => {
   try {
     competitions.updateCompetitions(req, res);
   } catch (e) {

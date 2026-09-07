@@ -32,6 +32,6 @@ export class SouteastcubingApiService {
   }
 
   updateCompetitions(): Observable<any> {
-    return this.http.get(`${environment.links.southeastCubingApi}/update-competitions`);
+    return this.http.post(`${environment.links.southeastCubingApi}/update-competitions`, null);
   }
 }
