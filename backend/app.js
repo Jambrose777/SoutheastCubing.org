@@ -16,7 +16,9 @@ const port = 8080;
 
 app.use(express.json());
 app.use(morgan('[:date[iso]] [INFO] ip-:remote-addr :method :url :status :response-time ms'));
-app.use(cors());
+// Scope CORS to an explicit allowlist (prod domain(s) + local dev server) instead of
+// allowing any origin, so unrelated sites can't make cross-origin requests to the API.
+app.use(cors({ origin: process.env.CORS_ORIGIN.split(',') }));
 
 // load in competitions on bootup
 try {
