@@ -5,15 +5,14 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
-  Injector,
   signal,
 } from '@angular/core';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
-import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
+import { buildDetailUrl } from 'src/app/shared/build-detail-url';
+import { SelectItemService } from 'src/app/services/select-item.service';
 import { Delegate } from 'src/app/models/Delegate';
 import { ContentfulService } from 'src/app/services/contentful.service';
-import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, StateColors } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
@@ -42,11 +41,10 @@ import { SelectedDelegateComponent } from './selected-delegate/selected-delegate
 })
 export class DelegatesComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
-  private injector = inject(Injector);
   private themeService = inject(ThemeService);
-  private navService = inject(NavService);
   private location = inject(Location);
   private screenSizeService = inject(ScreenSizeService);
+  private selectItemService = inject(SelectItemService);
   linksService = inject(LinksService);
 
   isMobile = this.screenSizeService.isMobile;
@@ -131,26 +129,14 @@ export class DelegatesComponent implements OnInit, OnDestroy {
 
   // selects a delegate to drill in details on
   selectDelegate(delegate: Delegate) {
-    // close Nav
-    this.navService.closeNav();
-
-    // Check if clicking an active delegate, and delselect the delegate if so.
-    if (this.selectedDelegate()?.name === delegate.name) {
-      this.selectedDelegate.set(undefined);
-      this.themeService.setMainPaneColor(Colors.green); //resets left pane
-      this.location.replaceState('/delegates');
-    } else {
-      this.selectedDelegate.set(delegate);
-      if (!this.isMobile()) {
-        // sets the left pane color based on state value
-        this.themeService.setMainPaneColor(StateColors[delegate.state]);
-
-        //scroll to top of main pane
-        document.getElementById('header')?.scrollIntoView();
-      } else {
-        scrollIntoViewSafely(delegate.name, this.injector);
-      }
-      this.location.replaceState('/delegates/' + delegate.name.replace(/ +/g, '-'));
-    }
+    this.selectItemService.select(delegate, {
+      selectedSignal: this.selectedDelegate,
+      isSelected: (d) => this.selectedDelegate()?.name === d.name,
+      elementId: (d) => d.name,
+      basePaneColor: Colors.green,
+      selectColor: (d) => StateColors[d.state],
+      updateUrl: () =>
+        this.location.replaceState(buildDetailUrl('/delegates', this.selectedDelegate()?.name)),
+    });
   }
 }

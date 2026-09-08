@@ -5,15 +5,14 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
-  Injector,
   signal,
 } from '@angular/core';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
-import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
+import { buildDetailUrl } from 'src/app/shared/build-detail-url';
+import { SelectItemService } from 'src/app/services/select-item.service';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { ContentfulService } from 'src/app/services/contentful.service';
-import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
 import { Location, NgClass } from '@angular/common';
@@ -39,11 +38,10 @@ import { SelectedSubTopicComponent } from '../../shared/selected-sub-topic/selec
 })
 export class OrganizersComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
-  private injector = inject(Injector);
   private themeService = inject(ThemeService);
-  private navService = inject(NavService);
   private location = inject(Location);
   private screenSizeService = inject(ScreenSizeService);
+  private selectItemService = inject(SelectItemService);
 
   isMobile = this.screenSizeService.isMobile;
 
@@ -107,26 +105,14 @@ export class OrganizersComponent implements OnInit, OnDestroy {
 
   // sets a sub topic as the selected sub topic to drill details
   selectSubTopic(subTopic: SubTopic) {
-    // close Nav
-    this.navService.closeNav();
-
-    // deselect a sub topic if it is already selected
-    if (this.selectedSubTopic()?.title === subTopic.title) {
-      this.selectedSubTopic.set(undefined);
-      this.themeService.setMainPaneColor(Colors.yellow);
-      this.location.replaceState('/organizers');
-    } else {
-      this.selectedSubTopic.set(subTopic);
-      if (!this.isMobile()) {
-        // sets the left pane color based on state value
-        this.themeService.setMainPaneColor(subTopic.color);
-
-        //scroll to top of main pane
-        document.getElementById('header')?.scrollIntoView();
-      } else {
-        scrollIntoViewSafely(subTopic.title, this.injector);
-      }
-      this.location.replaceState('/organizers/' + subTopic.title.replace(/ +/g, '-'));
-    }
+    this.selectItemService.select(subTopic, {
+      selectedSignal: this.selectedSubTopic,
+      isSelected: (s) => this.selectedSubTopic()?.title === s.title,
+      elementId: (s) => s.title,
+      basePaneColor: Colors.yellow,
+      selectColor: (s) => s.color,
+      updateUrl: () =>
+        this.location.replaceState(buildDetailUrl('/organizers', this.selectedSubTopic()?.title)),
+    });
   }
 }

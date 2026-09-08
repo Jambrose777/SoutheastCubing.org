@@ -5,7 +5,6 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
-  Injector,
   signal,
 } from '@angular/core';
 import { Location, NgClass, NgOptimizedImage } from '@angular/common';
@@ -13,10 +12,10 @@ import { Cat } from 'src/app/models/Cat';
 import { Subscription } from 'rxjs';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
-import { NavService } from 'src/app/services/nav.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Colors } from 'src/app/shared/types';
-import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
+import { buildDetailUrl } from 'src/app/shared/build-detail-url';
+import { SelectItemService } from 'src/app/services/select-item.service';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { HeaderComponent } from '../../core/header/header.component';
@@ -40,11 +39,10 @@ import { SelectedCatComponent } from './selected-cat/selected-cat.component';
 })
 export class CatsComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
-  private injector = inject(Injector);
   private themeService = inject(ThemeService);
-  private navService = inject(NavService);
   private location = inject(Location);
   private screenSizeService = inject(ScreenSizeService);
+  private selectItemService = inject(SelectItemService);
 
   isMobile = this.screenSizeService.isMobile;
 
@@ -131,26 +129,14 @@ export class CatsComponent implements OnInit, OnDestroy {
 
   // selects a cat to drill in details on
   selectCat(cat: Cat) {
-    // close Nav
-    this.navService.closeNav();
-
-    // Check if clicking an active cat, and delselect the cat if so.
-    if (this.selectedCat()?.name === cat.name) {
-      this.selectedCat.set(undefined);
-      this.themeService.setMainPaneColor(Colors.green); //resets left pane
-      this.location.replaceState('/cats');
-    } else {
-      this.selectedCat.set(cat);
-      if (!this.isMobile()) {
-        // sets the left pane color based on state value
-        this.themeService.setMainPaneColor(cat.color);
-
-        //scroll to top of main pane
-        document.getElementById('header')?.scrollIntoView();
-      } else {
-        scrollIntoViewSafely(cat.name, this.injector);
-      }
-      this.location.replaceState('/cats/' + cat.name.replace(/ +/g, '-'));
-    }
+    this.selectItemService.select(cat, {
+      selectedSignal: this.selectedCat,
+      isSelected: (c) => this.selectedCat()?.name === c.name,
+      elementId: (c) => c.name,
+      basePaneColor: Colors.green,
+      selectColor: (c) => c.color,
+      updateUrl: () =>
+        this.location.replaceState(buildDetailUrl('/cats', this.selectedCat()?.name)),
+    });
   }
 }

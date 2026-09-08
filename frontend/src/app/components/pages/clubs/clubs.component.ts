@@ -13,8 +13,9 @@ import { Club } from 'src/app/models/Club';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
+import { SelectItemService } from 'src/app/services/select-item.service';
+import { toggleFilterSelection } from 'src/app/shared/toggle-filter-selection';
 import { ContentfulService } from 'src/app/services/contentful.service';
-import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, StateColors, States } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
@@ -49,10 +50,10 @@ export class ClubsComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
   private injector = inject(Injector);
   private themeService = inject(ThemeService);
-  private navService = inject(NavService);
   private route = inject(ActivatedRoute);
   private location = inject(Location);
   private screenSizeService = inject(ScreenSizeService);
+  private selectItemService = inject(SelectItemService);
   linksService = inject(LinksService);
 
   isMobile = this.screenSizeService.isMobile;
@@ -167,45 +168,24 @@ export class ClubsComponent implements OnInit, OnDestroy {
 
   // sets a club as the selected Club to drill details
   selectClub(club: Club) {
-    // close Nav
-    this.navService.closeNav();
-
     // close Filters
     this.filtersOpen.set(false);
 
-    // deselect a club if it is already selected
-    if (this.selectedClub()?.id === club.id) {
-      this.selectedClub.set(undefined);
-      this.themeService.setMainPaneColor(Colors.purple);
-      this.updateUrl();
-    } else {
-      this.selectedClub.set(club);
-      if (!this.isMobile()) {
-        // sets the left pane color based on state value
-        this.themeService.setMainPaneColor(StateColors[club.state]);
-
-        //scroll to top of main pane
-        document.getElementById('header')?.scrollIntoView();
-      } else {
-        scrollIntoViewSafely(club.id, this.injector);
-      }
-      this.updateUrl();
-    }
+    this.selectItemService.select(club, {
+      selectedSignal: this.selectedClub,
+      isSelected: (c) => this.selectedClub()?.id === c.id,
+      elementId: (c) => c.id,
+      basePaneColor: Colors.purple,
+      selectColor: (c) => StateColors[c.state],
+      updateUrl: () => this.updateUrl(),
+    });
   }
 
   // Adds a state to the filters
   handleStateSelection(state: States) {
-    const currentStates = this.filters().states;
-    // If the state is already filtered on, remove it from the filters
-    let newStates = currentStates.includes(state)
-      ? currentStates.filter((filteredState) => filteredState !== state)
-      : [...currentStates, state];
-
-    // If filters are all full, remove them (same condition)
-    if (newStates.length === 6) {
-      newStates = [];
-    }
-    this.filters.set({ states: newStates });
+    this.filters.set({
+      states: toggleFilterSelection(this.filters().states, state, Object.keys(States).length),
+    });
 
     // Make Subsequent Calls
     this.updateUrl();

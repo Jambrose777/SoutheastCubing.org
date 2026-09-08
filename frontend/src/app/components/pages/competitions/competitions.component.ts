@@ -14,7 +14,8 @@ import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, Events, RegistrationStatus, StateColors, States } from 'src/app/shared/types';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
-import { NavService } from 'src/app/services/nav.service';
+import { SelectItemService } from 'src/app/services/select-item.service';
+import { toggleFilterSelection } from 'src/app/shared/toggle-filter-selection';
 import { environment } from 'src/environments/environment';
 import { ActivatedRoute } from '@angular/router';
 import { Location, NgClass } from '@angular/common';
@@ -52,10 +53,10 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   private injector = inject(Injector);
   private southeastcubingApiService = inject(SouteastcubingApiService);
   private themeService = inject(ThemeService);
-  private navService = inject(NavService);
   private route = inject(ActivatedRoute);
   private location = inject(Location);
   private screenSizeService = inject(ScreenSizeService);
+  private selectItemService = inject(SelectItemService);
   linksService = inject(LinksService);
 
   isMobile = this.screenSizeService.isMobile;
@@ -148,44 +149,25 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
 
   // selects a competition to drill in details on
   selectCompetition(competition: Competition) {
-    // close Nav
-    this.navService.closeNav();
-
     // close Filters
     this.filtersOpen.set(false);
 
-    // Check if clicking an active competition, and delselect the competition if so.
-    if (this.selectedCompetition()?.name === competition.name) {
-      this.selectedCompetition.set(undefined);
-      this.themeService.setMainPaneColor(Colors.darkGrey); //resets left pane
-      this.updateUrl();
-    } else {
-      this.selectedCompetition.set(competition);
-      if (!this.isMobile()) {
-        // sets the left pane color based on state value
-        this.themeService.setMainPaneColor(StateColors[competition.state]);
-
-        //scroll to top of main pane
-        document.getElementById('header')?.scrollIntoView();
-      } else {
-        scrollIntoViewSafely(competition.id, this.injector);
-      }
-      this.updateUrl();
-    }
+    this.selectItemService.select(competition, {
+      selectedSignal: this.selectedCompetition,
+      isSelected: (c) => this.selectedCompetition()?.name === c.name,
+      elementId: (c) => c.id,
+      basePaneColor: Colors.darkGrey,
+      selectColor: (c) => StateColors[c.state],
+      updateUrl: () => this.updateUrl(),
+    });
   }
   // Adds a state to the filters
   handleStateSelection(state: States) {
     const currentFilters = this.filters();
-    // If the state is already filtered on, remove it from the filters
-    let states = currentFilters.states.includes(state)
-      ? currentFilters.states.filter((filteredState) => filteredState !== state)
-      : [...currentFilters.states, state];
-
-    // If filters are all full, remove them (same condition)
-    if (states.length === 6) {
-      states = [];
-    }
-    this.filters.set({ ...currentFilters, states });
+    this.filters.set({
+      ...currentFilters,
+      states: toggleFilterSelection(currentFilters.states, state, Object.keys(States).length),
+    });
 
     // Make Subsequent Calls
     this.updateUrl();
@@ -196,16 +178,10 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   // Adds an event to the filters
   handleEventSelection(event: string) {
     const currentFilters = this.filters();
-    // If the event is already filtered on, remove it from the filters
-    let events = currentFilters.events.includes(event)
-      ? currentFilters.events.filter((filteredEvent) => filteredEvent !== event)
-      : [...currentFilters.events, event];
-
-    // If filters are all full, remove them (same condition)
-    if (events.length === 17) {
-      events = [];
-    }
-    this.filters.set({ ...currentFilters, events });
+    this.filters.set({
+      ...currentFilters,
+      events: toggleFilterSelection(currentFilters.events, event, Events.length),
+    });
 
     // Make Subsequent Calls
     this.updateUrl();

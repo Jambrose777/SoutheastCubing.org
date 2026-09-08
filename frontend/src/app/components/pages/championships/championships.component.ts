@@ -5,17 +5,16 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
-  Injector,
   signal,
 } from '@angular/core';
 import { Championship } from 'src/app/models/Championship';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { ContentfulService } from 'src/app/services/contentful.service';
-import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, StateColors } from 'src/app/shared/types';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
-import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
+import { buildDetailUrl } from 'src/app/shared/build-detail-url';
+import { SelectItemService } from 'src/app/services/select-item.service';
 import { environment } from 'src/environments/environment';
 import { Location, NgClass, NgOptimizedImage } from '@angular/common';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
@@ -42,11 +41,10 @@ import { SelectedChampionshipComponent } from './selected-championship/selected-
 })
 export class ChampionshipsComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
-  private injector = inject(Injector);
   private themeService = inject(ThemeService);
-  private navService = inject(NavService);
   private location = inject(Location);
   private screenSizeService = inject(ScreenSizeService);
+  private selectItemService = inject(SelectItemService);
   linksService = inject(LinksService);
 
   isMobile = this.screenSizeService.isMobile;
@@ -131,26 +129,16 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
 
   // sets a championship as the selected Championship to drill details
   selectChampionship(championship: Championship) {
-    // close Nav
-    this.navService.closeNav();
-
-    // deselect a championship if it is already selected
-    if (this.selectedChampionship()?.name === championship.name) {
-      this.selectedChampionship.set(undefined);
-      this.themeService.setMainPaneColor(Colors.blue);
-      this.location.replaceState('/championships');
-    } else {
-      this.selectedChampionship.set(championship);
-      if (!this.isMobile()) {
-        // sets the left pane color based on state value
-        this.themeService.setMainPaneColor(StateColors[championship.state]);
-
-        //scroll to top of main pane
-        document.getElementById('header')?.scrollIntoView();
-      } else {
-        scrollIntoViewSafely(championship.id, this.injector);
-      }
-      this.location.replaceState('/championships/' + championship.id);
-    }
+    this.selectItemService.select(championship, {
+      selectedSignal: this.selectedChampionship,
+      isSelected: (c) => this.selectedChampionship()?.name === c.name,
+      elementId: (c) => c.id,
+      basePaneColor: Colors.blue,
+      selectColor: (c) => StateColors[c.state],
+      updateUrl: () =>
+        this.location.replaceState(
+          buildDetailUrl('/championships', this.selectedChampionship()?.id),
+        ),
+    });
   }
 }
