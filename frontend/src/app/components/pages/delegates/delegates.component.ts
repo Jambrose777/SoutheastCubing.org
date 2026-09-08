@@ -5,10 +5,12 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
+  Injector,
   signal,
 } from '@angular/core';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
+import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 import { Delegate } from 'src/app/models/Delegate';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { NavService } from 'src/app/services/nav.service';
@@ -40,6 +42,7 @@ import { SelectedDelegateComponent } from './selected-delegate/selected-delegate
 })
 export class DelegatesComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
+  private injector = inject(Injector);
   private themeService = inject(ThemeService);
   private navService = inject(NavService);
   private location = inject(Location);
@@ -145,9 +148,7 @@ export class DelegatesComponent implements OnInit, OnDestroy {
         //scroll to top of main pane
         document.getElementById('header')?.scrollIntoView();
       } else {
-        setTimeout(() => {
-          document.getElementById(delegate.name)?.scrollIntoView({ behavior: 'smooth' });
-        }, 0);
+        scrollIntoViewSafely(delegate.name, this.injector);
       }
       this.location.replaceState('/delegates/' + delegate.name.replace(/ +/g, '-'));
     }

@@ -5,10 +5,12 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
+  Injector,
   signal,
 } from '@angular/core';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
+import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { NavService } from 'src/app/services/nav.service';
@@ -37,6 +39,7 @@ import { SelectedSubTopicComponent } from '../../shared/selected-sub-topic/selec
 })
 export class InvolvementComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
+  private injector = inject(Injector);
   private themeService = inject(ThemeService);
   private navService = inject(NavService);
   private location = inject(Location);
@@ -113,9 +116,7 @@ export class InvolvementComponent implements OnInit, OnDestroy {
         //scroll to top of main pane
         document.getElementById('header')?.scrollIntoView();
       } else {
-        setTimeout(() => {
-          document.getElementById(subTopic.title)?.scrollIntoView({ behavior: 'smooth' });
-        }, 0);
+        scrollIntoViewSafely(subTopic.title, this.injector);
       }
       this.location.replaceState('/involvement/' + subTopic.title.replace(/ +/g, '-'));
     }

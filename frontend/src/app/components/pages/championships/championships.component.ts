@@ -5,6 +5,7 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
+  Injector,
   signal,
 } from '@angular/core';
 import { Championship } from 'src/app/models/Championship';
@@ -14,6 +15,7 @@ import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, StateColors } from 'src/app/shared/types';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
+import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 import { environment } from 'src/environments/environment';
 import { Location, NgClass, NgOptimizedImage } from '@angular/common';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
@@ -40,6 +42,7 @@ import { SelectedChampionshipComponent } from './selected-championship/selected-
 })
 export class ChampionshipsComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
+  private injector = inject(Injector);
   private themeService = inject(ThemeService);
   private navService = inject(NavService);
   private location = inject(Location);
@@ -145,9 +148,7 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
         //scroll to top of main pane
         document.getElementById('header')?.scrollIntoView();
       } else {
-        setTimeout(() => {
-          document.getElementById(championship.id)?.scrollIntoView({ behavior: 'smooth' });
-        }, 0);
+        scrollIntoViewSafely(championship.id, this.injector);
       }
       this.location.replaceState('/championships/' + championship.id);
     }

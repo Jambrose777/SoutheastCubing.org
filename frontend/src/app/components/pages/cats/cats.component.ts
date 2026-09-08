@@ -5,6 +5,7 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
+  Injector,
   signal,
 } from '@angular/core';
 import { Location, NgClass, NgOptimizedImage } from '@angular/common';
@@ -15,6 +16,7 @@ import { ThemeService } from 'src/app/services/theme.service';
 import { NavService } from 'src/app/services/nav.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Colors } from 'src/app/shared/types';
+import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { HeaderComponent } from '../../core/header/header.component';
@@ -38,6 +40,7 @@ import { SelectedCatComponent } from './selected-cat/selected-cat.component';
 })
 export class CatsComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
+  private injector = inject(Injector);
   private themeService = inject(ThemeService);
   private navService = inject(NavService);
   private location = inject(Location);
@@ -145,9 +148,7 @@ export class CatsComponent implements OnInit, OnDestroy {
         //scroll to top of main pane
         document.getElementById('header')?.scrollIntoView();
       } else {
-        setTimeout(() => {
-          document.getElementById(cat.name)?.scrollIntoView({ behavior: 'smooth' });
-        }, 0);
+        scrollIntoViewSafely(cat.name, this.injector);
       }
       this.location.replaceState('/cats/' + cat.name.replace(/ +/g, '-'));
     }

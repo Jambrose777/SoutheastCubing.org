@@ -5,6 +5,7 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
+  Injector,
   signal,
 } from '@angular/core';
 import { Competition } from 'src/app/models/Competition';
@@ -12,6 +13,7 @@ import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, Events, RegistrationStatus, StateColors, States } from 'src/app/shared/types';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
+import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 import { NavService } from 'src/app/services/nav.service';
 import { environment } from 'src/environments/environment';
 import { ActivatedRoute } from '@angular/router';
@@ -47,6 +49,7 @@ import { SelectedCompetitionComponent } from './selected-competition/selected-co
 })
 export class CompetitionsComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
+  private injector = inject(Injector);
   private southeastcubingApiService = inject(SouteastcubingApiService);
   private themeService = inject(ThemeService);
   private navService = inject(NavService);
@@ -165,9 +168,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
         //scroll to top of main pane
         document.getElementById('header')?.scrollIntoView();
       } else {
-        setTimeout(() => {
-          document.getElementById(competition.id)?.scrollIntoView({ behavior: 'smooth' });
-        }, 0);
+        scrollIntoViewSafely(competition.id, this.injector);
       }
       this.updateUrl();
     }
@@ -252,11 +253,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   // Scrolls to the secondary pane on mobile
   scrollToCompetitions() {
     if (this.isMobile()) {
-      setTimeout(() => {
-        document
-          .getElementById('competition-list-container')
-          ?.scrollIntoView({ behavior: 'smooth' });
-      }, 0);
+      scrollIntoViewSafely('competition-list-container', this.injector);
     }
   }
 
@@ -290,16 +287,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
     this.hoveredMapCompetition = competitionId;
 
     // scroll competition into view if not visible
-    setTimeout(() => {
-      const target = document.getElementById(competitionId);
-      if (
-        target &&
-        (target.getBoundingClientRect().bottom > window.innerHeight ||
-          target.getBoundingClientRect().top < 0)
-      ) {
-        target.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 0);
+    scrollIntoViewSafely(competitionId, this.injector, true);
   }
 
   // handles click event on map to open competition

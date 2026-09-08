@@ -5,12 +5,14 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
+  Injector,
   signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Club } from 'src/app/models/Club';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
+import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { NavService } from 'src/app/services/nav.service';
 import { ThemeService } from 'src/app/services/theme.service';
@@ -45,6 +47,7 @@ import { SelectedClubComponent } from './selected-club/selected-club.component';
 })
 export class ClubsComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
+  private injector = inject(Injector);
   private themeService = inject(ThemeService);
   private navService = inject(NavService);
   private route = inject(ActivatedRoute);
@@ -184,9 +187,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
         //scroll to top of main pane
         document.getElementById('header')?.scrollIntoView();
       } else {
-        setTimeout(() => {
-          document.getElementById(club.id)?.scrollIntoView({ behavior: 'smooth' });
-        }, 0);
+        scrollIntoViewSafely(club.id, this.injector);
       }
       this.updateUrl();
     }
@@ -238,9 +239,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
   // Scrolls to the secondary pane on mobile
   scrollToClubs() {
     if (this.isMobile()) {
-      setTimeout(() => {
-        document.getElementById('club-list-container')?.scrollIntoView({ behavior: 'smooth' });
-      }, 0);
+      scrollIntoViewSafely('club-list-container', this.injector);
     }
   }
 
@@ -262,16 +261,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
     this.hoveredMapClub = clubId;
 
     // scroll club into view if not visible
-    setTimeout(() => {
-      const target = document.getElementById(clubId);
-      if (
-        target &&
-        (target.getBoundingClientRect().bottom > window.innerHeight ||
-          target.getBoundingClientRect().top < 0)
-      ) {
-        target.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 0);
+    scrollIntoViewSafely(clubId, this.injector, true);
   }
 
   // handles click event on map to open club

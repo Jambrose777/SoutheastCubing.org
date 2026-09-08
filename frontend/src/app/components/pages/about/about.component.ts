@@ -5,11 +5,13 @@ import {
   OnInit,
   ChangeDetectionStrategy,
   inject,
+  Injector,
   signal,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
+import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { Team } from 'src/app/models/Team';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -43,6 +45,7 @@ import { DoucmentsComponent } from './documents/documents.component';
 })
 export class AboutComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
+  private injector = inject(Injector);
   private themeService = inject(ThemeService);
   private screenSizeService = inject(ScreenSizeService);
   private location = inject(Location);
@@ -178,9 +181,7 @@ export class AboutComponent implements OnInit, OnDestroy {
         //scroll to top of main pane
         document.getElementById('header')?.scrollIntoView();
       } else {
-        setTimeout(() => {
-          document.getElementById(subTopic.title)?.scrollIntoView({ behavior: 'smooth' });
-        }, 0);
+        scrollIntoViewSafely(subTopic.title, this.injector);
       }
       this.location.replaceState('/about/' + subTopic.title.replace(/ +/g, '-'));
     }
