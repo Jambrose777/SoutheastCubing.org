@@ -21,22 +21,28 @@ export class LinksService {
     this.contentful
       .getContentfulEntry(ContentfulEntryId.linksConfiguration)
       .pipe(take(1))
-      .subscribe((res) => {
-        if (res.fields.discord) {
-          this.discord = res.fields.discord;
-        }
-        if (res.fields.facebook) {
-          this.facebook = res.fields.facebook;
-        }
-        if (res.fields.instagram) {
-          this.instagram = res.fields.instagram;
-        }
-        if (res.fields.youtube) {
-          this.youtube = res.fields.youtube;
-        }
-        if (res.fields.applyToStaffForm) {
-          this.applyToStaffForm = res.fields.applyToStaffForm;
-        }
+      .subscribe({
+        next: (res) => {
+          if (res.fields.discord) {
+            this.discord = res.fields.discord;
+          }
+          if (res.fields.facebook) {
+            this.facebook = res.fields.facebook;
+          }
+          if (res.fields.instagram) {
+            this.instagram = res.fields.instagram;
+          }
+          if (res.fields.youtube) {
+            this.youtube = res.fields.youtube;
+          }
+          if (res.fields.applyToStaffForm) {
+            this.applyToStaffForm = res.fields.applyToStaffForm;
+          }
+        },
+        error: (err) => {
+          // the hardcoded environment.links.* defaults set above already cover this case
+          console.error('Failed to load links configuration from Contentful:', err);
+        },
       });
   }
 }

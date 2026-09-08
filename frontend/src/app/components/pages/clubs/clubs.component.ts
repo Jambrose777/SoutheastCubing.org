@@ -113,51 +113,63 @@ export class ClubsComponent implements OnInit, OnDestroy {
 
     // retrieve formats data from the CMS Clubs Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.clubs).subscribe((res) => {
-        this.title.set(res.fields.title);
-        this.description.set(res.fields.description);
-        this.subText1.set(res.fields.subText1);
-        this.subText1ButtonText.set(res.fields.subText1ButtonText);
-        this.subText1ButtonLink.set(res.fields.subText1ButtonLink);
-        this.subText2.set(res.fields.subText2);
-        this.subText2ButtonText.set(res.fields.subText2ButtonText);
-        this.subText2ButtonLink.set(res.fields.subText2ButtonLink);
-        this.filtersDescription.set(res.fields.subTopics[0]?.fields.description);
-        this.loadingContent.set(false);
+      this.contentful.getContentfulEntry(ContentfulEntryId.clubs).subscribe({
+        next: (res) => {
+          this.title.set(res.fields.title);
+          this.description.set(res.fields.description);
+          this.subText1.set(res.fields.subText1);
+          this.subText1ButtonText.set(res.fields.subText1ButtonText);
+          this.subText1ButtonLink.set(res.fields.subText1ButtonLink);
+          this.subText2.set(res.fields.subText2);
+          this.subText2ButtonText.set(res.fields.subText2ButtonText);
+          this.subText2ButtonLink.set(res.fields.subText2ButtonLink);
+          this.filtersDescription.set(res.fields.subTopics[0]?.fields.description);
+          this.loadingContent.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the clubs page content from Contentful:', err);
+          this.loadingContent.set(false);
+        },
       }),
     );
 
     // retrieve, sorts, and formats the clubs list from the CMS Clubs
     this.subscriptions.add(
-      this.contentful.getContentfulGroup(ContentfulContentType.clubs).subscribe((res) => {
-        const clubs = res.items
-          .map((club) => {
-            const imageSize = scaleToDisplaySize(
-              club.fields.image?.fields.file.details?.image?.width,
-              club.fields.image?.fields.file.details?.image?.height,
+      this.contentful.getContentfulGroup(ContentfulContentType.clubs).subscribe({
+        next: (res) => {
+          const clubs = res.items
+            .map((club) => {
+              const imageSize = scaleToDisplaySize(
+                club.fields.image?.fields.file.details?.image?.width,
+                club.fields.image?.fields.file.details?.image?.height,
+              );
+              return {
+                ...club.fields,
+                image: club.fields.image?.fields.file.url,
+                imageWidth: imageSize.width,
+                imageHeight: imageSize.height,
+                state: club.fields?.city.substring(club.fields?.city.length - 2),
+              };
+            })
+            .sort((a: Club, b: Club) =>
+              a.city == b.city ? (a.name > b.name ? 1 : -1) : a.city > b.city ? 1 : -1,
             );
-            return {
-              ...club.fields,
-              image: club.fields.image?.fields.file.url,
-              imageWidth: imageSize.width,
-              imageHeight: imageSize.height,
-              state: club.fields?.city.substring(club.fields?.city.length - 2),
-            };
-          })
-          .sort((a: Club, b: Club) =>
-            a.city == b.city ? (a.name > b.name ? 1 : -1) : a.city > b.city ? 1 : -1,
-          );
-        this.clubs.set(clubs);
-        this.filterClubs();
-        if (this.clubId()) {
-          const foundClub = clubs.find((comp) => comp.id === this.clubId());
-          if (foundClub) {
-            this.selectClub(foundClub);
-          } else {
-            this.updateUrl();
+          this.clubs.set(clubs);
+          this.filterClubs();
+          if (this.clubId()) {
+            const foundClub = clubs.find((comp) => comp.id === this.clubId());
+            if (foundClub) {
+              this.selectClub(foundClub);
+            } else {
+              this.updateUrl();
+            }
           }
-        }
-        this.loadingClubs.set(false);
+          this.loadingClubs.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the clubs list from Contentful:', err);
+          this.loadingClubs.set(false);
+        },
       }),
     );
   }

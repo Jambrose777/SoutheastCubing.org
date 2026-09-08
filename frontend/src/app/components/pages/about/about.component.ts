@@ -69,89 +69,107 @@ export class AboutComponent implements OnInit, OnDestroy {
 
     // retrieve formats data from the CMS Involvement Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.about).subscribe((res) => {
-        this.title.set(res.fields.title);
-        this.description.set(res.fields.description);
-        let subTopics: SubTopic[] = res.fields.subTopics.map((subTopic) => {
-          const photoSize = scaleToDisplaySize(
-            subTopic.fields['photo']?.fields.file.details?.image?.width,
-            subTopic.fields['photo']?.fields.file.details?.image?.height,
-          );
-          return {
-            ...subTopic.fields,
-            photo: subTopic.fields['photo']?.fields.file.url,
-            photoWidth: photoSize.width,
-            photoHeight: photoSize.height,
-            color: Colors[subTopic.fields.color],
-          };
-        });
+      this.contentful.getContentfulEntry(ContentfulEntryId.about).subscribe({
+        next: (res) => {
+          this.title.set(res.fields.title);
+          this.description.set(res.fields.description);
+          let subTopics: SubTopic[] = res.fields.subTopics.map((subTopic) => {
+            const photoSize = scaleToDisplaySize(
+              subTopic.fields['photo']?.fields.file.details?.image?.width,
+              subTopic.fields['photo']?.fields.file.details?.image?.height,
+            );
+            return {
+              ...subTopic.fields,
+              photo: subTopic.fields['photo']?.fields.file.url,
+              photoWidth: photoSize.width,
+              photoHeight: photoSize.height,
+              color: Colors[subTopic.fields.color],
+            };
+          });
 
-        // Add additional custom Pages as SubTopics
-        subTopics = [
-          { title: 'Who We Are', color: Colors.yellow },
-          ...subTopics,
-          { title: 'Documents', color: Colors.purple },
-        ];
-        this.subTopics.set(subTopics);
+          // Add additional custom Pages as SubTopics
+          subTopics = [
+            { title: 'Who We Are', color: Colors.yellow },
+            ...subTopics,
+            { title: 'Documents', color: Colors.purple },
+          ];
+          this.subTopics.set(subTopics);
 
-        // select a subtopic based on url on load
-        if (this.subTopicId()) {
-          const foundSubTopic = subTopics.find(
-            (subTopic) => subTopic.title.replace(/ +/g, '-') === this.subTopicId(),
-          );
-          if (foundSubTopic) {
-            this.selectSubTopic(foundSubTopic);
-          } else {
-            this.location.replaceState('/about');
+          // select a subtopic based on url on load
+          if (this.subTopicId()) {
+            const foundSubTopic = subTopics.find(
+              (subTopic) => subTopic.title.replace(/ +/g, '-') === this.subTopicId(),
+            );
+            if (foundSubTopic) {
+              this.selectSubTopic(foundSubTopic);
+            } else {
+              this.location.replaceState('/about');
+            }
           }
-        }
-        this.loadingContent.set(false);
+          this.loadingContent.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the about page content from Contentful:', err);
+          this.loadingContent.set(false);
+        },
       }),
     );
 
     // retrieve teams list from the CMS Teams
     this.subscriptions.add(
-      this.contentful.getContentfulGroup(ContentfulContentType.teams).subscribe((res) => {
-        this.teams.set(
-          res.items
-            .map((team) => ({
-              ...team.fields,
-              teamMembers: team.fields.teamMembers.map((teamMember) => {
-                // Team member thumbnails render in a 60x60 box; scale the native
-                // Contentful asset down (max ~120px, covering a 2x-density srcset)
-                // instead of shipping the full-resolution upload for a tiny thumbnail.
-                const thumbnailSize = scaleToDisplaySize(
-                  teamMember.fields['thumbnail']?.fields.file.details?.image?.width,
-                  teamMember.fields['thumbnail']?.fields.file.details?.image?.height,
-                  120,
-                );
-                return {
-                  ...teamMember.fields,
-                  color: Colors[teamMember.fields.color] || Colors.grey,
-                  thumbnail: teamMember.fields['thumbnail']?.fields.file.url,
-                  thumbnailWidth: thumbnailSize.width,
-                  thumbnailHeight: thumbnailSize.height,
-                };
-              }),
-            }))
-            .sort((a: Team, b: Team) => (a.order > b.order ? 1 : -1)),
-        );
-        this.loadingTeams.set(false);
+      this.contentful.getContentfulGroup(ContentfulContentType.teams).subscribe({
+        next: (res) => {
+          this.teams.set(
+            res.items
+              .map((team) => ({
+                ...team.fields,
+                teamMembers: team.fields.teamMembers.map((teamMember) => {
+                  // Team member thumbnails render in a 60x60 box; scale the native
+                  // Contentful asset down (max ~120px, covering a 2x-density srcset)
+                  // instead of shipping the full-resolution upload for a tiny thumbnail.
+                  const thumbnailSize = scaleToDisplaySize(
+                    teamMember.fields['thumbnail']?.fields.file.details?.image?.width,
+                    teamMember.fields['thumbnail']?.fields.file.details?.image?.height,
+                    120,
+                  );
+                  return {
+                    ...teamMember.fields,
+                    color: Colors[teamMember.fields.color] || Colors.grey,
+                    thumbnail: teamMember.fields['thumbnail']?.fields.file.url,
+                    thumbnailWidth: thumbnailSize.width,
+                    thumbnailHeight: thumbnailSize.height,
+                  };
+                }),
+              }))
+              .sort((a: Team, b: Team) => (a.order > b.order ? 1 : -1)),
+          );
+          this.loadingTeams.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the teams list from Contentful:', err);
+          this.loadingTeams.set(false);
+        },
       }),
     );
 
     // retrieve Documents list from the CMS Teams
     this.subscriptions.add(
-      this.contentful.getContentfulGroup(ContentfulContentType.documents).subscribe((res) => {
-        this.documents.set(
-          res.items
-            .map((document) => ({
-              ...document.fields,
-              color: Colors[document.fields.color] || Colors.grey,
-            }))
-            .sort((a: Team, b: Team) => (a.order > b.order ? 1 : -1)),
-        );
-        this.loadingDocuments.set(false);
+      this.contentful.getContentfulGroup(ContentfulContentType.documents).subscribe({
+        next: (res) => {
+          this.documents.set(
+            res.items
+              .map((document) => ({
+                ...document.fields,
+                color: Colors[document.fields.color] || Colors.grey,
+              }))
+              .sort((a: Team, b: Team) => (a.order > b.order ? 1 : -1)),
+          );
+          this.loadingDocuments.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the documents list from Contentful:', err);
+          this.loadingDocuments.set(false);
+        },
       }),
     );
   }

@@ -69,56 +69,68 @@ export class DelegatesComponent implements OnInit, OnDestroy {
 
     // retrieve, sorts, and formats data from the CMS Delegates Entries
     this.subscriptions.add(
-      this.contentful.getContentfulGroup(ContentfulContentType.delegates).subscribe((res) => {
-        const delegates = res.items
-          .sort((a, b) => a['fields']['order'] - b.fields['order'])
-          .map((delegate) => {
-            const photoSize = scaleToDisplaySize(
-              delegate.fields['photo']?.fields.file.details?.image?.width,
-              delegate.fields['photo']?.fields.file.details?.image?.height,
+      this.contentful.getContentfulGroup(ContentfulContentType.delegates).subscribe({
+        next: (res) => {
+          const delegates = res.items
+            .sort((a, b) => a['fields']['order'] - b.fields['order'])
+            .map((delegate) => {
+              const photoSize = scaleToDisplaySize(
+                delegate.fields['photo']?.fields.file.details?.image?.width,
+                delegate.fields['photo']?.fields.file.details?.image?.height,
+              );
+              // Delegate thumbnails render in a 60x60 box; scale the native
+              // Contentful asset down (max ~120px, covering a 2x-density srcset)
+              // instead of shipping the full-resolution upload for a tiny thumbnail.
+              const thumbnailSize = scaleToDisplaySize(
+                delegate.fields['thumbnail']?.fields.file.details?.image?.width,
+                delegate.fields['thumbnail']?.fields.file.details?.image?.height,
+                120,
+              );
+              return {
+                ...delegate.fields,
+                photo: delegate.fields['photo']?.fields.file.url,
+                photoWidth: photoSize.width,
+                photoHeight: photoSize.height,
+                thumbnail: delegate.fields['thumbnail']?.fields.file.url,
+                thumbnailWidth: thumbnailSize.width,
+                thumbnailHeight: thumbnailSize.height,
+              } as Delegate;
+            });
+          this.delegates.set(delegates);
+          if (this.delegateName()) {
+            const foundDelegate = delegates.find(
+              (delegate) => delegate.name.replace(/ +/g, '-') === this.delegateName(),
             );
-            // Delegate thumbnails render in a 60x60 box; scale the native
-            // Contentful asset down (max ~120px, covering a 2x-density srcset)
-            // instead of shipping the full-resolution upload for a tiny thumbnail.
-            const thumbnailSize = scaleToDisplaySize(
-              delegate.fields['thumbnail']?.fields.file.details?.image?.width,
-              delegate.fields['thumbnail']?.fields.file.details?.image?.height,
-              120,
-            );
-            return {
-              ...delegate.fields,
-              photo: delegate.fields['photo']?.fields.file.url,
-              photoWidth: photoSize.width,
-              photoHeight: photoSize.height,
-              thumbnail: delegate.fields['thumbnail']?.fields.file.url,
-              thumbnailWidth: thumbnailSize.width,
-              thumbnailHeight: thumbnailSize.height,
-            } as Delegate;
-          });
-        this.delegates.set(delegates);
-        if (this.delegateName()) {
-          const foundDelegate = delegates.find(
-            (delegate) => delegate.name.replace(/ +/g, '-') === this.delegateName(),
-          );
-          if (foundDelegate) {
-            this.selectDelegate(foundDelegate);
-          } else {
-            this.location.replaceState('/delegates');
+            if (foundDelegate) {
+              this.selectDelegate(foundDelegate);
+            } else {
+              this.location.replaceState('/delegates');
+            }
           }
-        }
-        this.loadingDelegates.set(false);
+          this.loadingDelegates.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the delegates list from Contentful:', err);
+          this.loadingDelegates.set(false);
+        },
       }),
     );
 
     // retrieve and formats data from the CMS Delegate Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.delegates).subscribe((res) => {
-        this.title.set(res.fields.title);
-        this.description.set(res.fields.description);
-        this.subText.set(res.fields.subText1);
-        this.subTextButtonText.set(res.fields.subText1ButtonText);
-        this.subTextButtonLink.set(res.fields.subText1ButtonLink);
-        this.loadingContent.set(false);
+      this.contentful.getContentfulEntry(ContentfulEntryId.delegates).subscribe({
+        next: (res) => {
+          this.title.set(res.fields.title);
+          this.description.set(res.fields.description);
+          this.subText.set(res.fields.subText1);
+          this.subTextButtonText.set(res.fields.subText1ButtonText);
+          this.subTextButtonLink.set(res.fields.subText1ButtonLink);
+          this.loadingContent.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the delegates page content from Contentful:', err);
+          this.loadingContent.set(false);
+        },
       }),
     );
   }

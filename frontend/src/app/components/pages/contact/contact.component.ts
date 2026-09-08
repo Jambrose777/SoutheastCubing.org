@@ -122,17 +122,29 @@ export class ContactComponent implements OnInit, OnDestroy {
 
     // retrieve formats data from the CMS Contact Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.contact).subscribe((res) => {
-        this.description.set(res.fields.description);
-        this.loadingContent.set(false);
+      this.contentful.getContentfulEntry(ContentfulEntryId.contact).subscribe({
+        next: (res) => {
+          this.description.set(res.fields.description);
+          this.loadingContent.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the contact page content from Contentful:', err);
+          this.loadingContent.set(false);
+        },
       }),
     );
 
     // retrieve the competitions list from WCA
     this.subscriptions.add(
-      this.southeastcubingApiService.getUpcomingCompetitions().subscribe((res) => {
-        this.competitions.set(res);
-        this.loadingCompetitions.set(false);
+      this.southeastcubingApiService.getUpcomingCompetitions().subscribe({
+        next: (res) => {
+          this.competitions.set(res);
+          this.loadingCompetitions.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the upcoming competitions list:', err);
+          this.loadingCompetitions.set(false);
+        },
       }),
     );
 

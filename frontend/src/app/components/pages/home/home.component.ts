@@ -56,17 +56,23 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     // retrieve and formats data from the CMS home Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.home).subscribe((res) => {
-        this.title.set(res.fields.title);
-        this.description.set(res.fields.description);
-        this.subTopics.set(
-          res.fields.subTopics?.map((subTopic) => ({
-            ...subTopic.fields,
-            color: Colors[subTopic.fields.color],
-          })),
-        );
-        this.photos.set(res.fields.photos?.map((photo) => ({ path: photo.fields.file.url })));
-        this.loadingContent.set(false);
+      this.contentful.getContentfulEntry(ContentfulEntryId.home).subscribe({
+        next: (res) => {
+          this.title.set(res.fields.title);
+          this.description.set(res.fields.description);
+          this.subTopics.set(
+            res.fields.subTopics?.map((subTopic) => ({
+              ...subTopic.fields,
+              color: Colors[subTopic.fields.color],
+            })),
+          );
+          this.photos.set(res.fields.photos?.map((photo) => ({ path: photo.fields.file.url })));
+          this.loadingContent.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the home page content from Contentful:', err);
+          this.loadingContent.set(false);
+        },
       }),
     );
   }

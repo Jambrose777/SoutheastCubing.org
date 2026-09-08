@@ -59,34 +59,40 @@ export class InvolvementComponent implements OnInit, OnDestroy {
 
     // retrieve formats data from the CMS Involvement Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.involvement).subscribe((res) => {
-        this.title.set(res.fields.title);
-        this.description.set(res.fields.description);
-        const subTopics = res.fields.subTopics.map((subTopic) => {
-          const photoSize = scaleToDisplaySize(
-            subTopic.fields['photo']?.fields.file.details?.image?.width,
-            subTopic.fields['photo']?.fields.file.details?.image?.height,
-          );
-          return {
-            ...subTopic.fields,
-            photo: subTopic.fields['photo']?.fields.file.url,
-            photoWidth: photoSize.width,
-            photoHeight: photoSize.height,
-            color: Colors[subTopic.fields.color],
-          };
-        });
-        this.subTopics.set(subTopics);
-        if (this.subTopicId()) {
-          const foundSubTopic = subTopics.find(
-            (subTopic) => subTopic.title.replace(/ +/g, '-') === this.subTopicId(),
-          );
-          if (foundSubTopic) {
-            this.selectSubTopic(foundSubTopic);
-          } else {
-            this.location.replaceState('/involvement');
+      this.contentful.getContentfulEntry(ContentfulEntryId.involvement).subscribe({
+        next: (res) => {
+          this.title.set(res.fields.title);
+          this.description.set(res.fields.description);
+          const subTopics = res.fields.subTopics.map((subTopic) => {
+            const photoSize = scaleToDisplaySize(
+              subTopic.fields['photo']?.fields.file.details?.image?.width,
+              subTopic.fields['photo']?.fields.file.details?.image?.height,
+            );
+            return {
+              ...subTopic.fields,
+              photo: subTopic.fields['photo']?.fields.file.url,
+              photoWidth: photoSize.width,
+              photoHeight: photoSize.height,
+              color: Colors[subTopic.fields.color],
+            };
+          });
+          this.subTopics.set(subTopics);
+          if (this.subTopicId()) {
+            const foundSubTopic = subTopics.find(
+              (subTopic) => subTopic.title.replace(/ +/g, '-') === this.subTopicId(),
+            );
+            if (foundSubTopic) {
+              this.selectSubTopic(foundSubTopic);
+            } else {
+              this.location.replaceState('/involvement');
+            }
           }
-        }
-        this.loadingContent.set(false);
+          this.loadingContent.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the involvement page content from Contentful:', err);
+          this.loadingContent.set(false);
+        },
       }),
     );
   }

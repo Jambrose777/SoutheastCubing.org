@@ -41,10 +41,16 @@ export class PageNotFoundComponent implements OnInit, OnDestroy {
 
     // retrieve and formats data from the CMS home Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.pageNotFound).subscribe((res) => {
-        this.title.set(res.fields.title);
-        this.description.set(res.fields.description);
-        this.loadingContent.set(false);
+      this.contentful.getContentfulEntry(ContentfulEntryId.pageNotFound).subscribe({
+        next: (res) => {
+          this.title.set(res.fields.title);
+          this.description.set(res.fields.description);
+          this.loadingContent.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the page-not-found content from Contentful:', err);
+          this.loadingContent.set(false);
+        },
       }),
     );
   }

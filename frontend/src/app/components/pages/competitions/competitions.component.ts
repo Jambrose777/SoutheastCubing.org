@@ -115,30 +115,42 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
 
     // retrieve and formats data from the CMS Competitions Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.competitions).subscribe((res) => {
-        this.title.set(res.fields.title);
-        this.description.set(res.fields.description);
-        this.subText.set(res.fields.subText1);
-        this.filtersDescription.set(res.fields.subTopics[0]?.fields.description);
-        this.loadingContent.set(false);
+      this.contentful.getContentfulEntry(ContentfulEntryId.competitions).subscribe({
+        next: (res) => {
+          this.title.set(res.fields.title);
+          this.description.set(res.fields.description);
+          this.subText.set(res.fields.subText1);
+          this.filtersDescription.set(res.fields.subTopics[0]?.fields.description);
+          this.loadingContent.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the competitions page content from Contentful:', err);
+          this.loadingContent.set(false);
+        },
       }),
     );
 
     // retrieve the competitions list from WCA
     this.subscriptions.add(
-      this.southeastcubingApiService.getUpcomingCompetitions().subscribe((res) => {
-        this.competitions.set(res);
-        this.filteredCompetitions.set(res);
-        this.filterCompetitions();
-        if (this.competitionId()) {
-          const foundCompetition = res.find((comp) => comp.id === this.competitionId());
-          if (foundCompetition) {
-            this.selectCompetition(foundCompetition);
-          } else {
-            this.updateUrl();
+      this.southeastcubingApiService.getUpcomingCompetitions().subscribe({
+        next: (res) => {
+          this.competitions.set(res);
+          this.filteredCompetitions.set(res);
+          this.filterCompetitions();
+          if (this.competitionId()) {
+            const foundCompetition = res.find((comp) => comp.id === this.competitionId());
+            if (foundCompetition) {
+              this.selectCompetition(foundCompetition);
+            } else {
+              this.updateUrl();
+            }
           }
-        }
-        this.loadingCompetitions.set(false);
+          this.loadingCompetitions.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the upcoming competitions list:', err);
+          this.loadingCompetitions.set(false);
+        },
       }),
     );
   }

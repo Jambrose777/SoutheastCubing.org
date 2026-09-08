@@ -71,54 +71,67 @@ export class CatsComponent implements OnInit, OnDestroy {
 
     // retrieve, sorts, and formats data from the CMS Cats Entries
     this.subscriptions.add(
-      this.contentful.getContentfulGroup(ContentfulContentType.cats).subscribe((res) => {
-        const cats = res.items
-          .map((value) => ({ value, sort: Math.random() }))
-          .sort((a, b) => a.sort - b.sort)
-          .map(({ value }) => value)
-          .map((cat) => {
-            const photoSize = scaleToDisplaySize(
-              cat.fields['photo']?.fields.file.details?.image?.width,
-              cat.fields['photo']?.fields.file.details?.image?.height,
-            );
-            // Cat thumbnails render in a 60x60 box; scale the native Contentful
-            // asset down (max ~120px, covering a 2x-density srcset) instead of
-            // shipping the full-resolution upload for a tiny thumbnail.
-            const thumbnailSize = scaleToDisplaySize(
-              cat.fields['thumbnail']?.fields.file.details?.image?.width,
-              cat.fields['thumbnail']?.fields.file.details?.image?.height,
-              120,
-            );
-            return {
-              ...cat.fields,
-              photo: cat.fields['photo']?.fields.file.url,
-              photoWidth: photoSize.width,
-              photoHeight: photoSize.height,
-              thumbnail: cat.fields['thumbnail']?.fields.file.url,
-              thumbnailWidth: thumbnailSize.width,
-              thumbnailHeight: thumbnailSize.height,
-              color: this.availableColors[Math.floor(Math.random() * this.availableColors.length)],
-            } as Cat;
-          });
-        this.cats.set(cats);
-        if (this.catName()) {
-          const foundCat = cats?.find((cat) => cat.name.replace(/ +/g, '-') === this.catName());
-          if (foundCat) {
-            this.selectCat(foundCat);
-          } else {
-            this.location.replaceState('/cats');
+      this.contentful.getContentfulGroup(ContentfulContentType.cats).subscribe({
+        next: (res) => {
+          const cats = res.items
+            .map((value) => ({ value, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ value }) => value)
+            .map((cat) => {
+              const photoSize = scaleToDisplaySize(
+                cat.fields['photo']?.fields.file.details?.image?.width,
+                cat.fields['photo']?.fields.file.details?.image?.height,
+              );
+              // Cat thumbnails render in a 60x60 box; scale the native Contentful
+              // asset down (max ~120px, covering a 2x-density srcset) instead of
+              // shipping the full-resolution upload for a tiny thumbnail.
+              const thumbnailSize = scaleToDisplaySize(
+                cat.fields['thumbnail']?.fields.file.details?.image?.width,
+                cat.fields['thumbnail']?.fields.file.details?.image?.height,
+                120,
+              );
+              return {
+                ...cat.fields,
+                photo: cat.fields['photo']?.fields.file.url,
+                photoWidth: photoSize.width,
+                photoHeight: photoSize.height,
+                thumbnail: cat.fields['thumbnail']?.fields.file.url,
+                thumbnailWidth: thumbnailSize.width,
+                thumbnailHeight: thumbnailSize.height,
+                color:
+                  this.availableColors[Math.floor(Math.random() * this.availableColors.length)],
+              } as Cat;
+            });
+          this.cats.set(cats);
+          if (this.catName()) {
+            const foundCat = cats?.find((cat) => cat.name.replace(/ +/g, '-') === this.catName());
+            if (foundCat) {
+              this.selectCat(foundCat);
+            } else {
+              this.location.replaceState('/cats');
+            }
           }
-        }
-        this.loadingCats.set(false);
+          this.loadingCats.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the cats list from Contentful:', err);
+          this.loadingCats.set(false);
+        },
       }),
     );
 
     // retrieve and formats data from the CMS Cats Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.cats).subscribe((res) => {
-        this.title.set(res.fields.title);
-        this.description.set(res.fields.description);
-        this.loadingContent.set(false);
+      this.contentful.getContentfulEntry(ContentfulEntryId.cats).subscribe({
+        next: (res) => {
+          this.title.set(res.fields.title);
+          this.description.set(res.fields.description);
+          this.loadingContent.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the cats page content from Contentful:', err);
+          this.loadingContent.set(false);
+        },
       }),
     );
   }
