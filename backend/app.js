@@ -15,6 +15,11 @@ const db = require('./db/pool.js');
 const app = express();
 const port = 8080;
 
+// Trust only loopback (the nginx reverse proxy sits on the same host) so
+// req.ip resolves X-Forwarded-For from that hop - trusting 'true' would let
+// any client spoof their own IP via that header.
+app.set('trust proxy', 'loopback');
+
 app.use(express.json());
 app.use(morgan('[:date[iso]] [INFO] ip-:remote-addr :method :url :status :response-time ms'));
 // Scope CORS to an explicit allowlist (prod domain(s) + local dev server) instead of

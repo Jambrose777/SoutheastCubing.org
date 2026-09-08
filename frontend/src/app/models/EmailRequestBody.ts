@@ -6,5 +6,4 @@ export class EmailRequestBody {
   text: string;
   subject: string;
   emailType: EmailType;
-  ip?: string;
 }

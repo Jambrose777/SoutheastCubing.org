@@ -56,7 +56,7 @@ function sendEmail(req, res) {
         replyTo: email,
         to: getToEmail(req.body.emailType),
         subject: getEmailSubject(subject),
-        text: getEmailText(name, email, req.body.text, req.body.ip),
+        text: getEmailText(name, email, req.body.text, req.ip),
       })
       .then(() => {
         res.send({ status: 'success' });

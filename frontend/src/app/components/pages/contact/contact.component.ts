@@ -12,7 +12,6 @@ import { Subscription } from 'rxjs';
 import { Competition } from 'src/app/models/Competition';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
 import { EmailRequestBody } from 'src/app/models/EmailRequestBody';
-import { AuthService } from 'src/app/services/auth.service';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { SouteastcubingApiService } from 'src/app/services/souteastcubing-api.service';
@@ -48,7 +47,6 @@ import { NgOptimizedImage } from '@angular/common';
 export class ContactComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
   private themeService = inject(ThemeService);
-  private auth = inject(AuthService);
   private southeastcubingApiService = inject(SouteastcubingApiService);
   private route = inject(ActivatedRoute);
   private screenSizeService = inject(ScreenSizeService);
@@ -65,7 +63,6 @@ export class ContactComponent implements OnInit, OnDestroy {
   competitions = signal<Competition[]>([]);
   emailApiStatus = signal(EmailApiStatus.none);
 
-  ipAddress: string;
   hasHadError = false;
   subscriptions: Subscription = new Subscription();
 
@@ -139,13 +136,6 @@ export class ContactComponent implements OnInit, OnDestroy {
       }),
     );
 
-    // retrieves IP Address if available
-    this.subscriptions.add(
-      this.auth.getIpAddress().subscribe((res) => {
-        this.ipAddress = res;
-      }),
-    );
-
     // set up custom validators
     this.subscriptions.add(
       this.emailTypeControl.valueChanges.subscribe((value) => {
@@ -195,7 +185,6 @@ export class ContactComponent implements OnInit, OnDestroy {
         this.emailTypeControl.value === EmailType.pastCompetition
           ? this.competitionNameControl.value + ' - ' + this.subjectControl.value
           : this.subjectControl.value,
-      ip: this.ipAddress,
     };
 
     // submit API Call
