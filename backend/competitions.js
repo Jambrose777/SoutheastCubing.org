@@ -13,6 +13,21 @@ const competitionsDb = require('./db/competitions.js');
 
 // Gets upcoming competitions from the database.
 async function getCompetitions(req, res) {
+  const lastChecked = await competitionsDb.getLastChecked();
+  res.set('Cache-Control', 'no-cache');
+
+  if (lastChecked) {
+    // Weak ETag derived from lastChecked rather than the response body, so
+    // it represents freshness of the underlying data, not a byte-for-byte
+    // match of the response body.
+    const etag = `W/"${lastChecked.valueOf()}"`;
+    res.set('ETag', etag);
+    if (req.headers['if-none-match'] === etag) {
+      res.status(304).end();
+      return;
+    }
+  }
+
   const comps = await competitionsDb.getUpcomingCompetitions();
   if (comps.length > 0) {
     res.send(comps);
