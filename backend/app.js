@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 var cors = require('cors');
 const schedule = require('node-schedule');
+const rateLimit = require('express-rate-limit');
 
 // Logger
 const log4js = require('log4js');
@@ -19,6 +20,14 @@ const port = 8080;
 // req.ip resolves X-Forwarded-For from that hop - trusting 'true' would let
 // any client spoof their own IP via that header.
 app.set('trust proxy', 'loopback');
+
+// Limits the public contact form to 3 *successfully sent* emails/hour per IP.
+const emailLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  skipFailedRequests: true,
+  message: { message: 'Too many emails sent from this IP, please try again later.' },
+});
 
 app.use(express.json());
 app.use(morgan('[:date[iso]] [INFO] ip-:remote-addr :method :url :status :response-time ms'));
@@ -47,7 +56,7 @@ schedule.scheduleJob('0 0 * * *', () => {
     .catch((e) => logger.error('Error on fetching competitions on scheduled update: ', e));
 });
 
-app.post('/email', async (req, res) => {
+app.post('/email', emailLimiter, async (req, res) => {
   try {
     email.sendEmail(req, res);
   } catch (e) {
