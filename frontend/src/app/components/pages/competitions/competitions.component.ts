@@ -69,6 +69,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   filteredCompetitions = signal<Competition[]>([]);
   loadingContent = signal(true);
   loadingCompetitions = signal(true);
+  competitionsError = signal(false);
   selectedCompetition = signal<Competition>(undefined);
   competitionId = input<string>();
   // Set only from click/mouseover events originating in this component's own
@@ -149,6 +150,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Failed to load the upcoming competitions list:', err);
+          this.competitionsError.set(true);
           this.loadingCompetitions.set(false);
         },
       }),

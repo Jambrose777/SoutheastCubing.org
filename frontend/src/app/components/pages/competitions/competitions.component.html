@@ -71,14 +71,26 @@
       <se-loading-spinner></se-loading-spinner>
     }
 
+    <!-- Failure state: backend reported competition data as genuinely unavailable -->
+    @if (!loadingCompetitions() && competitionsError()) {
+      <div class="large-text-content">
+        Competition data is temporarily unavailable. Please check back later.
+      </div>
+    }
+
+    <!-- Empty state: request succeeded, there just aren't any upcoming competitions right now -->
+    @if (!loadingCompetitions() && !competitionsError() && competitions().length === 0) {
+      <div class="large-text-content">There are no upcoming competitions at this time.</div>
+    }
+
     <!-- Filters Icon -->
-    @if (!loadingCompetitions()) {
+    @if (!loadingCompetitions() && !competitionsError() && competitions().length > 0) {
       <div class="icon-row" (click)="toggleFiltersOpen()">
         <i class="fa-solid fa-filter"></i>
       </div>
     }
 
-    @if (!loadingCompetitions()) {
+    @if (!loadingCompetitions() && !competitionsError() && competitions().length > 0) {
       <div id="competition-list-container" class="list-container">
         <!-- List for all loaded competitions -->
         @for (competition of filteredCompetitions(); track competition) {

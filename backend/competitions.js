@@ -28,13 +28,16 @@ async function getCompetitions(req, res) {
     }
   }
 
-  const comps = await competitionsDb.getUpcomingCompetitions();
-  if (comps.length > 0) {
-    res.send(comps);
-  } else {
-    logger.warn('No competition data available.');
-    res.status(204).json({ message: 'No competition data available at this time.' });
+  let comps;
+  try {
+    comps = await competitionsDb.getUpcomingCompetitions();
+  } catch (err) {
+    logger.error('Failed to load upcoming competitions from the database: ', err);
+    res.status(503).json({ message: 'Competition data is temporarily unavailable.' });
+    return;
   }
+
+  res.status(200).json(comps);
 }
 
 // updates competitions with a fresh pull from wca.
