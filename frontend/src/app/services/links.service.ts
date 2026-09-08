@@ -17,7 +17,7 @@ export class LinksService {
   applyToStaffForm: string = environment.links.applyToStaffForm;
 
   pullLinksFromContentful() {
-    // retireve links data from the CMS to overwrite links
+    // retrieve links data from the CMS to overwrite links
     this.contentful
       .getContentfulEntry(ContentfulEntryId.linksConfiguration)
       .pipe(take(1))

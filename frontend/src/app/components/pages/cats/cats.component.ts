@@ -68,7 +68,7 @@ export class CatsComponent implements OnInit, OnDestroy {
     // sets up main color for the cats page
     this.themeService.setMainPaneColor(Colors.yellow);
 
-    // retireve, sorts, and formats data from the CMS Cats Entries
+    // retrieve, sorts, and formats data from the CMS Cats Entries
     this.subscriptions.add(
       this.contentful.getContentfulGroup(ContentfulContentType.cats).subscribe((res) => {
         const cats = res.items
@@ -112,7 +112,7 @@ export class CatsComponent implements OnInit, OnDestroy {
       }),
     );
 
-    // retireve and formats data from the CMS Cats Page
+    // retrieve and formats data from the CMS Cats Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.cats).subscribe((res) => {
         this.title.set(res.fields.title);

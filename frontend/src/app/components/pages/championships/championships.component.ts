@@ -49,7 +49,7 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
   isMobile = this.screenSizeService.isMobile;
 
   StateColors = StateColors;
-  enviroment = environment;
+  environment = environment;
   title = signal('Southeast Championship');
   description = signal('');
   loadingContent = signal(true);
@@ -64,7 +64,7 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
     // sets up main color for the championships page
     this.themeService.setMainPaneColor(Colors.blue);
 
-    // retireve formats data from the CMS Championships Page
+    // retrieve formats data from the CMS Championships Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.championships).subscribe((res) => {
         this.title.set(res.fields.title);

@@ -39,7 +39,7 @@ export class PageNotFoundComponent implements OnInit, OnDestroy {
     // sets up main color for the home page
     this.themeService.setMainPaneColor(Colors.darkGrey);
 
-    // retireve and formats data from the CMS home Page
+    // retrieve and formats data from the CMS home Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.pageNotFound).subscribe((res) => {
         this.title.set(res.fields.title);

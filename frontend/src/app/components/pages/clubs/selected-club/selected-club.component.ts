@@ -17,7 +17,7 @@ export class SelectedClubComponent {
 
   isMobile = this.screenSizeService.isMobile;
 
-  enviroment = environment;
+  environment = environment;
   selectedClub = input<Club>();
 
   // Single-item array for the @for that keys the image <img>, memoized so its

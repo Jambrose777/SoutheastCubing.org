@@ -93,12 +93,12 @@ function getEmailSubject(subject) {
 
 // Formats email body
 function getEmailText(name, email, text, ip) {
-  let emailText = `You've recieved an email from ${name} <${email}>`;
+  let emailText = `You've received an email from ${name} <${email}>`;
   if (ip) {
     emailText += ' - ' + ip;
   }
   emailText +=
-    "\n\nPlease note: all messages sent through this form are unauthenticated. If the person is asking for a request relating to them (ie. cancelling a registration, updating their name), make sure to recieve verification with the persons email as seen on WCA.\n\nThey've sent the following message:\n\n" +
+    "\n\nPlease note: all messages sent through this form are unauthenticated. If the person is asking for a request relating to them (ie. cancelling a registration, updating their name), make sure to receive verification with the persons email as seen on WCA.\n\nThey've sent the following message:\n\n" +
     text;
 
   return emailText;

@@ -49,7 +49,7 @@ export class DelegatesComponent implements OnInit, OnDestroy {
   isMobile = this.screenSizeService.isMobile;
 
   StateColors = StateColors;
-  enviroment = environment;
+  environment = environment;
   delegates = signal<Delegate[]>(undefined);
   delegateName = input<string>();
   title = signal('Southeast Delegates');
@@ -66,7 +66,7 @@ export class DelegatesComponent implements OnInit, OnDestroy {
     // sets up main color for the delegates page
     this.themeService.setMainPaneColor(Colors.green);
 
-    // retireve, sorts, and formats data from the CMS Delegates Entries
+    // retrieve, sorts, and formats data from the CMS Delegates Entries
     this.subscriptions.add(
       this.contentful.getContentfulGroup(ContentfulContentType.delegates).subscribe((res) => {
         const delegates = res.items
@@ -109,7 +109,7 @@ export class DelegatesComponent implements OnInit, OnDestroy {
       }),
     );
 
-    // retireve and formats data from the CMS Delegate Page
+    // retrieve and formats data from the CMS Delegate Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.delegates).subscribe((res) => {
         this.title.set(res.fields.title);

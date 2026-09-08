@@ -59,7 +59,7 @@ export class OrganizersComponent implements OnInit, OnDestroy {
     // sets up main color for the Organizers page
     this.themeService.setMainPaneColor(Colors.yellow);
 
-    // retireve formats data from the CMS Organizers Page
+    // retrieve formats data from the CMS Organizers Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.organizers).subscribe((res) => {
         this.title.set(res.fields.title);

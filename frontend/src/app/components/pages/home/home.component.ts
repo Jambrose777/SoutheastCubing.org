@@ -42,7 +42,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   linksService = inject(LinksService);
 
   isMobile = this.screenSizeService.isMobile;
-  enviroment = environment;
+  environment = environment;
   title = signal('Southeast Cubing');
   description = signal('');
   photos = signal<string[]>([]);
@@ -54,7 +54,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     // sets up main color for the home page
     this.themeService.setMainPaneColor(Colors.blue);
 
-    // retireve and formats data from the CMS home Page
+    // retrieve and formats data from the CMS home Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.home).subscribe((res) => {
         this.title.set(res.fields.title);

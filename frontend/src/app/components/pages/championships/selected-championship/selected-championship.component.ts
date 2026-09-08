@@ -17,7 +17,7 @@ export class SelectedChampionshipComponent {
 
   isMobile = this.screenSizeService.isMobile;
 
-  enviroment = environment;
+  environment = environment;
   selectedChampionship = input<Championship>();
 
   // Single-item array for the @for that keys the logo <img>, memoized so its

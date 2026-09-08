@@ -66,7 +66,7 @@ export class AboutComponent implements OnInit, OnDestroy {
     // sets up main color for the Involvement page
     this.themeService.setMainPaneColor(Colors.orange);
 
-    // retireve formats data from the CMS Involvement Page
+    // retrieve formats data from the CMS Involvement Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.about).subscribe((res) => {
         this.title.set(res.fields.title);

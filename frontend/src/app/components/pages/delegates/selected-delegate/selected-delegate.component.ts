@@ -17,7 +17,7 @@ export class SelectedDelegateComponent {
 
   isMobile = this.screenSizeService.isMobile;
 
-  enviroment = environment;
+  environment = environment;
   selectedDelegate = input<Delegate>();
 
   // Single-item array for the @for that keys the photo <img>, memoized so its

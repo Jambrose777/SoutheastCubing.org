@@ -55,7 +55,7 @@ export class ContactComponent implements OnInit, OnDestroy {
 
   EmailApiStatus = EmailApiStatus;
   EmailType = EmailType;
-  enviroment = environment;
+  environment = environment;
   title = signal('Contact');
   description = signal('');
   loadingContent = signal(true);
@@ -120,7 +120,7 @@ export class ContactComponent implements OnInit, OnDestroy {
     // sets up main color for the Contact page
     this.themeService.setMainPaneColor(Colors.yellow);
 
-    // retireve formats data from the CMS Contact Page
+    // retrieve formats data from the CMS Contact Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.contact).subscribe((res) => {
         this.description.set(res.fields.description);

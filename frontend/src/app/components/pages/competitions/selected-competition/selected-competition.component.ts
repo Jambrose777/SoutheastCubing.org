@@ -21,12 +21,12 @@ export class SelectedCompetitionComponent {
   isMobile = this.screenSizeService.isMobile;
 
   RegistrationStatus = RegistrationStatus;
-  enviroment = environment;
+  environment = environment;
   selectedCompetition = input<Competition>();
 
   // Derived purely from the selectedCompetition input signal, so a computed()
   // keeps this in sync automatically without needing ngOnInit/ngOnChanges.
   googleMapUrl = computed(
-    () => this.enviroment.links.googleMapsApi + this.selectedCompetition()?.venue_address,
+    () => this.environment.links.googleMapsApi + this.selectedCompetition()?.venue_address,
   );
 }

@@ -55,7 +55,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
   isMobile = this.screenSizeService.isMobile;
 
   StateColors = StateColors;
-  enviroment = environment;
+  environment = environment;
   title = signal('Southeast Clubs');
   description = signal('');
   loadingContent = signal(true);
@@ -107,7 +107,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
       }),
     );
 
-    // retireve formats data from the CMS Clubs Page
+    // retrieve formats data from the CMS Clubs Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.clubs).subscribe((res) => {
         this.title.set(res.fields.title);

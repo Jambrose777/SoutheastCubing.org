@@ -109,7 +109,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
       }),
     );
 
-    // retireve and formats data from the CMS Competitions Page
+    // retrieve and formats data from the CMS Competitions Page
     this.subscriptions.add(
       this.contentful.getContentfulEntry(ContentfulEntryId.competitions).subscribe((res) => {
         this.title.set(res.fields.title);
