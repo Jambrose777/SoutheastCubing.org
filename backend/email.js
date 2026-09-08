@@ -63,7 +63,7 @@ function sendEmail(req, res) {
       })
       .catch((err) => {
         logger.error('ip-' + req.ip + ' Error sending email: ', err);
-        res.status(500).json({ message: err });
+        res.status(500).json({ message: 'Failed to send email. Please try again later.' });
       });
   }
 }
