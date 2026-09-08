@@ -79,7 +79,7 @@ then place them in `backend/`.
 
 ### Dev Aurora DSQL cluster
 
-The backend also connects to a dev Aurora DSQL cluster (`backend/db.js`) using IAM
+The backend also connects to a dev Aurora DSQL cluster (`backend/db/pool.js`) using IAM
 token authentication — no database password to request. `backend/.env` needs:
 
 - `DSQL_ENDPOINT` — the dev cluster's endpoint (ask Jacob).
@@ -101,6 +101,29 @@ pnpm --filter backend bootstrap-dsql-role
 
 Run `pnpm --filter backend dev` (or `cd backend && pnpm dev`), equivalent to
 `node --env-file=.env app.js`.
+
+## Database migrations
+
+The competitions schema (tables/grants/seed data) is defined as one-statement-per-
+file migrations under `backend/db/migrations/`, since DSQL only allows one DDL
+statement per transaction and never allows DDL/DML mixed in one transaction. Apply
+any pending migrations — safe to re-run any time, it only applies files it hasn't
+recorded as already applied (`backend/scripts/migrate.js`):
+
+```bash
+pnpm --filter backend migrate
+```
+
+After applying a new migration, regenerate the read-only schema snapshot
+(`backend/db/schema-snapshot.sql`) — it queries the live schema on the dev
+cluster and formats it as one table per block, so it always reflects the
+current columns/constraints even across multiple migrations touching the same
+table. This file is generated and never hand-edited or applied directly
+(`backend/scripts/generate-schema-snapshot.js`):
+
+```bash
+pnpm --filter backend schema-snapshot
+```
 
 ## BE Deployment
 

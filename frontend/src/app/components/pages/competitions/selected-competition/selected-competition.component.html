@@ -45,13 +45,13 @@
           Date: <b>{{ selectedCompetition().full_date }}</b>
         </div>
       }
-      @if (!selectedCompetition().venueUrl) {
+      @if (!selectedCompetition().venue_url) {
         <div>
           Venue: <b>{{ selectedCompetition().venue }}</b>
         </div>
       }
-      @if (selectedCompetition().venueUrl) {
-        <a [href]="selectedCompetition().venueUrl" target="_blank" rel="noopener noreferrer">
+      @if (selectedCompetition().venue_url) {
+        <a [href]="selectedCompetition().venue_url" target="_blank" rel="noopener noreferrer">
           <div>
             Venue: <b>{{ selectedCompetition().venue }}</b>
           </div>

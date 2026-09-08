@@ -6,28 +6,26 @@ const log4js = require('log4js');
 const logger = log4js.getLogger();
 logger.level = 'debug';
 
-const aws = require('./aws.js');
 const googleForm = require('./googleForm.js');
 const contentful = require('./contentful.js');
 const discord = require('./discord.js');
+const competitionsDb = require('./db/competitions.js');
 
-let competitions = [];
-let lastChecked;
-
-// Gets competitions from cache
-function getCompetitions(req, res) {
-  if (competitions && competitions.length > 0) {
-    // pull from local cash
-    res.send(competitions);
+// Gets upcoming competitions from the database.
+async function getCompetitions(req, res) {
+  const comps = await competitionsDb.getUpcomingCompetitions();
+  if (comps.length > 0) {
+    res.send(comps);
   } else {
-    // send no competitions availble.
-    logger.warn('No competition data available in cache.');
+    logger.warn('No competition data available.');
     res.status(204).json({ message: 'No competition data available at this time.' });
   }
 }
 
 // updates competitions with a fresh pull from wca.
-function updateCompetitions(req, res) {
+async function updateCompetitions(req, res) {
+  const lastChecked = await competitionsDb.getLastChecked();
+
   // deny request if updated within the last hour
   if (lastChecked && lastChecked.isAfter(moment().add(-1, 'hour'))) {
     logger.info('ip-' + req.ip + ' attempted update-competitions within 1 hour of a refresh.');
@@ -39,118 +37,114 @@ function updateCompetitions(req, res) {
   } else {
     // pull competitions from WCA
     logger.info('ip-' + req.ip + ' Fetching competitions from wca on update-competitions request.');
-    getCompetitionsFromWCA().then((comps) => {
-      logger.info(
-        'ip-' +
-          req.ip +
-          ' Successfully Fetched competitions from wca on update-competitions request.',
-      );
-      res.send(comps);
-    });
+    const comps = await refreshCompetitionsFromWCA();
+    logger.info(
+      'ip-' +
+        req.ip +
+        ' Successfully Fetched competitions from wca on update-competitions request.',
+    );
+    res.send(comps);
   }
 }
 
-// Fetches competitions from aws. Refetches competitions from WCA if data is old.
-function fetchCompetitions() {
-  aws.getCompetitionData((data) => {
-    //sets data recieved from AWS
-    if (data && data.competitions && data.competitions.length) {
-      lastChecked = moment(data.lastChecked);
-      competitions = data.competitions;
-    }
+// Refetches competitions from WCA if the stored data is stale.
+async function fetchCompetitions() {
+  const lastChecked = await competitionsDb.getLastChecked();
 
-    // checks if updates are needed.
-    if (
-      !lastChecked ||
-      lastChecked.isBefore(moment().set('hour', 0).set('minute', 0).set('second', 0))
-    ) {
-      logger.info('Fetching competitions from wca since AWS data is stale.');
-      getCompetitionsFromWCA().then(() => {
-        logger.info('Successfully Fetched competitions from wca.');
-      });
-    }
-  });
+  if (
+    !lastChecked ||
+    lastChecked.isBefore(moment().set('hour', 0).set('minute', 0).set('second', 0))
+  ) {
+    logger.info('Fetching competitions from wca since stored data is stale.');
+    await refreshCompetitionsFromWCA();
+    logger.info('Successfully Fetched competitions from wca.');
+  }
 }
 
 // gets full competition list from WCA
-function getCompetitionsFromWCA() {
-  return axios
-    .get(
+async function refreshCompetitionsFromWCA() {
+  try {
+    const res = await axios.get(
       'https://www.worldcubeassociation.org/api/v0/competitions?country_iso2=US&per_page=1000&page=1&start=' +
         moment().add(-1, 'day').format('YYYY-MM-DD'),
-    )
-    .then(async (res) => {
-      // fetch manual competitions from Contentful
-      let contentfulCompetitions = await Promise.all(
-        (await contentful.getContentfulCompetitions()).items.map(async (contentfulComp) => {
-          // fetch info on contentful competition from WCA
-          const wcaCompetition = await getWCACompetition(res.data, contentfulComp.fields.id);
+    );
 
-          // Drop this manual competition entirely if its WCA lookup failed
-          if (!wcaCompetition) {
-            logger.warn(
-              `Dropping manual competition "${contentfulComp.fields.name}" (${contentfulComp.fields.id}) - WCA lookup failed.`,
-            );
-            return null;
-          }
+    // fetch manual competitions from Contentful
+    let contentfulCompetitions = await Promise.all(
+      (await contentful.getContentfulCompetitions()).items.map(async (contentfulComp) => {
+        // fetch info on contentful competition from WCA
+        const wcaCompetition = await getWCACompetition(res.data, contentfulComp.fields.id);
 
-          return {
-            ...wcaCompetition,
-            name: contentfulComp.fields.name,
-            city: contentfulComp.fields.city,
-            venue_address: contentfulComp.fields.venueAddress,
-            venue_details: contentfulComp.fields.venueDetails,
-            latitude_degrees: contentfulComp.fields.latitudeDegrees,
-            longitude_degrees: contentfulComp.fields.longitudeDegrees,
-            country_iso2: contentfulComp.fields.countryIso2,
-            competitor_limit: contentfulComp.fields.competitorLimit,
-            is_manual_competition: true, // indicates it is from contentful
-          };
-        }),
-      );
+        // Drop this manual competition entirely if its WCA lookup failed
+        if (!wcaCompetition) {
+          logger.warn(
+            `Dropping manual competition "${contentfulComp.fields.name}" (${contentfulComp.fields.id}) - WCA lookup failed.`,
+          );
+          return null;
+        }
 
-      // Filter out competitions whose WCA lookup failed, then past competitions
-      contentfulCompetitions = contentfulCompetitions
-        .filter((comp) => comp)
-        .filter((comp) => moment(comp.end_date).isAfter(moment().add(-1, 'day')));
+        return {
+          ...wcaCompetition,
+          name: contentfulComp.fields.name,
+          city: contentfulComp.fields.city,
+          venue_address: contentfulComp.fields.venueAddress,
+          venue_details: contentfulComp.fields.venueDetails,
+          latitude_degrees: contentfulComp.fields.latitudeDegrees,
+          longitude_degrees: contentfulComp.fields.longitudeDegrees,
+          country_iso2: contentfulComp.fields.countryIso2,
+          competitor_limit: contentfulComp.fields.competitorLimit,
+          is_manual_competition: true, // indicates it is from contentful
+        };
+      }),
+    );
 
-      // fetch competitions with a staff application
-      let competitionsWithStaffApp = await googleForm.getCompetitionsInStaffForm();
+    // Filter out competitions whose WCA lookup failed, then past competitions
+    contentfulCompetitions = contentfulCompetitions
+      .filter((comp) => comp)
+      .filter((comp) => moment(comp.end_date).isAfter(moment().add(-1, 'day')));
 
-      // format competition data
-      let comps = await formatCompetitionData(
-        res.data.concat(contentfulCompetitions),
-        competitionsWithStaffApp,
-      );
+    // fetch competitions with a staff application
+    let competitionsWithStaffApp = await googleForm.getCompetitionsInStaffForm();
 
-      if (comps && comps.length) {
-        // for any new competitions, post them on discord
+    // format competition data
+    let comps = await formatCompetitionData(
+      res.data.concat(contentfulCompetitions),
+      competitionsWithStaffApp,
+    );
+
+    if (comps && comps.length) {
+      // Upsert into the database; the returned ids are ones newly inserted
+      // here (excluding a first-time population of an empty store), which are
+      // the only competitions that still need to be announced on Discord.
+      const newlyInsertedIds = await competitionsDb.upsertCompetitions(comps);
+      if (newlyInsertedIds.length) {
         comps
-          .filter((comp) => !competitions.find((comp2) => comp2.id === comp.id))
+          .filter((comp) => newlyInsertedIds.includes(comp.id))
           .forEach((newCompetition) => {
             discord.postCompetitionInDiscord(newCompetition);
           });
-
-        // save competition data locally
-        competitions = comps;
-        lastChecked = moment();
-
-        // save competition data to S3
-        aws.saveCompetitionData({
-          lastChecked: lastChecked.format('YYYY-MM-DD HH:mm:ss'),
-          competitions,
-        });
-      } else {
-        logger.warn('There are no competitions!');
+        await competitionsDb.markAnnounced(newlyInsertedIds);
       }
 
-      return comps;
-    })
-    .catch((err) => {
-      logger.error('Failed to Fetched competitions from wca: ', err);
-    });
+      // Only recorded on a non-empty result - an empty result is more likely a
+      // WCA API glitch than a genuine zero-competition period in these states,
+      // so it's treated as an unconfirmed check rather than a successful one.
+      // This keeps update-competitions' rate limit and fetchCompetitions'
+      // staleness check retrying instead of going stale on bad data.
+      await competitionsDb.setLastChecked(moment());
+    } else {
+      logger.warn('There are no competitions!');
+    }
+
+    return comps;
+  } catch (err) {
+    logger.error('Failed to Fetched competitions from wca: ', err);
+  }
 }
 
+// Filters `comps` down to competitions in the tracked SE states and maps 
+// each one to the trimmed/enriched object shape used by the database layer 
+// and frontend 
 async function formatCompetitionData(comps, competitionsWithStaffApp) {
   return await Promise.all(
     comps
@@ -187,7 +181,7 @@ async function formatCompetitionData(comps, competitionsWithStaffApp) {
         competitor_limit: competition.competitor_limit,
         event_ids: competition.event_ids,
         venue: getCompetitionVenueName(competition.venue),
-        venueUrl: getCompetitionVenueUrl(competition.venue),
+        venue_url: getCompetitionVenueUrl(competition.venue),
         state: competition.city.substring(competition.city.lastIndexOf(',') + 1).trim(),
         is_in_staff_application: competitionsWithStaffApp.includes(competition.name),
         accepted_registrations: await getRegistrationsFromWCA(competition),
@@ -287,4 +281,9 @@ function getCompetitionVenueUrl(venue) {
   }
 }
 
-module.exports = { getCompetitions, updateCompetitions, fetchCompetitions, getCompetitionsFromWCA };
+module.exports = {
+  getCompetitions,
+  updateCompetitions,
+  fetchCompetitions,
+  refreshCompetitionsFromWCA,
+};

@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "node --env-file=.env app.js",
     "bootstrap-dsql-role": "node --env-file=.env scripts/bootstrap-dsql-role.js",
+    "migrate": "node --env-file=.env scripts/migrate.js",
+    "schema-snapshot": "node --env-file=.env scripts/generate-schema-snapshot.js",
     "test": "echo \"No automated tests configured for backend — smoke test manually via node app.js\" && exit 0"
   },
   "keywords": [],
@@ -17,7 +19,6 @@
   "dependencies": {
     "@aws-sdk/dsql-signer": "^3.1127.0",
     "@googleapis/forms": "^7.0.0",
-    "aws-sdk": "^2.1691.0",
     "axios": "^1.20.0",
     "contentful": "^11.12.9",
     "cors": "^2.8.6",

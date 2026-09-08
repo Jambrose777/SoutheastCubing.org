@@ -10,7 +10,7 @@ logger.level = 'debug';
 
 const email = require('./email.js');
 const competitions = require('./competitions.js');
-const db = require('./db.js');
+const db = require('./db/pool.js');
 
 const app = express();
 const port = 8080;
@@ -21,30 +21,25 @@ app.use(morgan('[:date[iso]] [INFO] ip-:remote-addr :method :url :status :respon
 // allowing any origin, so unrelated sites can't make cross-origin requests to the API.
 app.use(cors({ origin: process.env.CORS_ORIGIN.split(',') }));
 
-// Confirm the pooled DSQL connection actually works on boot - logged only, not
-// blocking startup, since nothing reads/writes the database yet
+// Confirm the pooled DSQL connection actually works on boot - logged only, so a
+// misconfigured/unreachable cluster is visible immediately.
 db.verifyConnection()
   .then(() => logger.info('Successfully connected to the dev DSQL cluster.'))
   .catch((e) => logger.error('Failed to connect to the dev DSQL cluster: ', e));
 
 // load in competitions on bootup
-try {
-  logger.info('Fetching competitions on startup.');
-  competitions.fetchCompetitions();
-} catch (e) {
+logger.info('Fetching competitions on startup.');
+competitions.fetchCompetitions().catch((e) => {
   logger.error('Error on fetching competitions on startup: ', e);
-}
+});
 
-// fetch competitions update everyday at midnight
+// fetch competitions update every day at midnight UTC
 schedule.scheduleJob('0 0 * * *', () => {
-  try {
-    logger.info('Fetching competitions on scheduled update.');
-    competitions.getCompetitionsFromWCA().then(() => {
-      logger.info('Successfully fetched competitions on scheduled update.');
-    });
-  } catch (e) {
-    logger.error('Error on fetching competitions on scheduled update: ', e);
-  }
+  logger.info('Fetching competitions on scheduled update.');
+  competitions
+    .refreshCompetitionsFromWCA()
+    .then(() => logger.info('Successfully fetched competitions on scheduled update.'))
+    .catch((e) => logger.error('Error on fetching competitions on scheduled update: ', e));
 });
 
 app.post('/email', async (req, res) => {
@@ -60,7 +55,7 @@ app.post('/email', async (req, res) => {
 
 app.get('/competitions', async (req, res) => {
   try {
-    competitions.getCompetitions(req, res);
+    await competitions.getCompetitions(req, res);
   } catch (e) {
     logger.error('ip-' + req.ip + ' GET /competitions ', e);
     if (!res.headersSent) {
@@ -71,7 +66,7 @@ app.get('/competitions', async (req, res) => {
 
 app.post('/update-competitions', async (req, res) => {
   try {
-    competitions.updateCompetitions(req, res);
+    await competitions.updateCompetitions(req, res);
   } catch (e) {
     logger.error('ip-' + req.ip + ' GET /update-competitions ', e);
     if (!res.headersSent) {
