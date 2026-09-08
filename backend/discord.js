@@ -1,5 +1,6 @@
 const axios = require('axios');
 const moment = require('moment-timezone');
+const { neutralizeMentions } = require('./utils/sanitize');
 
 // Logger
 const log4js = require('log4js');
@@ -38,9 +39,13 @@ const stateTagIds = {
 
 // Post message on Discord using SoutheastCubing API Webhook
 function postCompetitionInDiscord(competition) {
+  // Neutralize untrusted WCA/Contentful fields
+  const name = neutralizeMentions(competition.name);
+  const city = neutralizeMentions(competition.city);
+
   // compose Discord Message
-  let discordMessage = `[${competition.name}](https://www.worldcubeassociation.org/competitions/${competition.id})\n`;
-  discordMessage += `${competition.city} - ${competition.full_date}\n`;
+  let discordMessage = `[${name}](https://www.worldcubeassociation.org/competitions/${competition.id})\n`;
+  discordMessage += `${city} - ${competition.full_date}\n`;
   discordMessage +=
     competition.event_ids.map((eventId) => '<:emojiName:' + eventIconMap[eventId] + '>').join(' ') +
     `\n`;
