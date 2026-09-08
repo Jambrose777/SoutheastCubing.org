@@ -91,14 +91,41 @@ async function fetchCompetitions() {
 // gets full competition list from WCA
 async function refreshCompetitionsFromWCA() {
   try {
-    const res = await axios.get(
-      'https://www.worldcubeassociation.org/api/v0/competitions?country_iso2=US&per_page=1000&page=1&start=' +
-        moment().add(-1, 'day').format('YYYY-MM-DD'),
-    );
+    // WCA paginates at per_page results; loop through successive pages
+    // (stopping once a page returns fewer than per_page results, the
+    // standard "last page" signal) so a true count over 1000 doesn't
+    // silently drop competitions. Capped at maxPages (20,000 competitions)
+    // as a guard against an unexpected API change causing an infinite loop.
+    const per_page = 1000;
+    const maxPages = 20;
+    let wcaCompetitions = [];
+    for (let page = 1; page <= maxPages; page++) {
+      const res = await axios.get(
+        'https://www.worldcubeassociation.org/api/v0/competitions?country_iso2=US&per_page=' +
+          per_page +
+          '&page=' +
+          page +
+          '&start=' +
+          moment().add(-1, 'day').format('YYYY-MM-DD'),
+      );
 
-    // Fail loudly on a genuine WCA API shape break
-    if (!Array.isArray(res.data)) {
-      throw new Error('Unexpected WCA competitions response shape');
+      // Fail loudly on a genuine WCA API shape break
+      if (!Array.isArray(res.data)) {
+        throw new Error('Unexpected WCA competitions response shape');
+      }
+
+      wcaCompetitions = wcaCompetitions.concat(res.data);
+
+      if (res.data.length < per_page) {
+        // Short page means there's nothing more to fetch.
+        break;
+      }
+
+      if (page === maxPages) {
+        logger.warn(
+          `Hit the WCA competitions pagination cap of ${maxPages} pages - some competitions may be missing.`,
+        );
+      }
     }
 
     // fetch manual competitions from Contentful. Isolated in its own
@@ -135,7 +162,7 @@ async function refreshCompetitionsFromWCA() {
         }
 
         // fetch info on contentful competition from WCA
-        const wcaCompetition = await getWCACompetition(res.data, contentfulComp.fields.id);
+        const wcaCompetition = await getWCACompetition(wcaCompetitions, contentfulComp.fields.id);
 
         // Drop this manual competition entirely if its WCA lookup failed
         if (!wcaCompetition) {
@@ -170,7 +197,7 @@ async function refreshCompetitionsFromWCA() {
 
     // format competition data
     let comps = await formatCompetitionData(
-      res.data.concat(contentfulCompetitions),
+      wcaCompetitions.concat(contentfulCompetitions),
       competitionsWithStaffApp,
     );
 
