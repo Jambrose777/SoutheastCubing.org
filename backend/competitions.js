@@ -96,6 +96,11 @@ async function refreshCompetitionsFromWCA() {
         moment().add(-1, 'day').format('YYYY-MM-DD'),
     );
 
+    // Fail loudly on a genuine WCA API shape break
+    if (!Array.isArray(res.data)) {
+      throw new Error('Unexpected WCA competitions response shape');
+    }
+
     // fetch manual competitions from Contentful. Isolated in its own
     // try/catch so a Contentful outage doesn't block the WCA-only data from
     // being formatted and saved below - it just means no manually-added
@@ -111,8 +116,24 @@ async function refreshCompetitionsFromWCA() {
       contentfulEntries = { items: [] };
     }
 
+    // Guard against a malformed/missing `items` field (a Contentful response
+    // shape break).
+    if (!Array.isArray(contentfulEntries.items)) {
+      logger.warn('Contentful competitions response has no items array, treating as empty.');
+      contentfulEntries = { items: [] };
+    }
+
     let contentfulCompetitions = await Promise.all(
       contentfulEntries.items.map(async (contentfulComp) => {
+        // Skip entries missing the fields this merge relies on, instead of
+        // crashing the whole fetch cycle over one malformed Contentful entry.
+        if (!contentfulComp.fields || !contentfulComp.fields.id || !contentfulComp.fields.name) {
+          logger.warn(
+            `Skipping malformed Contentful competition entry (sys id: ${contentfulComp.sys && contentfulComp.sys.id}) - missing fields.id or fields.name.`,
+          );
+          return null;
+        }
+
         // fetch info on contentful competition from WCA
         const wcaCompetition = await getWCACompetition(res.data, contentfulComp.fields.id);
 
@@ -190,16 +211,25 @@ async function refreshCompetitionsFromWCA() {
 async function formatCompetitionData(comps, competitionsWithStaffApp) {
   return await Promise.all(
     comps
-      // Filter to only SE comp Dates
-      .filter(
-        (comp) =>
+      // Filter to only SE comp Dates.
+      .filter((comp) => {
+        // Guard for a missing city first - a competition without one can't
+        // match any SE state.
+        if (!comp.city) {
+          logger.warn(
+            `Skipping competition ${comp.id || '(no id)'} "${comp.name || '(no name)'}" - missing city.`,
+          );
+          return false;
+        }
+        return (
           comp.city.includes(', Georgia') ||
           comp.city.includes(', Tennessee') ||
           comp.city.includes(', North Carolina') ||
           comp.city.includes(', South Carolina') ||
           comp.city.includes(', Alabama') ||
-          comp.city.includes(', Florida'),
-      )
+          comp.city.includes(', Florida')
+        );
+      })
 
       //  Sort by date
       .sort((a, b) => (moment(a.start_date).isBefore(b.start_date) ? -1 : 1))
