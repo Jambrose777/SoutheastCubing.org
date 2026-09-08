@@ -1,4 +1,5 @@
 const express = require('express');
+const helmet = require('helmet');
 const morgan = require('morgan');
 var cors = require('cors');
 const schedule = require('node-schedule');
@@ -29,7 +30,8 @@ const emailLimiter = rateLimit({
   message: { message: 'Too many emails sent from this IP, please try again later.' },
 });
 
-app.use(express.json());
+app.use(helmet());
+app.use(express.json({ limit: '100kb' }));
 app.use(morgan('[:date[iso]] [INFO] ip-:remote-addr :method :url :status :response-time ms'));
 // Scope CORS to an explicit allowlist (prod domain(s) + local dev server) instead of
 // allowing any origin, so unrelated sites can't make cross-origin requests to the API.
