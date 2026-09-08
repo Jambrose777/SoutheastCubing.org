@@ -52,13 +52,23 @@ async function updateCompetitions(req, res) {
   } else {
     // pull competitions from WCA
     logger.info('ip-' + req.ip + ' Fetching competitions from wca on update-competitions request.');
-    const comps = await refreshCompetitionsFromWCA();
-    logger.info(
-      'ip-' +
-        req.ip +
-        ' Successfully Fetched competitions from wca on update-competitions request.',
-    );
-    res.send(comps);
+    try {
+      const comps = await refreshCompetitionsFromWCA();
+      logger.info(
+        'ip-' +
+          req.ip +
+          ' Successfully Fetched competitions from wca on update-competitions request.',
+      );
+      res.send(comps);
+    } catch (err) {
+      logger.error(
+        'ip-' + req.ip + ' Failed to fetch competitions from wca on update-competitions request: ',
+        err,
+      );
+      if (!res.headersSent) {
+        res.status(500).json({ message: 'Failed to fetch competitions from WCA.' });
+      }
+    }
   }
 }
 
@@ -71,7 +81,9 @@ async function fetchCompetitions() {
     lastChecked.isBefore(moment().set('hour', 0).set('minute', 0).set('second', 0))
   ) {
     logger.info('Fetching competitions from wca since stored data is stale.');
-    await refreshCompetitionsFromWCA();
+    await refreshCompetitionsFromWCA().catch((err) => {
+      logger.error('Failed to fetch competitions from wca on stale-data refresh: ', err);
+    });
     logger.info('Successfully Fetched competitions from wca.');
   }
 }
@@ -84,9 +96,23 @@ async function refreshCompetitionsFromWCA() {
         moment().add(-1, 'day').format('YYYY-MM-DD'),
     );
 
-    // fetch manual competitions from Contentful
+    // fetch manual competitions from Contentful. Isolated in its own
+    // try/catch so a Contentful outage doesn't block the WCA-only data from
+    // being formatted and saved below - it just means no manually-added
+    // competitions are merged in for this cycle.
+    let contentfulEntries;
+    try {
+      contentfulEntries = await contentful.getContentfulCompetitions();
+    } catch (err) {
+      logger.error(
+        'Failed to fetch manual competitions from Contentful, continuing with WCA-only data: ',
+        err,
+      );
+      contentfulEntries = { items: [] };
+    }
+
     let contentfulCompetitions = await Promise.all(
-      (await contentful.getContentfulCompetitions()).items.map(async (contentfulComp) => {
+      contentfulEntries.items.map(async (contentfulComp) => {
         // fetch info on contentful competition from WCA
         const wcaCompetition = await getWCACompetition(res.data, contentfulComp.fields.id);
 
@@ -154,6 +180,7 @@ async function refreshCompetitionsFromWCA() {
     return comps;
   } catch (err) {
     logger.error('Failed to Fetched competitions from wca: ', err);
+    throw err;
   }
 }
 

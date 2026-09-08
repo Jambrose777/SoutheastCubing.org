@@ -14,6 +14,7 @@ const cdaClient = contentful.createClient({
 function getContentfulCompetitions() {
   return cdaClient.getEntries(Object.assign({ content_type: 'competition' })).catch((err) => {
     logger.error('Error retrieving competitions from Contentful: ', err);
+    throw err;
   });
 }
 
