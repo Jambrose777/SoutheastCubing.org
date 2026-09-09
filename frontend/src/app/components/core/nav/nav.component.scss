@@ -42,6 +42,7 @@
 
 .menu .navigation span .fa-solid {
   font-size: 0.25rem;
+  height: 0.125px;
   transition: 0.5s;
 }
 
@@ -50,13 +51,15 @@
   height: 28px;
   transition: 0.5s;
   transition-delay: 0.5s;
-  margin-top: 35px;
+  // Sized so the icon lands in the same on-screen position as before once
+  // centered (see `justify-content` below) — smaller than the visual gap
+  // it needs to end up with, since centering itself contributes some of
+  // that spacing.
+  margin-top: 15px;
 }
 
 .hidden-text {
-  // Always rendered at a near-invisible font-size, so it's already a real
-  // box the browser can smoothly grow.
-  display: block;
+  visibility: hidden;
   font-size: 1px;
   white-space: nowrap;
   transition: 0.5s;
@@ -69,7 +72,6 @@
   border-radius: 5px;
   transform: translate(calc(133px * var(--x)), calc(133px * var(--y)));
   transition-delay: 0.5s;
-  justify-content: start;
 }
 
 .black-cube {
@@ -115,8 +117,10 @@
 
 .active {
   .hidden-text {
-    // Grows from the tiny base size up to full size in sync with the cube
-    // movement, using the same transition-delay/duration.
+    // visibility flips to visible right as this transition starts, so the
+    // label appears small and grows to its full size in sync with the
+    // cube/icon growth, instead of snapping straight to its final size.
+    visibility: visible;
     font-size: 14px;
     transition: 0.5s;
     transition-delay: 0.5s;
