@@ -1,6 +1,6 @@
 import { Colors } from '../shared/types';
 
-export class SubTopic {
+export interface SubTopic {
   title: string;
   description?: string;
   photo?: string;

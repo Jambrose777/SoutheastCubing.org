@@ -29,7 +29,7 @@ export class UpdateCompetitionsComponent implements OnInit {
   description: string =
     'This page is meant for admin use only. Admins can click the button below to fetch the list of competitions from WCA and update the global cache. This action is limited to once an hour. Refreshes happen automatically at midnight everyday, however this can be used to immediately update for recently announced competitions.';
   updateCompetitionsStatus = signal(UpdateStatus.default);
-  errorMessage = signal<string>(undefined);
+  errorMessage = signal<string | undefined>(undefined);
 
   ngOnInit(): void {
     // sets up main color for the competitions page

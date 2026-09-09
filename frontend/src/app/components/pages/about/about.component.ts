@@ -9,8 +9,16 @@ import {
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
+import {
+  AboutPageSkeleton,
+  DocumentSkeleton,
+  TeamMemberSkeleton,
+  TeamSkeleton,
+} from 'src/app/models/ContentfulSkeletons';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
+import { resolvedAsset, resolvedEntry } from 'src/app/shared/contentful-links';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
+import { colorFromField } from 'src/app/shared/color-from-field';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { Team } from 'src/app/models/Team';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -57,10 +65,10 @@ export class AboutComponent implements OnInit, OnDestroy {
   loadingTeams = signal(true);
   loadingDocuments = signal(true);
   subTopics = signal<SubTopic[]>([]);
-  selectedSubTopic = signal<SubTopic>(undefined);
+  selectedSubTopic = signal<SubTopic | undefined>(undefined);
   subTopicId = input<string>();
-  teams = signal<Team[]>(undefined);
-  documents = signal<DocumentLink[]>(undefined);
+  teams = signal<Team[] | undefined>(undefined);
+  documents = signal<DocumentLink[] | undefined>(undefined);
   subscriptions: Subscription = new Subscription();
 
   ngOnInit(): void {
@@ -69,21 +77,24 @@ export class AboutComponent implements OnInit, OnDestroy {
 
     // retrieve formats data from the CMS Involvement Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.about).subscribe({
+      this.contentful.getContentfulEntry<AboutPageSkeleton>(ContentfulEntryId.about).subscribe({
         next: (res) => {
           this.title.set(res.fields.title);
-          this.description.set(res.fields.description);
-          let subTopics: SubTopic[] = res.fields.subTopics.map((subTopic) => {
+          this.description.set(res.fields.description ?? '');
+          let subTopics: SubTopic[] = res.fields.subTopics.map((subTopicLink) => {
+            const subTopic = resolvedEntry(subTopicLink);
+            const photo = resolvedAsset(subTopic?.fields['photo']);
             const photoSize = scaleToDisplaySize(
-              subTopic.fields['photo']?.fields.file.details?.image?.width,
-              subTopic.fields['photo']?.fields.file.details?.image?.height,
+              photo?.fields.file?.details?.image?.width,
+              photo?.fields.file?.details?.image?.height,
             );
             return {
-              ...subTopic.fields,
-              photo: subTopic.fields['photo']?.fields.file.url,
+              ...subTopic?.fields,
+              title: subTopic?.fields.title ?? '',
+              photo: photo?.fields.file?.url,
               photoWidth: photoSize.width,
               photoHeight: photoSize.height,
-              color: Colors[subTopic.fields.color],
+              color: colorFromField(subTopic?.fields.color),
             };
           });
 
@@ -117,25 +128,28 @@ export class AboutComponent implements OnInit, OnDestroy {
 
     // retrieve teams list from the CMS Teams
     this.subscriptions.add(
-      this.contentful.getContentfulGroup(ContentfulContentType.teams).subscribe({
+      this.contentful.getContentfulGroup<TeamSkeleton>(ContentfulContentType.teams).subscribe({
         next: (res) => {
           this.teams.set(
             res.items
               .map((team) => ({
                 ...team.fields,
-                teamMembers: team.fields.teamMembers.map((teamMember) => {
+                teamMembers: team.fields.teamMembers.map((teamMemberLink) => {
+                  const teamMember = resolvedEntry<TeamMemberSkeleton>(teamMemberLink);
                   // Team member thumbnails render in a 60x60 box; scale the native
                   // Contentful asset down (max ~120px, covering a 2x-density srcset)
                   // instead of shipping the full-resolution upload for a tiny thumbnail.
+                  const thumbnail = resolvedAsset(teamMember?.fields['thumbnail']);
                   const thumbnailSize = scaleToDisplaySize(
-                    teamMember.fields['thumbnail']?.fields.file.details?.image?.width,
-                    teamMember.fields['thumbnail']?.fields.file.details?.image?.height,
+                    thumbnail?.fields.file?.details?.image?.width,
+                    thumbnail?.fields.file?.details?.image?.height,
                     120,
                   );
                   return {
-                    ...teamMember.fields,
-                    color: Colors[teamMember.fields.color] || Colors.grey,
-                    thumbnail: teamMember.fields['thumbnail']?.fields.file.url,
+                    ...teamMember?.fields,
+                    name: teamMember?.fields.name ?? '',
+                    color: colorFromField(teamMember?.fields.color),
+                    thumbnail: thumbnail?.fields.file?.url,
                     thumbnailWidth: thumbnailSize.width,
                     thumbnailHeight: thumbnailSize.height,
                   };
@@ -154,23 +168,25 @@ export class AboutComponent implements OnInit, OnDestroy {
 
     // retrieve Documents list from the CMS Teams
     this.subscriptions.add(
-      this.contentful.getContentfulGroup(ContentfulContentType.documents).subscribe({
-        next: (res) => {
-          this.documents.set(
-            res.items
-              .map((document) => ({
-                ...document.fields,
-                color: Colors[document.fields.color] || Colors.grey,
-              }))
-              .sort((a: Team, b: Team) => (a.order > b.order ? 1 : -1)),
-          );
-          this.loadingDocuments.set(false);
-        },
-        error: (err) => {
-          console.error('Failed to load the documents list from Contentful:', err);
-          this.loadingDocuments.set(false);
-        },
-      }),
+      this.contentful
+        .getContentfulGroup<DocumentSkeleton>(ContentfulContentType.documents)
+        .subscribe({
+          next: (res) => {
+            this.documents.set(
+              res.items
+                .map((document) => ({
+                  ...document.fields,
+                  color: colorFromField(document.fields.color),
+                }))
+                .sort((a: DocumentLink, b: DocumentLink) => (a.order > b.order ? 1 : -1)),
+            );
+            this.loadingDocuments.set(false);
+          },
+          error: (err) => {
+            console.error('Failed to load the documents list from Contentful:', err);
+            this.loadingDocuments.set(false);
+          },
+        }),
     );
   }
 

@@ -10,6 +10,9 @@ import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
+import { HomePageSkeleton } from 'src/app/models/ContentfulSkeletons';
+import { resolvedAsset, resolvedEntry } from 'src/app/shared/contentful-links';
+import { colorFromField } from 'src/app/shared/color-from-field';
 import { environment } from 'src/environments/environment';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { Router, RouterLink } from '@angular/router';
@@ -47,7 +50,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   description = signal('');
   photos = signal<string[]>([]);
   loadingContent = signal(true);
-  subTopics = signal<SubTopic[]>(undefined);
+  subTopics = signal<SubTopic[] | undefined>(undefined);
   subscriptions: Subscription = new Subscription();
 
   ngOnInit(): void {
@@ -56,17 +59,27 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     // retrieve and formats data from the CMS home Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.home).subscribe({
+      this.contentful.getContentfulEntry<HomePageSkeleton>(ContentfulEntryId.home).subscribe({
         next: (res) => {
           this.title.set(res.fields.title);
-          this.description.set(res.fields.description);
+          this.description.set(res.fields.description ?? '');
           this.subTopics.set(
-            res.fields.subTopics?.map((subTopic) => ({
-              ...subTopic.fields,
-              color: Colors[subTopic.fields.color],
-            })),
+            res.fields.subTopics?.map((subTopicLink) => {
+              const subTopic = resolvedEntry(subTopicLink);
+              const photo = resolvedAsset(subTopic?.fields['photo']);
+              return {
+                ...subTopic?.fields,
+                title: subTopic?.fields.title ?? '',
+                photo: photo?.fields.file?.url,
+                color: colorFromField(subTopic?.fields.color),
+              };
+            }),
           );
-          this.photos.set(res.fields.photos?.map((photo) => ({ path: photo.fields.file.url })));
+          this.photos.set(
+            (res.fields.photos ?? [])
+              .map((photo) => resolvedAsset(photo)?.fields.file?.url)
+              .filter((url): url is string => !!url),
+          );
           this.loadingContent.set(false);
         },
         error: (err) => {

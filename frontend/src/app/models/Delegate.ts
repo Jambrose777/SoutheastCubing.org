@@ -1,17 +1,17 @@
-export class Delegate {
-  contact: string;
-  delegateType: DelegateType;
-  description: string;
+export interface Delegate {
+  contact?: string;
+  delegateType?: DelegateType;
+  description?: string;
   name: string;
   order: number;
-  photo: string;
-  photoWidth: number;
-  photoHeight: number;
-  state: string;
-  thumbnail: string;
-  thumbnailWidth: number;
-  thumbnailHeight: number;
-  wcaid: string;
+  photo?: string;
+  photoWidth?: number;
+  photoHeight?: number;
+  state?: string;
+  thumbnail?: string;
+  thumbnailWidth?: number;
+  thumbnailHeight?: number;
+  wcaid?: string;
 }
 
 export enum DelegateType {

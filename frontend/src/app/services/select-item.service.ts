@@ -8,7 +8,7 @@ import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 // Config for `SelectItemService.select()`, capturing only the per-page differences
 export interface SelectItemConfig<T> {
   // The page's own selected-item signal, updated in place.
-  selectedSignal: WritableSignal<T>;
+  selectedSignal: WritableSignal<T | undefined>;
   // Whether `item` is the currently selected item
   isSelected: (item: T) => boolean;
   // The DOM element id to scroll to on mobile - must match the id="" set in

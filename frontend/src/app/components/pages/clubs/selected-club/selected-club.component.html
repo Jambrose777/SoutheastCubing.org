@@ -1,110 +1,107 @@
-<div class="selected-item-container">
-  <!-- Club Name -->
-  @if (!isMobile()) {
-    <h2 class="title-text">
-      {{ selectedClub().name }}
-    </h2>
-  }
+@if (selectedClub(); as club) {
+  <div class="selected-item-container">
+    <!-- Club Name -->
+    @if (!isMobile()) {
+      <h2 class="title-text">
+        {{ club.name }}
+      </h2>
+    }
 
-  <!-- Club Location -->
-  @if (!isMobile()) {
-    <div class="medium-text-content">
-      {{ selectedClub().city }}
-    </div>
-  }
+    <!-- Club Location -->
+    @if (!isMobile()) {
+      <div class="medium-text-content">
+        {{ club.city }}
+      </div>
+    }
 
-  <!-- Club Photo -->
-  @if (selectedClub().image) {
-    <div class="photo-container">
-      <!-- Keyed by the (memoized) image URL so a new <img> is created 
-       whenever a different club is selected - but not on every unrelated 
-       change-detection run. -->
-      @for (image of imageAsArray(); track image) {
-        <img
-          ngSrc="{{ image }}"
-          [width]="selectedClub().imageWidth"
-          [height]="selectedClub().imageHeight"
-          priority
-          class="image"
-        />
+    <!-- Club Photo -->
+    @if (club.image) {
+      <div class="photo-container">
+        <!-- Keyed by the (memoized) image URL so a new <img> is created 
+         whenever a different club is selected - but not on every unrelated 
+         change-detection run. -->
+        @for (image of imageAsArray(); track image) {
+          <img
+            ngSrc="{{ image }}"
+            [width]="club.imageWidth"
+            [height]="club.imageHeight"
+            priority
+            class="image"
+          />
+        }
+      </div>
+    }
+
+    <!-- Short Club description -->
+    @if (club.description) {
+      <div class="medium-text-content">
+        <markdown [data]="club.description"></markdown>
+      </div>
+    }
+
+    <div class="club-details-row">
+      <!-- Bubble for the venue of the club -->
+      @if (club.venue || club.address) {
+        <div class="detail-container">
+          <b>Where?</b>
+          <div class="detail-sub-container">
+            @if (club.venue) {
+              <div>{{ club.venue }}</div>
+            }
+            @if (club.address) {
+              <a
+                [href]="environment.links.googleMaps + club.address"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {{ club.address }}
+              </a>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Bubble for when the club's meetings are -->
+      @if (club.meetingInformation) {
+        <div class="detail-container">
+          <b>When?</b>
+          <div class="detail-sub-container">
+            <markdown [data]="club.meetingInformation"></markdown>
+          </div>
+        </div>
+      }
+
+      <!-- Bubble for who to contact for information about the club -->
+      @if (club.contactName || club.contactInfo || club.website) {
+        <div class="detail-container">
+          <b>Contact</b>
+          <div class="detail-sub-container">
+            @if (club.contactName) {
+              <div>{{ club.contactName }}</div>
+            }
+            @if (club.contactInfo) {
+              <div>{{ club.contactInfo }}</div>
+            }
+            @if (club.contactEmail) {
+              <a
+                class="btn"
+                href="mailto:{{ club.contactEmail }}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Email
+                <i class="fa-regular fa-envelope fa-sm"></i>
+              </a>
+            }
+            @if (club.website) {
+              <a class="btn" [href]="club.website" target="_blank" rel="noopener noreferrer">
+                Website
+                <i class="fa-solid fa-up-right-from-square fa-sm"></i>
+              </a>
+            }
+          </div>
+        </div>
       }
     </div>
-  }
-
-  <!-- Short Club description -->
-  @if (selectedClub().description) {
-    <div class="medium-text-content">
-      <markdown [data]="selectedClub().description"></markdown>
-    </div>
-  }
-
-  <div class="club-details-row">
-    <!-- Bubble for the venue of the club -->
-    @if (selectedClub().venue || selectedClub().address) {
-      <div class="detail-container">
-        <b>Where?</b>
-        <div class="detail-sub-container">
-          @if (selectedClub().venue) {
-            <div>{{ selectedClub().venue }}</div>
-          }
-          @if (selectedClub().address) {
-            <a
-              [href]="environment.links.googleMaps + selectedClub().address"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {{ selectedClub().address }}
-            </a>
-          }
-        </div>
-      </div>
-    }
-
-    <!-- Bubble for when the club's meetings are -->
-    @if (selectedClub().meetingInformation) {
-      <div class="detail-container">
-        <b>When?</b>
-        <div class="detail-sub-container">
-          <markdown [data]="selectedClub().meetingInformation"></markdown>
-        </div>
-      </div>
-    }
-
-    <!-- Bubble for who to contact for information about the club -->
-    @if (selectedClub().contactName || selectedClub().contactInfo || selectedClub().website) {
-      <div class="detail-container">
-        <b>Contact</b>
-        <div class="detail-sub-container">
-          @if (selectedClub().contactName) {
-            <div>{{ selectedClub().contactName }}</div>
-          }
-          @if (selectedClub().contactInfo) {
-            <div>{{ selectedClub().contactInfo }}</div>
-          }
-          @if (selectedClub().contactEmail) {
-            <a
-              class="btn"
-              href="mailto:{{ selectedClub().contactEmail }}"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Email
-              <i class="fa-regular fa-envelope fa-sm"></i>
-            </a>
-          }
-          @if (selectedClub().website) {
-            <a
-              class="btn"
-              [href]="selectedClub().website"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Website
-              <i class="fa-solid fa-up-right-from-square fa-sm"></i>
-            </a>
-          }
-        </div>
-      </div>
-    }
   </div>
-</div>
+}

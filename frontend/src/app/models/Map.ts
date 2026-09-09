@@ -1,4 +1,4 @@
-export class MapPoint {
+export interface MapPoint {
   lat: number;
   long: number;
   id: string;

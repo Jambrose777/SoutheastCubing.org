@@ -8,10 +8,12 @@ import {
   signal,
 } from '@angular/core';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
+import { DelegateSkeleton, DelegatesPageSkeleton } from 'src/app/models/ContentfulSkeletons';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
+import { resolvedAsset } from 'src/app/shared/contentful-links';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
 import { SelectItemService } from 'src/app/services/select-item.service';
-import { Delegate } from 'src/app/models/Delegate';
+import { Delegate, DelegateType } from 'src/app/models/Delegate';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, StateColors } from 'src/app/shared/types';
@@ -51,7 +53,7 @@ export class DelegatesComponent implements OnInit, OnDestroy {
 
   StateColors = StateColors;
   environment = environment;
-  delegates = signal<Delegate[]>(undefined);
+  delegates = signal<Delegate[] | undefined>(undefined);
   delegateName = input<string>();
   title = signal('Southeast Delegates');
   description = signal('');
@@ -60,7 +62,7 @@ export class DelegatesComponent implements OnInit, OnDestroy {
   subTextButtonLink = signal('');
   loadingContent = signal(true);
   loadingDelegates = signal(true);
-  selectedDelegate = signal<Delegate>(undefined);
+  selectedDelegate = signal<Delegate | undefined>(undefined);
   subscriptions: Subscription = new Subscription();
 
   ngOnInit(): void {
@@ -69,69 +71,76 @@ export class DelegatesComponent implements OnInit, OnDestroy {
 
     // retrieve, sorts, and formats data from the CMS Delegates Entries
     this.subscriptions.add(
-      this.contentful.getContentfulGroup(ContentfulContentType.delegates).subscribe({
-        next: (res) => {
-          const delegates = res.items
-            .sort((a, b) => a['fields']['order'] - b.fields['order'])
-            .map((delegate) => {
-              const photoSize = scaleToDisplaySize(
-                delegate.fields['photo']?.fields.file.details?.image?.width,
-                delegate.fields['photo']?.fields.file.details?.image?.height,
+      this.contentful
+        .getContentfulGroup<DelegateSkeleton>(ContentfulContentType.delegates)
+        .subscribe({
+          next: (res) => {
+            const delegates = res.items
+              .sort((a, b) => a['fields']['order'] - b.fields['order'])
+              .map((delegate) => {
+                const photo = resolvedAsset(delegate.fields['photo']);
+                const photoSize = scaleToDisplaySize(
+                  photo?.fields.file?.details?.image?.width,
+                  photo?.fields.file?.details?.image?.height,
+                );
+                // Delegate thumbnails render in a 60x60 box; scale the native
+                // Contentful asset down (max ~120px, covering a 2x-density srcset)
+                // instead of shipping the full-resolution upload for a tiny thumbnail.
+                const thumbnail = resolvedAsset(delegate.fields['thumbnail']);
+                const thumbnailSize = scaleToDisplaySize(
+                  thumbnail?.fields.file?.details?.image?.width,
+                  thumbnail?.fields.file?.details?.image?.height,
+                  120,
+                );
+                return {
+                  ...delegate.fields,
+                  delegateType: delegate.fields.delegateType as DelegateType | undefined,
+                  photo: photo?.fields.file?.url,
+                  photoWidth: photoSize.width,
+                  photoHeight: photoSize.height,
+                  thumbnail: thumbnail?.fields.file?.url,
+                  thumbnailWidth: thumbnailSize.width,
+                  thumbnailHeight: thumbnailSize.height,
+                };
+              });
+            this.delegates.set(delegates);
+            if (this.delegateName()) {
+              const foundDelegate = delegates.find(
+                (delegate) => delegate.name.replace(/ +/g, '-') === this.delegateName(),
               );
-              // Delegate thumbnails render in a 60x60 box; scale the native
-              // Contentful asset down (max ~120px, covering a 2x-density srcset)
-              // instead of shipping the full-resolution upload for a tiny thumbnail.
-              const thumbnailSize = scaleToDisplaySize(
-                delegate.fields['thumbnail']?.fields.file.details?.image?.width,
-                delegate.fields['thumbnail']?.fields.file.details?.image?.height,
-                120,
-              );
-              return {
-                ...delegate.fields,
-                photo: delegate.fields['photo']?.fields.file.url,
-                photoWidth: photoSize.width,
-                photoHeight: photoSize.height,
-                thumbnail: delegate.fields['thumbnail']?.fields.file.url,
-                thumbnailWidth: thumbnailSize.width,
-                thumbnailHeight: thumbnailSize.height,
-              } as Delegate;
-            });
-          this.delegates.set(delegates);
-          if (this.delegateName()) {
-            const foundDelegate = delegates.find(
-              (delegate) => delegate.name.replace(/ +/g, '-') === this.delegateName(),
-            );
-            if (foundDelegate) {
-              this.selectDelegate(foundDelegate);
-            } else {
-              this.location.replaceState('/delegates');
+              if (foundDelegate) {
+                this.selectDelegate(foundDelegate);
+              } else {
+                this.location.replaceState('/delegates');
+              }
             }
-          }
-          this.loadingDelegates.set(false);
-        },
-        error: (err) => {
-          console.error('Failed to load the delegates list from Contentful:', err);
-          this.loadingDelegates.set(false);
-        },
-      }),
+            this.loadingDelegates.set(false);
+          },
+          error: (err) => {
+            console.error('Failed to load the delegates list from Contentful:', err);
+            this.loadingDelegates.set(false);
+          },
+        }),
     );
 
     // retrieve and formats data from the CMS Delegate Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.delegates).subscribe({
-        next: (res) => {
-          this.title.set(res.fields.title);
-          this.description.set(res.fields.description);
-          this.subText.set(res.fields.subText1);
-          this.subTextButtonText.set(res.fields.subText1ButtonText);
-          this.subTextButtonLink.set(res.fields.subText1ButtonLink);
-          this.loadingContent.set(false);
-        },
-        error: (err) => {
-          console.error('Failed to load the delegates page content from Contentful:', err);
-          this.loadingContent.set(false);
-        },
-      }),
+      this.contentful
+        .getContentfulEntry<DelegatesPageSkeleton>(ContentfulEntryId.delegates)
+        .subscribe({
+          next: (res) => {
+            this.title.set(res.fields.title);
+            this.description.set(res.fields.description ?? '');
+            this.subText.set(res.fields.subText1 ?? '');
+            this.subTextButtonText.set(res.fields.subText1ButtonText ?? '');
+            this.subTextButtonLink.set(res.fields.subText1ButtonLink ?? '');
+            this.loadingContent.set(false);
+          },
+          error: (err) => {
+            console.error('Failed to load the delegates page content from Contentful:', err);
+            this.loadingContent.set(false);
+          },
+        }),
     );
   }
 
@@ -146,7 +155,7 @@ export class DelegatesComponent implements OnInit, OnDestroy {
       isSelected: (d) => this.selectedDelegate()?.name === d.name,
       elementId: (d) => d.name,
       basePaneColor: Colors.green,
-      selectColor: (d) => StateColors[d.state],
+      selectColor: (d) => StateColors[d.state ?? '??'],
       updateUrl: () =>
         this.location.replaceState(buildDetailUrl('/delegates', this.selectedDelegate()?.name)),
     });

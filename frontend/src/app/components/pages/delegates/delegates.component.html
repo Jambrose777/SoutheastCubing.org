@@ -44,7 +44,7 @@
           <!-- Delegate Bubble -->
           <div
             class="item-container clickable"
-            [style.--state-color]="StateColors[delegate.state]"
+            [style.--state-color]="StateColors[delegate.state ?? '??']"
             [ngClass]="{ active: selectedDelegate()?.name === delegate.name }"
           >
             <div class="item-row" (click)="selectDelegate(delegate)" id="{{ delegate.name }}">

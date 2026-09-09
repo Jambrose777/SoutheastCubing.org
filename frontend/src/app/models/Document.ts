@@ -1,6 +1,6 @@
 import { Colors } from '../shared/types';
 
-export class DocumentLink {
+export interface DocumentLink {
   name: string;
   order: string;
   link: string;

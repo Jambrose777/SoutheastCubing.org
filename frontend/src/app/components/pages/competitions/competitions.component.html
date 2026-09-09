@@ -12,9 +12,9 @@
       <div class="large-text-content">
         <markdown [data]="description()"></markdown>
       </div>
-      @if (competitionMapPoints()) {
+      @if (competitionMapPoints(); as points) {
         <se-map
-          [points]="competitionMapPoints()"
+          [points]="points"
           [selectedPoint]="hoveredListCompetition"
           [showLegend]="true"
           (hoverPoint)="mapHoverEvent($event)"
@@ -97,7 +97,7 @@
           <!-- Competition Bubble -->
           <div
             class="item-container clickable"
-            [style.--state-color]="StateColors[competition.state]"
+            [style.--state-color]="StateColors[competition.state ?? '??']"
             [ngClass]="{
               active:
                 selectedCompetition()?.id === competition.id ||

@@ -1,6 +1,6 @@
 import { RegistrationStatus } from '../shared/types';
 
-export class Competition {
+export interface Competition {
   url: string;
   id: string;
   name: string;

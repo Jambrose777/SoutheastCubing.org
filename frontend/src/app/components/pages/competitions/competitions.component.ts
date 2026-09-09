@@ -13,6 +13,8 @@ import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, Events, RegistrationStatus, StateColors, States } from 'src/app/shared/types';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
+import { CompetitionsPageSkeleton } from 'src/app/models/ContentfulSkeletons';
+import { resolvedEntry } from 'src/app/shared/contentful-links';
 import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 import { SelectItemService } from 'src/app/services/select-item.service';
 import { toggleFilterSelection } from 'src/app/shared/toggle-filter-selection';
@@ -70,19 +72,19 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   loadingContent = signal(true);
   loadingCompetitions = signal(true);
   competitionsError = signal(false);
-  selectedCompetition = signal<Competition>(undefined);
+  selectedCompetition = signal<Competition | undefined>(undefined);
   competitionId = input<string>();
   // Set only from click/mouseover events originating in this component's own
   // template (or a child's output binding in that template), which already
   // trigger OnPush change detection on their own, so these stay as plain
   // fields instead of signals.
-  hoveredMapCompetition: string;
-  hoveredListCompetition: string;
+  hoveredMapCompetition?: string;
+  hoveredListCompetition?: string;
   subText = signal('');
   filters = signal<{ states: States[]; events: string[] }>({ states: [], events: [] });
-  filtersDescription = signal<string>(undefined);
+  filtersDescription = signal<string | undefined>(undefined);
   filtersOpen = signal(false);
-  competitionMapPoints = signal<MapPoint[]>(undefined);
+  competitionMapPoints = signal<MapPoint[] | undefined>(undefined);
   subscriptions: Subscription = new Subscription();
 
   ngOnInit(): void {
@@ -96,7 +98,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
         const states = params['states']
           ? params['states']
               .split(',')
-              .filter((state) =>
+              .filter((state: string) =>
                 [
                   'Alabama',
                   'Florida',
@@ -108,7 +110,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
               )
           : currentFilters.states;
         const events = params['events']
-          ? params['events'].split(',').filter((event) => Events.includes(event))
+          ? params['events'].split(',').filter((event: string) => Events.includes(event))
           : currentFilters.events;
         this.filters.set({ states, events });
       }),
@@ -116,19 +118,23 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
 
     // retrieve and formats data from the CMS Competitions Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.competitions).subscribe({
-        next: (res) => {
-          this.title.set(res.fields.title);
-          this.description.set(res.fields.description);
-          this.subText.set(res.fields.subText1);
-          this.filtersDescription.set(res.fields.subTopics[0]?.fields.description);
-          this.loadingContent.set(false);
-        },
-        error: (err) => {
-          console.error('Failed to load the competitions page content from Contentful:', err);
-          this.loadingContent.set(false);
-        },
-      }),
+      this.contentful
+        .getContentfulEntry<CompetitionsPageSkeleton>(ContentfulEntryId.competitions)
+        .subscribe({
+          next: (res) => {
+            this.title.set(res.fields.title);
+            this.description.set(res.fields.description ?? '');
+            this.subText.set(res.fields.subText1 ?? '');
+            this.filtersDescription.set(
+              resolvedEntry(res.fields.subTopics?.[0])?.fields.description,
+            );
+            this.loadingContent.set(false);
+          },
+          error: (err) => {
+            console.error('Failed to load the competitions page content from Contentful:', err);
+            this.loadingContent.set(false);
+          },
+        }),
     );
 
     // retrieve the competitions list from WCA
@@ -171,7 +177,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
       isSelected: (c) => this.selectedCompetition()?.name === c.name,
       elementId: (c) => c.id,
       basePaneColor: Colors.darkGrey,
-      selectColor: (c) => StateColors[c.state],
+      selectColor: (c) => StateColors[c.state ?? '??'],
       updateUrl: () => this.updateUrl(),
     });
   }
@@ -260,7 +266,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   }
 
   // gets map marker color based on registration status
-  getRegistrationColor(status: RegistrationStatus): MarkerColorClass {
+  getRegistrationColor(status?: RegistrationStatus): MarkerColorClass {
     if (status === RegistrationStatus.closed) {
       return MarkerColorClass.red;
     } else if (status === RegistrationStatus.open || status === RegistrationStatus.openWithSpots) {
@@ -273,11 +279,13 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   }
 
   // handles hover event on map
-  mapHoverEvent(competitionId: string) {
+  mapHoverEvent(competitionId: string | undefined) {
     this.hoveredMapCompetition = competitionId;
 
     // scroll competition into view if not visible
-    scrollIntoViewSafely(competitionId, this.injector, true);
+    if (competitionId) {
+      scrollIntoViewSafely(competitionId, this.injector, true);
+    }
   }
 
   // handles click event on map to open competition
@@ -285,7 +293,9 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
     const competition = this.filteredCompetitions().find(
       (competition) => competition.id === competitionId,
     );
-    this.selectCompetition(competition);
+    if (competition) {
+      this.selectCompetition(competition);
+    }
 
     // resets hovered event
     this.hoveredMapCompetition = '';
@@ -305,8 +315,9 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
       document.getElementById('header')?.scrollIntoView({ behavior: 'smooth' });
 
       // clear page from a selected competition on filter changes
-      if (this.selectedCompetition()) {
-        this.selectCompetition(this.selectedCompetition());
+      const selectedCompetition = this.selectedCompetition();
+      if (selectedCompetition) {
+        this.selectCompetition(selectedCompetition);
       }
     }
   }

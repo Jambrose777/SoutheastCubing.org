@@ -12,9 +12,9 @@
       <div class="large-text-content">
         <markdown [data]="description()"></markdown>
       </div>
-      @if (clubMapPoints()) {
+      @if (clubMapPoints(); as points) {
         <se-map
-          [points]="clubMapPoints()"
+          [points]="points"
           [selectedPoint]="hoveredListClub"
           (hoverPoint)="mapHoverEvent($event)"
           (clickPoint)="mapClickEvent($event)"
@@ -81,7 +81,7 @@
           <!-- Club Bubble -->
           <div
             class="item-container clickable"
-            [style.--state-color]="StateColors[club.state]"
+            [style.--state-color]="StateColors[club.state ?? '??']"
             [ngClass]="{ active: selectedClub()?.id === club.id || hoveredMapClub === club.id }"
             (mouseover)="clubHover(club)"
             (mouseout)="clubHover()"

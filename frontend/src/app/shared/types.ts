@@ -19,7 +19,7 @@ export enum RegistrationStatus {
   open = 'open',
 }
 
-export const StateColors = {
+export const StateColors: Record<string, Colors> = {
   Alabama: Colors.orange,
   AL: Colors.orange,
   Georgia: Colors.blue,

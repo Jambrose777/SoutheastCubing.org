@@ -1,189 +1,189 @@
-<div class="selected-item-container">
-  <!-- Competition Name w/ WCA Logo & Link to competition on WCA -->
-  @if (!isMobile()) {
-    <a
-      [href]="environment.links.wcaCompetition + selectedCompetition().id"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <h2 class="title-text">
-        {{ selectedCompetition().name }}
-        <!-- WCA Logo -->
-        <img ngSrc="assets/wca_logo.svg" width="293" height="293" class="wca-logo" />
-      </h2>
-    </a>
-  }
-
-  <!-- container for remaining details for styling -->
-  <div class="competition-details">
-    <!-- Link to WCA -->
-    @if (isMobile()) {
-      <a
-        [href]="environment.links.wcaCompetition + selectedCompetition().id"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <img ngSrc="assets/wca_logo.svg" width="293" height="293" class="wca-logo-mobile" />
-      </a>
-    }
-
-    <!-- Competition Event List -->
-    <div class="event-container">
-      <!-- Event List -->
-      @for (event of selectedCompetition().event_ids; track event) {
-        <span [ngClass]="'cubing-icon event-' + event"></span>
-      }
-    </div>
-
-    <!-- Basic Info Bubble -->
-    <div class="detail-container">
-      <div>
-        City: <b>{{ selectedCompetition().city }}</b>
-      </div>
-      @if (!isMobile()) {
-        <div>
-          Date: <b>{{ selectedCompetition().full_date }}</b>
-        </div>
-      }
-      @if (!selectedCompetition().venue_url) {
-        <div>
-          Venue: <b>{{ selectedCompetition().venue }}</b>
-        </div>
-      }
-      @if (selectedCompetition().venue_url) {
-        <a [href]="selectedCompetition().venue_url" target="_blank" rel="noopener noreferrer">
-          <div>
-            Venue: <b>{{ selectedCompetition().venue }}</b>
-          </div>
-        </a>
-      }
-      <a
-        [href]="environment.links.googleMaps + selectedCompetition().venue_address"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <div>
-          Address: <b>{{ selectedCompetition().venue_address }}</b>
-        </div>
-      </a>
-    </div>
-
-    <!-- Location On Google Map View Bubble -->
+@if (selectedCompetition(); as competition) {
+  <div class="selected-item-container">
+    <!-- Competition Name w/ WCA Logo & Link to competition on WCA -->
     @if (!isMobile()) {
-      <div class="detail-container map-container">
-        <iframe
-          width="260"
-          height="300"
-          class="map-iframe"
-          loading="lazy"
-          allowfullscreen
-          referrerpolicy="no-referrer-when-downgrade"
-          [src]="googleMapUrl() | safeUrl"
-        >
-        </iframe>
-      </div>
+      <a
+        [href]="environment.links.wcaCompetition + competition.id"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <h2 class="title-text">
+          {{ competition.name }}
+          <!-- WCA Logo -->
+          <img ngSrc="assets/wca_logo.svg" width="293" height="293" class="wca-logo" />
+        </h2>
+      </a>
     }
 
-    <!-- Registration Information Bubble -->
-    <div class="detail-container">
-      <div>
-        Competitor Limit: <b>{{ selectedCompetition().competitor_limit }}</b>
-      </div>
-
-      <!-- Info for Registration Status pre launch -->
-      @if (selectedCompetition().registration_status === RegistrationStatus.preLaunch) {
-        <div class="tiny-text-content">
-          Registration will open on <b>{{ selectedCompetition().readable_registration_open }}</b
-          >. We highly recommend registering right when registration opens. Some competitions fill
-          within seconds.
-        </div>
-      }
-
-      <!-- Info for Registration Status Closed -->
-      @if (selectedCompetition().registration_status === RegistrationStatus.closed) {
-        <div>Registration has closed. You can no longer register for this competition.</div>
-      }
-
-      <!-- Info for Registration Status open with spots -->
-      @if (selectedCompetition().registration_status === RegistrationStatus.openWithSpots) {
-        <div>
-          Registration is open! The competition is currently
-          {{
-            selectedCompetition().accepted_registrations / selectedCompetition().competitor_limit
-              | percent
-          }}
-          full.
-        </div>
-      }
-
-      <!-- Info for Registration Status open with a waiting list -->
-      @if (selectedCompetition().registration_status === RegistrationStatus.openWithWaitingList) {
-        <div>
-          Registration is <b>full</b>. You can still register for the waiting list in case of any
-          cancellations.
-        </div>
-      }
-
-      <!-- Info for Registration Status open (Manual Competition) -->
-      @if (selectedCompetition().registration_status === RegistrationStatus.open) {
-        <div>
-          Registration is open! Please check the competition website for availability at this
-          location.
-        </div>
-      }
-
-      <!-- Register here link to WCA for certain Registration Statuses -->
-      @if (
-        [
-          RegistrationStatus.preLaunch,
-          RegistrationStatus.openWithSpots,
-          RegistrationStatus.openWithWaitingList,
-          RegistrationStatus.open,
-        ].includes(selectedCompetition().registration_status)
-      ) {
-        <div>
-          <a
-            class="btn"
-            [href]="environment.links.wcaCompetition + selectedCompetition().id + '/register'"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Register Here
-            <i class="fa-solid fa-up-right-from-square fa-sm"></i>
-          </a>
-        </div>
-      }
-
-      <!-- Staff Application -->
-      <div>
-        @if (selectedCompetition().is_in_staff_application) {
-          <a
-            class="btn"
-            [href]="linksService.applyToStaffForm"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Apply For Staff
-            <i class="fa-solid fa-up-right-from-square fa-sm"></i>
-          </a>
-        }
-      </div>
-    </div>
-
-    <!-- Contact Bubble -->
-    <div class="detail-container">
-      <div>Have any questions? Reach out to the organizers!</div>
-      <div>
+    <!-- container for remaining details for styling -->
+    <div class="competition-details">
+      <!-- Link to WCA -->
+      @if (isMobile()) {
         <a
-          class="btn"
-          [href]="environment.links.wcaContact + selectedCompetition().id"
+          [href]="environment.links.wcaCompetition + competition.id"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Contact
-          <i class="fa-regular fa-envelope fa-lg clickable"></i>
+          <img ngSrc="assets/wca_logo.svg" width="293" height="293" class="wca-logo-mobile" />
         </a>
+      }
+
+      <!-- Competition Event List -->
+      <div class="event-container">
+        <!-- Event List -->
+        @for (event of competition.event_ids; track event) {
+          <span [ngClass]="'cubing-icon event-' + event"></span>
+        }
+      </div>
+
+      <!-- Basic Info Bubble -->
+      <div class="detail-container">
+        <div>
+          City: <b>{{ competition.city }}</b>
+        </div>
+        @if (!isMobile()) {
+          <div>
+            Date: <b>{{ competition.full_date }}</b>
+          </div>
+        }
+        @if (!competition.venue_url) {
+          <div>
+            Venue: <b>{{ competition.venue }}</b>
+          </div>
+        }
+        @if (competition.venue_url) {
+          <a [href]="competition.venue_url" target="_blank" rel="noopener noreferrer">
+            <div>
+              Venue: <b>{{ competition.venue }}</b>
+            </div>
+          </a>
+        }
+        <a
+          [href]="environment.links.googleMaps + competition.venue_address"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <div>
+            Address: <b>{{ competition.venue_address }}</b>
+          </div>
+        </a>
+      </div>
+
+      <!-- Location On Google Map View Bubble -->
+      @if (!isMobile()) {
+        <div class="detail-container map-container">
+          <iframe
+            width="260"
+            height="300"
+            class="map-iframe"
+            loading="lazy"
+            allowfullscreen
+            referrerpolicy="no-referrer-when-downgrade"
+            [src]="googleMapUrl() | safeUrl"
+          >
+          </iframe>
+        </div>
+      }
+
+      <!-- Registration Information Bubble -->
+      <div class="detail-container">
+        <div>
+          Competitor Limit: <b>{{ competition.competitor_limit }}</b>
+        </div>
+
+        <!-- Info for Registration Status pre launch -->
+        @if (competition.registration_status === RegistrationStatus.preLaunch) {
+          <div class="tiny-text-content">
+            Registration will open on <b>{{ competition.readable_registration_open }}</b
+            >. We highly recommend registering right when registration opens. Some competitions fill
+            within seconds.
+          </div>
+        }
+
+        <!-- Info for Registration Status Closed -->
+        @if (competition.registration_status === RegistrationStatus.closed) {
+          <div>Registration has closed. You can no longer register for this competition.</div>
+        }
+
+        <!-- Info for Registration Status open with spots -->
+        @if (competition.registration_status === RegistrationStatus.openWithSpots) {
+          <div>
+            Registration is open! The competition is currently
+            {{ (competition.accepted_registrations ?? 0) / competition.competitor_limit | percent }}
+            full.
+          </div>
+        }
+
+        <!-- Info for Registration Status open with a waiting list -->
+        @if (competition.registration_status === RegistrationStatus.openWithWaitingList) {
+          <div>
+            Registration is <b>full</b>. You can still register for the waiting list in case of any
+            cancellations.
+          </div>
+        }
+
+        <!-- Info for Registration Status open (Manual Competition) -->
+        @if (competition.registration_status === RegistrationStatus.open) {
+          <div>
+            Registration is open! Please check the competition website for availability at this
+            location.
+          </div>
+        }
+
+        <!-- Register here link to WCA for certain Registration Statuses -->
+        @if (
+          competition.registration_status &&
+          [
+            RegistrationStatus.preLaunch,
+            RegistrationStatus.openWithSpots,
+            RegistrationStatus.openWithWaitingList,
+            RegistrationStatus.open,
+          ].includes(competition.registration_status)
+        ) {
+          <div>
+            <a
+              class="btn"
+              [href]="environment.links.wcaCompetition + competition.id + '/register'"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Register Here
+              <i class="fa-solid fa-up-right-from-square fa-sm"></i>
+            </a>
+          </div>
+        }
+
+        <!-- Staff Application -->
+        <div>
+          @if (competition.is_in_staff_application) {
+            <a
+              class="btn"
+              [href]="linksService.applyToStaffForm"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Apply For Staff
+              <i class="fa-solid fa-up-right-from-square fa-sm"></i>
+            </a>
+          }
+        </div>
+      </div>
+
+      <!-- Contact Bubble -->
+      <div class="detail-container">
+        <div>Have any questions? Reach out to the organizers!</div>
+        <div>
+          <a
+            class="btn"
+            [href]="environment.links.wcaContact + competition.id"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Contact
+            <i class="fa-regular fa-envelope fa-lg clickable"></i>
+          </a>
+        </div>
       </div>
     </div>
   </div>
-</div>
+}

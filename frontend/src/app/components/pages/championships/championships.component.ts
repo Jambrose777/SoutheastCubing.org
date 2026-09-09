@@ -9,10 +9,16 @@ import {
 } from '@angular/core';
 import { Championship } from 'src/app/models/Championship';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
+import {
+  ChampionshipSkeleton,
+  ChampionshipsPageSkeleton,
+  ChampionSkeleton,
+} from 'src/app/models/ContentfulSkeletons';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, StateColors } from 'src/app/shared/types';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
+import { resolvedAsset, resolvedEntry } from 'src/app/shared/contentful-links';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
 import { SelectItemService } from 'src/app/services/select-item.service';
 import { environment } from 'src/environments/environment';
@@ -55,8 +61,8 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
   description = signal('');
   loadingContent = signal(true);
   loadingChampionships = signal(true);
-  championships = signal<Championship[]>(undefined);
-  selectedChampionship = signal<Championship>(undefined);
+  championships = signal<Championship[] | undefined>(undefined);
+  selectedChampionship = signal<Championship | undefined>(undefined);
   championshipId = input<string>();
   subText1 = signal('');
   subscriptions: Subscription = new Subscription();
@@ -67,71 +73,77 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
 
     // retrieve formats data from the CMS Championships Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.championships).subscribe({
-        next: (res) => {
-          this.title.set(res.fields.title);
-          this.description.set(res.fields.description);
-          this.subText1.set(res.fields.subText1);
-          this.loadingContent.set(false);
-        },
-        error: (err) => {
-          console.error('Failed to load the championships page content from Contentful:', err);
-          this.loadingContent.set(false);
-        },
-      }),
+      this.contentful
+        .getContentfulEntry<ChampionshipsPageSkeleton>(ContentfulEntryId.championships)
+        .subscribe({
+          next: (res) => {
+            this.title.set(res.fields.title);
+            this.description.set(res.fields.description ?? '');
+            this.subText1.set(res.fields.subText1 ?? '');
+            this.loadingContent.set(false);
+          },
+          error: (err) => {
+            console.error('Failed to load the championships page content from Contentful:', err);
+            this.loadingContent.set(false);
+          },
+        }),
     );
 
     // retrieve, sorts, and formats the championships list from the CMS Championships
     this.subscriptions.add(
-      this.contentful.getContentfulGroup(ContentfulContentType.championships).subscribe({
-        next: (res) => {
-          const championships = res.items
-            .map((championship) => {
-              // Note: the list thumbnail crops this into a square box via CSS
-              // `object-fit: cover, which is only correct because every logo
-              // asset uploaded to Contentful is a square. If
-              // NgOptimizedImage's NG02952 aspect-ratio-mismatch warning
-              // reappears for a logo here, that's not a code bug to fix - it
-              // means a genuinely non-square logo was uploaded and needs to be
-              // re-cropped/padded to a square in Contentful.
-              const logoSize = scaleToDisplaySize(
-                championship.fields.logo?.fields.file.details?.image?.width,
-                championship.fields.logo?.fields.file.details?.image?.height,
-                160,
+      this.contentful
+        .getContentfulGroup<ChampionshipSkeleton>(ContentfulContentType.championships)
+        .subscribe({
+          next: (res) => {
+            const championships = res.items
+              .map((championship) => {
+                // Note: the list thumbnail crops this into a square box via CSS
+                // `object-fit: cover, which is only correct because every logo
+                // asset uploaded to Contentful is a square. If
+                // NgOptimizedImage's NG02952 aspect-ratio-mismatch warning
+                // reappears for a logo here, that's not a code bug to fix - it
+                // means a genuinely non-square logo was uploaded and needs to be
+                // re-cropped/padded to a square in Contentful.
+                const logo = resolvedAsset(championship.fields.logo);
+                const logoSize = scaleToDisplaySize(
+                  logo?.fields.file?.details?.image?.width,
+                  logo?.fields.file?.details?.image?.height,
+                  160,
+                );
+                return {
+                  ...championship.fields,
+                  logo: logo?.fields.file?.url,
+                  logoWidth: logoSize.width,
+                  logoHeight: logoSize.height,
+                  images: (championship.fields.images ?? [])
+                    .map((image) => resolvedAsset(image)?.fields.file?.url)
+                    .filter((url): url is string => !!url)
+                    .map((url) => ({ path: url })),
+                  state: championship.fields?.city.substring(championship.fields?.city.length - 2),
+                  champions: (championship.fields.champions ?? [])
+                    .map((champion) => resolvedEntry<ChampionSkeleton>(champion)?.fields)
+                    .filter((fields): fields is NonNullable<typeof fields> => !!fields),
+                };
+              })
+              .sort((a: Championship, b: Championship) => (a.year < b.year ? 1 : -1));
+            this.championships.set(championships);
+            if (this.championshipId()) {
+              const foundChampionship = championships.find(
+                (championship) => championship.id === this.championshipId(),
               );
-              return {
-                ...championship.fields,
-                logo: championship.fields.logo?.fields.file.url,
-                logoWidth: logoSize.width,
-                logoHeight: logoSize.height,
-                images: championship.fields.images?.map((image) => ({
-                  path: image.fields.file.url,
-                })),
-                state: championship.fields?.city.substring(championship.fields?.city.length - 2),
-                champions: championship.fields.champions?.map((champion) => ({
-                  ...champion.fields,
-                })),
-              };
-            })
-            .sort((a: Championship, b: Championship) => (a.year < b.year ? 1 : -1));
-          this.championships.set(championships);
-          if (this.championshipId()) {
-            const foundChampionship = championships.find(
-              (championship) => championship.id === this.championshipId(),
-            );
-            if (foundChampionship) {
-              this.selectChampionship(foundChampionship);
-            } else {
-              this.location.replaceState('/championships');
+              if (foundChampionship) {
+                this.selectChampionship(foundChampionship);
+              } else {
+                this.location.replaceState('/championships');
+              }
             }
-          }
-          this.loadingChampionships.set(false);
-        },
-        error: (err) => {
-          console.error('Failed to load the championships list from Contentful:', err);
-          this.loadingChampionships.set(false);
-        },
-      }),
+            this.loadingChampionships.set(false);
+          },
+          error: (err) => {
+            console.error('Failed to load the championships list from Contentful:', err);
+            this.loadingChampionships.set(false);
+          },
+        }),
     );
   }
 

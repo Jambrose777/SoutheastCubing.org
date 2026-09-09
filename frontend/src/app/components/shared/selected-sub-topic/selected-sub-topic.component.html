@@ -1,62 +1,64 @@
-<div class="selected-item-container">
-  <!-- Topic Title -->
-  @if (!isMobile()) {
-    <h2 class="title-text">
-      {{ selectedSubTopic().title }}
-    </h2>
-  }
+@if (selectedSubTopic(); as subTopic) {
+  <div class="selected-item-container">
+    <!-- Topic Title -->
+    @if (!isMobile()) {
+      <h2 class="title-text">
+        {{ subTopic.title }}
+      </h2>
+    }
 
-  <!-- Topic Photo -->
-  @if (selectedSubTopic().photo) {
-    <div class="photo-container">
-      <!-- Keyed by the (memoized) photo URL so a new <img> is created 
-       whenever a different sub-topic is selected - but not on every unrelated 
-       change-detection run. -->
-      @for (photo of photoAsArray(); track photo) {
-        <img
-          ngSrc="{{ photo }}"
-          [width]="selectedSubTopic().photoWidth"
-          [height]="selectedSubTopic().photoHeight"
-          priority
-          class="image medium-image"
-        />
-      }
-    </div>
-  }
+    <!-- Topic Photo -->
+    @if (subTopic.photo) {
+      <div class="photo-container">
+        <!-- Keyed by the (memoized) photo URL so a new <img> is created 
+         whenever a different sub-topic is selected - but not on every unrelated 
+         change-detection run. -->
+        @for (photo of photoAsArray(); track photo) {
+          <img
+            ngSrc="{{ photo }}"
+            [width]="subTopic.photoWidth"
+            [height]="subTopic.photoHeight"
+            priority
+            class="image medium-image"
+          />
+        }
+      </div>
+    }
 
-  <!-- Topic Description -->
-  @if (selectedSubTopic().description) {
-    <div class="medium-text-content">
-      <markdown [data]="selectedSubTopic().description"></markdown>
-    </div>
-  }
+    <!-- Topic Description -->
+    @if (subTopic.description) {
+      <div class="medium-text-content">
+        <markdown [data]="subTopic.description"></markdown>
+      </div>
+    }
 
-  <!-- Button for link to relevant page -->
-  @if (selectedSubTopic().buttonText) {
-    <div>
-      <!-- External -->
-      @if (selectedSubTopic().buttonExternalLink) {
-        <a
-          class="btn"
-          [href]="selectedSubTopic().buttonExternalLink"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {{ selectedSubTopic().buttonText }}
-          @if (selectedSubTopic().buttonIcon) {
-            <i class="fa-solid {{ selectedSubTopic().buttonIcon }} fa-lg"></i>
-          }
-        </a>
-      }
-      <!-- Internal -->
-      @if (selectedSubTopic().buttonInternalLink) {
-        <a class="btn" [routerLink]="'/' + selectedSubTopic().buttonInternalLink">
-          {{ selectedSubTopic().buttonText }}
-          @if (selectedSubTopic().buttonIcon) {
-            <i class="fa-solid {{ selectedSubTopic().buttonIcon }} fa-lg"></i>
-          }
-        </a>
-      }
-    </div>
-  }
-</div>
+    <!-- Button for link to relevant page -->
+    @if (subTopic.buttonText) {
+      <div>
+        <!-- External -->
+        @if (subTopic.buttonExternalLink) {
+          <a
+            class="btn"
+            [href]="subTopic.buttonExternalLink"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ subTopic.buttonText }}
+            @if (subTopic.buttonIcon) {
+              <i class="fa-solid {{ subTopic.buttonIcon }} fa-lg"></i>
+            }
+          </a>
+        }
+        <!-- Internal -->
+        @if (subTopic.buttonInternalLink) {
+          <a class="btn" [routerLink]="'/' + subTopic.buttonInternalLink">
+            {{ subTopic.buttonText }}
+            @if (subTopic.buttonIcon) {
+              <i class="fa-solid {{ subTopic.buttonIcon }} fa-lg"></i>
+            }
+          </a>
+        }
+      </div>
+    }
+  </div>
+}

@@ -1,51 +1,53 @@
-<div class="selected-item-container">
-  <!-- Delegate Name -->
-  @if (!isMobile()) {
-    <h2 class="title-text">
-      {{ selectedDelegate().name }}
-    </h2>
-  }
-
-  <!-- Delegate Status & Location  -->
-  <div class="small-text-content">
-    {{ selectedDelegate().delegateType }}
+@if (selectedDelegate(); as delegate) {
+  <div class="selected-item-container">
+    <!-- Delegate Name -->
     @if (!isMobile()) {
-      <span>- {{ selectedDelegate().state }}</span>
+      <h2 class="title-text">
+        {{ delegate.name }}
+      </h2>
     }
-  </div>
 
-  <!-- Delegate Photo -->
-  @if (selectedDelegate().photo) {
-    <div class="photo-container">
-      <!-- Keyed by the (memoized) photo URL so a new <img> is created 
-       whenever a different delegate is selected - but not on every unrelated 
-       change-detection run. -->
-      @for (photo of photoAsArray(); track photo) {
-        <img
-          ngSrc="{{ photo }}"
-          [width]="selectedDelegate().photoWidth"
-          [height]="selectedDelegate().photoHeight"
-          priority
-          class="image medium-image"
-        />
+    <!-- Delegate Status & Location  -->
+    <div class="small-text-content">
+      {{ delegate.delegateType }}
+      @if (!isMobile()) {
+        <span>- {{ delegate.state }}</span>
       }
     </div>
-  }
 
-  <!-- Short Delegate description -->
-  @if (selectedDelegate().description) {
-    <div class="small-text-content">
-      <markdown [data]="selectedDelegate().description"></markdown>
-    </div>
-  }
+    <!-- Delegate Photo -->
+    @if (delegate.photo) {
+      <div class="photo-container">
+        <!-- Keyed by the (memoized) photo URL so a new <img> is created 
+         whenever a different delegate is selected - but not on every unrelated 
+         change-detection run. -->
+        @for (photo of photoAsArray(); track photo) {
+          <img
+            ngSrc="{{ photo }}"
+            [width]="delegate.photoWidth"
+            [height]="delegate.photoHeight"
+            priority
+            class="image medium-image"
+          />
+        }
+      </div>
+    }
 
-  <!-- WCA Logo -->
-  <a
-    href="{{ environment.links.wcaProfile + selectedDelegate().wcaid }}"
-    target="_blank"
-    rel="noopener noreferrer"
-    class="wca-logo-container"
-  >
-    <img ngSrc="assets/wca_logo.svg" width="293" height="293" class="wca-logo" />
-  </a>
-</div>
+    <!-- Short Delegate description -->
+    @if (delegate.description) {
+      <div class="small-text-content">
+        <markdown [data]="delegate.description"></markdown>
+      </div>
+    }
+
+    <!-- WCA Logo -->
+    <a
+      href="{{ environment.links.wcaProfile + delegate.wcaid }}"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="wca-logo-container"
+    >
+      <img ngSrc="assets/wca_logo.svg" width="293" height="293" class="wca-logo" />
+    </a>
+  </div>
+}

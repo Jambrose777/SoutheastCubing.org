@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Competition } from 'src/app/models/Competition';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
+import { ContactPageSkeleton } from 'src/app/models/ContentfulSkeletons';
 import { EmailRequestBody } from 'src/app/models/EmailRequestBody';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
@@ -66,11 +67,7 @@ export class ContactComponent implements OnInit, OnDestroy {
   hasHadError = false;
   subscriptions: Subscription = new Subscription();
 
-  // Bound two-way via mat-select's [(value)] in this component's own
-  // template, which already triggers OnPush change detection on its own, so
-  // this stays a plain field instead of a signal (a signal can't be the
-  // target of banana-in-a-box two-way binding syntax).
-  selectedCompetition: Competition;
+  selectedCompetition?: Competition;
 
   emailTypeOptions = [
     { value: EmailType.upcomingCompetition, label: 'An upcoming WCA competition' },
@@ -122,9 +119,9 @@ export class ContactComponent implements OnInit, OnDestroy {
 
     // retrieve formats data from the CMS Contact Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.contact).subscribe({
+      this.contentful.getContentfulEntry<ContactPageSkeleton>(ContentfulEntryId.contact).subscribe({
         next: (res) => {
-          this.description.set(res.fields.description);
+          this.description.set(res.fields.description ?? '');
           this.loadingContent.set(false);
         },
         error: (err) => {

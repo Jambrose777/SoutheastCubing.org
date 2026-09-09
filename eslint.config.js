@@ -48,9 +48,6 @@ module.exports = tseslint.config(
         'error',
         { type: 'element', prefix: 'se', style: 'kebab-case' },
       ],
-      // Reducing `any` usage across the frontend is its own dedicated cleanup
-      // effort; leaving this off here avoids mixing that work into this story.
-      '@typescript-eslint/no-explicit-any': 'off',
       // Flags any usage of a symbol carrying an `@deprecated` JSDoc tag (e.g.
       // deprecated Angular/Material/RxJS APIs) that `ng build` itself doesn't
       // surface, since deprecation notices are otherwise only visible via

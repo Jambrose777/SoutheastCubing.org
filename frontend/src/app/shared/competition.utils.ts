@@ -10,7 +10,7 @@ export function getRegistrationStatus(competition: Competition): RegistrationSta
     return RegistrationStatus.preLaunch;
   } else if (competition.is_manual_competition) {
     return RegistrationStatus.open;
-  } else if (competition.accepted_registrations >= competition.competitor_limit) {
+  } else if ((competition.accepted_registrations ?? 0) >= competition.competitor_limit) {
     return RegistrationStatus.openWithWaitingList;
   } else {
     return RegistrationStatus.openWithSpots;

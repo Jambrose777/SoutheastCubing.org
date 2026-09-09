@@ -8,8 +8,11 @@ import {
   signal,
 } from '@angular/core';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
+import { OrganizersPageSkeleton } from 'src/app/models/ContentfulSkeletons';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
+import { resolvedAsset, resolvedEntry } from 'src/app/shared/contentful-links';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
+import { colorFromField } from 'src/app/shared/color-from-field';
 import { SelectItemService } from 'src/app/services/select-item.service';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -48,10 +51,10 @@ export class OrganizersComponent implements OnInit, OnDestroy {
   title = signal('Organizer Guidelines');
   description = signal('');
   loadingContent = signal(true);
-  subTopics = signal<SubTopic[]>(undefined);
-  selectedSubTopic = signal<SubTopic>(undefined);
+  subTopics = signal<SubTopic[] | undefined>(undefined);
+  selectedSubTopic = signal<SubTopic | undefined>(undefined);
   subTopicId = input<string>();
-  subText = signal<string>(undefined);
+  subText = signal<string | undefined>(undefined);
   subTextButtonText = signal('');
   subTextButtonLink = signal('');
   subscriptions: Subscription = new Subscription();
@@ -62,46 +65,51 @@ export class OrganizersComponent implements OnInit, OnDestroy {
 
     // retrieve formats data from the CMS Organizers Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.organizers).subscribe({
-        next: (res) => {
-          this.title.set(res.fields.title);
-          this.description.set(res.fields.description);
-          const subTopics = res.fields.subTopics?.map((subTopic) => {
-            const photoSize = scaleToDisplaySize(
-              subTopic.fields['photo']?.fields.file.details?.image?.width,
-              subTopic.fields['photo']?.fields.file.details?.image?.height,
-            );
-            return {
-              ...subTopic.fields,
-              photo: subTopic.fields['photo']?.fields.file.url,
-              photoWidth: photoSize.width,
-              photoHeight: photoSize.height,
-              color: Colors[subTopic.fields.color],
-            };
-          });
-          this.subTopics.set(subTopics);
-          this.subText.set(res.fields.subText1);
-          this.subTextButtonText.set(res.fields.subText1ButtonText);
-          this.subTextButtonLink.set(res.fields.subText1ButtonLink);
+      this.contentful
+        .getContentfulEntry<OrganizersPageSkeleton>(ContentfulEntryId.organizers)
+        .subscribe({
+          next: (res) => {
+            this.title.set(res.fields.title);
+            this.description.set(res.fields.description ?? '');
+            const subTopics = res.fields.subTopics?.map((subTopicLink) => {
+              const subTopic = resolvedEntry(subTopicLink);
+              const photo = resolvedAsset(subTopic?.fields['photo']);
+              const photoSize = scaleToDisplaySize(
+                photo?.fields.file?.details?.image?.width,
+                photo?.fields.file?.details?.image?.height,
+              );
+              return {
+                ...subTopic?.fields,
+                title: subTopic?.fields.title ?? '',
+                photo: photo?.fields.file?.url,
+                photoWidth: photoSize.width,
+                photoHeight: photoSize.height,
+                color: colorFromField(subTopic?.fields.color),
+              };
+            });
+            this.subTopics.set(subTopics);
+            this.subText.set(res.fields.subText1);
+            this.subTextButtonText.set(res.fields.subText1ButtonText ?? '');
+            this.subTextButtonLink.set(res.fields.subText1ButtonLink ?? '');
 
-          // select topic based on route information
-          if (this.subTopicId()) {
-            const foundSubTopic = subTopics.find(
-              (subTopic) => subTopic.title.replace(/ +/g, '-') === this.subTopicId(),
-            );
-            if (foundSubTopic) {
-              this.selectSubTopic(foundSubTopic);
-            } else {
-              this.location.replaceState('/organizers');
+            // select topic based on route information
+            if (this.subTopicId()) {
+              const foundSubTopic = subTopics?.find(
+                (subTopic) => subTopic.title.replace(/ +/g, '-') === this.subTopicId(),
+              );
+              if (foundSubTopic) {
+                this.selectSubTopic(foundSubTopic);
+              } else {
+                this.location.replaceState('/organizers');
+              }
             }
-          }
-          this.loadingContent.set(false);
-        },
-        error: (err) => {
-          console.error('Failed to load the organizers page content from Contentful:', err);
-          this.loadingContent.set(false);
-        },
-      }),
+            this.loadingContent.set(false);
+          },
+          error: (err) => {
+            console.error('Failed to load the organizers page content from Contentful:', err);
+            this.loadingContent.set(false);
+          },
+        }),
     );
   }
 

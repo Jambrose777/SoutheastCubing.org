@@ -11,7 +11,9 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { Club } from 'src/app/models/Club';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
+import { ClubSkeleton, ClubsPageSkeleton } from 'src/app/models/ContentfulSkeletons';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
+import { resolvedAsset, resolvedEntry } from 'src/app/shared/contentful-links';
 import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 import { SelectItemService } from 'src/app/services/select-item.service';
 import { toggleFilterSelection } from 'src/app/shared/toggle-filter-selection';
@@ -64,9 +66,9 @@ export class ClubsComponent implements OnInit, OnDestroy {
   description = signal('');
   loadingContent = signal(true);
   loadingClubs = signal(true);
-  clubs = signal<Club[]>(undefined);
-  filteredClubs = signal<Club[]>(undefined);
-  selectedClub = signal<Club>(undefined);
+  clubs = signal<Club[] | undefined>(undefined);
+  filteredClubs = signal<Club[] | undefined>(undefined);
+  selectedClub = signal<Club | undefined>(undefined);
   clubId = input<string>();
   subText1 = signal('');
   subText1ButtonText = signal('');
@@ -79,10 +81,10 @@ export class ClubsComponent implements OnInit, OnDestroy {
   // template (or a child's output binding in that template), which already
   // trigger OnPush change detection on their own, so these stay as plain
   // fields instead of signals.
-  hoveredMapClub: string;
-  hoveredListClub: string;
-  clubMapPoints = signal<MapPoint[]>(undefined);
-  filtersDescription = signal<string>(undefined);
+  hoveredMapClub?: string;
+  hoveredListClub?: string;
+  clubMapPoints = signal<MapPoint[] | undefined>(undefined);
+  filtersDescription = signal<string | undefined>(undefined);
   filtersOpen = signal(false);
   subscriptions: Subscription = new Subscription();
 
@@ -96,7 +98,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
         if (params['states']) {
           const states = params['states']
             .split(',')
-            .filter((state) =>
+            .filter((state: string) =>
               [
                 'Alabama',
                 'Florida',
@@ -113,17 +115,17 @@ export class ClubsComponent implements OnInit, OnDestroy {
 
     // retrieve formats data from the CMS Clubs Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.clubs).subscribe({
+      this.contentful.getContentfulEntry<ClubsPageSkeleton>(ContentfulEntryId.clubs).subscribe({
         next: (res) => {
           this.title.set(res.fields.title);
-          this.description.set(res.fields.description);
-          this.subText1.set(res.fields.subText1);
-          this.subText1ButtonText.set(res.fields.subText1ButtonText);
-          this.subText1ButtonLink.set(res.fields.subText1ButtonLink);
-          this.subText2.set(res.fields.subText2);
-          this.subText2ButtonText.set(res.fields.subText2ButtonText);
-          this.subText2ButtonLink.set(res.fields.subText2ButtonLink);
-          this.filtersDescription.set(res.fields.subTopics[0]?.fields.description);
+          this.description.set(res.fields.description ?? '');
+          this.subText1.set(res.fields.subText1 ?? '');
+          this.subText1ButtonText.set(res.fields.subText1ButtonText ?? '');
+          this.subText1ButtonLink.set(res.fields.subText1ButtonLink ?? '');
+          this.subText2.set(res.fields.subText2 ?? '');
+          this.subText2ButtonText.set(res.fields.subText2ButtonText ?? '');
+          this.subText2ButtonLink.set(res.fields.subText2ButtonLink ?? '');
+          this.filtersDescription.set(resolvedEntry(res.fields.subTopics?.[0])?.fields.description);
           this.loadingContent.set(false);
         },
         error: (err) => {
@@ -135,17 +137,18 @@ export class ClubsComponent implements OnInit, OnDestroy {
 
     // retrieve, sorts, and formats the clubs list from the CMS Clubs
     this.subscriptions.add(
-      this.contentful.getContentfulGroup(ContentfulContentType.clubs).subscribe({
+      this.contentful.getContentfulGroup<ClubSkeleton>(ContentfulContentType.clubs).subscribe({
         next: (res) => {
           const clubs = res.items
             .map((club) => {
+              const image = resolvedAsset(club.fields.image);
               const imageSize = scaleToDisplaySize(
-                club.fields.image?.fields.file.details?.image?.width,
-                club.fields.image?.fields.file.details?.image?.height,
+                image?.fields.file?.details?.image?.width,
+                image?.fields.file?.details?.image?.height,
               );
               return {
                 ...club.fields,
-                image: club.fields.image?.fields.file.url,
+                image: image?.fields.file?.url,
                 imageWidth: imageSize.width,
                 imageHeight: imageSize.height,
                 state: club.fields?.city.substring(club.fields?.city.length - 2),
@@ -188,7 +191,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
       isSelected: (c) => this.selectedClub()?.id === c.id,
       elementId: (c) => c.id,
       basePaneColor: Colors.purple,
-      selectColor: (c) => StateColors[c.state],
+      selectColor: (c) => StateColors[c.state ?? '??'],
       updateUrl: () => this.updateUrl(),
     });
   }
@@ -210,7 +213,10 @@ export class ClubsComponent implements OnInit, OnDestroy {
     let filteredClubs = this.clubs();
     const filterStates = this.filters().states;
     if (filterStates.length > 0) {
-      filteredClubs = filteredClubs?.filter((club) => filterStates.includes(States[club.state]));
+      filteredClubs = filteredClubs?.filter(
+        (club) =>
+          club.state && filterStates.includes((States as Record<string, States>)[club.state]),
+      );
     }
     this.filteredClubs.set(filteredClubs);
 
@@ -244,22 +250,28 @@ export class ClubsComponent implements OnInit, OnDestroy {
           lat: club.latitude,
           long: club.longitude,
         }))
-        .filter((club) => club.lat && club.long),
+        .filter(
+          (club): club is { id: string; lat: number; long: number } => !!club.lat && !!club.long,
+        ),
     );
   }
 
   // handles hover event on map
-  mapHoverEvent(clubId: string) {
+  mapHoverEvent(clubId: string | undefined) {
     this.hoveredMapClub = clubId;
 
     // scroll club into view if not visible
-    scrollIntoViewSafely(clubId, this.injector, true);
+    if (clubId) {
+      scrollIntoViewSafely(clubId, this.injector, true);
+    }
   }
 
   // handles click event on map to open club
   mapClickEvent(clubId: string) {
-    const club = this.filteredClubs().find((club) => club.id === clubId);
-    this.selectClub(club);
+    const club = this.filteredClubs()?.find((club) => club.id === clubId);
+    if (club) {
+      this.selectClub(club);
+    }
     // resets hovered event
     this.hoveredMapClub = '';
   }
@@ -278,8 +290,9 @@ export class ClubsComponent implements OnInit, OnDestroy {
       document.getElementById('header')?.scrollIntoView({ behavior: 'smooth' });
 
       // clear page from a selected club on filter changes
-      if (this.selectedClub()) {
-        this.selectClub(this.selectedClub());
+      const selectedClub = this.selectedClub();
+      if (selectedClub) {
+        this.selectClub(selectedClub);
       }
     }
   }

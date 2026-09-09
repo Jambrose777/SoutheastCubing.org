@@ -1,24 +1,24 @@
-export class Championship {
+export interface Championship {
   id: string;
   name: string;
   year: number;
   city: string;
   date: string;
   images: { path: string }[];
-  logo: string;
-  logoWidth: number;
-  logoHeight: number;
-  description: string;
-  competitors: number;
+  logo?: string;
+  logoWidth?: number;
+  logoHeight?: number;
+  description?: string;
+  competitors?: number;
   champions: Champion[];
   state: string;
 }
 
-export class Champion {
+export interface Champion {
   year: number;
   event: string;
-  seChampName: string;
-  seChampResult: string;
-  overallChampName: string;
-  overallChampResult: string;
+  seChampName?: string;
+  seChampResult?: string;
+  overallChampName?: string;
+  overallChampResult?: string;
 }

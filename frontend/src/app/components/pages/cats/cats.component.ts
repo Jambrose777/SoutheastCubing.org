@@ -17,7 +17,9 @@ import { Colors } from 'src/app/shared/types';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
 import { SelectItemService } from 'src/app/services/select-item.service';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
+import { CatSkeleton, CatsPageSkeleton } from 'src/app/models/ContentfulSkeletons';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
+import { resolvedAsset } from 'src/app/shared/contentful-links';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 import { MarkdownComponent } from 'ngx-markdown';
@@ -46,13 +48,13 @@ export class CatsComponent implements OnInit, OnDestroy {
 
   isMobile = this.screenSizeService.isMobile;
 
-  cats = signal<Cat[]>(undefined);
+  cats = signal<Cat[] | undefined>(undefined);
   catName = input<string>();
   title = signal('Southeast Cats');
   description = signal('');
   loadingContent = signal(true);
   loadingCats = signal(true);
-  selectedCat = signal<Cat>(undefined);
+  selectedCat = signal<Cat | undefined>(undefined);
   subscriptions: Subscription = new Subscription();
   availableColors: Colors[] = [
     Colors.blue,
@@ -71,36 +73,38 @@ export class CatsComponent implements OnInit, OnDestroy {
 
     // retrieve, sorts, and formats data from the CMS Cats Entries
     this.subscriptions.add(
-      this.contentful.getContentfulGroup(ContentfulContentType.cats).subscribe({
+      this.contentful.getContentfulGroup<CatSkeleton>(ContentfulContentType.cats).subscribe({
         next: (res) => {
           const cats = res.items
             .map((value) => ({ value, sort: Math.random() }))
             .sort((a, b) => a.sort - b.sort)
             .map(({ value }) => value)
             .map((cat) => {
+              const photo = resolvedAsset(cat.fields['photo']);
               const photoSize = scaleToDisplaySize(
-                cat.fields['photo']?.fields.file.details?.image?.width,
-                cat.fields['photo']?.fields.file.details?.image?.height,
+                photo?.fields.file?.details?.image?.width,
+                photo?.fields.file?.details?.image?.height,
               );
               // Cat thumbnails render in a 60x60 box; scale the native Contentful
               // asset down (max ~120px, covering a 2x-density srcset) instead of
               // shipping the full-resolution upload for a tiny thumbnail.
+              const thumbnail = resolvedAsset(cat.fields['thumbnail']);
               const thumbnailSize = scaleToDisplaySize(
-                cat.fields['thumbnail']?.fields.file.details?.image?.width,
-                cat.fields['thumbnail']?.fields.file.details?.image?.height,
+                thumbnail?.fields.file?.details?.image?.width,
+                thumbnail?.fields.file?.details?.image?.height,
                 120,
               );
               return {
                 ...cat.fields,
-                photo: cat.fields['photo']?.fields.file.url,
+                photo: photo?.fields.file?.url,
                 photoWidth: photoSize.width,
                 photoHeight: photoSize.height,
-                thumbnail: cat.fields['thumbnail']?.fields.file.url,
+                thumbnail: thumbnail?.fields.file?.url,
                 thumbnailWidth: thumbnailSize.width,
                 thumbnailHeight: thumbnailSize.height,
                 color:
                   this.availableColors[Math.floor(Math.random() * this.availableColors.length)],
-              } as Cat;
+              };
             });
           this.cats.set(cats);
           if (this.catName()) {
@@ -122,10 +126,10 @@ export class CatsComponent implements OnInit, OnDestroy {
 
     // retrieve and formats data from the CMS Cats Page
     this.subscriptions.add(
-      this.contentful.getContentfulEntry(ContentfulEntryId.cats).subscribe({
+      this.contentful.getContentfulEntry<CatsPageSkeleton>(ContentfulEntryId.cats).subscribe({
         next: (res) => {
           this.title.set(res.fields.title);
-          this.description.set(res.fields.description);
+          this.description.set(res.fields.description ?? '');
           this.loadingContent.set(false);
         },
         error: (err) => {

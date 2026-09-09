@@ -1,33 +1,35 @@
-<div class="selected-item-container">
-  <!-- Cat Name -->
-  @if (!isMobile()) {
-    <h2 class="title-text">
-      {{ selectedCat().name }}
-    </h2>
-  }
+@if (selectedCat(); as cat) {
+  <div class="selected-item-container">
+    <!-- Cat Name -->
+    @if (!isMobile()) {
+      <h2 class="title-text">
+        {{ cat.name }}
+      </h2>
+    }
 
-  <!-- Cat Photo -->
-  @if (selectedCat().photo) {
-    <div class="photo-container">
-      <!-- Keyed by the (memoized) photo URL so a new <img> is created 
-       whenever a different cat is selected - but not on every unrelated 
-       change-detection run. -->
-      @for (photo of photoAsArray(); track photo) {
-        <img
-          ngSrc="{{ photo }}"
-          [width]="selectedCat().photoWidth"
-          [height]="selectedCat().photoHeight"
-          priority
-          class="image medium-image"
-        />
-      }
-    </div>
-  }
+    <!-- Cat Photo -->
+    @if (cat.photo) {
+      <div class="photo-container">
+        <!-- Keyed by the (memoized) photo URL so a new <img> is created 
+         whenever a different cat is selected - but not on every unrelated 
+         change-detection run. -->
+        @for (photo of photoAsArray(); track photo) {
+          <img
+            ngSrc="{{ photo }}"
+            [width]="cat.photoWidth"
+            [height]="cat.photoHeight"
+            priority
+            class="image medium-image"
+          />
+        }
+      </div>
+    }
 
-  <!-- Short Cat description -->
-  @if (selectedCat().description) {
-    <div class="small-text-content">
-      {{ selectedCat().description }}
-    </div>
-  }
-</div>
+    <!-- Short Cat description -->
+    @if (cat.description) {
+      <div class="small-text-content">
+        {{ cat.description }}
+      </div>
+    }
+  </div>
+}

@@ -20,11 +20,11 @@ export class SeMapComponent implements OnInit, OnChanges {
   points = input.required<MapPoint[]>();
   selectedPoint = input<string>();
   showLegend = input<boolean>();
-  hoverPoint = output<string>();
+  hoverPoint = output<string | undefined>();
   clickPoint = output<string>();
 
-  map;
-  markers: { point: MapPoint; marker: any }[] = [];
+  map!: L.Map;
+  markers: { point: MapPoint; marker: L.Marker }[] = [];
 
   constructor() {}
 
@@ -55,7 +55,7 @@ export class SeMapComponent implements OnInit, OnChanges {
 
     // set marker color
     if (point.colorClass) {
-      marker._icon.classList.add(point.colorClass);
+      marker.getElement()?.classList.add(point.colorClass);
     }
 
     // interaction events
@@ -76,9 +76,9 @@ export class SeMapComponent implements OnInit, OnChanges {
   selectPoint() {
     this.markers.forEach((marker) => {
       if (marker.point.id === this.selectedPoint()) {
-        marker.marker._icon.classList.add('active-marker');
+        marker.marker.getElement()?.classList.add('active-marker');
       } else {
-        marker.marker._icon.classList.remove('active-marker');
+        marker.marker.getElement()?.classList.remove('active-marker');
       }
     });
   }

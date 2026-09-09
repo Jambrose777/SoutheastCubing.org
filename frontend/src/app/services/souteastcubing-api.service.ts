@@ -6,6 +6,10 @@ import { Observable, map } from 'rxjs';
 import { Competition } from '../models/Competition';
 import { getRegistrationStatus, getReadableRegistrationOpen } from '../shared/competition.utils';
 
+// Shape of a competition as returned by the backend's /competitions endpoint,
+// before `registration_status`/`readable_registration_open` are derived.
+type CompetitionResponse = Omit<Competition, 'registration_status' | 'readable_registration_open'>;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -17,21 +21,25 @@ export class SouteastcubingApiService {
   }
 
   getUpcomingCompetitions(): Observable<Competition[]> {
-    return this.http.get(`${environment.links.southeastCubingApi}/competitions`).pipe(
-      map((res: any[]) =>
-        res.map(
-          (competition) =>
-            ({
-              ...competition,
-              registration_status: getRegistrationStatus(competition),
-              readable_registration_open: getReadableRegistrationOpen(competition),
-            }) as Competition,
+    return this.http
+      .get<CompetitionResponse[]>(`${environment.links.southeastCubingApi}/competitions`)
+      .pipe(
+        map((res) =>
+          res.map(
+            (competition) =>
+              ({
+                ...competition,
+                registration_status: getRegistrationStatus(competition),
+                readable_registration_open: getReadableRegistrationOpen(competition),
+              }) as Competition,
+          ),
         ),
-      ),
-    );
+      );
   }
 
-  updateCompetitions(): Observable<any> {
+  // The response body isn't consumed by callers (only success/failure matters),
+  // so it's typed as `unknown` rather than a full shape of the WCA payload.
+  updateCompetitions(): Observable<unknown> {
     return this.http.post(`${environment.links.southeastCubingApi}/update-competitions`, null);
   }
 }

@@ -1,6 +1,6 @@
 import { EmailType } from '../shared/types';
 
-export class EmailRequestBody {
+export interface EmailRequestBody {
   name: string;
   email: string;
   text: string;

@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { ContentfulService } from './contentful.service';
 import { ContentfulEntryId } from '../models/Contentful';
+import { LinksConfigurationSkeleton } from '../models/ContentfulSkeletons';
 import { take } from 'rxjs';
 
 @Injectable({
@@ -19,7 +20,7 @@ export class LinksService {
   pullLinksFromContentful() {
     // retrieve links data from the CMS to overwrite links
     this.contentful
-      .getContentfulEntry(ContentfulEntryId.linksConfiguration)
+      .getContentfulEntry<LinksConfigurationSkeleton>(ContentfulEntryId.linksConfiguration)
       .pipe(take(1))
       .subscribe({
         next: (res) => {
