@@ -30,9 +30,12 @@
     row-gap: 20px;
 
     .team-person {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       margin: 0 20px;
-      width: 110px;
-      height: 100px;
+      width: 130px;
+      min-height: 100px;
       padding: 5px;
       background-color: var(--team-member-color);
       border-radius: 10px;
@@ -45,6 +48,8 @@
         margin: 5px;
         border-radius: 10px;
         object-fit: cover;
+        // Never let the thumbnail shrink to make room for a long name/title.
+        flex-shrink: 0;
       }
 
       .extra-spacing {
