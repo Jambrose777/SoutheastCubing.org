@@ -6,9 +6,8 @@
   flex-direction: column;
 
   .desktop-container {
-    width: calc(100vw - 2 * constants.$website-border-size);
-    height: calc(100vh - 2 * constants.$website-border-size);
-    padding: constants.$website-border-size;
+    width: 100vw;
+    height: 100vh;
   }
 
   .mobile-container {
