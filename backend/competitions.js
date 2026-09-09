@@ -2,9 +2,7 @@ const axios = require('axios');
 const moment = require('moment');
 
 // Logger
-const log4js = require('log4js');
-const logger = log4js.getLogger();
-logger.level = 'debug';
+const logger = require('./logger.js');
 
 const googleForm = require('./googleForm.js');
 const contentful = require('./contentful.js');

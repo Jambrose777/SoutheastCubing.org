@@ -1,9 +1,7 @@
 const contentful = require('contentful');
 
 // Logger
-const log4js = require('log4js');
-const logger = log4js.getLogger();
-logger.level = 'debug';
+const logger = require('./logger.js');
 
 const cdaClient = contentful.createClient({
   space: process.env.CONTENTFUL_SPACE,

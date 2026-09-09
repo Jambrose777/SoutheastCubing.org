@@ -1,11 +1,6 @@
 const moment = require('moment');
 const db = require('./pool.js');
 
-// Logger
-const log4js = require('log4js');
-const logger = log4js.getLogger();
-logger.level = 'debug';
-
 // Columns of the `competitions` table, in the order used when building the
 // multi-row upsert below - keep this in sync with the competitions table in
 // schema-snapshot.sql

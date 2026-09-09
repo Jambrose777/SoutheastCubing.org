@@ -2,9 +2,7 @@ const { Pool } = require('pg');
 const { DsqlSigner } = require('@aws-sdk/dsql-signer');
 
 // Logger
-const log4js = require('log4js');
-const logger = log4js.getLogger();
-logger.level = 'debug';
+const logger = require('../logger.js');
 
 const DSQL_ENDPOINT = process.env.DSQL_ENDPOINT;
 const DSQL_REGION = 'us-east-2';

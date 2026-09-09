@@ -6,9 +6,7 @@ const schedule = require('node-schedule');
 const rateLimit = require('express-rate-limit');
 
 // Logger
-const log4js = require('log4js');
-const logger = log4js.getLogger();
-logger.level = 'debug';
+const logger = require('./logger.js');
 
 const email = require('./email.js');
 const competitions = require('./competitions.js');

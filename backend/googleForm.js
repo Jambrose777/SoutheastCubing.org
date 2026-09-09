@@ -3,9 +3,7 @@ const fs = require('fs');
 const google = require('@googleapis/forms');
 
 // Logger
-const log4js = require('log4js');
-const logger = log4js.getLogger();
-logger.level = 'debug';
+const logger = require('./logger.js');
 
 const formID = '1vtcLw_QPrS-ZDKG9XxsN192xPEdr0gCA7vIoRVlTZmI';
 

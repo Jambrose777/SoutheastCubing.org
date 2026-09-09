@@ -2,9 +2,7 @@ const nodemailer = require('nodemailer');
 const { stripNewlines } = require('./utils/sanitize');
 
 // Logger
-const log4js = require('log4js');
-const logger = log4js.getLogger();
-logger.level = 'debug';
+const logger = require('./logger.js');
 
 // Email mailer
 const transporter = nodemailer.createTransport({

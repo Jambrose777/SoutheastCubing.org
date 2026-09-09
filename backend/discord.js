@@ -3,9 +3,7 @@ const moment = require('moment-timezone');
 const { neutralizeMentions } = require('./utils/sanitize');
 
 // Logger
-const log4js = require('log4js');
-const logger = log4js.getLogger();
-logger.level = 'debug';
+const logger = require('./logger.js');
 
 // Discord Icon and Tag Ids
 const eventIconMap = {
