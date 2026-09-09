@@ -69,9 +69,9 @@ The backend needs two secret/config files that are never committed to the repo:
   only lists safe "Local Development" values (values that never touch real org
   inboxes or the real Southeast Cubing Discord server).
 - `southeastcubing-org-api.json` — a Google service account credentials file used to
-  authenticate against the Google Forms API (reading the staff sign-up form). If this
-  file is missing, the competitions update flow degrades gracefully (staff form data
-  is simply treated as empty) instead of breaking.
+  authenticate against the Google Forms API (reading the volunteer sign-up form). If
+  this file is missing, the competitions update flow degrades gracefully (volunteer
+  form data is simply treated as empty) instead of breaking.
 
 Neither file is checked into source control, and there's no secrets manager for this
 project — request both files directly from Jacob (org admin) and share/receive them,

@@ -29,7 +29,7 @@ CREATE TABLE competitions (
   venue TEXT,
   venue_url TEXT,
   state TEXT,
-  is_in_staff_application BOOLEAN NOT NULL DEFAULT false,
+  is_in_volunteer_application BOOLEAN NOT NULL DEFAULT false,
   accepted_registrations INTEGER,
   full_date TEXT,
   is_manual_competition BOOLEAN NOT NULL DEFAULT false,

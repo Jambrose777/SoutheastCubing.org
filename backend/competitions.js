@@ -193,13 +193,13 @@ async function refreshCompetitionsFromWCA() {
       .filter((comp) => comp)
       .filter((comp) => moment(comp.end_date).isAfter(moment().add(-1, 'day')));
 
-    // fetch competitions with a staff application
-    let competitionsWithStaffApp = await googleForm.getCompetitionsInStaffForm();
+    // fetch competitions with a volunteer application
+    let competitionsWithVolunteerApp = await googleForm.getCompetitionsInVolunteerForm();
 
     // format competition data
     let comps = await formatCompetitionData(
       wcaCompetitions.concat(contentfulCompetitions),
-      competitionsWithStaffApp,
+      competitionsWithVolunteerApp,
     );
 
     if (comps && comps.length) {
@@ -236,7 +236,7 @@ async function refreshCompetitionsFromWCA() {
 // Filters `comps` down to competitions in the tracked SE states and maps 
 // each one to the trimmed/enriched object shape used by the database layer 
 // and frontend 
-async function formatCompetitionData(comps, competitionsWithStaffApp) {
+async function formatCompetitionData(comps, competitionsWithVolunteerApp) {
   return await Promise.all(
     comps
       // Filter to only SE comp Dates.
@@ -283,7 +283,7 @@ async function formatCompetitionData(comps, competitionsWithStaffApp) {
         venue: getCompetitionVenueName(competition.venue),
         venue_url: getCompetitionVenueUrl(competition.venue),
         state: competition.city.substring(competition.city.lastIndexOf(',') + 1).trim(),
-        is_in_staff_application: competitionsWithStaffApp.includes(competition.name),
+        is_in_volunteer_application: competitionsWithVolunteerApp.includes(competition.name),
         accepted_registrations: await getRegistrationsFromWCA(competition),
         full_date: getFullCompetitionDate(competition.start_date, competition.end_date),
         is_manual_competition: competition.is_manual_competition || false,

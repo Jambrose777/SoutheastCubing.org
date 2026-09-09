@@ -15,7 +15,7 @@ export class LinksService {
   facebook: string = environment.links.facebook;
   instagram: string = environment.links.instagram;
   youtube: string = environment.links.youtube;
-  applyToStaffForm: string = environment.links.applyToStaffForm;
+  applyToVolunteerForm: string = environment.links.applyToVolunteerForm;
 
   pullLinksFromContentful() {
     // retrieve links data from the CMS to overwrite links
@@ -37,7 +37,7 @@ export class LinksService {
             this.youtube = res.fields.youtube;
           }
           if (res.fields.applyToStaffForm) {
-            this.applyToStaffForm = res.fields.applyToStaffForm;
+            this.applyToVolunteerForm = res.fields.applyToStaffForm;
           }
         },
         error: (err) => {

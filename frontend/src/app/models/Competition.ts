@@ -24,6 +24,6 @@ export interface Competition {
   readable_registration_open?: string;
   state?: string;
   accepted_registrations?: number;
-  is_in_staff_application: boolean;
+  is_in_volunteer_application: boolean;
   is_manual_competition: boolean;
 }

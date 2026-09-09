@@ -153,16 +153,16 @@
           </div>
         }
 
-        <!-- Staff Application -->
+        <!-- Volunteer Application -->
         <div>
-          @if (competition.is_in_staff_application) {
+          @if (competition.is_in_volunteer_application) {
             <a
               class="btn"
-              [href]="linksService.applyToStaffForm"
+              [href]="linksService.applyToVolunteerForm"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Apply For Staff
+              Apply For Volunteer
               <i class="fa-solid fa-up-right-from-square fa-sm"></i>
             </a>
           }
