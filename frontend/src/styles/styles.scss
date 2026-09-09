@@ -38,6 +38,29 @@ markdown {
   a {
     text-decoration: underline;
   }
+
+  // Content pasted into Contentful from Word/Google Docs often carries
+  // inline `style="font-family: ..."` spans, which <markdown> renders
+  // verbatim - overriding the Montserrat cascade set on `body` above.
+  // `!important` is required specifically to beat those inline style
+  // attributes, which otherwise always win over stylesheet rules regardless
+  // of selector specificity.
+  &,
+  * {
+    font-family: 'Montserrat' !important;
+  }
+
+  // ...but preserve MontserratBold for headings/bold text rendered inside
+  // markdown content - the rule above targets every descendant, so without
+  // this it would flatten these back to the base weight too. Higher
+  // specificity (two elements vs. one) wins the tie against the `!important`
+  // rule above regardless of source order.
+  h1,
+  h2,
+  b,
+  strong {
+    font-family: 'MontserratBold' !important;
+  }
 }
 
 p {
