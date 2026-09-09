@@ -315,9 +315,10 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
       document.getElementById('header')?.scrollIntoView({ behavior: 'smooth' });
 
       // clear page from a selected competition on filter changes
-      const selectedCompetition = this.selectedCompetition();
-      if (selectedCompetition) {
-        this.selectCompetition(selectedCompetition);
+      if (this.selectedCompetition()) {
+        this.selectedCompetition.set(undefined);
+        this.themeService.setMainPaneColor(Colors.darkGrey);
+        this.updateUrl();
       }
     }
   }

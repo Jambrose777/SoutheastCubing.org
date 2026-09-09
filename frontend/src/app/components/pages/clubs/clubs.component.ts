@@ -290,9 +290,10 @@ export class ClubsComponent implements OnInit, OnDestroy {
       document.getElementById('header')?.scrollIntoView({ behavior: 'smooth' });
 
       // clear page from a selected club on filter changes
-      const selectedClub = this.selectedClub();
-      if (selectedClub) {
-        this.selectClub(selectedClub);
+      if (this.selectedClub()) {
+        this.selectedClub.set(undefined);
+        this.themeService.setMainPaneColor(Colors.purple);
+        this.updateUrl();
       }
     }
   }
