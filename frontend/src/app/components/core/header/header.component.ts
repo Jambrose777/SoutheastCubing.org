@@ -24,7 +24,7 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.activateNavOnDefault()) {
-      this.toggleNav(this.activateNavOnDefault());
+      this.isNavActive.set(true);
     }
   }
 
@@ -32,8 +32,10 @@ export class HeaderComponent implements OnInit {
   toggleNav(toggled: boolean) {
     this.isNavActive.set(toggled);
     this.transition.set(true);
-    setTimeout(() => {
-      this.transition.set(false);
-    }, 500);
+  }
+
+  // finishes the transisition once done
+  onTransitionEnd() {
+    this.transition.set(false);
   }
 }

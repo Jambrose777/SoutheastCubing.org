@@ -19,8 +19,10 @@ export class FooterComponent {
   toggleNav(toggled: boolean) {
     this.isNavActive.set(toggled);
     this.transition.set(true);
-    setTimeout(() => {
-      this.transition.set(false);
-    }, 500);
+  }
+
+  // finishes the transisition once done
+  onTransitionEnd() {
+    this.transition.set(false);
   }
 }

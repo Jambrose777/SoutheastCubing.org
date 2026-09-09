@@ -6,6 +6,7 @@ import {
   effect,
   output,
   untracked,
+  HostListener,
 } from '@angular/core';
 import { NavService } from 'src/app/services/nav.service';
 import { NgClass } from '@angular/common';
@@ -21,9 +22,31 @@ import { RouterLink } from '@angular/router';
 export class NavComponent {
   private navService = inject(NavService);
 
+  // Counts CSS transitions currently in flight across the nav's descendants
+  // (incremented on `transitionrun`, decremented on `transitionend`/
+  // `transitioncancel`). The open/close animation involves many separately
+  // timed transitions, so the whole thing is only "done" once this count
+  // returns to zero.
+  private runningTransitionCount = 0;
+
   isNavActive = input(false);
   transition = input(false);
   toggleNavEmitter = output<boolean>();
+  transitionEndEmitter = output<void>();
+
+  @HostListener('transitionrun')
+  onDescendantTransitionRun(): void {
+    this.runningTransitionCount++;
+  }
+
+  @HostListener('transitionend')
+  @HostListener('transitioncancel')
+  onDescendantTransitionSettled(): void {
+    this.runningTransitionCount = Math.max(0, this.runningTransitionCount - 1);
+    if (this.runningTransitionCount === 0) {
+      this.transitionEndEmitter.emit();
+    }
+  }
 
   constructor() {
     // Reacts only to NavService.closeNav() calls, not to isNavActive changing

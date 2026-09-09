@@ -21,6 +21,7 @@
         [isNavActive]="isNavActive()"
         [transition]="transition()"
         (toggleNavEmitter)="toggleNav($event)"
+        (transitionEndEmitter)="onTransitionEnd()"
       ></se-nav>
       @if (!isNavActive() && !transition()) {
         <div class="nav-item-text">Menu</div>

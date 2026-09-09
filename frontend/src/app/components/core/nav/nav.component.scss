@@ -47,17 +47,19 @@
 
 .menu .navigation.active span .fa-solid {
   font-size: 1.75rem;
+  height: 28px;
   transition: 0.5s;
   transition-delay: 0.5s;
   margin-top: 35px;
 }
 
-.menu .navigation.active.transitioned span .fa-solid {
-  height: 28px;
-}
-
 .hidden-text {
-  display: none;
+  // Always rendered at a near-invisible font-size, so it's already a real
+  // box the browser can smoothly grow.
+  display: block;
+  font-size: 1px;
+  white-space: nowrap;
+  transition: 0.5s;
 }
 
 .menu .navigation.active span {
@@ -67,9 +69,6 @@
   border-radius: 5px;
   transform: translate(calc(133px * var(--x)), calc(133px * var(--y)));
   transition-delay: 0.5s;
-}
-
-.menu .navigation.active.transitioned span {
   justify-content: start;
 }
 
@@ -116,16 +115,8 @@
 
 .active {
   .hidden-text {
-    font-size: 1px;
-    margin-top: 0px;
-    white-space: nowrap;
-    display: block;
-  }
-}
-
-.active.transitioned {
-  .hidden-text {
-    display: block;
+    // Grows from the tiny base size up to full size in sync with the cube
+    // movement, using the same transition-delay/duration.
     font-size: 14px;
     transition: 0.5s;
     transition-delay: 0.5s;
