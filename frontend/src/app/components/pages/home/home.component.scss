@@ -90,12 +90,6 @@
   }
 }
 
-::ng-deep carousel {
-  div {
-    border-radius: 10px;
-  }
-}
-
 @keyframes infiniteScroll {
   from {
     transform: translateX(0);

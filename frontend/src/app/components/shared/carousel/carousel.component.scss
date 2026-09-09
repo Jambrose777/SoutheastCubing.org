@@ -1,0 +1,67 @@
+// Custom elements default to display: inline, force this host to behave
+// like a normal block element filling its container instead.
+:host {
+  display: block;
+  width: 100%;
+}
+
+.carousel-container {
+  position: relative;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+
+  .carousel-track {
+    display: flex;
+    height: 100%;
+    // Animates the slide-to-slide swap as a horizontal slide.
+    transition: transform 0.4s ease-in-out;
+
+    // Applied only for the single frame where the track snaps from a
+    // cloned end slide back to its real counterpart.
+    &.no-transition {
+      transition: none;
+    }
+  }
+
+  .carousel-slide {
+    position: relative;
+    flex: 0 0 100%;
+    height: 100%;
+  }
+
+  .carousel-image {
+    object-fit: cover;
+  }
+
+  .carousel-arrow {
+    // Guarantees the arrows paint above the slide images.
+    z-index: 10;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgb(0 0 0 / 0.4);
+    color: white;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+  }
+
+  .carousel-arrow-prev {
+    left: 10px;
+  }
+
+  .carousel-arrow-next {
+    right: 10px;
+  }
+}

@@ -4,13 +4,14 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { environment } from 'src/environments/environment';
 import { NgOptimizedImage } from '@angular/common';
 import { MarkdownComponent } from 'ngx-markdown';
+import { CarouselComponent } from '../../../shared/carousel/carousel.component';
 
 @Component({
   selector: 'se-selected-championship',
   templateUrl: './selected-championship.component.html',
   styleUrls: ['./selected-championship.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MarkdownComponent, NgOptimizedImage],
+  imports: [MarkdownComponent, NgOptimizedImage, CarouselComponent],
 })
 export class SelectedChampionshipComponent {
   private screenSizeService = inject(ScreenSizeService);
@@ -26,4 +27,9 @@ export class SelectedChampionshipComponent {
     const logo = this.selectedChampionship()?.logo;
     return logo ? [logo] : [];
   });
+
+  // se-carousel takes plain string paths, but Championship.images is
+  // { path: string }[] - memoized so this only recomputes when the
+  // championship itself changes
+  imagePaths = computed(() => this.selectedChampionship()?.images.map((image) => image.path) ?? []);
 }

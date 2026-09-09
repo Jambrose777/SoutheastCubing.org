@@ -39,13 +39,18 @@
         </div>
       }
       <!-- Photo Carousel on Mobile -->
-      <!-- Temporarily disabled: angular-responsive-carousel is incompatible with Angular 16+'s
-      Ivy-only compiler. Replacing it with a supported alternative to restore this carousel is
-      tracked as separate backlog work. -->
-      <!-- <div class="mobile-home-photo-container" *ngIf="isMobile">
-      <carousel [images]="photos" [cellsToShow]="1" [height]="200" [loop]="true" [autoplay]="true" [arrows]="false">
-      </carousel>
-    </div> -->
+      @if (isMobile()) {
+        <div class="mobile-home-photo-container">
+          <se-carousel
+            [images]="photos()"
+            [height]="200"
+            [loop]="true"
+            [autoplay]="true"
+            [arrows]="false"
+          >
+          </se-carousel>
+        </div>
+      }
       <div class="large-text-content">
         <markdown [data]="description()"></markdown>
       </div>
@@ -90,13 +95,16 @@
         <se-loading-spinner></se-loading-spinner>
       }
       @if (!loadingContent()) {
-        <!-- Temporarily disabled: angular-responsive-carousel is incompatible with Angular 16+'s
-      Ivy-only compiler. Replacing it with a supported alternative to restore this carousel is
-      tracked as separate backlog work. -->
-        <!-- <div class="home-photo-container">
-      <carousel [images]="photos" [cellsToShow]="1" [height]="500" [loop]="true" [autoplay]="true" [arrows]="false">
-      </carousel>
-    </div> -->
+        <div class="home-photo-container">
+          <se-carousel
+            [images]="photos()"
+            [height]="500"
+            [loop]="true"
+            [autoplay]="true"
+            [arrows]="false"
+          >
+          </se-carousel>
+        </div>
       }
     </div>
   }

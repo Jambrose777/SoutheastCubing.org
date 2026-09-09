@@ -1,0 +1,41 @@
+<div class="carousel-container" [style.height.px]="height()">
+  @if (images().length > 0) {
+    <div
+      class="carousel-track"
+      [class.no-transition]="suppressTransition()"
+      [style.transform]="'translateX(-' + trackIndex() * 100 + '%)'"
+      (transitionend)="onTransitionEnd()"
+    >
+      @for (image of slides(); track $index) {
+        <div class="carousel-slide">
+          <img
+            ngSrc="{{ image }}"
+            fill
+            [priority]="$index === initialTrackIndex()"
+            class="carousel-image"
+          />
+        </div>
+      }
+    </div>
+  }
+  @if (arrows() && images().length > 1) {
+    <button
+      type="button"
+      class="carousel-arrow carousel-arrow-prev"
+      [disabled]="isAtStart()"
+      (click)="previous()"
+      aria-label="Previous image"
+    >
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    <button
+      type="button"
+      class="carousel-arrow carousel-arrow-next"
+      [disabled]="isAtEnd()"
+      (click)="next()"
+      aria-label="Next image"
+    >
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+  }
+</div>

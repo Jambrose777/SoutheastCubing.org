@@ -47,14 +47,18 @@
       }
     </div>
     <!-- Championship Photos in a carousel -->
-    <!-- Temporarily disabled: angular-responsive-carousel is incompatible with Angular 16+'s
-    Ivy-only compiler. Replacing it with a supported alternative to restore this carousel is
-    tracked as separate backlog work. -->
-    <!-- <div class="photo-container" *ngIf="championship.images">
-    <carousel [images]="championship.images" [cellsToShow]="1" [height]="300" [loop]="true" [autoplay]="true"
-      [arrows]="false">
-    </carousel>
-  </div> -->
+    @if (imagePaths().length > 0) {
+      <div class="photo-container">
+        <se-carousel
+          [images]="imagePaths()"
+          [height]="300"
+          [loop]="true"
+          [autoplay]="true"
+          [arrows]="false"
+        >
+        </se-carousel>
+      </div>
+    }
     <!-- Short Championship description -->
     @if (championship.description) {
       <div class="small-text-content">

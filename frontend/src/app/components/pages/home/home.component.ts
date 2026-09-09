@@ -26,6 +26,7 @@ import { LinksService } from 'src/app/services/links.service';
 import { NgOptimizedImage } from '@angular/common';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
+import { CarouselComponent } from '../../shared/carousel/carousel.component';
 import { MarkdownComponent } from 'ngx-markdown';
 
 @Component({
@@ -36,6 +37,7 @@ import { MarkdownComponent } from 'ngx-markdown';
   imports: [
     HeaderComponent,
     LoadingSpinnerComponent,
+    CarouselComponent,
     MarkdownComponent,
     RouterLink,
     NgOptimizedImage,
