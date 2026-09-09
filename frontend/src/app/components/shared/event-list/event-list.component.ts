@@ -1,16 +1,18 @@
 import { Component, computed, input, output, ChangeDetectionStrategy } from '@angular/core';
-import { Colors, Events } from 'src/app/shared/types';
+import { Colors, EventNames, Events } from 'src/app/shared/types';
 import { NgClass } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'se-event-list',
   templateUrl: './event-list.component.html',
   styleUrls: ['./event-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgClass],
+  imports: [NgClass, MatTooltipModule],
 })
 export class EventListComponent {
   Events = Events;
+  EventNames = EventNames;
   Colors = Colors;
   selectedEvents = input<string[]>();
   selectEventEmitter = output<string>();
