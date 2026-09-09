@@ -1,6 +1,13 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title()"></se-header>
+    <se-header id="header" [title]="title()">
+      <!-- Filters Icon: Mobile only -->
+      @if (isMobile() && !loadingClubs()) {
+        <div mobileHeaderAction (click)="toggleFiltersOpen()">
+          <i class="fa-solid fa-filter"></i>
+        </div>
+      }
+    </se-header>
 
     <!-- Loading Spinner -->
     @if (loadingContent()) {
@@ -67,8 +74,8 @@
       <se-loading-spinner></se-loading-spinner>
     }
 
-    <!-- Filters Icon -->
-    @if (!loadingClubs()) {
+    <!-- Filters Icon: Desktop only -->
+    @if (!isMobile() && !loadingClubs()) {
       <div class="icon-row" (click)="toggleFiltersOpen()">
         <i class="fa-solid fa-filter"></i>
       </div>

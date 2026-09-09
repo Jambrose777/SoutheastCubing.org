@@ -1,6 +1,15 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title()" [useMediumBreakpoint]="true"></se-header>
+    <se-header id="header" [title]="title()" [useMediumBreakpoint]="true">
+      <!-- Filters Icon: Mobile only -->
+      @if (
+        isMobile() && !loadingCompetitions() && !competitionsError() && competitions().length > 0
+      ) {
+        <div mobileHeaderAction (click)="toggleFiltersOpen()">
+          <i class="fa-solid fa-filter"></i>
+        </div>
+      }
+    </se-header>
 
     <!-- Loading Spinner -->
     @if (loadingContent()) {
@@ -83,8 +92,10 @@
       <div class="large-text-content">There are no upcoming competitions at this time.</div>
     }
 
-    <!-- Filters Icon -->
-    @if (!loadingCompetitions() && !competitionsError() && competitions().length > 0) {
+    <!-- Filters Icon: desktop only -->
+    @if (
+      !isMobile() && !loadingCompetitions() && !competitionsError() && competitions().length > 0
+    ) {
       <div class="icon-row" (click)="toggleFiltersOpen()">
         <i class="fa-solid fa-filter"></i>
       </div>

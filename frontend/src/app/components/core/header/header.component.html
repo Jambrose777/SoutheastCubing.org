@@ -14,6 +14,11 @@
     <i class="close-icon fa-solid fa-close fa-2xl clickable" (click)="toggleNav(false)"></i>
   }
 
+  <!-- Mobile-only slot for a page to project a page-specific action -->
+  @if (isMobile()) {
+    <ng-content select="[mobileHeaderAction]"></ng-content>
+  }
+
   <!-- Nav system -->
   @if (!isMobile()) {
     <div class="nav-container" [ngClass]="{ active: isNavActive(), transition: transition() }">
