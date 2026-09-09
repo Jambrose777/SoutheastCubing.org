@@ -15,11 +15,14 @@
           (click)="announcementClick(subTopic)"
           [style.--banner-color]="subTopic.color"
         >
-          <div class="items-container">
-            @for (
-              i of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
-              track i
-            ) {
+          <div class="items-container" #itemsContainer>
+            <!-- Exactly two identical copies of the announcement, back to
+            back: the CSS animation translates this container left by exactly
+            half its own width (one copy's worth), so the moment the first
+            copy scrolls fully out of view the second copy is sitting exactly
+            where the first one started - the loop restarts with no visible
+            seam, regardless of how long the announcement text is. -->
+            @for (copy of [0, 1]; track copy) {
               <div class="announcement-text">
                 <span>
                   {{ subTopic.title }}

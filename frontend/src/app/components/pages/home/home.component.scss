@@ -1,10 +1,5 @@
 @use 'src/styles/screen-sizes';
 
-:root {
-  --duration: 5s;
-  --duration-double: 10s;
-}
-
 .component-container {
   .main-pane {
     .announcement-banner {
@@ -12,13 +7,18 @@
       background-color: var(--banner-color);
       padding: 20px;
       width: 100%;
+      box-sizing: border-box;
       margin: 5px 0;
       box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
+      overflow: hidden;
 
       .items-container {
         display: flex;
-        width: 10000px;
-        animation: infiniteScroll 120s linear infinite;
+        width: max-content;
+        // Duration is set per-element from home.component.ts, scaled to
+        // that announcement's actual rendered width so scroll speed stays
+        // constant regardless of message length.
+        animation: infiniteScroll var(--marquee-duration, 20s) linear infinite;
       }
 
       .announcement-text {

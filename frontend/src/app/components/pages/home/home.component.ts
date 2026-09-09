@@ -2,7 +2,11 @@ import {
   Component,
   OnDestroy,
   OnInit,
+  AfterViewInit,
   ChangeDetectionStrategy,
+  ElementRef,
+  QueryList,
+  ViewChildren,
   inject,
   signal,
 } from '@angular/core';
@@ -37,7 +41,7 @@ import { MarkdownComponent } from 'ngx-markdown';
     NgOptimizedImage,
   ],
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private contentful = inject(ContentfulService);
   private themeService = inject(ThemeService);
   private router = inject(Router);
@@ -52,6 +56,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   loadingContent = signal(true);
   subTopics = signal<SubTopic[] | undefined>(undefined);
   subscriptions: Subscription = new Subscription();
+
+  // Each announcement's `.items-container` holds exactly two identical
+  // copies of that announcement's text back to back.
+  @ViewChildren('itemsContainer') itemsContainers?: QueryList<ElementRef<HTMLDivElement>>;
+
+  private static readonly MARQUEE_PIXELS_PER_SECOND = 42;
 
   ngOnInit(): void {
     // sets up main color for the home page
@@ -90,8 +100,31 @@ export class HomeComponent implements OnInit, OnDestroy {
     );
   }
 
+  ngAfterViewInit(): void {
+    // On change, re-update the marquee speed.
+    if (this.itemsContainers) {
+      this.subscriptions.add(
+        this.itemsContainers.changes.subscribe(() => this.updateMarqueeSpeeds()),
+      );
+      this.updateMarqueeSpeeds();
+    }
+  }
+
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  // Sets each announcement banner's marquee animation-duration so it always
+  // scrolls at the same real-world pixel speed, regardless of how long that
+  // announcement's rendered text turns out to be.
+  private updateMarqueeSpeeds(): void {
+    this.itemsContainers?.forEach(({ nativeElement }) => {
+      // scrollWidth covers both identical copies, so halve it for the width
+      // of the single copy the animation actually needs to travel across.
+      const oneCopyWidth = nativeElement.scrollWidth / 2;
+      const durationSeconds = oneCopyWidth / HomeComponent.MARQUEE_PIXELS_PER_SECOND;
+      nativeElement.style.setProperty('--marquee-duration', `${durationSeconds}s`);
+    });
   }
 
   announcementClick(subTopic: SubTopic) {
