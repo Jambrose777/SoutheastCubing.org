@@ -32,7 +32,12 @@
       <div class="event-container">
         <!-- Event List -->
         @for (event of competition.event_ids; track event) {
-          <span [ngClass]="'cubing-icon event-' + event"></span>
+          <span
+            [ngClass]="'cubing-icon event-' + event"
+            [matTooltip]="EventNames[event]"
+            matTooltipPosition="above"
+            [attr.aria-label]="EventNames[event]"
+          ></span>
         }
       </div>
 

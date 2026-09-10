@@ -2,17 +2,18 @@ import { Component, input, ChangeDetectionStrategy, inject, computed } from '@an
 import { Competition } from 'src/app/models/Competition';
 import { LinksService } from 'src/app/services/links.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
-import { RegistrationStatus } from 'src/app/shared/types';
+import { EventNames, RegistrationStatus } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
 import { NgClass, NgOptimizedImage, PercentPipe } from '@angular/common';
 import { SafeUrlPipe } from '../../../../pipes/safeUrl.pipe';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'se-selected-competition',
   templateUrl: './selected-competition.component.html',
   styleUrls: ['./selected-competition.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgClass, PercentPipe, SafeUrlPipe, NgOptimizedImage],
+  imports: [NgClass, PercentPipe, SafeUrlPipe, NgOptimizedImage, MatTooltipModule],
 })
 export class SelectedCompetitionComponent {
   private screenSizeService = inject(ScreenSizeService);
@@ -21,6 +22,7 @@ export class SelectedCompetitionComponent {
   isMobile = this.screenSizeService.isMobile;
 
   RegistrationStatus = RegistrationStatus;
+  EventNames = EventNames;
   environment = environment;
   selectedCompetition = input<Competition>();
 
