@@ -1,6 +1,6 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title()">
+    <se-header id="header" [title]="title()" [showNavCluster]="isMobile()">
       <!-- Filters Icon: Mobile only -->
       @if (isMobile() && !loadingClubs()) {
         <div mobileHeaderAction (click)="toggleFiltersOpen()">
@@ -69,16 +69,20 @@
   </div>
 
   <div class="side-pane">
+    @if (!isMobile()) {
+      <se-header id="header" [showTitle]="false">
+        <!-- Filters Icon: Desktop only -->
+        @if (!loadingClubs()) {
+          <div desktopHeaderAction (click)="toggleFiltersOpen()">
+            <i class="fa-solid fa-filter"></i>
+          </div>
+        }
+      </se-header>
+    }
+
     <!-- Loading Spinner -->
     @if (loadingClubs()) {
       <se-loading-spinner></se-loading-spinner>
-    }
-
-    <!-- Filters Icon: Desktop only -->
-    @if (!isMobile() && !loadingClubs()) {
-      <div class="icon-row" (click)="toggleFiltersOpen()">
-        <i class="fa-solid fa-filter"></i>
-      </div>
     }
 
     <!-- List for all loaded clubs -->

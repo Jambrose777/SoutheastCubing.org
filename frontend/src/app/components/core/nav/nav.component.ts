@@ -31,6 +31,7 @@ export class NavComponent {
 
   isNavActive = input(false);
   transition = input(false);
+  disableHomeLink = input(false);
   toggleNavEmitter = output<boolean>();
   transitionEndEmitter = output<void>();
 
@@ -52,9 +53,17 @@ export class NavComponent {
     // Reacts only to NavService.closeNav() calls, not to isNavActive changing
     // on its own — isNavActive is read via untracked() purely as a guard
     // value, otherwise the nav being opened would itself re-run this effect
-    // and immediately close it again.
+    // and immediately close it again. The first run isn't a real
+    // "someone called closeNav()" event, so it's skipped. Otherwise a nav
+    // that starts pre-opened (activateNavOnDefault on the header) would get
+    // immediately closed again by this effect's own initial run.
+    let isFirstRun = true;
     effect(() => {
       this.navService.closeNavSignal();
+      if (isFirstRun) {
+        isFirstRun = false;
+        return;
+      }
       if (untracked(this.isNavActive)) {
         this.toggleNav();
       }

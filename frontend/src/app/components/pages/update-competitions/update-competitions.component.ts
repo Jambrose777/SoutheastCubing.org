@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { Subscription, take } from 'rxjs';
 import { SouteastcubingApiService } from 'src/app/services/souteastcubing-api.service';
+import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
 import { HeaderComponent } from '../../core/header/header.component';
@@ -23,8 +24,11 @@ enum UpdateStatus {
 export class UpdateCompetitionsComponent implements OnInit {
   private themeService = inject(ThemeService);
   private southeastcubingApi = inject(SouteastcubingApiService);
+  private screenSizeService = inject(ScreenSizeService);
 
-  title: string = 'Competitions';
+  isMobile = this.screenSizeService.isMobile;
+
+  title: string = 'Update Competitions';
   subscriptions: Subscription = new Subscription();
   description: string =
     'This page is meant for admin use only. Admins can click the button below to fetch the list of competitions from WCA and update the global cache. This action is limited to once an hour. Refreshes happen automatically at midnight everyday, however this can be used to immediately update for recently announced competitions.';
@@ -32,8 +36,8 @@ export class UpdateCompetitionsComponent implements OnInit {
   errorMessage = signal<string | undefined>(undefined);
 
   ngOnInit(): void {
-    // sets up main color for the competitions page
-    this.themeService.setMainPaneColor(Colors.darkGrey);
+    // sets up main color for the update-competitions page
+    this.themeService.setMainPaneColor(Colors.purple);
   }
 
   // makes call to update competitions on the Southeastcubing API

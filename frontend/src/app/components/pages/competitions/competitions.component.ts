@@ -89,7 +89,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // sets up main color for the competitions page
-    this.themeService.setMainPaneColor(Colors.darkGrey);
+    this.themeService.setMainPaneColor(Colors.grey);
 
     // collect filters from query params
     this.subscriptions.add(
@@ -176,7 +176,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
       selectedSignal: this.selectedCompetition,
       isSelected: (c) => this.selectedCompetition()?.name === c.name,
       elementId: (c) => c.id,
-      basePaneColor: Colors.darkGrey,
+      basePaneColor: Colors.grey,
       selectColor: (c) => StateColors[c.state ?? '??'],
       updateUrl: () => this.updateUrl(),
     });
@@ -317,7 +317,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
       // clear page from a selected competition on filter changes
       if (this.selectedCompetition()) {
         this.selectedCompetition.set(undefined);
-        this.themeService.setMainPaneColor(Colors.darkGrey);
+        this.themeService.setMainPaneColor(Colors.grey);
         this.updateUrl();
       }
     }

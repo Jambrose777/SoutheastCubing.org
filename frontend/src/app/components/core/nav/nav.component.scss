@@ -2,6 +2,15 @@
 @use 'src/styles/screen-sizes';
 @use 'src/styles/constants';
 
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+
+  .clickable {
+    cursor: not-allowed;
+  }
+}
+
 .menu {
   position: relative;
   width: 100px;

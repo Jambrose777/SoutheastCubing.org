@@ -2,6 +2,7 @@ export interface Championship {
   id: string;
   name: string;
   year: number;
+  cityState: string;
   city: string;
   date: string;
   images: { path: string }[];

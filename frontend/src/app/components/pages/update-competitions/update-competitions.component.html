@@ -1,6 +1,6 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title"></se-header>
+    <se-header id="header" [title]="title" [showNavCluster]="isMobile()"></se-header>
 
     <div>
       <div class="large-text-content">{{ description }}</div>
@@ -36,5 +36,9 @@
       }
     </div>
   </div>
-  <div class="side-pane"></div>
+  @if (!isMobile()) {
+    <div class="side-pane">
+      <se-header id="header" [showTitle]="false"></se-header>
+    </div>
+  }
 </div>

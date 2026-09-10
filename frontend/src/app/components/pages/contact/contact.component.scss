@@ -46,9 +46,17 @@
 }
 
 .list-container {
-  margin-right: 20px;
-  color: color-pallet.$se-grey;
+  margin-right: 10px;
+  padding-right: 10px; // split the margin to padding for the scrollbar
+  margin-left: 20px;
+  color: color-pallet.$se-black;
   white-space: pre-wrap;
+
+  ::ng-deep markdown > *:not(:first-child) {
+    margin-top: 0px;
+    padding-top: 20px;
+    border-top: 1px solid color-pallet.$se-black;
+  }
 }
 
 @media only screen and (max-width: screen-sizes.$small-breakpoint) {
@@ -74,6 +82,7 @@
 
   .list-container {
     margin-bottom: 20px;
+    color: color-pallet.$se-grey;
   }
 }
 

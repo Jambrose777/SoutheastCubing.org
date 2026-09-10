@@ -1,6 +1,6 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title()"></se-header>
+    <se-header id="header" [title]="title()" [showNavCluster]="isMobile()"></se-header>
 
     <!-- Loading Spinner -->
     @if (loadingContent()) {
@@ -32,6 +32,10 @@
     }
   </div>
   <div class="side-pane">
+    @if (!isMobile()) {
+      <se-header id="header" [showTitle]="false"></se-header>
+    }
+
     <!-- Loading Spinner -->
     @if (loadingDelegates()) {
       <se-loading-spinner></se-loading-spinner>

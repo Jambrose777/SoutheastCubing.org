@@ -1,6 +1,6 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title()"></se-header>
+    <se-header id="header" [title]="title()" [showNavCluster]="isMobile()"></se-header>
 
     <!-- Loading Spinner -->
     @if (loadingContent()) {
@@ -51,6 +51,19 @@
           </se-carousel>
         </div>
       }
+      <!-- Photo Carousel on Desktop -->
+      @if (!isMobile()) {
+        <div class="home-photo-container">
+          <se-carousel
+            [images]="photos()"
+            [height]="500"
+            [loop]="true"
+            [autoplay]="true"
+            [arrows]="false"
+          >
+          </se-carousel>
+        </div>
+      }
       <div class="large-text-content">
         <markdown [data]="description()"></markdown>
       </div>
@@ -90,22 +103,12 @@
   </div>
   @if (!isMobile()) {
     <div class="side-pane">
-      <!-- Loading Spinner -->
-      @if (loadingContent()) {
-        <se-loading-spinner></se-loading-spinner>
-      }
-      @if (!loadingContent()) {
-        <div class="home-photo-container">
-          <se-carousel
-            [images]="photos()"
-            [height]="500"
-            [loop]="true"
-            [autoplay]="true"
-            [arrows]="false"
-          >
-          </se-carousel>
-        </div>
-      }
+      <se-header
+        id="header"
+        [showTitle]="false"
+        [activateNavOnDefault]="true"
+        [disableHomeLink]="true"
+      ></se-header>
     </div>
   }
 </div>

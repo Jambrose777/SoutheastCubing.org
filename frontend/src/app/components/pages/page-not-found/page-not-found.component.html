@@ -1,28 +1,23 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title()" [activateNavOnDefault]="true"></se-header>
-    @if (isMobile()) {
-      @if (loadingContent()) {
-        <se-loading-spinner></se-loading-spinner>
-      }
-      @if (!loadingContent()) {
-        <div class="large-text-content">
-          <markdown [data]="description()"></markdown>
-        </div>
-      }
+    <se-header
+      id="header"
+      [title]="title()"
+      [activateNavOnDefault]="true"
+      [showNavCluster]="isMobile()"
+    ></se-header>
+    @if (loadingContent()) {
+      <se-loading-spinner></se-loading-spinner>
+    }
+    @if (!loadingContent()) {
+      <div class="large-text-content">
+        <markdown [data]="description()"></markdown>
+      </div>
     }
   </div>
   @if (!isMobile()) {
     <div class="side-pane">
-      <!-- Loading Spinner -->
-      @if (loadingContent()) {
-        <se-loading-spinner></se-loading-spinner>
-      }
-      @if (!loadingContent() && !isMobile()) {
-        <div class="large-text-content">
-          <markdown [data]="description()"></markdown>
-        </div>
-      }
+      <se-header id="header" [activateNavOnDefault]="true" [showTitle]="false"></se-header>
     </div>
   }
 </div>

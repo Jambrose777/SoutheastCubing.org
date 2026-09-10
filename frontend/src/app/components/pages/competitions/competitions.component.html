@@ -1,6 +1,6 @@
 <div class="component-container">
   <div class="main-pane">
-    <se-header id="header" [title]="title()" [useMediumBreakpoint]="true">
+    <se-header id="header" [title]="title()" [showNavCluster]="isMobile()">
       <!-- Filters Icon: Mobile only -->
       @if (
         isMobile() && !loadingCompetitions() && !competitionsError() && competitions().length > 0
@@ -75,6 +75,17 @@
     }
   </div>
   <div class="side-pane">
+    @if (!isMobile()) {
+      <se-header id="header" [showTitle]="false">
+        <!-- Filters Icon: desktop only -->
+        @if (!loadingCompetitions() && !competitionsError() && competitions().length > 0) {
+          <div desktopHeaderAction (click)="toggleFiltersOpen()">
+            <i class="fa-solid fa-filter"></i>
+          </div>
+        }
+      </se-header>
+    }
+
     <!-- Loading Spinner -->
     @if (loadingCompetitions()) {
       <se-loading-spinner></se-loading-spinner>
@@ -90,15 +101,6 @@
     <!-- Empty state: request succeeded, there just aren't any upcoming competitions right now -->
     @if (!loadingCompetitions() && !competitionsError() && competitions().length === 0) {
       <div class="large-text-content">There are no upcoming competitions at this time.</div>
-    }
-
-    <!-- Filters Icon: desktop only -->
-    @if (
-      !isMobile() && !loadingCompetitions() && !competitionsError() && competitions().length > 0
-    ) {
-      <div class="icon-row" (click)="toggleFiltersOpen()">
-        <i class="fa-solid fa-filter"></i>
-      </div>
     }
 
     @if (!loadingCompetitions() && !competitionsError() && competitions().length > 0) {

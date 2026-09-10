@@ -1,17 +1,16 @@
-<div class="header">
-  <img
-    ngSrc="assets/SECILogoColor-header.png"
-    width="240"
-    height="120"
-    priority
-    class="se-logo"
-    [routerLink]="'/home'"
-  />
-  <h1 class="se-title" [ngClass]="{ 'medium-se-title': useMediumBreakpoint() }">{{ title() }}</h1>
-
-  <!-- Close Icon for when the nav is open -->
-  @if (isNavActive() && !isMobile() && !activateNavOnDefault()) {
-    <i class="close-icon fa-solid fa-close fa-2xl clickable" (click)="toggleNav(false)"></i>
+<div class="header" [ngClass]="{ 'title-only': showTitle() && !showNavCluster() }">
+  @if (showNavCluster()) {
+    <img
+      ngSrc="assets/SECILogoColor-header.png"
+      width="240"
+      height="120"
+      priority
+      class="se-logo"
+      [routerLink]="'/home'"
+    />
+  }
+  @if (showTitle()) {
+    <h1 class="se-title">{{ title() }}</h1>
   }
 
   <!-- Mobile-only slot for a page to project a page-specific action -->
@@ -19,12 +18,23 @@
     <ng-content select="[mobileHeaderAction]"></ng-content>
   }
 
-  <!-- Nav system -->
+  <!-- Desktop-only slot for a page to project a page-specific action -->
   @if (!isMobile()) {
+    <ng-content select="[desktopHeaderAction]"></ng-content>
+  }
+
+  <!-- Close Icon for when the nav is open -->
+  @if (showNavCluster() && isNavActive() && !isMobile() && !activateNavOnDefault()) {
+    <i class="close-icon fa-solid fa-close fa-2xl clickable" (click)="toggleNav(false)"></i>
+  }
+
+  <!-- Nav system -->
+  @if (showNavCluster() && !isMobile()) {
     <div class="nav-container" [ngClass]="{ active: isNavActive(), transition: transition() }">
       <se-nav
         [isNavActive]="isNavActive()"
         [transition]="transition()"
+        [disableHomeLink]="disableHomeLink()"
         (toggleNavEmitter)="toggleNav($event)"
         (transitionEndEmitter)="onTransitionEnd()"
       ></se-nav>

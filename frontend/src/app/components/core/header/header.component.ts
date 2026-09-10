@@ -17,8 +17,13 @@ export class HeaderComponent implements OnInit {
   isMobile = this.screenSizeService.isMobile;
 
   title = input<string>('Southeast Cubing');
-  useMediumBreakpoint = input<boolean>(false);
   activateNavOnDefault = input<boolean>(false);
+  // Lets a page render this component twice on desktop - once for just the
+  // title (in .main-pane) and once for just the logo/nav (in .side-pane) -
+  // while mobile keeps both together in a single instance.
+  showTitle = input<boolean>(true);
+  showNavCluster = input<boolean>(true);
+  disableHomeLink = input<boolean>(false);
   isNavActive = signal(false);
   transition = signal(false);
 

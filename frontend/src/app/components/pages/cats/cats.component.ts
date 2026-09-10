@@ -58,7 +58,6 @@ export class CatsComponent implements OnInit, OnDestroy {
   subscriptions: Subscription = new Subscription();
   availableColors: Colors[] = [
     Colors.blue,
-    Colors.darkGrey,
     Colors.green,
     Colors.grey,
     Colors.yellow,

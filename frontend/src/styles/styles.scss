@@ -84,6 +84,8 @@ p {
   box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
   // Visually swapped to the right
   order: 2;
+  // Grows to fill whatever space .side-pane's max-width doesn't use.
+  flex-grow: 1;
 
   se-header {
     z-index: 10001;
@@ -96,24 +98,32 @@ p {
 .side-pane {
   display: flex;
   width: 50%;
+  max-width: 475px;
   height: 100%;
-  background-color: color-pallet.$se-black;
+  background-color: color-pallet.$se-dark-grey;
   flex-direction: column;
   box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
   // Visually swapped to the left
   order: 1;
 
+  se-header {
+    z-index: 10001;
+    position: sticky;
+    top: 0;
+    background-color: color-pallet.$se-dark-grey;
+  }
+
   .list-container {
     display: flex;
     height: 100%;
-    margin: 50px 20px 20px 0;
+    margin: 30px 10px 20px 0;
     flex-direction: column;
     overflow-y: scroll;
 
     .item-container {
       display: flex;
       flex-direction: row;
-      width: 90%;
+      width: 445px;
       min-height: 70px;
       margin-right: auto;
       margin-bottom: 7px;
@@ -152,12 +162,12 @@ p {
     }
 
     .item-container:hover {
-      width: 87%;
+      width: 455px;
       transition: 0.5s;
     }
 
     .item-container.active {
-      width: 87%;
+      width: 455px;
       transition: 0.5s;
     }
   }
@@ -171,7 +181,7 @@ p {
 }
 
 .large-text-content {
-  margin: 50px 30px;
+  margin: 30px 30px;
   width: calc(100% - 60px);
   text-align: center;
   font-size: 30px;
@@ -290,10 +300,12 @@ se-loading-spinner {
 
   .side-pane {
     width: 100%;
+    max-width: none;
     height: fit-content;
     border-radius: 0;
     overflow-y: auto;
     order: initial;
+    background-color: color-pallet.$se-black;
 
     .list-container {
       height: fit-content;

@@ -119,7 +119,9 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
                     .map((image) => resolvedAsset(image)?.fields.file?.url)
                     .filter((url): url is string => !!url)
                     .map((url) => ({ path: url })),
-                  state: championship.fields?.city.substring(championship.fields?.city.length - 2),
+                  state: championship.fields.cityState.substring(
+                    championship.fields.cityState.length - 2,
+                  ),
                   champions: (championship.fields.champions ?? [])
                     .map((champion) => resolvedEntry<ChampionSkeleton>(champion)?.fields)
                     .filter((fields): fields is NonNullable<typeof fields> => !!fields),

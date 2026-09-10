@@ -95,6 +95,7 @@ export type ChampionshipSkeleton = {
     id: EntryFieldTypes.Symbol;
     name: EntryFieldTypes.Symbol;
     year: EntryFieldTypes.Integer;
+    cityState: EntryFieldTypes.Text;
     city: EntryFieldTypes.Symbol;
     date: EntryFieldTypes.Symbol;
     description?: EntryFieldTypes.Text;
