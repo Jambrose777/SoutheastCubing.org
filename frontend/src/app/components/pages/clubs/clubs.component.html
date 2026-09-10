@@ -70,14 +70,7 @@
 
   <div class="side-pane">
     @if (!isMobile()) {
-      <se-header id="header" [showTitle]="false">
-        <!-- Filters Icon: Desktop only -->
-        @if (!loadingClubs()) {
-          <div desktopHeaderAction (click)="toggleFiltersOpen()">
-            <i class="fa-solid fa-filter"></i>
-          </div>
-        }
-      </se-header>
+      <se-header id="header" [showTitle]="false"></se-header>
     }
 
     <!-- Loading Spinner -->
@@ -87,6 +80,28 @@
 
     <!-- List for all loaded clubs -->
     @if (!loadingClubs()) {
+      <div class="search-controls">
+        <se-search-bar
+          #searchBar
+          [initialValue]="searchTerm()"
+          label="Search clubs"
+          (searchChange)="handleSearchChange($event)"
+        ></se-search-bar>
+        <!-- Filters icon + clear filters: desktop only (mobile keeps its own filter
+        icon in the main pane's header instead) -->
+        @if (!isMobile()) {
+          <i class="fa-solid fa-filter clickable icon-button" (click)="toggleFiltersOpen()"></i>
+          <button
+            class="clear-filters-btn icon-button"
+            type="button"
+            aria-label="Clear filters"
+            title="Clear filters"
+            (click)="clearFilters()"
+          >
+            <i class="fa-solid fa-circle-xmark"></i>
+          </button>
+        }
+      </div>
       <div id="club-list-container" class="list-container">
         @for (club of filteredClubs(); track club) {
           <!-- Club Bubble -->
@@ -102,7 +117,7 @@
                 {{ club.name }}
               </div>
               <div class="item-sub-text">
-                {{ club.city }}
+                {{ club.city | breakStateOntoNewLine }}
               </div>
             </div>
             <!-- Information for selected club details -->

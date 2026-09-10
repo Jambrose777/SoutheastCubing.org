@@ -7,6 +7,7 @@ import {
   inject,
   Injector,
   signal,
+  ViewChild,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Club } from 'src/app/models/Club';
@@ -32,6 +33,9 @@ import { MarkdownComponent } from 'ngx-markdown';
 import { SeMapComponent } from '../../shared/se-map/se-map.component';
 import { SeFilterMapComponent } from '../../shared/se-filter-map/se-filter-map.component';
 import { SelectedClubComponent } from './selected-club/selected-club.component';
+import { SeSearchBarComponent } from '../../shared/se-search-bar/se-search-bar.component';
+import { matchesSearchTerm } from 'src/app/shared/matches-search-term';
+import { BreakStateOntoNewLinePipe } from 'src/app/pipes/breakStateOntoNewLine.pipe';
 
 @Component({
   selector: 'se-clubs',
@@ -46,6 +50,8 @@ import { SelectedClubComponent } from './selected-club/selected-club.component';
     SeFilterMapComponent,
     SelectedClubComponent,
     NgClass,
+    SeSearchBarComponent,
+    BreakStateOntoNewLinePipe,
   ],
 })
 export class ClubsComponent implements OnInit, OnDestroy {
@@ -77,6 +83,8 @@ export class ClubsComponent implements OnInit, OnDestroy {
   subText2ButtonText = signal('');
   subText2ButtonLink = signal('');
   filters = signal<{ states: States[] }>({ states: [] });
+  searchTerm = signal('');
+  @ViewChild(SeSearchBarComponent) searchBar?: SeSearchBarComponent;
   // Set only from click/mouseover events originating in this component's own
   // template (or a child's output binding in that template), which already
   // trigger OnPush change detection on their own, so these stay as plain
@@ -109,6 +117,9 @@ export class ClubsComponent implements OnInit, OnDestroy {
               ].includes(state),
             );
           this.filters.set({ states });
+        }
+        if (params['search']) {
+          this.searchTerm.set(params['search']);
         }
       }),
     );
@@ -218,6 +229,9 @@ export class ClubsComponent implements OnInit, OnDestroy {
           club.state && filterStates.includes((States as Record<string, States>)[club.state]),
       );
     }
+    filteredClubs = filteredClubs?.filter((club) =>
+      matchesSearchTerm(this.searchTerm(), [club.name, club.city, club.state]),
+    );
     this.filteredClubs.set(filteredClubs);
 
     this.createMapPoints();
@@ -227,10 +241,17 @@ export class ClubsComponent implements OnInit, OnDestroy {
   updateUrl() {
     const selectedClub = this.selectedClub();
     const filterStates = this.filters().states;
+    const queryParams = [];
+    if (filterStates.length > 0) {
+      queryParams.push('states=' + filterStates.join(','));
+    }
+    if (this.searchTerm().trim()) {
+      queryParams.push('search=' + encodeURIComponent(this.searchTerm()));
+    }
     this.location.replaceState(
       '/clubs' +
         (selectedClub ? '/' + selectedClub.id : '') +
-        (filterStates.length > 0 ? '?states=' + filterStates.join(',') : ''),
+        (queryParams.length > 0 ? '?' + queryParams.join('&') : ''),
     );
   }
 
@@ -279,6 +300,22 @@ export class ClubsComponent implements OnInit, OnDestroy {
   // hover event on club list
   clubHover(club?: Club) {
     this.hoveredListClub = club?.id;
+  }
+
+  // Called (already debounced) by the search bar.
+  handleSearchChange(term: string) {
+    this.searchTerm.set(term);
+    this.updateUrl();
+    this.filterClubs();
+  }
+
+  // Clears every active filter (states and the search term) in one action.
+  clearFilters() {
+    this.filters.set({ states: [] });
+    this.searchTerm.set('');
+    this.searchBar?.clear();
+    this.updateUrl();
+    this.filterClubs();
   }
 
   // toggles whether the filters pane is open or not

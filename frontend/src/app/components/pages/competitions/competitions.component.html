@@ -37,15 +37,15 @@
           <div class="badges">
             <!-- Facebook -->
             <a href="{{ linksService.facebook }}" target="_blank" rel="noopener noreferrer">
-              <i class="fa-brands fa-square-facebook fa-2xl clickable"></i>
+              <i class="fa-brands fa-square-facebook fa-2xl clickable icon-button"></i>
             </a>
             <!-- Discord -->
             <a href="{{ linksService.discord }}" target="_blank" rel="noopener noreferrer">
-              <i class="fa-brands fa-discord fa-2xl clickable"></i>
+              <i class="fa-brands fa-discord fa-2xl clickable icon-button"></i>
             </a>
             <!-- Instagram -->
             <a href="{{ linksService.instagram }}" target="_blank" rel="noopener noreferrer">
-              <i class="fa-brands fa-instagram fa-2xl clickable"></i>
+              <i class="fa-brands fa-instagram fa-2xl clickable icon-button"></i>
             </a>
           </div>
         </div>
@@ -76,14 +76,7 @@
   </div>
   <div class="side-pane">
     @if (!isMobile()) {
-      <se-header id="header" [showTitle]="false">
-        <!-- Filters Icon: desktop only -->
-        @if (!loadingCompetitions() && !competitionsError() && competitions().length > 0) {
-          <div desktopHeaderAction (click)="toggleFiltersOpen()">
-            <i class="fa-solid fa-filter"></i>
-          </div>
-        }
-      </se-header>
+      <se-header id="header" [showTitle]="false"></se-header>
     }
 
     <!-- Loading Spinner -->
@@ -104,6 +97,28 @@
     }
 
     @if (!loadingCompetitions() && !competitionsError() && competitions().length > 0) {
+      <div class="search-controls">
+        <se-search-bar
+          #searchBar
+          [initialValue]="searchTerm()"
+          label="Search competitions"
+          (searchChange)="handleSearchChange($event)"
+        ></se-search-bar>
+        <!-- Filters icon + clear filters: desktop only (mobile keeps its own filter
+        icon in the main pane's header instead) -->
+        @if (!isMobile()) {
+          <i class="fa-solid fa-filter clickable icon-button" (click)="toggleFiltersOpen()"></i>
+          <button
+            class="clear-filters-btn icon-button"
+            type="button"
+            aria-label="Clear filters"
+            title="Clear filters"
+            (click)="clearFilters()"
+          >
+            <i class="fa-solid fa-circle-xmark"></i>
+          </button>
+        }
+      </div>
       <div id="competition-list-container" class="list-container">
         <!-- List for all loaded competitions -->
         @for (competition of filteredCompetitions(); track competition) {

@@ -23,7 +23,7 @@ export class EventListComponent {
     return Object.fromEntries(
       this.Events.map((event) => [
         event,
-        !selected?.length || selected.includes(event) ? Colors.black : Colors.grey,
+        !selected?.length || selected.includes(event) ? Colors.black : Colors.darkGrey,
       ]),
     );
   });

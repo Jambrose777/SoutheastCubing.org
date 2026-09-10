@@ -18,14 +18,12 @@
     <ng-content select="[mobileHeaderAction]"></ng-content>
   }
 
-  <!-- Desktop-only slot for a page to project a page-specific action -->
-  @if (!isMobile()) {
-    <ng-content select="[desktopHeaderAction]"></ng-content>
-  }
-
   <!-- Close Icon for when the nav is open -->
   @if (showNavCluster() && isNavActive() && !isMobile() && !activateNavOnDefault()) {
-    <i class="close-icon fa-solid fa-close fa-2xl clickable" (click)="toggleNav(false)"></i>
+    <i
+      class="close-icon fa-solid fa-close fa-2xl clickable icon-button"
+      (click)="toggleNav(false)"
+    ></i>
   }
 
   <!-- Nav system -->

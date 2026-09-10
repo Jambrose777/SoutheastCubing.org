@@ -1,0 +1,22 @@
+@use 'src/styles/color-pallet';
+
+.search-field {
+  width: 100%;
+
+  .fa-magnifying-glass {
+    color: color-pallet.$se-black;
+    margin-right: 10px;
+  }
+}
+
+::ng-deep .search-field {
+  .mat-mdc-text-field-wrapper {
+    background-color: color-pallet.$se-grey !important;
+    border-radius: 10px !important;
+  }
+
+  .mat-mdc-form-field-label,
+  .mdc-floating-label {
+    color: color-pallet.$se-black !important;
+  }
+}

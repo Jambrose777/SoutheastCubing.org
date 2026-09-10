@@ -7,6 +7,7 @@ import {
   inject,
   Injector,
   signal,
+  ViewChild,
 } from '@angular/core';
 import { Competition } from 'src/app/models/Competition';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -35,6 +36,8 @@ import { SeFilterMapComponent } from '../../shared/se-filter-map/se-filter-map.c
 import { SelectedCompetitionComponent } from './selected-competition/selected-competition.component';
 import { StripYearPipe } from 'src/app/pipes/stripYear.pipe';
 import { BreakYearOntoNewLinePipe } from 'src/app/pipes/breakYearOntoNewLine.pipe';
+import { SeSearchBarComponent } from '../../shared/se-search-bar/se-search-bar.component';
+import { matchesSearchTerm } from 'src/app/shared/matches-search-term';
 
 @Component({
   selector: 'se-competitions',
@@ -52,6 +55,7 @@ import { BreakYearOntoNewLinePipe } from 'src/app/pipes/breakYearOntoNewLine.pip
     NgClass,
     StripYearPipe,
     BreakYearOntoNewLinePipe,
+    SeSearchBarComponent,
   ],
 })
 export class CompetitionsComponent implements OnInit, OnDestroy {
@@ -86,6 +90,8 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   hoveredListCompetition?: string;
   subText = signal('');
   filters = signal<{ states: States[]; events: string[] }>({ states: [], events: [] });
+  searchTerm = signal('');
+  @ViewChild(SeSearchBarComponent) searchBar?: SeSearchBarComponent;
   filtersDescription = signal<string | undefined>(undefined);
   filtersOpen = signal(false);
   competitionMapPoints = signal<MapPoint[] | undefined>(undefined);
@@ -117,6 +123,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
           ? params['events'].split(',').filter((event: string) => Events.includes(event))
           : currentFilters.events;
         this.filters.set({ states, events });
+        this.searchTerm.set(params['search'] ?? this.searchTerm());
       }),
     );
 
@@ -227,6 +234,9 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
         filters.events.reduce((include, event) => include && comp.event_ids.includes(event), true),
       );
     }
+    filteredCompetitions = filteredCompetitions.filter((comp) =>
+      matchesSearchTerm(this.searchTerm(), [comp.name, comp.city, comp.state]),
+    );
     this.filteredCompetitions.set(filteredCompetitions);
 
     this.createMapPoints();
@@ -242,6 +252,9 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
     }
     if (filters.events.length > 0) {
       queryParams.push('events=' + filters.events.join(','));
+    }
+    if (this.searchTerm().trim()) {
+      queryParams.push('search=' + encodeURIComponent(this.searchTerm()));
     }
     this.location.replaceState(
       '/competitions' +
@@ -308,6 +321,22 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   // hover event on competition list
   competitionHover(competition?: Competition) {
     this.hoveredListCompetition = competition?.id;
+  }
+
+  // Called (already debounced) by the search bar.
+  handleSearchChange(term: string) {
+    this.searchTerm.set(term);
+    this.updateUrl();
+    this.filterCompetitions();
+  }
+
+  // Clears every active filter (states, events, and the search term).
+  clearFilters() {
+    this.filters.set({ states: [], events: [] });
+    this.searchTerm.set('');
+    this.searchBar?.clear();
+    this.updateUrl();
+    this.filterCompetitions();
   }
 
   // toggles whether the filters pane is open or not

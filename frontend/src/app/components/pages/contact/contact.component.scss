@@ -94,7 +94,7 @@ mat-option {
 // The following ::ng-deep rules style Angular Material's MDC-based form field internals
 // (.mat-mdc-* classes), which aren't reachable through the component's own view encapsulation.
 ::ng-deep .mat-mdc-text-field-wrapper {
-  border-radius: 5px !important;
+  border-radius: 10px !important;
   background-color: color.adjust(color-pallet.$se-yellow, $lightness: -3%) !important;
 }
 

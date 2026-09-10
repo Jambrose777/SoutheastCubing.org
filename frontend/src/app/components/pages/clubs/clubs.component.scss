@@ -1,18 +1,61 @@
 @use 'src/styles/screen-sizes';
+@use 'src/styles/color-pallet';
 
 .large-text-content {
   margin: 30px 30px 20px 30px;
 }
 
+.list-container {
+  margin-top: 10px;
+}
+
+.item-sub-text {
+  white-space: pre-line;
+}
+
+.search-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 10px;
+
+  se-search-bar {
+    flex: 1;
+    margin: 0;
+  }
+
+  .fa-filter,
+  .clear-filters-btn {
+    color: color-pallet.$se-grey;
+  }
+}
+
 .fa-filter {
+  align-self: center;
   color: white;
-  font-size: 44px;
-  cursor: pointer;
+  font-size: 28px;
+}
+
+.clear-filters-btn {
+  display: flex;
+  align-items: center;
+  align-self: center;
+  background: none;
+  border: none;
+  padding: 0;
+
+  i {
+    font-size: 28px;
+  }
 }
 
 @media only screen and (max-width: screen-sizes.$small-breakpoint) {
   .large-text-content {
     margin: 10px 5px;
+  }
+
+  .search-controls {
+    margin: 15px 10px 0;
   }
 
   .fa-filter {

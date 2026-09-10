@@ -20,7 +20,7 @@ export class SeFilterMapComponent {
     return Object.fromEntries(
       Object.values(States).map((state) => [
         state,
-        !selected?.length || selected.includes(state) ? StateColors[state] : Colors.grey,
+        !selected?.length || selected.includes(state) ? StateColors[state] : Colors.darkGrey,
       ]),
     ) as Record<States, string>;
   });
