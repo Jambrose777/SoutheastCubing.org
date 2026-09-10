@@ -33,6 +33,8 @@ import { SeMapComponent } from '../../shared/se-map/se-map.component';
 import { EventListComponent } from '../../shared/event-list/event-list.component';
 import { SeFilterMapComponent } from '../../shared/se-filter-map/se-filter-map.component';
 import { SelectedCompetitionComponent } from './selected-competition/selected-competition.component';
+import { StripYearPipe } from 'src/app/pipes/stripYear.pipe';
+import { BreakYearOntoNewLinePipe } from 'src/app/pipes/breakYearOntoNewLine.pipe';
 
 @Component({
   selector: 'se-competitions',
@@ -48,6 +50,8 @@ import { SelectedCompetitionComponent } from './selected-competition/selected-co
     SeFilterMapComponent,
     SelectedCompetitionComponent,
     NgClass,
+    StripYearPipe,
+    BreakYearOntoNewLinePipe,
   ],
 })
 export class CompetitionsComponent implements OnInit, OnDestroy {

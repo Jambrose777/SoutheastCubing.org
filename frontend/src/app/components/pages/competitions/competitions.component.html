@@ -125,10 +125,10 @@
               id="{{ competition.id }}"
             >
               <div class="item-title">
-                {{ competition.name }}
+                {{ competition.name | stripYear }}
               </div>
               <div class="item-sub-text">
-                {{ competition.full_date }}
+                {{ competition.full_date | breakYearOntoNewLine }}
               </div>
             </div>
             <!-- Information for selected competition details -->
