@@ -82,6 +82,8 @@ p {
   flex-direction: column;
   overflow-y: scroll;
   box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
+  // Visually swapped to the right
+  order: 2;
 
   se-header {
     z-index: 10001;
@@ -91,18 +93,20 @@ p {
   }
 }
 
-.secondary-pane {
+.side-pane {
   display: flex;
   width: 50%;
   height: 100%;
   background-color: color-pallet.$se-black;
   flex-direction: column;
   box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
+  // Visually swapped to the left
+  order: 1;
 
   .list-container {
     display: flex;
     height: 100%;
-    margin: 50px 0 20px 20px;
+    margin: 50px 20px 20px 0;
     flex-direction: column;
     overflow-y: scroll;
 
@@ -111,10 +115,10 @@ p {
       flex-direction: row;
       width: 90%;
       min-height: 70px;
-      margin-left: auto;
+      margin-right: auto;
       margin-bottom: 7px;
       background-color: var(--state-color);
-      border-radius: 10px 0 0 10px;
+      border-radius: 0 10px 10px 0;
       transition: 0.5s;
 
       .thumbnail {
@@ -280,13 +284,16 @@ se-loading-spinner {
     overflow-y: auto;
     height: fit-content;
     box-shadow: none;
+    // Restore natural DOM order for mobile's stacked single-column layout
+    order: initial;
   }
 
-  .secondary-pane {
+  .side-pane {
     width: 100%;
     height: fit-content;
     border-radius: 0;
     overflow-y: auto;
+    order: initial;
 
     .list-container {
       height: fit-content;
