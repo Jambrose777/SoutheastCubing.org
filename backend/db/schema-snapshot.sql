@@ -10,6 +10,11 @@ CREATE TABLE competition_events (
   PRIMARY KEY (competition_id, event_id)
 );
 
+CREATE TABLE competition_patterns_for_discord_pings (
+  id_pattern TEXT NOT NULL PRIMARY KEY,
+  try_direct_lookup BOOLEAN NOT NULL DEFAULT false
+);
+
 CREATE TABLE competitions (
   id TEXT NOT NULL PRIMARY KEY,
   url TEXT,
@@ -40,4 +45,22 @@ CREATE TABLE competitions_meta (
   id INTEGER NOT NULL PRIMARY KEY,
   last_checked TIMESTAMP WITH TIME ZONE,
   CHECK (id = 1)
+);
+
+CREATE TABLE major_championship_announcements (
+  id TEXT NOT NULL PRIMARY KEY,
+  name TEXT,
+  city TEXT,
+  start_date TEXT,
+  end_date TEXT,
+  full_date TEXT,
+  competitor_limit INTEGER,
+  registration_open TEXT,
+  announced_on_discord_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TABLE major_championship_events (
+  major_championship_id TEXT NOT NULL REFERENCES major_championship_announcements (id),
+  event_id TEXT NOT NULL,
+  PRIMARY KEY (major_championship_id, event_id)
 );

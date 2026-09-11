@@ -8,6 +8,10 @@ const googleForm = require('./googleForm.js');
 const contentful = require('./contentful.js');
 const discord = require('./discord.js');
 const competitionsDb = require('./db/competitions.js');
+const discordPingPatternsDb = require('./db/discordPingPatterns.js');
+const majorChampionships = require('./majorChampionships.js');
+const { getFullCompetitionDate } = require('./utils/competitionDates.js');
+const { isInSEState } = require('./utils/seState.js');
 
 // Gets upcoming competitions from the database.
 async function getCompetitions(req, res) {
@@ -93,54 +97,25 @@ async function fetchCompetitions() {
   }
 }
 
-// Number of Discord webhook posts allowed per rate-limit window (5 requests
-// per 2 seconds per webhook).
-const DISCORD_CHUNK_SIZE = 5;
-const DISCORD_CHUNK_DELAY_MS = 2000;
-
-// Splits `items` into chunks of at most `size`.
-function chunk(items, size) {
-  const chunks = [];
-  for (let i = 0; i < items.length; i += size) {
-    chunks.push(items.slice(i, i + size));
-  }
-  return chunks;
-}
-
-// Posts every competition in `competitions` to Discord, chunked into groups
-// of DISCORD_CHUNK_SIZE with a DISCORD_CHUNK_DELAY_MS wait between groups to
-// stay within Discord's per-webhook rate limit. Only ids whose post succeeds
-// are marked announced - anything still failing after discord.js's retries
-// is left unannounced so it's retried on the next refresh.
+// Posts every competition in `competitions` to Discord (chunked/rate-limit-safe
+// - see discord.js's postToDiscordInChunks). A competition whose id matches any
+// stored pattern gets an @everyone ping instead of its state's
+// role ping. Only ids whose post succeeds are marked announced - anything
+// still failing after discord.js's retries is left unannounced so it's
+// retried on the next refresh.
 async function postCompetitionsToDiscord(competitions) {
-  const chunks = chunk(competitions, DISCORD_CHUNK_SIZE);
-  const failures = [];
-  for (const [i, batch] of chunks.entries()) {
-    const results = await Promise.all(
-      batch.map((competition) =>
-        discord
-          .postCompetitionInDiscord(competition)
-          .then(() => ({ competition, succeeded: true }))
-          .catch(() => ({ competition, succeeded: false })),
-      ),
-    );
+  const patterns = await discordPingPatternsDb.getPatterns();
+  const usesEveryonePing = (competitionId) =>
+    patterns.some((pattern) => discordPingPatternsDb.matchesIdPattern(competitionId, pattern.id_pattern));
 
-    // Mark successfully posted competitions as announced in the database,
-    // and collect any failures for the caller to report/retry.
-    const succeededIds = results
-      .filter((result) => result.succeeded)
-      .map((result) => result.competition.id);
-    if (succeededIds.length) {
-      await competitionsDb.markAnnounced(succeededIds);
-    }
-    results.filter((result) => !result.succeeded).forEach((result) => failures.push(result.competition));
-
-    // Skip the delay after the last chunk - there's nothing left to space out.
-    if (i < chunks.length - 1) {
-      await new Promise((resolve) => setTimeout(resolve, DISCORD_CHUNK_DELAY_MS));
-    }
-  }
-  return failures;
+  return discord.postToDiscordInChunks(competitions, {
+    postFn: (competition) =>
+      discord.postCompetitionInDiscord(competition, {
+        pingOverride: usesEveryonePing(competition.id) ? 'everyone' : undefined,
+      }),
+    markAnnouncedFn: (ids) => competitionsDb.markAnnounced(ids),
+    getId: (competition) => competition.id,
+  });
 }
 
 // gets full competition list from WCA
@@ -250,13 +225,31 @@ async function refreshCompetitionsFromWCA() {
     // fetch competitions with a volunteer application
     let competitionsWithVolunteerApp = await googleForm.getCompetitionsInVolunteerForm();
 
+    const patterns = await discordPingPatternsDb.getPatterns();
+    const matchesDiscordPingPattern = (competitionId) =>
+      patterns.some((pattern) => discordPingPatternsDb.matchesIdPattern(competitionId, pattern.id_pattern));
+
+    // Nats/NAC/Worlds are usually held outside the tracked SE states, so
+    // they're normally Discord-only and tracked separately rather than ever reaching the public
+    // competitions page. But any of them CAN land in an SE state - when that happens it should
+    // still show up on the public page like any other SE competition, just
+    // with an @everyone ping instead of its state's role ping.
+    const seHostedPatternMatchIds = new Set(
+      wcaCompetitions.filter((comp) => matchesDiscordPingPattern(comp.id) && isInSEState(comp)).map((comp) => comp.id),
+    );
+    const majorChampionshipDiscordFailures = await majorChampionships.refreshMajorChampionships(
+      wcaCompetitions,
+      patterns,
+      seHostedPatternMatchIds,
+    );
+
     // format competition data
     let comps = await formatCompetitionData(
       wcaCompetitions.concat(contentfulCompetitions),
       competitionsWithVolunteerApp,
     );
 
-    let discordPostFailures = [];
+    let discordPostFailures = [...majorChampionshipDiscordFailures];
     if (comps && comps.length) {
       // Upsert into the database. upsertCompetitions handles the cold-start
       // case internally (stamping a first-time population as already
@@ -265,7 +258,7 @@ async function refreshCompetitionsFromWCA() {
 
       const unannouncedCompetitions = await competitionsDb.getUnannouncedCompetitions();
       if (unannouncedCompetitions.length) {
-        discordPostFailures = await postCompetitionsToDiscord(unannouncedCompetitions);
+        discordPostFailures = discordPostFailures.concat(await postCompetitionsToDiscord(unannouncedCompetitions));
       }
 
       // Only recorded on a non-empty result - an empty result is more likely a
@@ -301,14 +294,7 @@ async function formatCompetitionData(comps, competitionsWithVolunteerApp) {
           );
           return false;
         }
-        return (
-          comp.city.includes(', Georgia') ||
-          comp.city.includes(', Tennessee') ||
-          comp.city.includes(', North Carolina') ||
-          comp.city.includes(', South Carolina') ||
-          comp.city.includes(', Alabama') ||
-          comp.city.includes(', Florida')
-        );
+        return isInSEState(comp);
       })
 
       //  Sort by date
@@ -384,32 +370,6 @@ function getWCACompetition(competitions, competitionId) {
         // spreading undefined fields into a broken/incomplete record.
         return null;
       });
-  }
-}
-
-// Formats a date from WCA with appropriate multi day Logic
-function getFullCompetitionDate(start, end) {
-  // 1 day competition has no special logic. Output example: "Jan 1, 2023"
-  if (start === end) {
-    return moment(start).format('MMM D, YYYY');
-  }
-
-  let mstart = moment(start);
-  let mend = moment(end);
-
-  // Check that year matches
-  if (mstart.year === mend.year) {
-    // Check that month matches
-    if (mstart.month === mend.month) {
-      // Multi day competition with a few days difference. Output example: Jan 1 - 2, 2023
-      return mstart.format('MMM D') + ' - ' + mend.format('D, YYYY');
-    } else {
-      // Multi day competitiion with a month difference included. Output example: Jan 31 - Feb 2, 2023
-      return mstart.format('MMM D') + ' - ' + mend.format('MMM D, YYYY');
-    }
-  } else {
-    // Multi day competitiion with a year difference included. Output example: Dec 31, 2022 - Jan 1, 2023
-    return mstart.format('MMM D, YYYY') + ' - ' + mend.format('MMM D, YYYY');
   }
 }
 

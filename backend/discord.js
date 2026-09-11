@@ -40,8 +40,25 @@ const stateTagIds = {
 // of the initial attempt.
 const MAX_RATE_LIMIT_RETRIES = 2;
 
-// Post message on Discord using SoutheastCubing API Webhook.
-async function postCompetitionInDiscord(competition, attempt = 0) {
+// Number of Discord webhook posts allowed per rate-limit window (5 requests
+// per 2 seconds per webhook).
+const DISCORD_CHUNK_SIZE = 5;
+const DISCORD_CHUNK_DELAY_MS = 2000;
+
+// Splits `items` into chunks of at most `size`.
+function chunk(items, size) {
+  const chunks = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
+
+// Post message on Discord using SoutheastCubing API Webhook. `pingOverride:
+// 'everyone'` pings @everyone instead of the competition's state role - used
+// for major championships (Nats/NAC/Worlds, which have no SE state) and for
+// SE-wide events like the SE Championship.
+async function postCompetitionInDiscord(competition, { attempt = 0, pingOverride } = {}) {
   // Neutralize untrusted WCA/Contentful fields
   const name = neutralizeMentions(competition.name);
   const city = neutralizeMentions(competition.city);
@@ -54,6 +71,8 @@ async function postCompetitionInDiscord(competition, attempt = 0) {
     return (aIndex === -1 ? eventOrder.length : aIndex) - (bIndex === -1 ? eventOrder.length : bIndex);
   });
 
+  const pingLine = pingOverride === 'everyone' ? '@everyone' : `<@&${stateTagIds[competition.state]}>`;
+
   // compose Discord Message
   let discordMessage = `[${name}](https://www.worldcubeassociation.org/competitions/${competition.id})\n`;
   discordMessage += `${city} - ${competition.full_date}\n`;
@@ -62,7 +81,7 @@ async function postCompetitionInDiscord(competition, attempt = 0) {
       .map((eventId) => (eventIconMap[eventId] ? '<:emojiName:' + eventIconMap[eventId] + '>' : eventId))
       .join(' ') + `\n`;
   discordMessage += `Competitor Limit: ${competition.competitor_limit}\n\n`;
-  discordMessage += `<@&${stateTagIds[competition.state]}>\n\n`;
+  discordMessage += `${pingLine}\n\n`;
   discordMessage += `Registrations opens ${moment(competition.registration_open).tz('America/New_York').format('dddd, MMMM Do [at] h:mm a')} Eastern / ${moment(competition.registration_open).tz('America/Chicago').format('h:mm a')} Central\n\n`;
   discordMessage += `https://www.worldcubeassociation.org/competitions/${competition.id}`;
 
@@ -90,7 +109,7 @@ async function postCompetitionInDiscord(competition, attempt = 0) {
     const retryAfterSeconds = err.response?.status === 429 ? err.response.data?.retry_after : undefined;
     if (retryAfterSeconds !== undefined && attempt < MAX_RATE_LIMIT_RETRIES) {
       await new Promise((resolve) => setTimeout(resolve, retryAfterSeconds * 1000));
-      return postCompetitionInDiscord(competition, attempt + 1);
+      return postCompetitionInDiscord(competition, { attempt: attempt + 1, pingOverride });
     }
 
     logger.error('Error posting competitions on Discord: ', err);
@@ -98,4 +117,35 @@ async function postCompetitionInDiscord(competition, attempt = 0) {
   }
 }
 
-module.exports = { postCompetitionInDiscord };
+// Posts every item in `items` to Discord via `postFn`, chunked into groups of
+// DISCORD_CHUNK_SIZE with a DISCORD_CHUNK_DELAY_MS wait between groups to
+// stay within Discord's per-webhook rate limit. Only items whose post
+// succeeds are passed to `markAnnouncedFn` - anything still failing after
+// `postFn`'s own retries is returned to the caller so it stays unannounced
+// (and gets retried on the next refresh) instead of being silently dropped.
+async function postToDiscordInChunks(items, { postFn, markAnnouncedFn, getId }) {
+  const chunks = chunk(items, DISCORD_CHUNK_SIZE);
+  const failures = [];
+  for (const [i, batch] of chunks.entries()) {
+    const results = await Promise.all(
+      batch.map((item) =>
+        postFn(item)
+          .then(() => ({ item, succeeded: true }))
+          .catch(() => ({ item, succeeded: false })),
+      ),
+    );
+
+    const succeededIds = results.filter((result) => result.succeeded).map((result) => getId(result.item));
+    if (succeededIds.length) {
+      await markAnnouncedFn(succeededIds);
+    }
+    results.filter((result) => !result.succeeded).forEach((result) => failures.push(result.item));
+
+    if (i < chunks.length - 1) {
+      await new Promise((resolve) => setTimeout(resolve, DISCORD_CHUNK_DELAY_MS));
+    }
+  }
+  return failures;
+}
+
+module.exports = { postCompetitionInDiscord, postToDiscordInChunks };
