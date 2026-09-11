@@ -7,6 +7,8 @@ Content: Contentful CMS
 Deployment: AWS
 Package manager: pnpm (workspace linking `frontend/` and `backend/`)
 
+See [ARCHITECTURE.md](ARCHITECTURE.md) for a diagram of the system.
+
 ## Local development setup
 
 Install [pnpm](https://pnpm.io/installation), then from the repo root run
