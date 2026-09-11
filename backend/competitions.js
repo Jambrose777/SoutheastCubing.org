@@ -108,13 +108,26 @@ async function postCompetitionsToDiscord(competitions) {
   const usesEveryonePing = (competitionId) =>
     patterns.some((pattern) => discordPingPatternsDb.matchesIdPattern(competitionId, pattern.id_pattern));
 
-  return discord.postToDiscordInChunks(competitions, {
+  return discord.postToDiscordInChunks(sortForDiscordPosting(competitions), {
     postFn: (competition) =>
       discord.postCompetitionInDiscord(competition, {
         pingOverride: usesEveryonePing(competition.id) ? 'everyone' : undefined,
       }),
     markAnnouncedFn: (ids) => competitionsDb.markAnnounced(ids),
     getId: (competition) => competition.id,
+  });
+}
+
+// Orders competitions for a Discord posting run: grouped by state first, then 
+// by start_date.
+function sortForDiscordPosting(competitions) {
+  const stateOrder = Object.keys(discord.stateTagIds);
+  return [...competitions].sort((a, b) => {
+    const stateDiff = stateOrder.indexOf(a.state) - stateOrder.indexOf(b.state);
+    if (stateDiff !== 0) {
+      return stateDiff;
+    }
+    return moment(a.start_date).isBefore(b.start_date) ? -1 : 1;
   });
 }
 

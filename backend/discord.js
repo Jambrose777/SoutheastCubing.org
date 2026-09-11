@@ -148,4 +148,4 @@ async function postToDiscordInChunks(items, { postFn, markAnnouncedFn, getId }) 
   return failures;
 }
 
-module.exports = { postCompetitionInDiscord, postToDiscordInChunks };
+module.exports = { postCompetitionInDiscord, postToDiscordInChunks, stateTagIds };
