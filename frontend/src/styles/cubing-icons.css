@@ -162,6 +162,15 @@
 .cubing-icon.unofficial-fisher:before {
   content: '\EA27';
 }
+/* Manually added (not from upstream) so the frontend's
+   'cubing-icon event-' + event class-building pattern resolves for FTO,
+   which otherwise only has an `unofficial-fto` class here. Aliases the same
+   glyph as unofficial-fto below. If this file is ever re-vendored/synced
+   from its upstream source, check whether upstream has since added its own
+   real `.event-fto` class first, and drop this one if so. */
+.cubing-icon.event-fto:before {
+  content: '\EA28';
+}
 .cubing-icon.unofficial-fto:before {
   content: '\EA28';
 }
