@@ -1,6 +1,7 @@
 import {
   Component,
   input,
+  Injector,
   OnDestroy,
   OnInit,
   ChangeDetectionStrategy,
@@ -20,6 +21,7 @@ import { Colors, StateColors } from 'src/app/shared/types';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { resolvedAsset, resolvedEntry } from 'src/app/shared/contentful-links';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
+import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 import { SelectItemService } from 'src/app/services/select-item.service';
 import { environment } from 'src/environments/environment';
 import { Location, NgClass, NgOptimizedImage } from '@angular/common';
@@ -51,13 +53,14 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
   private location = inject(Location);
   private screenSizeService = inject(ScreenSizeService);
   private selectItemService = inject(SelectItemService);
+  private injector = inject(Injector);
   linksService = inject(LinksService);
 
   isMobile = this.screenSizeService.isMobile;
 
   StateColors = StateColors;
   environment = environment;
-  title = signal('Southeast Championship');
+  title = signal('Championships');
   description = signal('');
   loadingContent = signal(true);
   loadingChampionships = signal(true);
@@ -95,39 +98,39 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
         .getContentfulGroup<ChampionshipSkeleton>(ContentfulContentType.championships)
         .subscribe({
           next: (res) => {
-            const championships = res.items
-              .map((championship) => {
-                // Note: the list thumbnail crops this into a square box via CSS
-                // `object-fit: cover, which is only correct because every logo
-                // asset uploaded to Contentful is a square. If
-                // NgOptimizedImage's NG02952 aspect-ratio-mismatch warning
-                // reappears for a logo here, that's not a code bug to fix - it
-                // means a genuinely non-square logo was uploaded and needs to be
-                // re-cropped/padded to a square in Contentful.
-                const logo = resolvedAsset(championship.fields.logo);
-                const logoSize = scaleToDisplaySize(
-                  logo?.fields.file?.details?.image?.width,
-                  logo?.fields.file?.details?.image?.height,
-                  160,
-                );
-                return {
-                  ...championship.fields,
-                  logo: logo?.fields.file?.url,
-                  logoWidth: logoSize.width,
-                  logoHeight: logoSize.height,
-                  images: (championship.fields.images ?? [])
-                    .map((image) => resolvedAsset(image)?.fields.file?.url)
-                    .filter((url): url is string => !!url)
-                    .map((url) => ({ path: url })),
-                  state: championship.fields.cityState.substring(
-                    championship.fields.cityState.length - 2,
-                  ),
-                  champions: (championship.fields.champions ?? [])
-                    .map((champion) => resolvedEntry<ChampionSkeleton>(champion)?.fields)
-                    .filter((fields): fields is NonNullable<typeof fields> => !!fields),
-                };
-              })
-              .sort((a: Championship, b: Championship) => (a.year < b.year ? 1 : -1));
+            const unsortedChampionships = res.items.map((championship) => {
+              // Note: the list thumbnail crops this into a square box via CSS
+              // `object-fit: cover, which is only correct because every logo
+              // asset uploaded to Contentful is a square. If
+              // NgOptimizedImage's NG02952 aspect-ratio-mismatch warning
+              // reappears for a logo here, that's not a code bug to fix - it
+              // means a genuinely non-square logo was uploaded and needs to be
+              // re-cropped/padded to a square in Contentful.
+              const logo = resolvedAsset(championship.fields.logo);
+              const logoSize = scaleToDisplaySize(
+                logo?.fields.file?.details?.image?.width,
+                logo?.fields.file?.details?.image?.height,
+                160,
+              );
+              return {
+                ...championship.fields,
+                championshipType: championship.fields.championshipType || 'Southeast',
+                logo: logo?.fields.file?.url,
+                logoWidth: logoSize.width,
+                logoHeight: logoSize.height,
+                images: (championship.fields.images ?? [])
+                  .map((image) => resolvedAsset(image)?.fields.file?.url)
+                  .filter((url): url is string => !!url)
+                  .map((url) => ({ path: url })),
+                state: championship.fields.cityState.substring(
+                  championship.fields.cityState.length - 2,
+                ),
+                champions: (championship.fields.champions ?? [])
+                  .map((champion) => resolvedEntry<ChampionSkeleton>(champion)?.fields)
+                  .filter((fields): fields is NonNullable<typeof fields> => !!fields),
+              };
+            });
+            const championships = this.groupAndSortChampionships(unsortedChampionships);
             this.championships.set(championships);
             if (this.championshipId()) {
               const foundChampionship = championships.find(
@@ -153,6 +156,22 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
+  // Groups championships by championshipType (Southeast first, then each
+  // state alphabetically), sorting by year descending within each group
+  groupAndSortChampionships(championships: Championship[]): Championship[] {
+    const typeOrder = [
+      'Southeast',
+      ...Array.from(new Set(championships.map((championship) => championship.championshipType)))
+        .filter((type) => type !== 'Southeast')
+        .sort((a, b) => a.localeCompare(b)),
+    ];
+    return [...championships].sort((a, b) => {
+      const groupDiff =
+        typeOrder.indexOf(a.championshipType) - typeOrder.indexOf(b.championshipType);
+      return groupDiff !== 0 ? groupDiff : b.year - a.year;
+    });
+  }
+
   // sets a championship as the selected Championship to drill details
   selectChampionship(championship: Championship) {
     this.selectItemService.select(championship, {
@@ -166,5 +185,9 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
           buildDetailUrl('/championships', this.selectedChampionship()?.id),
         ),
     });
+
+    if (!this.isMobile() && this.selectedChampionship()?.id === championship.id) {
+      scrollIntoViewSafely(championship.id, this.injector);
+    }
   }
 }

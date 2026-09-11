@@ -87,12 +87,12 @@ export const routes: Routes = [
   {
     path: 'championships',
     loadComponent: loadChampionships,
-    title: 'SoutheastCubing - SE Champs',
+    title: 'SoutheastCubing - Championships',
   },
   {
     path: 'championships/:championshipId',
     loadComponent: loadChampionships,
-    title: 'SoutheastCubing - SE Champs',
+    title: 'SoutheastCubing - Championships',
   },
   {
     path: 'organizers',

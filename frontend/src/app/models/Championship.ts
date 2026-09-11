@@ -1,6 +1,7 @@
 export interface Championship {
   id: string;
   name: string;
+  championshipType: string;
   year: number;
   cityState: string;
   city: string;
@@ -18,8 +19,8 @@ export interface Championship {
 export interface Champion {
   year: number;
   event: string;
-  seChampName?: string;
-  seChampResult?: string;
+  seChampName?: string; // refers to both SE and State Champion
+  seChampResult?: string; // refers to both SE and State Champion
   overallChampName?: string;
   overallChampResult?: string;
 }

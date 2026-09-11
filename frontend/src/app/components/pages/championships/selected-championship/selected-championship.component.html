@@ -30,7 +30,7 @@
     <!-- Championship Location -->
     <div class="small-text-content">
       @if (!isMobile()) {
-        <span>{{ championship.cityState }} -</span>
+        <span>{{ championship.city }} -</span>
       }
       @if (isMobile()) {
         <a
@@ -66,14 +66,16 @@
       </div>
     }
     <!-- Champions Table -->
-    @if (championship.champions) {
+    @if (championship.champions && championship.champions.length > 0) {
       <div class="champions-table">
         <div class="row header">
           <div class="col-2 border">
             <span class="table-text"><b>Event</b></span>
           </div>
           <div class="col-3 border">
-            <span class="table-text"><b>Southeast Champion</b></span>
+            <span class="table-text"
+              ><b>{{ championship.championshipType }} Champion</b></span
+            >
           </div>
           <div class="col-3">
             <span class="table-text"><b>Overall Champion</b></span>

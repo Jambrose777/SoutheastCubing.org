@@ -6,7 +6,7 @@
       [style.transform]="'translateX(-' + trackIndex() * 100 + '%)'"
       (transitionend)="onTransitionEnd()"
     >
-      @for (image of slides(); track $index) {
+      @for (image of slides(); track $index + '-' + image) {
         <div class="carousel-slide">
           <img
             ngSrc="{{ image }}"

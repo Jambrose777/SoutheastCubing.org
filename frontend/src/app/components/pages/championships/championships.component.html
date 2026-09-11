@@ -54,12 +54,16 @@
     <!-- List for all loaded championships -->
     @if (!loadingChampionships()) {
       <div class="list-container">
-        @for (championship of championships(); track championship) {
+        @for (championship of championships(); track championship; let i = $index) {
           <!-- Championship Bubble -->
           <div
             class="item-container clickable"
             [style.--state-color]="StateColors[championship.state]"
-            [ngClass]="{ active: selectedChampionship()?.id === championship.id }"
+            [ngClass]="{
+              active: selectedChampionship()?.id === championship.id,
+              'group-start':
+                i > 0 && championships()![i - 1].championshipType !== championship.championshipType,
+            }"
           >
             <div
               class="item-row"

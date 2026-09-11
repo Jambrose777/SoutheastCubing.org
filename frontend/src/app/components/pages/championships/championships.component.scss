@@ -17,6 +17,11 @@
 
   .side-pane {
     .list-container {
+      // Extra breathing room above the first item of each new championship-type group.
+      .group-start {
+        margin-top: 40px;
+      }
+
       .item-row {
         align-items: center;
       }
