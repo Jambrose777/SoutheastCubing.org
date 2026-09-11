@@ -1,14 +1,8 @@
 <div class="project-container">
-  <!-- Separate view for mobile, including background and footer -->
-  @if (!isMobile()) {
-    <div class="desktop-container">
-      <router-outlet></router-outlet>
-    </div>
-  }
+  <div [class.desktop-container]="!isMobile()" [class.mobile-container]="isMobile()">
+    <router-outlet></router-outlet>
+  </div>
   @if (isMobile()) {
-    <div class="mobile-container">
-      <router-outlet></router-outlet>
-    </div>
     <se-footer></se-footer>
   }
 </div>
