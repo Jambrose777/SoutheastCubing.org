@@ -28,6 +28,16 @@
         </div>
       }
 
+      <!-- Discord Post Failure Warning -->
+      @if (updateCompetitionsStatus() === 'success' && discordPostFailures().length > 0) {
+        <div class="small-text-content error-color">
+          <b>
+            Competitions updated, but failed to post {{ discordPostFailures().length }} to Discord:
+            {{ discordPostFailureNames() }}
+          </b>
+        </div>
+      }
+
       <!-- Error Message -->
       @if (updateCompetitionsStatus() === 'failure') {
         <div class="small-text-content error-color">

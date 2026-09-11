@@ -37,9 +37,16 @@ export class SouteastcubingApiService {
       );
   }
 
-  // The response body isn't consumed by callers (only success/failure matters),
-  // so it's typed as `unknown` rather than a full shape of the WCA payload.
-  updateCompetitions(): Observable<unknown> {
-    return this.http.post(`${environment.links.southeastCubingApi}/update-competitions`, null);
+  // The competitions in the response body aren't consumed by callers (only
+  // discordPostFailures is), so that part is typed as `unknown` rather than
+  // a full shape of the WCA payload.
+  updateCompetitions(): Observable<{
+    competitions: unknown;
+    discordPostFailures: { id: string; name: string }[];
+  }> {
+    return this.http.post<{
+      competitions: unknown;
+      discordPostFailures: { id: string; name: string }[];
+    }>(`${environment.links.southeastCubingApi}/update-competitions`, null);
   }
 }

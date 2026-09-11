@@ -1,4 +1,11 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+  inject,
+  signal,
+  computed,
+} from '@angular/core';
 import { Subscription, take } from 'rxjs';
 import { SouteastcubingApiService } from 'src/app/services/souteastcubing-api.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
@@ -34,6 +41,13 @@ export class UpdateCompetitionsComponent implements OnInit {
     'This page is meant for admin use only. Admins can click the button below to fetch the list of competitions from WCA and update the global cache. This action is limited to once an hour. Refreshes happen automatically at midnight everyday, however this can be used to immediately update for recently announced competitions.';
   updateCompetitionsStatus = signal(UpdateStatus.default);
   errorMessage = signal<string | undefined>(undefined);
+  // Competitions the backend refreshed successfully but couldn't announce on Discord
+  discordPostFailures = signal<{ id: string; name: string }[]>([]);
+  discordPostFailureNames = computed(() =>
+    this.discordPostFailures()
+      .map((competition) => competition.name)
+      .join(', '),
+  );
 
   ngOnInit(): void {
     // sets up main color for the update-competitions page
@@ -43,13 +57,15 @@ export class UpdateCompetitionsComponent implements OnInit {
   // makes call to update competitions on the Southeastcubing API
   updateCompetitions() {
     this.updateCompetitionsStatus.set(UpdateStatus.updating);
+    this.discordPostFailures.set([]);
 
     this.southeastcubingApi
       .updateCompetitions()
       .pipe(take(1))
       .subscribe({
-        next: () => {
+        next: (res) => {
           this.updateCompetitionsStatus.set(UpdateStatus.success);
+          this.discordPostFailures.set(res.discordPostFailures ?? []);
         },
         error: (err) => {
           this.updateCompetitionsStatus.set(UpdateStatus.failure);

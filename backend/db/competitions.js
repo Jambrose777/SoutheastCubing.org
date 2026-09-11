@@ -287,6 +287,18 @@ async function getUpcomingCompetitions() {
   return competitionsCache;
 }
 
+// Returns every competition that hasn't been announced on Discord yet.
+async function getUnannouncedCompetitions() {
+  const { rows } = await db.pool.query(
+    'SELECT * FROM competitions WHERE announced_on_discord_at IS NULL',
+  );
+  const eventIdsByCompetition = await getEventIdsByCompetition(
+    db.pool,
+    rows.map((row) => row.id),
+  );
+  return rows.map((row) => fromRow(row, eventIdsByCompetition.get(row.id) ?? []));
+}
+
 // Reads when competitions were last refreshed from WCA - used to rate-limit
 // POST /update-competitions and to decide whether a boot-time refresh is
 // needed.
@@ -309,6 +321,7 @@ module.exports = {
   upsertCompetitions,
   markAnnounced,
   getUpcomingCompetitions,
+  getUnannouncedCompetitions,
   getLastChecked,
   setLastChecked,
 };

@@ -36,8 +36,12 @@ const stateTagIds = {
   Tennessee: '1070759168295833800',
 };
 
-// Post message on Discord using SoutheastCubing API Webhook
-function postCompetitionInDiscord(competition) {
+// Max number of extra attempts for a single post that comes back 429, on top
+// of the initial attempt.
+const MAX_RATE_LIMIT_RETRIES = 2;
+
+// Post message on Discord using SoutheastCubing API Webhook.
+async function postCompetitionInDiscord(competition, attempt = 0) {
   // Neutralize untrusted WCA/Contentful fields
   const name = neutralizeMentions(competition.name);
   const city = neutralizeMentions(competition.city);
@@ -63,8 +67,8 @@ function postCompetitionInDiscord(competition) {
   discordMessage += `https://www.worldcubeassociation.org/competitions/${competition.id}`;
 
   // Post message
-  return axios
-    .post(
+  try {
+    const res = await axios.post(
       process.env.DISCORD_WEBHOOK,
       JSON.stringify({
         content: discordMessage,
@@ -74,14 +78,24 @@ function postCompetitionInDiscord(competition) {
           'Content-Type': 'application/json',
         },
       },
-    )
-    .then((res) => {
-      logger.info('Successfully posted competition on Discord');
-      return res;
-    })
-    .catch((err) => {
-      logger.error('Error posting competitions on Discord: ', err);
-    });
+    );
+    logger.info('Successfully posted competition on Discord');
+    return res;
+  } catch (err) {
+    // A 429 means this webhook's rate-limit bucket hasn't fully reset despite the
+    // chunked spacing competitions.js already does between groups of posts.
+    // Wait however long Discord says to (retry_after, in seconds) and retry
+    // this specific post, up to MAX_RATE_LIMIT_RETRIES times, before giving
+    // up on it.
+    const retryAfterSeconds = err.response?.status === 429 ? err.response.data?.retry_after : undefined;
+    if (retryAfterSeconds !== undefined && attempt < MAX_RATE_LIMIT_RETRIES) {
+      await new Promise((resolve) => setTimeout(resolve, retryAfterSeconds * 1000));
+      return postCompetitionInDiscord(competition, attempt + 1);
+    }
+
+    logger.error('Error posting competitions on Discord: ', err);
+    throw err;
+  }
 }
 
 module.exports = { postCompetitionInDiscord };

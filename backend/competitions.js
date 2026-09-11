@@ -54,13 +54,17 @@ async function updateCompetitions(req, res) {
     // pull competitions from WCA
     logger.info('ip-' + req.ip + ' Fetching competitions from wca on update-competitions request.');
     try {
-      const comps = await refreshCompetitionsFromWCA();
+      const { competitions, discordPostFailures } = await refreshCompetitionsFromWCA();
       logger.info(
         'ip-' +
           req.ip +
           ' Successfully Fetched competitions from wca on update-competitions request.',
       );
-      res.send(comps);
+      
+      res.send({
+        competitions,
+        discordPostFailures: discordPostFailures.map((comp) => ({ id: comp.id, name: comp.name })),
+      });
     } catch (err) {
       logger.error(
         'ip-' + req.ip + ' Failed to fetch competitions from wca on update-competitions request: ',
@@ -87,6 +91,56 @@ async function fetchCompetitions() {
     });
     logger.info('Successfully Fetched competitions from wca.');
   }
+}
+
+// Number of Discord webhook posts allowed per rate-limit window (5 requests
+// per 2 seconds per webhook).
+const DISCORD_CHUNK_SIZE = 5;
+const DISCORD_CHUNK_DELAY_MS = 2000;
+
+// Splits `items` into chunks of at most `size`.
+function chunk(items, size) {
+  const chunks = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
+
+// Posts every competition in `competitions` to Discord, chunked into groups
+// of DISCORD_CHUNK_SIZE with a DISCORD_CHUNK_DELAY_MS wait between groups to
+// stay within Discord's per-webhook rate limit. Only ids whose post succeeds
+// are marked announced - anything still failing after discord.js's retries
+// is left unannounced so it's retried on the next refresh.
+async function postCompetitionsToDiscord(competitions) {
+  const chunks = chunk(competitions, DISCORD_CHUNK_SIZE);
+  const failures = [];
+  for (const [i, batch] of chunks.entries()) {
+    const results = await Promise.all(
+      batch.map((competition) =>
+        discord
+          .postCompetitionInDiscord(competition)
+          .then(() => ({ competition, succeeded: true }))
+          .catch(() => ({ competition, succeeded: false })),
+      ),
+    );
+
+    // Mark successfully posted competitions as announced in the database,
+    // and collect any failures for the caller to report/retry.
+    const succeededIds = results
+      .filter((result) => result.succeeded)
+      .map((result) => result.competition.id);
+    if (succeededIds.length) {
+      await competitionsDb.markAnnounced(succeededIds);
+    }
+    results.filter((result) => !result.succeeded).forEach((result) => failures.push(result.competition));
+
+    // Skip the delay after the last chunk - there's nothing left to space out.
+    if (i < chunks.length - 1) {
+      await new Promise((resolve) => setTimeout(resolve, DISCORD_CHUNK_DELAY_MS));
+    }
+  }
+  return failures;
 }
 
 // gets full competition list from WCA
@@ -202,18 +256,16 @@ async function refreshCompetitionsFromWCA() {
       competitionsWithVolunteerApp,
     );
 
+    let discordPostFailures = [];
     if (comps && comps.length) {
-      // Upsert into the database; the returned ids are ones newly inserted
-      // here (excluding a first-time population of an empty store), which are
-      // the only competitions that still need to be announced on Discord.
-      const newlyInsertedIds = await competitionsDb.upsertCompetitions(comps);
-      if (newlyInsertedIds.length) {
-        comps
-          .filter((comp) => newlyInsertedIds.includes(comp.id))
-          .forEach((newCompetition) => {
-            discord.postCompetitionInDiscord(newCompetition);
-          });
-        await competitionsDb.markAnnounced(newlyInsertedIds);
+      // Upsert into the database. upsertCompetitions handles the cold-start
+      // case internally (stamping a first-time population as already
+      // announced).
+      await competitionsDb.upsertCompetitions(comps);
+
+      const unannouncedCompetitions = await competitionsDb.getUnannouncedCompetitions();
+      if (unannouncedCompetitions.length) {
+        discordPostFailures = await postCompetitionsToDiscord(unannouncedCompetitions);
       }
 
       // Only recorded on a non-empty result - an empty result is more likely a
@@ -226,7 +278,7 @@ async function refreshCompetitionsFromWCA() {
       logger.warn('There are no competitions!');
     }
 
-    return comps;
+    return { competitions: comps, discordPostFailures };
   } catch (err) {
     logger.error('Failed to Fetched competitions from wca: ', err);
     throw err;
