@@ -17,6 +17,7 @@ const eventIconMap = {
   '333fm': '1200949558239301712',
   '333oh': '1200949455822803035',
   clock: '1200949556502863962',
+  fto: '1547768263654510765',
   minx: '1200949560315494481',
   pyram: '1200949562857230336',
   skewb: '1200949563918385233',
@@ -41,12 +42,21 @@ function postCompetitionInDiscord(competition) {
   const name = neutralizeMentions(competition.name);
   const city = neutralizeMentions(competition.city);
 
+  // Reorder event_ids to match eventIconMap's key order.
+  const eventOrder = Object.keys(eventIconMap);
+  const orderedEventIds = [...competition.event_ids].sort((a, b) => {
+    const aIndex = eventOrder.indexOf(a);
+    const bIndex = eventOrder.indexOf(b);
+    return (aIndex === -1 ? eventOrder.length : aIndex) - (bIndex === -1 ? eventOrder.length : bIndex);
+  });
+
   // compose Discord Message
   let discordMessage = `[${name}](https://www.worldcubeassociation.org/competitions/${competition.id})\n`;
   discordMessage += `${city} - ${competition.full_date}\n`;
   discordMessage +=
-    competition.event_ids.map((eventId) => '<:emojiName:' + eventIconMap[eventId] + '>').join(' ') +
-    `\n`;
+    orderedEventIds
+      .map((eventId) => (eventIconMap[eventId] ? '<:emojiName:' + eventIconMap[eventId] + '>' : eventId))
+      .join(' ') + `\n`;
   discordMessage += `Competitor Limit: ${competition.competitor_limit}\n\n`;
   discordMessage += `<@&${stateTagIds[competition.state]}>\n\n`;
   discordMessage += `Registrations opens ${moment(competition.registration_open).tz('America/New_York').format('dddd, MMMM Do [at] h:mm a')} Eastern / ${moment(competition.registration_open).tz('America/Chicago').format('h:mm a')} Central\n\n`;
