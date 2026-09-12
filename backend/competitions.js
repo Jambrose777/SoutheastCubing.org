@@ -118,8 +118,8 @@ async function postCompetitionsToDiscord(competitions) {
   });
 }
 
-// Orders competitions for a Discord posting run: grouped by state first, then 
-// by start_date.
+// Orders competitions for a Discord posting run: grouped by state first, then
+// by start_date ascending, then alphabetically by name.
 function sortForDiscordPosting(competitions) {
   const stateOrder = Object.keys(discord.stateTagIds);
   return [...competitions].sort((a, b) => {
@@ -127,7 +127,11 @@ function sortForDiscordPosting(competitions) {
     if (stateDiff !== 0) {
       return stateDiff;
     }
-    return moment(a.start_date).isBefore(b.start_date) ? -1 : 1;
+    const dateDiff = moment(a.start_date).diff(moment(b.start_date));
+    if (dateDiff !== 0) {
+      return dateDiff;
+    }
+    return a.name.localeCompare(b.name);
   });
 }
 

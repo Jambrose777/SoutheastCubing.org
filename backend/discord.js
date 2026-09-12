@@ -98,7 +98,7 @@ async function postCompetitionInDiscord(competition, { attempt = 0, pingOverride
         },
       },
     );
-    logger.info('Successfully posted competition on Discord');
+    logger.info(`Successfully posted ${competition.id} on Discord`);
     return res;
   } catch (err) {
     // A 429 means this webhook's rate-limit bucket hasn't fully reset despite the
@@ -119,21 +119,25 @@ async function postCompetitionInDiscord(competition, { attempt = 0, pingOverride
 
 // Posts every item in `items` to Discord via `postFn`, chunked into groups of
 // DISCORD_CHUNK_SIZE with a DISCORD_CHUNK_DELAY_MS wait between groups to
-// stay within Discord's per-webhook rate limit. Only items whose post
-// succeeds are passed to `markAnnouncedFn` - anything still failing after
-// `postFn`'s own retries is returned to the caller so it stays unannounced
-// (and gets retried on the next refresh) instead of being silently dropped.
+// stay within Discord's per-webhook rate limit. Items within a chunk are
+// posted one at a time (not concurrently) so they land in Discord in the
+// same order `items` was sorted into. Only items whose post succeeds are passed to
+// `markAnnouncedFn` - anything still failing after `postFn`'s own retries is
+// returned to the caller so it stays unannounced (and gets retried on the
+// next refresh) instead of being silently dropped.
 async function postToDiscordInChunks(items, { postFn, markAnnouncedFn, getId }) {
   const chunks = chunk(items, DISCORD_CHUNK_SIZE);
   const failures = [];
   for (const [i, batch] of chunks.entries()) {
-    const results = await Promise.all(
-      batch.map((item) =>
-        postFn(item)
-          .then(() => ({ item, succeeded: true }))
-          .catch(() => ({ item, succeeded: false })),
-      ),
-    );
+    const results = [];
+    for (const item of batch) {
+      try {
+        await postFn(item);
+        results.push({ item, succeeded: true });
+      } catch {
+        results.push({ item, succeeded: false });
+      }
+    }
 
     const succeededIds = results.filter((result) => result.succeeded).map((result) => getId(result.item));
     if (succeededIds.length) {
