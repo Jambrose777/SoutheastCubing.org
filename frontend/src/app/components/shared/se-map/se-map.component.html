@@ -1,4 +1,11 @@
-<div id="se-map"></div>
+<div class="se-map-container">
+  <div id="se-map"></div>
+  @if (tooltip(); as tooltip) {
+    <div class="custom-map-tooltip" [style.left.px]="tooltip.x" [style.top.px]="tooltip.y">
+      {{ tooltip.name }}
+    </div>
+  }
+</div>
 @if (showLegend()) {
   <div class="map-legend">
     <div class="dot green"></div>

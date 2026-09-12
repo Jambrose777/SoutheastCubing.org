@@ -268,11 +268,13 @@ export class ClubsComponent implements OnInit, OnDestroy {
       this.filteredClubs()
         ?.map((club) => ({
           id: club.id,
+          name: club.name,
           lat: club.latitude,
           long: club.longitude,
         }))
         .filter(
-          (club): club is { id: string; lat: number; long: number } => !!club.lat && !!club.long,
+          (club): club is { id: string; name: string; lat: number; long: number } =>
+            !!club.lat && !!club.long,
         ),
     );
   }
@@ -309,13 +311,20 @@ export class ClubsComponent implements OnInit, OnDestroy {
     this.filterClubs();
   }
 
-  // Clears every active filter (states and the search term) in one action.
+  // Clears every active filter (states and the search term) in one action,
+  // plus whatever club is currently selected.
   clearFilters() {
     this.filters.set({ states: [] });
     this.searchTerm.set('');
     this.searchBar?.clear();
     this.updateUrl();
     this.filterClubs();
+
+    if (this.selectedClub()) {
+      this.selectedClub.set(undefined);
+      this.themeService.setMainPaneColor(Colors.purple);
+      this.updateUrl();
+    }
   }
 
   // toggles whether the filters pane is open or not

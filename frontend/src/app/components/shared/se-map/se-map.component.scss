@@ -1,10 +1,41 @@
 @use 'src/styles/color-pallet';
 
-#se-map {
-  height: 350px;
+// Leaflet's own stylesheet gives its container `overflow: hidden`, which is
+// required for its tile grid (deliberately rendered larger than the visible
+// area, for smooth panning) to be clipped correctly - so it can't be
+// overridden without breaking normal map rendering.
+.se-map-container {
+  position: relative;
   width: 400px;
-  margin: 0 auto 0 auto;
+  height: 350px;
+  margin: 0 auto;
+}
+
+#se-map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
   border-radius: 10px;
+}
+
+// Custom tooltip shown above a hovered marker.
+.custom-map-tooltip {
+  position: absolute;
+  // `left`/`top` are bound to the marker's anchor point, which for
+  // Leaflet's default pin icon is the tip at the *bottom* of the pin (the
+  // icon itself extends ~40px above that point)
+  transform: translate(-50%, calc(-100% - 40px));
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  z-index: 1000;
 }
 
 .map-legend {
@@ -65,4 +96,30 @@
 
 ::ng-deep .active-marker {
   filter: hue-rotate(40deg);
+}
+
+// Merged marker shown at rest for a spot with more than one point - a
+// plain colored circle with a count badge rather than the default pin, so
+// it visually reads as "multiple" instead of looking like a normal single
+// marker.
+::ng-deep .group-marker {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: color-pallet.$se-yellow;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &.active-marker {
+    background-color: color-pallet.$se-red;
+  }
+}
+
+::ng-deep .group-marker-count {
+  font-size: 12px;
+  font-weight: bold;
+  color: black;
 }

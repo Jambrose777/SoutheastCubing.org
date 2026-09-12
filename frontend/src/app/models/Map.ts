@@ -2,6 +2,7 @@ export interface MapPoint {
   lat: number;
   long: number;
   id: string;
+  name: string;
   colorClass?: MarkerColorClass;
 }
 

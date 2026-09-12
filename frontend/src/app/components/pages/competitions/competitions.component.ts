@@ -275,6 +275,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
     this.competitionMapPoints.set(
       this.filteredCompetitions().map((competition) => ({
         id: competition.id,
+        name: competition.name,
         lat: competition.latitude_degrees,
         long: competition.longitude_degrees,
         colorClass: this.getRegistrationColor(competition.registration_status),
@@ -330,13 +331,20 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
     this.filterCompetitions();
   }
 
-  // Clears every active filter (states, events, and the search term).
+  // Clears every active filter (states, events, and the search term), plus
+  // whatever competition is currently selected.
   clearFilters() {
     this.filters.set({ states: [], events: [] });
     this.searchTerm.set('');
     this.searchBar?.clear();
     this.updateUrl();
     this.filterCompetitions();
+
+    if (this.selectedCompetition()) {
+      this.selectedCompetition.set(undefined);
+      this.themeService.setMainPaneColor(Colors.grey);
+      this.updateUrl();
+    }
   }
 
   // toggles whether the filters pane is open or not
