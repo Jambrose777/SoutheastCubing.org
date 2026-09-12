@@ -269,14 +269,14 @@ async function markAnnounced(ids) {
 }
 
 // Returns every competition ending on or after yesterday, ordered by start
-// date.
+// date, ties broken by name.
 async function getUpcomingCompetitions() {
   if (competitionsCache) {
     return competitionsCache;
   }
 
   const { rows } = await db.pool.query(
-    'SELECT * FROM competitions WHERE end_date >= $1 ORDER BY start_date ASC',
+    'SELECT * FROM competitions WHERE end_date >= $1 ORDER BY start_date ASC, name ASC',
     [moment().add(-1, 'day').format('YYYY-MM-DD')],
   );
   const eventIdsByCompetition = await getEventIdsByCompetition(
