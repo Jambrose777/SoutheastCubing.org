@@ -7,6 +7,7 @@ import {
   output,
   untracked,
   HostListener,
+  DestroyRef,
 } from '@angular/core';
 import { NavService } from 'src/app/services/nav.service';
 import { NgClass } from '@angular/common';
@@ -29,6 +30,11 @@ export class NavComponent {
   // returns to zero.
   private runningTransitionCount = 0;
 
+  // A CSS transitionend/transitioncancel can still fire on the host after
+  // this component is destroyed (e.g. the nav's host is torn down mid-close-
+  // animation).
+  private isDestroyed = false;
+
   isNavActive = input(false);
   transition = input(false);
   disableHomeLink = input(false);
@@ -44,12 +50,16 @@ export class NavComponent {
   @HostListener('transitioncancel')
   onDescendantTransitionSettled(): void {
     this.runningTransitionCount = Math.max(0, this.runningTransitionCount - 1);
-    if (this.runningTransitionCount === 0) {
+    if (this.runningTransitionCount === 0 && !this.isDestroyed) {
       this.transitionEndEmitter.emit();
     }
   }
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      this.isDestroyed = true;
+    });
+
     // Reacts only to NavService.closeNav() calls, not to isNavActive changing
     // on its own — isNavActive is read via untracked() purely as a guard
     // value, otherwise the nav being opened would itself re-run this effect
