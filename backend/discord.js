@@ -1,6 +1,7 @@
 const axios = require('axios');
 const moment = require('moment-timezone');
 const { neutralizeMentions } = require('./utils/sanitize');
+const { config } = require('./utils/config.js');
 
 // Logger
 const logger = require('./logger.js');
@@ -59,6 +60,18 @@ function chunk(items, size) {
 // for major championships (Nats/NAC/Worlds, which have no SE state) and for
 // SE-wide events like the SE Championship.
 async function postCompetitionInDiscord(competition, { attempt = 0, pingOverride } = {}) {
+  // Background/incidental caller (only POST /update-competitions today) - warn and
+  // skip this one post instead of handing axios an undefined URL, so the
+  // competitions refresh itself still succeeds. Throwing (rather than resolving)
+  // keeps this competition unannounced on Discord, same as any other post failure,
+  // so it's retried on the next refresh once DISCORD_WEBHOOK is configured.
+  if (!config.DISCORD_WEBHOOK) {
+    logger.warn(
+      `DISCORD_WEBHOOK is not set - skipping Discord post for competition ${competition.id}.`,
+    );
+    throw new Error('DISCORD_WEBHOOK is not configured');
+  }
+
   // Neutralize untrusted WCA/Contentful fields
   const name = neutralizeMentions(competition.name);
   const city = neutralizeMentions(competition.city);
@@ -68,17 +81,22 @@ async function postCompetitionInDiscord(competition, { attempt = 0, pingOverride
   const orderedEventIds = [...competition.event_ids].sort((a, b) => {
     const aIndex = eventOrder.indexOf(a);
     const bIndex = eventOrder.indexOf(b);
-    return (aIndex === -1 ? eventOrder.length : aIndex) - (bIndex === -1 ? eventOrder.length : bIndex);
+    return (
+      (aIndex === -1 ? eventOrder.length : aIndex) - (bIndex === -1 ? eventOrder.length : bIndex)
+    );
   });
 
-  const pingLine = pingOverride === 'everyone' ? '@everyone' : `<@&${stateTagIds[competition.state]}>`;
+  const pingLine =
+    pingOverride === 'everyone' ? '@everyone' : `<@&${stateTagIds[competition.state]}>`;
 
   // compose Discord Message
   let discordMessage = `[${name}](https://www.worldcubeassociation.org/competitions/${competition.id})\n`;
   discordMessage += `${city} - ${competition.full_date}\n`;
   discordMessage +=
     orderedEventIds
-      .map((eventId) => (eventIconMap[eventId] ? '<:emojiName:' + eventIconMap[eventId] + '>' : eventId))
+      .map((eventId) =>
+        eventIconMap[eventId] ? '<:emojiName:' + eventIconMap[eventId] + '>' : eventId,
+      )
       .join(' ') + `\n`;
   discordMessage += `Competitor Limit: ${competition.competitor_limit}\n\n`;
   discordMessage += `${pingLine}\n\n`;
@@ -88,7 +106,7 @@ async function postCompetitionInDiscord(competition, { attempt = 0, pingOverride
   // Post message
   try {
     const res = await axios.post(
-      process.env.DISCORD_WEBHOOK,
+      config.DISCORD_WEBHOOK,
       JSON.stringify({
         content: discordMessage,
       }),
@@ -106,7 +124,8 @@ async function postCompetitionInDiscord(competition, { attempt = 0, pingOverride
     // Wait however long Discord says to (retry_after, in seconds) and retry
     // this specific post, up to MAX_RATE_LIMIT_RETRIES times, before giving
     // up on it.
-    const retryAfterSeconds = err.response?.status === 429 ? err.response.data?.retry_after : undefined;
+    const retryAfterSeconds =
+      err.response?.status === 429 ? err.response.data?.retry_after : undefined;
     if (retryAfterSeconds !== undefined && attempt < MAX_RATE_LIMIT_RETRIES) {
       await new Promise((resolve) => setTimeout(resolve, retryAfterSeconds * 1000));
       return postCompetitionInDiscord(competition, { attempt: attempt + 1, pingOverride });
@@ -139,7 +158,9 @@ async function postToDiscordInChunks(items, { postFn, markAnnouncedFn, getId }) 
       }
     }
 
-    const succeededIds = results.filter((result) => result.succeeded).map((result) => getId(result.item));
+    const succeededIds = results
+      .filter((result) => result.succeeded)
+      .map((result) => getId(result.item));
     if (succeededIds.length) {
       await markAnnouncedFn(succeededIds);
     }

@@ -1,28 +1,34 @@
 const nodemailer = require('nodemailer');
 const { stripNewlines } = require('./utils/sanitize');
+const { config } = require('./utils/config.js');
 
 // Logger
 const logger = require('./logger.js');
 
-// Email mailer
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-// verify that the transporter is successfully setup
-transporter
-  .verify()
-  .then(() => {
-    logger.info('Email transporter successfully setup.');
-  })
-  .catch((err) => {
-    logger.fatal('Error setting up email transporter: ', err);
+// Email mailer - only built once EMAIL_USER/EMAIL_PASS are confirmed present, so a
+// missing pair disables sending (see sendEmail's 503 below) instead of handing
+// nodemailer undefined credentials and deferring the failure to the first send.
+let transporter;
+if (config.EMAIL_USER && config.EMAIL_PASS) {
+  transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    auth: {
+      user: config.EMAIL_USER,
+      pass: config.EMAIL_PASS,
+    },
   });
+
+  // verify that the transporter is successfully setup
+  transporter
+    .verify()
+    .then(() => {
+      logger.info('Email transporter successfully setup.');
+    })
+    .catch((err) => {
+      logger.fatal('Error setting up email transporter: ', err);
+    });
+}
 
 const EmailType = {
   clubs: 'clubs',
@@ -42,6 +48,20 @@ function sendEmail(req, res) {
   } else if (!req.body.emailType || !EmailType[req.body.emailType]) {
     res.status(400).json({ message: 'must provide a valid emailType.' });
   } else {
+    const toEmail = getToEmail(req.body.emailType);
+
+    // EMAIL_USER/EMAIL_PASS/the relevant EMAIL_TO_* are optional env vars - sending
+    // this email is this route's entire job (a direct-purpose route, not a
+    // background side effect), so a missing one must fail the request rather than
+    // silently no-op or crash trying to use an unconfigured transporter.
+    if (!transporter || !toEmail) {
+      logger.warn(
+        `Cannot send email for emailType "${req.body.emailType}" - EMAIL_USER/EMAIL_PASS or the destination address env var is not configured.`,
+      );
+      res.status(503).json({ message: 'Email is not configured. Please try again later.' });
+      return;
+    }
+
     // Strip \r/\n from user-supplied fields that end up in email headers
     const name = stripNewlines(req.body.name);
     const email = stripNewlines(req.body.email);
@@ -50,9 +70,9 @@ function sendEmail(req, res) {
     // Send email
     transporter
       .sendMail({
-        from: `"${name}" <${process.env.EMAIL_USER}>`,
+        from: `"${name}" <${config.EMAIL_USER}>`,
         replyTo: email,
-        to: getToEmail(req.body.emailType),
+        to: toEmail,
         subject: getEmailSubject(subject),
         text: getEmailText(name, email, req.body.text, req.ip),
       })
@@ -70,17 +90,17 @@ function sendEmail(req, res) {
 function getToEmail(emailType) {
   switch (emailType) {
     case EmailType.getInvolved:
-      return process.env.EMAIL_TO_BOARD;
+      return config.EMAIL_TO_BOARD;
     case EmailType.clubs:
-      return process.env.EMAIL_TO_CLUBS;
+      return config.EMAIL_TO_CLUBS;
     case EmailType.organizing:
-      return process.env.EMAIL_TO_COMPETITIONS;
+      return config.EMAIL_TO_COMPETITIONS;
     case EmailType.pastCompetition:
     case EmailType.socialMedia:
     case EmailType.software:
     case EmailType.general:
     default:
-      return process.env.EMAIL_TO_CONTACT;
+      return config.EMAIL_TO_CONTACT;
   }
 }
 

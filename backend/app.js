@@ -8,6 +8,13 @@ const rateLimit = require('express-rate-limit');
 // Logger
 const logger = require('./logger.js');
 
+// Loads/validates all env vars once, at the very top before any other backend
+// module is required - requiring it here (rather than each module reading
+// process.env for itself) is what fails the process fast on a missing/empty
+// required var, before email.js/db/pool.js etc. get a chance to run with an
+// invalid value.
+const { config } = require('./utils/config.js');
+
 const email = require('./email.js');
 const competitions = require('./competitions.js');
 const db = require('./db/pool.js');
@@ -33,7 +40,7 @@ app.use(express.json({ limit: '100kb' }));
 app.use(morgan('[:date[iso]] [INFO] ip-:remote-addr :method :url :status :response-time ms'));
 // Scope CORS to an explicit allowlist (prod domain(s) + local dev server) instead of
 // allowing any origin, so unrelated sites can't make cross-origin requests to the API.
-app.use(cors({ origin: process.env.CORS_ORIGIN.split(',') }));
+app.use(cors({ origin: config.CORS_ORIGIN.split(',') }));
 
 // Confirm the pooled DSQL connection actually works on boot - logged only, so a
 // misconfigured/unreachable cluster is visible immediately.

@@ -3,8 +3,9 @@ const { DsqlSigner } = require('@aws-sdk/dsql-signer');
 
 // Logger
 const logger = require('../logger.js');
+const { config } = require('../utils/config.js');
 
-const DSQL_ENDPOINT = process.env.DSQL_ENDPOINT;
+const DSQL_ENDPOINT = config.DSQL_ENDPOINT;
 const DSQL_REGION = 'us-east-2';
 
 // The non-admin database role the backend authenticates as.
@@ -55,7 +56,9 @@ async function withRetry(work, { retries = 3 } = {}) {
     } catch (err) {
       attempt += 1;
       if (RETRYABLE_SQLSTATES.has(err.code) && attempt <= retries) {
-        logger.warn(`DSQL write conflict (attempt ${attempt}/${retries}), retrying: ${err.message}`);
+        logger.warn(
+          `DSQL write conflict (attempt ${attempt}/${retries}), retrying: ${err.message}`,
+        );
         continue;
       }
       throw err;
