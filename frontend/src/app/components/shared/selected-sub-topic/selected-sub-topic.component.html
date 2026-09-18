@@ -25,6 +25,29 @@
       </div>
     }
 
+    <!-- Video embeds - shown alongside (not instead of) the photo above, if both are set -->
+    @if (subTopic.videoEmbedUrl?.length) {
+      <div class="photo-container video-embed-container">
+        @for (embedUrl of subTopic.videoEmbedUrl; track embedUrl) {
+          <iframe
+            [src]="embedUrl | safeUrl"
+            class="video-embed"
+            title="{{ subTopic.title }} video"
+            allow="
+              accelerometer;
+              autoplay;
+              clipboard-write;
+              encrypted-media;
+              gyroscope;
+              picture-in-picture;
+              web-share;
+            "
+            allowfullscreen
+          ></iframe>
+        }
+      </div>
+    }
+
     <!-- Topic Description -->
     @if (subTopic.description) {
       <div class="medium-text-content">

@@ -4,6 +4,20 @@
   width: 80%;
 }
 
+.video-embed-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.video-embed {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
+}
+
 .medium-text-content {
   margin: 15px auto;
 }

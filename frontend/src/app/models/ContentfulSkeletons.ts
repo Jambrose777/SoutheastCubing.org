@@ -12,6 +12,7 @@ export type SubTopicSkeleton = {
     title: EntryFieldTypes.Symbol;
     description?: EntryFieldTypes.Text;
     photo?: EntryFieldTypes.AssetLink;
+    videoEmbedUrl?: EntryFieldTypes.Array<EntryFieldTypes.Symbol>;
     buttonText?: EntryFieldTypes.Symbol;
     buttonIcon?: EntryFieldTypes.Symbol;
     buttonInternalLink?: EntryFieldTypes.Symbol;

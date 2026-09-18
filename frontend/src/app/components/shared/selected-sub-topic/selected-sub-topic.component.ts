@@ -4,13 +4,14 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { MarkdownComponent } from 'ngx-markdown';
 import { RouterLink } from '@angular/router';
 import { NgOptimizedImage } from '@angular/common';
+import { SafeUrlPipe } from 'src/app/pipes/safeUrl.pipe';
 
 @Component({
   selector: 'se-selected-sub-topic',
   templateUrl: './selected-sub-topic.component.html',
   styleUrls: ['./selected-sub-topic.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MarkdownComponent, RouterLink, NgOptimizedImage],
+  imports: [MarkdownComponent, RouterLink, NgOptimizedImage, SafeUrlPipe],
 })
 export class SelectedSubTopicComponent {
   private screenSizeService = inject(ScreenSizeService);

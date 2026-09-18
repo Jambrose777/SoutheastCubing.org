@@ -1,0 +1,38 @@
+@use 'src/styles/screen-sizes';
+
+.nested-list-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+
+  &.expanded {
+    grid-template-rows: 1fr;
+  }
+}
+
+.nested-list-container {
+  overflow: hidden;
+  margin-left: 30px;
+
+  .item-container {
+    width: calc(445px - 30px);
+    border-radius: 10px;
+  }
+
+  .item-container:hover,
+  .item-container.active {
+    width: calc(455px - 30px);
+  }
+}
+
+@media only screen and (max-width: screen-sizes.$small-breakpoint) {
+  .nested-list-container {
+    margin-left: 0;
+
+    .item-container,
+    .item-container:hover,
+    .item-container.active {
+      width: calc(100% - 8px);
+    }
+  }
+}

@@ -86,9 +86,49 @@
             ) {
               <se-documents [documents]="documents()"> </se-documents>
             }
+            <!-- On mobile, nested subtopics render inside the parent's own. -->
+            @if (isMobile() && subTopic.subTopics?.length) {
+              <ng-container
+                *ngTemplateOutlet="nestedSubTopicsList; context: { subTopic: subTopic }"
+              ></ng-container>
+            }
           </div>
+          <!-- On desktop, nested subtopics render as their own sibling entries. -->
+          @if (!isMobile() && subTopic.subTopics?.length) {
+            <ng-container
+              *ngTemplateOutlet="nestedSubTopicsList; context: { subTopic: subTopic }"
+            ></ng-container>
+          }
         }
       </div>
     }
   </div>
 </div>
+
+<!-- Shared nested-subtopics -->
+<ng-template #nestedSubTopicsList let-subTopic="subTopic">
+  <div class="nested-list-wrapper" [ngClass]="{ expanded: isSubTopicExpanded(subTopic) }">
+    <div class="nested-list-container">
+      @for (nestedSubTopic of subTopic.subTopics; track nestedSubTopic) {
+        <div
+          class="item-container clickable"
+          [style.--state-color]="nestedSubTopic.color"
+          [ngClass]="{ active: selectedSubTopic()?.title === nestedSubTopic.title }"
+        >
+          <div
+            class="item-row"
+            (click)="selectSubTopic(nestedSubTopic)"
+            id="{{ nestedSubTopic.title }}"
+          >
+            <div class="item-title">
+              {{ nestedSubTopic.title }}
+            </div>
+          </div>
+          @if (isMobile() && selectedSubTopic()?.title === nestedSubTopic.title) {
+            <se-selected-sub-topic [selectedSubTopic]="selectedSubTopic()"> </se-selected-sub-topic>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</ng-template>

@@ -4,6 +4,7 @@ export interface SubTopic {
   title: string;
   description?: string;
   photo?: string;
+  videoEmbedUrl?: string[];
   photoWidth?: number;
   photoHeight?: number;
   color: Colors;

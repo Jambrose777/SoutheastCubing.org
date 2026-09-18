@@ -16,7 +16,7 @@ import {
   TeamSkeleton,
 } from 'src/app/models/ContentfulSkeletons';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
-import { resolvedAsset, resolvedEntry } from 'src/app/shared/contentful-links';
+import { resolvedAsset, resolvedEntry, SubTopicEntryLink } from 'src/app/shared/contentful-links';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
 import { colorFromField } from 'src/app/shared/color-from-field';
 import { SubTopic } from 'src/app/models/SubTopic';
@@ -26,7 +26,7 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { SelectItemService } from 'src/app/services/select-item.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
-import { Location, NgClass } from '@angular/common';
+import { Location, NgClass, NgTemplateOutlet } from '@angular/common';
 import { DocumentLink } from 'src/app/models/Document';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
@@ -48,6 +48,7 @@ import { DoucmentsComponent } from './documents/documents.component';
     TeamsComponent,
     DoucmentsComponent,
     NgClass,
+    NgTemplateOutlet,
   ],
 })
 export class AboutComponent implements OnInit, OnDestroy {
@@ -88,25 +89,9 @@ export class AboutComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.title.set(res.fields.title);
           this.description.set(res.fields.description ?? '');
-          let subTopics: SubTopic[] = res.fields.subTopics.map((subTopicLink) => {
-            const subTopic = resolvedEntry(subTopicLink);
-            const photo = resolvedAsset(subTopic?.fields['photo']);
-            const photoSize = scaleToDisplaySize(
-              photo?.fields.file?.details?.image?.width,
-              photo?.fields.file?.details?.image?.height,
-            );
-            return {
-              ...subTopic?.fields,
-              title: subTopic?.fields.title ?? '',
-              photo: photo?.fields.file?.url,
-              photoWidth: photoSize.width,
-              photoHeight: photoSize.height,
-              color: colorFromField(subTopic?.fields.color),
-              // About's subtopics don't use nesting - override the spread's raw
-              // (unresolved) subTopics link array rather than passing it through.
-              subTopics: undefined,
-            };
-          });
+          let subTopics: SubTopic[] = res.fields.subTopics.map((subTopicLink) =>
+            this.mapSubTopic(subTopicLink, true),
+          );
 
           // Add additional custom Pages as SubTopics
           subTopics = [
@@ -118,7 +103,13 @@ export class AboutComponent implements OnInit, OnDestroy {
 
           // select a subtopic based on url on load
           if (this.subTopicId()) {
-            const foundSubTopic = subTopics.find(
+            // Search both top-level and (one level of) nested subtopics, since
+            // selecting either kind updates the URL to that item's own slug.
+            const flatSubTopics = subTopics.flatMap((subTopic) => [
+              subTopic,
+              ...(subTopic.subTopics ?? []),
+            ]);
+            const foundSubTopic = flatSubTopics.find(
               (subTopic) => subTopic.title.replace(/ +/g, '-') === this.subTopicId(),
             );
             if (foundSubTopic) {
@@ -204,7 +195,8 @@ export class AboutComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  // sets a sub topic as the selected sub topic to drill details
+  // sets a sub topic as the selected sub topic to drill details - used for both
+  // top-level and nested subtopics, which are selected identically.
   selectSubTopic(subTopic: SubTopic) {
     this.selectItemService.select(subTopic, {
       selectedSignal: this.selectedSubTopic,
@@ -215,5 +207,39 @@ export class AboutComponent implements OnInit, OnDestroy {
       updateUrl: () =>
         this.location.replaceState(buildDetailUrl('/about', this.selectedSubTopic()?.title)),
     });
+  }
+
+  // Whether a top-level subtopic's nested list should be shown in the side panel -
+  // kept open both while the subtopic itself is selected and while one of its own
+  // nested items is selected (so browsing a nested item doesn't collapse its parent).
+  isSubTopicExpanded(subTopic: SubTopic): boolean {
+    return (
+      this.selectedSubTopic()?.title === subTopic.title ||
+      !!subTopic.subTopics?.some((nested) => nested.title === this.selectedSubTopic()?.title)
+    );
+  }
+
+  // Maps a resolved subTopic Contentful entry link into the `SubTopic` shape used by
+  // the templates. Nesting is capped at exactly one level: `resolveNested` is only ever
+  // true for the top-level call, so a nested subtopic's own `subTopics` field (if
+  // populated in Contentful) is never read/rendered.
+  private mapSubTopic(subTopicLink: SubTopicEntryLink, resolveNested: boolean): SubTopic {
+    const subTopic = resolvedEntry(subTopicLink);
+    const photo = resolvedAsset(subTopic?.fields['photo']);
+    const photoSize = scaleToDisplaySize(
+      photo?.fields.file?.details?.image?.width,
+      photo?.fields.file?.details?.image?.height,
+    );
+    return {
+      ...subTopic?.fields,
+      title: subTopic?.fields.title ?? '',
+      photo: photo?.fields.file?.url,
+      photoWidth: photoSize.width,
+      photoHeight: photoSize.height,
+      color: colorFromField(subTopic?.fields.color),
+      subTopics: resolveNested
+        ? subTopic?.fields.subTopics?.map((nestedLink) => this.mapSubTopic(nestedLink, false))
+        : undefined,
+    };
   }
 }
