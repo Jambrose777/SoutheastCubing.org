@@ -19,4 +19,5 @@ export enum ContentfulContentType {
   championships = 'championships',
   teams = 'teams',
   cats = 'cats',
+  homePageOverride = 'homePageOverride',
 }

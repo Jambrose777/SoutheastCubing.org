@@ -38,31 +38,59 @@
           </div>
         </div>
       }
-      <!-- Photo Carousel on Mobile -->
-      @if (isMobile()) {
-        <div class="mobile-home-photo-container">
-          <se-carousel
-            [images]="photos()"
-            [height]="200"
-            [loop]="true"
-            [autoplay]="true"
-            [arrows]="false"
-          >
-          </se-carousel>
+      @if (homePageOverride(); as override) {
+        <!-- Home page override - replaces the photo carousel while an override
+         entry is published (via Contentful's native Scheduled Publishing) -->
+        <div class="home-override-container">
+          <h2 class="override-title">{{ override.title }}</h2>
+          @if (override.description) {
+            <div class="medium-text-content">
+              <markdown [data]="override.description"></markdown>
+            </div>
+          }
+          <iframe
+            [src]="override.livestreamEmbedUrl | safeUrl"
+            class="video-embed"
+            title="{{ override.title }}"
+            allow="
+              accelerometer;
+              autoplay;
+              clipboard-write;
+              encrypted-media;
+              gyroscope;
+              picture-in-picture;
+              web-share;
+            "
+            allowfullscreen
+          ></iframe>
         </div>
-      }
-      <!-- Photo Carousel on Desktop -->
-      @if (!isMobile()) {
-        <div class="home-photo-container">
-          <se-carousel
-            [images]="photos()"
-            [height]="500"
-            [loop]="true"
-            [autoplay]="true"
-            [arrows]="false"
-          >
-          </se-carousel>
-        </div>
+      } @else {
+        <!-- Photo Carousel on Mobile -->
+        @if (isMobile()) {
+          <div class="mobile-home-photo-container">
+            <se-carousel
+              [images]="photos()"
+              [height]="200"
+              [loop]="true"
+              [autoplay]="true"
+              [arrows]="false"
+            >
+            </se-carousel>
+          </div>
+        }
+        <!-- Photo Carousel on Desktop -->
+        @if (!isMobile()) {
+          <div class="home-photo-container">
+            <se-carousel
+              [images]="photos()"
+              [height]="500"
+              [loop]="true"
+              [autoplay]="true"
+              [arrows]="false"
+            >
+            </se-carousel>
+          </div>
+        }
       }
       <div class="large-text-content">
         <markdown [data]="description()"></markdown>

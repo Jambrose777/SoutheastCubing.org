@@ -74,6 +74,15 @@ export type DocumentSkeleton = {
   };
 };
 
+export type HomePageOverrideSkeleton = {
+  contentTypeId: 'homePageOverride';
+  fields: {
+    title: EntryFieldTypes.Symbol;
+    description?: EntryFieldTypes.Text;
+    livestreamEmbedUrl: EntryFieldTypes.Symbol;
+  };
+};
+
 export type ClubSkeleton = {
   contentTypeId: 'clubs';
   fields: {

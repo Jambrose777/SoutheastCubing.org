@@ -13,8 +13,9 @@ import {
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
-import { ContentfulEntryId } from 'src/app/models/Contentful';
-import { HomePageSkeleton } from 'src/app/models/ContentfulSkeletons';
+import type { Entry } from 'contentful';
+import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
+import { HomePageOverrideSkeleton, HomePageSkeleton } from 'src/app/models/ContentfulSkeletons';
 import { resolvedAsset, resolvedEntry } from 'src/app/shared/contentful-links';
 import { colorFromField } from 'src/app/shared/color-from-field';
 import { environment } from 'src/environments/environment';
@@ -28,6 +29,7 @@ import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 import { CarouselComponent } from '../../shared/carousel/carousel.component';
 import { MarkdownComponent } from 'ngx-markdown';
+import { SafeUrlPipe } from 'src/app/pipes/safeUrl.pipe';
 
 @Component({
   selector: 'se-home',
@@ -41,6 +43,7 @@ import { MarkdownComponent } from 'ngx-markdown';
     MarkdownComponent,
     RouterLink,
     NgOptimizedImage,
+    SafeUrlPipe,
   ],
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -57,6 +60,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   photos = signal<string[]>([]);
   loadingContent = signal(true);
   subTopics = signal<SubTopic[] | undefined>(undefined);
+  // Set from a separate, independently-queried content type (not referenced from the
+  // home page entry itself)
+  homePageOverride = signal<Entry<HomePageOverrideSkeleton, undefined>['fields'] | undefined>(
+    undefined,
+  );
   subscriptions: Subscription = new Subscription();
 
   // Each announcement's `.items-container` holds exactly two identical
@@ -76,19 +84,21 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.title.set(res.fields.title);
           this.description.set(res.fields.description ?? '');
           this.subTopics.set(
-            res.fields.subTopics?.map((subTopicLink) => {
-              const subTopic = resolvedEntry(subTopicLink);
-              const photo = resolvedAsset(subTopic?.fields['photo']);
-              return {
-                ...subTopic?.fields,
-                title: subTopic?.fields.title ?? '',
-                photo: photo?.fields.file?.url,
-                color: colorFromField(subTopic?.fields.color),
-                // Home's subtopics don't use nesting - override the spread's raw
-                // (unresolved) subTopics link array rather than passing it through.
-                subTopics: undefined,
-              };
-            }),
+            (res.fields.subTopics ?? [])
+              .map((subTopicLink) => resolvedEntry(subTopicLink))
+              .filter((subTopic) => !!subTopic)
+              .map((subTopic) => {
+                const photo = resolvedAsset(subTopic.fields['photo']);
+                return {
+                  ...subTopic.fields,
+                  title: subTopic.fields.title ?? '',
+                  photo: photo?.fields.file?.url,
+                  color: colorFromField(subTopic.fields.color),
+                  // Home's subtopics don't use nesting - override the spread's raw
+                  // (unresolved) subTopics link array rather than passing it through.
+                  subTopics: undefined,
+                };
+              }),
           );
           this.photos.set(
             (res.fields.photos ?? [])
@@ -102,6 +112,22 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.loadingContent.set(false);
         },
       }),
+    );
+
+    // Fetch Overridden content for the Home Page
+    this.subscriptions.add(
+      this.contentful
+        .getContentfulGroup<HomePageOverrideSkeleton>(ContentfulContentType.homePageOverride)
+        .subscribe({
+          next: (res) => {
+            // Not an error if more than one is somehow published at once - just use
+            // whichever the query happened to return first, no priority/order field.
+            this.homePageOverride.set(res.items[0]?.fields);
+          },
+          error: (err) => {
+            console.error('Failed to load home page overrides from Contentful:', err);
+          },
+        }),
     );
   }
 

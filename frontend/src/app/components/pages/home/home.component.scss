@@ -67,6 +67,24 @@
       margin: auto;
     }
 
+    .home-override-container {
+      width: 80%;
+      margin: auto;
+
+      .override-title {
+        text-align: center;
+        margin: 0 0 15px;
+      }
+
+      .video-embed {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border: 0;
+        border-radius: 10px;
+        box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
+      }
+    }
+
     .large-text-content {
       margin-top: 20px;
       margin-bottom: 20px;
@@ -98,6 +116,10 @@
     padding: 5px !important;
     margin: 5px 0 !important;
     min-height: 0 !important;
+  }
+
+  .home-override-container {
+    width: 95% !important;
   }
 }
 
