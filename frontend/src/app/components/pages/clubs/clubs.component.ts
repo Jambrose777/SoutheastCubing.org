@@ -96,6 +96,13 @@ export class ClubsComponent implements OnInit, OnDestroy {
   filtersOpen = signal(false);
   subscriptions: Subscription = new Subscription();
 
+  // Keeps the main pane color in sync with the current viewport/selection.
+  private syncMainPaneColor = this.selectItemService.syncMainPaneColorWithViewport({
+    selectedSignal: this.selectedClub,
+    basePaneColor: Colors.purple,
+    selectColor: (c: Club) => StateColors[c.state ?? '??'],
+  });
+
   ngOnInit(): void {
     // sets up main color for the clubs page
     this.themeService.setMainPaneColor(Colors.purple);

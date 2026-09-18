@@ -19,8 +19,6 @@ const loadChampionships = () =>
   import('./components/pages/championships/championships.component').then(
     (m) => m.ChampionshipsComponent,
   );
-const loadOrganizers = () =>
-  import('./components/pages/organizers/organizers.component').then((m) => m.OrganizersComponent);
 const loadAbout = () =>
   import('./components/pages/about/about.component').then((m) => m.AboutComponent);
 const loadCats = () =>
@@ -96,13 +94,14 @@ export const routes: Routes = [
   },
   {
     path: 'organizers',
-    loadComponent: loadOrganizers,
-    title: 'SoutheastCubing - Organizer Guidelines',
+    // Retired standalone page, folded into Get Involved's "Organizing a Competition"
+    // subtopic - redirect keeps existing links/bookmarks working.
+    redirectTo: 'involvement/Organizing-a-Competition',
+    pathMatch: 'full',
   },
   {
     path: 'organizers/:subTopicId',
-    loadComponent: loadOrganizers,
-    title: 'SoutheastCubing - Organizer Guidelines',
+    redirectTo: 'involvement/Organizing-a-Competition',
   },
   {
     path: 'contact',

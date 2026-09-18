@@ -70,6 +70,13 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
   subText1 = signal('');
   subscriptions: Subscription = new Subscription();
 
+  // Keeps the main pane color in sync with the current viewport/selection.
+  private syncMainPaneColor = this.selectItemService.syncMainPaneColorWithViewport({
+    selectedSignal: this.selectedChampionship,
+    basePaneColor: Colors.blue,
+    selectColor: (c: Championship) => StateColors[c.state],
+  });
+
   ngOnInit(): void {
     // sets up main color for the championships page
     this.themeService.setMainPaneColor(Colors.blue);

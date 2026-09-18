@@ -1,4 +1,4 @@
-import { inject, Injectable, Injector, WritableSignal } from '@angular/core';
+import { effect, inject, Injectable, Injector, WritableSignal } from '@angular/core';
 import { NavService } from 'src/app/services/nav.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { ThemeService } from 'src/app/services/theme.service';
@@ -54,5 +54,21 @@ export class SelectItemService {
     }
 
     config.updateUrl();
+  }
+
+  // Call this once per page (e.g. as a field initializer, so it runs in that page's
+  // own injection context) to keep the color continuously in sync with both the
+  // viewport and the current selection instead.
+  syncMainPaneColorWithViewport<T>(
+    config: Pick<SelectItemConfig<T>, 'selectedSignal' | 'basePaneColor' | 'selectColor'>,
+  ) {
+    return effect(() => {
+      const selected = config.selectedSignal();
+      this.themeService.setMainPaneColor(
+        !this.screenSizeService.isMobile() && selected
+          ? config.selectColor(selected)
+          : config.basePaneColor,
+      );
+    });
   }
 }

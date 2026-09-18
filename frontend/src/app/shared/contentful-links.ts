@@ -1,4 +1,5 @@
 import type { Asset, Entry, EntrySkeletonType, UnresolvedLink } from 'contentful';
+import type { SubTopicSkeleton } from 'src/app/models/ContentfulSkeletons';
 
 // The `contentful` SDK types every Asset/Entry link as possibly unresolved
 // (e.g. if the linked entity was deleted or unpublished after the referencing
@@ -18,3 +19,11 @@ export function resolvedEntry<Skeleton extends EntrySkeletonType>(
 ): Entry<Skeleton, undefined> | undefined {
   return link && 'fields' in link ? link : undefined;
 }
+
+// The Contentful SDK's resolved type for a `subTopic` entry link, as it appears both
+// on a page's own `subTopics` field and (self-referentially) on a subtopic's own
+// nested `subTopics` field - both link to the same `SubTopicSkeleton`, so this single
+// alias covers the link type at either nesting level.
+export type SubTopicEntryLink = NonNullable<
+  Entry<SubTopicSkeleton, undefined>['fields']['subTopics']
+>[number];

@@ -17,6 +17,10 @@ export type SubTopicSkeleton = {
     buttonInternalLink?: EntryFieldTypes.Symbol;
     buttonExternalLink?: EntryFieldTypes.Symbol;
     color?: EntryFieldTypes.Symbol;
+    // Self-referencing so a subtopic can have its own nested subtopics
+    // Rendering code caps this at one level deep regardless of how it's
+    // populated in Contentful.
+    subTopics?: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<SubTopicSkeleton>>;
   };
 };
 
@@ -155,18 +159,6 @@ export type InvolvementPageSkeleton = {
     title: EntryFieldTypes.Symbol;
     description?: EntryFieldTypes.Text;
     subTopics: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<SubTopicSkeleton>>;
-  };
-};
-
-export type OrganizersPageSkeleton = {
-  contentTypeId: 'organizers';
-  fields: {
-    title: EntryFieldTypes.Symbol;
-    description?: EntryFieldTypes.Text;
-    subTopics?: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<SubTopicSkeleton>>;
-    subText1?: EntryFieldTypes.Text;
-    subText1ButtonText?: EntryFieldTypes.Symbol;
-    subText1ButtonLink?: EntryFieldTypes.Symbol;
   };
 };
 

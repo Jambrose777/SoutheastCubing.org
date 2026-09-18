@@ -84,6 +84,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
                 title: subTopic?.fields.title ?? '',
                 photo: photo?.fields.file?.url,
                 color: colorFromField(subTopic?.fields.color),
+                // Home's subtopics don't use nesting - override the spread's raw
+                // (unresolved) subTopics link array rather than passing it through.
+                subTopics: undefined,
               };
             }),
           );

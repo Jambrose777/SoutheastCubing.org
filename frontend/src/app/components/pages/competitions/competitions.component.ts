@@ -97,6 +97,13 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   competitionMapPoints = signal<MapPoint[] | undefined>(undefined);
   subscriptions: Subscription = new Subscription();
 
+  // Keeps the main pane color in sync with the current viewport/selection.
+  private syncMainPaneColor = this.selectItemService.syncMainPaneColorWithViewport({
+    selectedSignal: this.selectedCompetition,
+    basePaneColor: Colors.grey,
+    selectColor: (c: Competition) => StateColors[c.state ?? '??'],
+  });
+
   ngOnInit(): void {
     // sets up main color for the competitions page
     this.themeService.setMainPaneColor(Colors.grey);

@@ -65,6 +65,13 @@ export class DelegatesComponent implements OnInit, OnDestroy {
   selectedDelegate = signal<Delegate | undefined>(undefined);
   subscriptions: Subscription = new Subscription();
 
+  // Keeps the main pane color in sync with the current viewport/selection.
+  private syncMainPaneColor = this.selectItemService.syncMainPaneColorWithViewport({
+    selectedSignal: this.selectedDelegate,
+    basePaneColor: Colors.green,
+    selectColor: (d: Delegate) => StateColors[d.state ?? '??'],
+  });
+
   ngOnInit(): void {
     // sets up main color for the delegates page
     this.themeService.setMainPaneColor(Colors.green);

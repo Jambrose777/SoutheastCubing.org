@@ -66,6 +66,13 @@ export class CatsComponent implements OnInit, OnDestroy {
     Colors.red,
   ];
 
+  // Keeps the main pane color in sync with the current viewport/selection.
+  private syncMainPaneColor = this.selectItemService.syncMainPaneColorWithViewport({
+    selectedSignal: this.selectedCat,
+    basePaneColor: Colors.green,
+    selectColor: (c: Cat) => c.color,
+  });
+
   ngOnInit(): void {
     // sets up main color for the cats page
     this.themeService.setMainPaneColor(Colors.yellow);

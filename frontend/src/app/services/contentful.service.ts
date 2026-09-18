@@ -39,6 +39,10 @@ export class ContentfulService {
   getContentfulEntry<Skeleton extends EntrySkeletonType>(
     entryId: ContentfulEntryId,
   ): Observable<Entry<Skeleton, undefined>> {
-    return from(this.cdaClient.getEntry<Skeleton>(entryId));
+    // `include: 2` resolves two levels of linked entries (e.g. page -> subTopic ->
+    // subTopic's own nested subTopics) - the CDA API's default `include` is 1, which
+    // only resolves the page's direct links and leaves any second-level links
+    // (like Get Involved's nested Organizers subtopics) as unresolved link stubs.
+    return from(this.cdaClient.getEntry<Skeleton>(entryId, { include: 2 }));
   }
 }

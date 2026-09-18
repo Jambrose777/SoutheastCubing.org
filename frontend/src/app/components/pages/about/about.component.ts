@@ -71,6 +71,13 @@ export class AboutComponent implements OnInit, OnDestroy {
   documents = signal<DocumentLink[] | undefined>(undefined);
   subscriptions: Subscription = new Subscription();
 
+  // Keeps the main pane color in sync with the current viewport/selection.
+  private syncMainPaneColor = this.selectItemService.syncMainPaneColorWithViewport({
+    selectedSignal: this.selectedSubTopic,
+    basePaneColor: Colors.red,
+    selectColor: (s: SubTopic) => s.color,
+  });
+
   ngOnInit(): void {
     // sets up main color for the Involvement page
     this.themeService.setMainPaneColor(Colors.orange);
@@ -95,6 +102,9 @@ export class AboutComponent implements OnInit, OnDestroy {
               photoWidth: photoSize.width,
               photoHeight: photoSize.height,
               color: colorFromField(subTopic?.fields.color),
+              // About's subtopics don't use nesting - override the spread's raw
+              // (unresolved) subTopics link array rather than passing it through.
+              subTopics: undefined,
             };
           });
 
