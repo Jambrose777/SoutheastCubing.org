@@ -20,6 +20,7 @@ import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, StateColors } from 'src/app/shared/types';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { resolvedAsset, resolvedEntry } from 'src/app/shared/contentful-links';
+import { stateAbbreviationFromCity } from 'src/app/shared/state-abbreviation-from-city';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
 import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 import { SelectItemService } from 'src/app/services/select-item.service';
@@ -129,9 +130,7 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
                   .map((image) => resolvedAsset(image)?.fields.file?.url)
                   .filter((url): url is string => !!url)
                   .map((url) => ({ path: url })),
-                state: championship.fields.cityState.substring(
-                  championship.fields.cityState.length - 2,
-                ),
+                state: stateAbbreviationFromCity(championship.fields.cityState),
                 champions: (championship.fields.champions ?? [])
                   .map((champion) => resolvedEntry<ChampionSkeleton>(champion)?.fields)
                   .filter((fields): fields is NonNullable<typeof fields> => !!fields),

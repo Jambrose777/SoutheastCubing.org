@@ -16,6 +16,7 @@ import { ClubSkeleton, ClubsPageSkeleton } from 'src/app/models/ContentfulSkelet
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { resolvedAsset, resolvedEntry } from 'src/app/shared/contentful-links';
 import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
+import { stateAbbreviationFromCity } from 'src/app/shared/state-abbreviation-from-city';
 import { SelectItemService } from 'src/app/services/select-item.service';
 import { toggleFilterSelection } from 'src/app/shared/toggle-filter-selection';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -169,7 +170,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
                 image: image?.fields.file?.url,
                 imageWidth: imageSize.width,
                 imageHeight: imageSize.height,
-                state: club.fields?.city.substring(club.fields?.city.length - 2),
+                state: club.fields?.city ? stateAbbreviationFromCity(club.fields.city) : undefined,
               };
             })
             .sort((a: Club, b: Club) =>

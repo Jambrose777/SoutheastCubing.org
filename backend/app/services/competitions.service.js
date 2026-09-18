@@ -263,7 +263,7 @@ async function formatCompetitionData(comps, competitionsWithVolunteerApp) {
         event_ids: competition.event_ids,
         venue: getCompetitionVenueName(competition.venue),
         venue_url: getCompetitionVenueUrl(competition.venue),
-        state: competition.city.substring(competition.city.lastIndexOf(',') + 1).trim(),
+        state: getStateFromCity(competition.city),
         is_in_volunteer_application: competitionsWithVolunteerApp.includes(competition.name),
         accepted_registrations: await getRegistrationsFromWCA(competition),
         full_date: getFullCompetitionDate(competition.start_date, competition.end_date),
@@ -306,37 +306,54 @@ function getWCACompetition(competitions, competitionId) {
   }
 }
 
+// Matches a `[name](url)` markdown-style venue link. Greedy captures so an unbalanced
+// `)`/`]` inside the name or URL doesn't truncate the match early - this finds the
+// *last* `)`/`]` in the string rather than the first.
+const VENUE_LINK_PATTERN = /\[(.+)\]\((.+)\)/;
+
 // If Venue includes a hyperlink in markdown format, then strip "text" out of it. ie. [text](url)
 // If not, then return Venue name as is
 function getCompetitionVenueName(venue) {
-  if (venue && venue.indexOf(']') !== -1) {
-    return venue.substring(1, venue.indexOf(']'));
-  } else {
-    return venue;
-  }
+  const match = venue && venue.match(VENUE_LINK_PATTERN);
+  return match ? match[1] : venue;
 }
 
 // If Venue includes a hyperlink in markdown format, then strip "url" out of it. ie. [text](url)
 // If not, then return nothing
 function getCompetitionVenueUrl(venue) {
-  if (venue && venue.indexOf('(') !== -1 && venue.indexOf(')') !== -1) {
-    return venue.substring(venue.indexOf('(') + 1, venue.indexOf(')'));
-  } else {
+  const match = venue && venue.match(VENUE_LINK_PATTERN);
+  return match ? match[2] : undefined;
+}
+
+// The states SECI tracks/considers "Southeast"
+const TRACKED_SE_STATES = [
+  'Alabama',
+  'Florida',
+  'Georgia',
+  'North Carolina',
+  'South Carolina',
+  'Tennessee',
+];
+
+// Returns the trimmed segment after the last comma in a WCA/Contentful city string
+// (e.g. "Atlanta, Georgia" -> "Georgia")
+function getStateFromCity(city) {
+  if (!city) {
     return undefined;
   }
+  return city.substring(city.lastIndexOf(',') + 1).trim();
+}
+
+// Returns the canonical Title-Case tracked-state name if `city`'s parsed state
+// matches one of TRACKED_SE_STATES case-insensitively, or undefined otherwise.
+function getTrackedSEState(city) {
+  const state = getStateFromCity(city);
+  return state && TRACKED_SE_STATES.find((tracked) => tracked.toLowerCase() === state.toLowerCase());
 }
 
 // True if `comp`'s city is in one of the 6 states SECI tracks.
 function isInSEState(comp) {
-  return (
-    !!comp.city &&
-    (comp.city.includes(', Georgia') ||
-      comp.city.includes(', Tennessee') ||
-      comp.city.includes(', North Carolina') ||
-      comp.city.includes(', South Carolina') ||
-      comp.city.includes(', Alabama') ||
-      comp.city.includes(', Florida'))
-  );
+  return !!getTrackedSEState(comp.city);
 }
 
 module.exports = {

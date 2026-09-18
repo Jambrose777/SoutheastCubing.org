@@ -86,8 +86,20 @@ async function postCompetitionInDiscord(competition, { attempt = 0, pingOverride
     );
   });
 
-  const pingLine =
-    pingOverride === 'everyone' ? '@everyone' : `<@&${stateTagIds[competition.state]}>`;
+  let pingLine;
+  if (pingOverride === 'everyone') {
+    pingLine = '@everyone';
+  } else if (stateTagIds[competition.state]) {
+    pingLine = `<@&${stateTagIds[competition.state]}>`;
+  } else {
+    // competition.state didn't match any configured Discord role tag (e.g. a
+    // casing difference from WCA, or a state with no tag configured) - post
+    // without a role ping rather than a broken `<@&undefined>` mention.
+    logger.warn(
+      `No Discord role tag configured for state "${competition.state}" (competition ${competition.id}) - posting without a role ping.`,
+    );
+    pingLine = '';
+  }
 
   // compose Discord Message
   let discordMessage = `[${name}](https://www.worldcubeassociation.org/competitions/${competition.id})\n`;
