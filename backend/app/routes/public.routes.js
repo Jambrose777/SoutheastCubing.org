@@ -14,7 +14,7 @@ router.post('/email', emailLimiter, async (req, res) => {
   try {
     emailController.sendEmail(req, res);
   } catch (e) {
-    logger.error('ip-' + req.ip + ' POST /email ', e);
+    logger.error('POST /email ', e);
     if (!res.headersSent) {
       res.status(500).json({ message: 'Internal server error' });
     }
@@ -25,7 +25,7 @@ router.get('/competitions', async (req, res) => {
   try {
     await competitionsController.getCompetitions(req, res);
   } catch (e) {
-    logger.error('ip-' + req.ip + ' GET /competitions ', e);
+    logger.error('GET /competitions ', e);
     if (!res.headersSent) {
       res.status(500).json({ message: 'Internal server error' });
     }
@@ -36,7 +36,7 @@ router.post('/update-competitions', async (req, res) => {
   try {
     await competitionsController.updateCompetitions(req, res);
   } catch (e) {
-    logger.error('ip-' + req.ip + ' GET /update-competitions ', e);
+    logger.error('GET /update-competitions ', e);
     if (!res.headersSent) {
       res.status(500).json({ message: 'Internal server error' });
     }
@@ -47,7 +47,7 @@ router.get('/', async (req, res) => {
   try {
     res.send({ status: 'healthy' });
   } catch (e) {
-    logger.error('ip-' + req.ip + ' GET / ', e);
+    logger.error('GET / ', e);
   }
 });
 

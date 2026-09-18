@@ -38,12 +38,11 @@ function sendEmail(req, res) {
   }
 
   emailIntegration
-    .sendMail(message)
+    .sendMail(message, `from the contact form (${req.body.emailType})`)
     .then(() => {
       res.send({ status: 'success' });
     })
-    .catch((err) => {
-      logger.error('ip-' + req.ip + ' Error sending email: ', err);
+    .catch(() => {
       res.status(500).json({ message: 'Failed to send email. Please try again later.' });
     });
 }

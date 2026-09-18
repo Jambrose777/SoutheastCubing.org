@@ -24,14 +24,11 @@ const SUPPLEMENTAL_LOOKAHEAD_YEARS = 2;
 // lookup fails.
 async function lookupCompetitionById(id) {
   try {
-    return await wca.fetchCompetitionById(id);
-  } catch (err) {
     // A 404 just means that year's competition doesn't exist yet - the
-    // expected outcome for most probed years, so only unexpected failures
-    // are logged.
-    if (!err.response || err.response.status !== 404) {
-      logger.error(`Failed to look up supplemental major championship ${id}: `, err);
-    }
+    // expected outcome for most probed years, so wca.integration.js logs it
+    // at debug instead of error.
+    return await wca.fetchCompetitionById(id, { suppressNotFoundLogging: true });
+  } catch {
     return null;
   }
 }
@@ -126,6 +123,7 @@ async function refreshMajorChampionships(wcaCompetitions, patterns, excludedIds 
   const detected = detectMajorChampionships(wcaCompetitions.concat(supplemental), patterns).filter(
     (comp) => !excludedIds.has(comp.id),
   );
+  logger.debug(`Detected ${detected.length} major championship(s) this cycle.`);
   if (!detected.length) return [];
 
   await majorChampionshipsDb.upsertMajorChampionships(detected);

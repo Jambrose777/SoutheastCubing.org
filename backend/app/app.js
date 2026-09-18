@@ -9,9 +9,15 @@ const logger = require('./utils/logger.util.js');
 // chance to run with an invalid value.
 const { config } = require('./config/config.js');
 
+// Debug-level logs in development, info-level (quieter) in production -
+// unset NODE_ENV is treated as development, per config.js's schema.
+// LOG_LEVEL, when set, overrides this default.
+logger.setLevel(config.LOG_LEVEL ?? (config.NODE_ENV === 'production' ? 'info' : 'debug'));
+
 const db = require('./database/pool.js');
 
 const { applySecurity } = require('./middleware/security.middleware.js');
+const assignRequestId = require('./middleware/requestId.middleware.js');
 const requestLogging = require('./middleware/requestLogging.middleware.js');
 const { errorHandler } = require('./middleware/errorHandler.middleware.js');
 
@@ -26,6 +32,9 @@ const app = express();
 // Setup middlewares
 applySecurity(app, config);
 app.use(express.json({ limit: '100kb' }));
+// Assigns req.id before morgan/business-code logging so both can tag
+// themselves with it from the very first middleware onward.
+app.use(assignRequestId);
 app.use(requestLogging);
 
 // Confirm the pooled DSQL connection actually works on boot - logged only, so a

@@ -26,8 +26,7 @@ async function getCompetitions(req, res) {
   let comps;
   try {
     comps = await competitionsDb.getUpcomingCompetitions();
-  } catch (err) {
-    logger.error('Failed to load upcoming competitions from the database: ', err);
+  } catch {
     res.status(503).json({ message: 'Competition data is temporarily unavailable.' });
     return;
   }
@@ -41,7 +40,7 @@ async function updateCompetitions(req, res) {
 
   // deny request if updated within the last hour
   if (lastChecked && lastChecked.isAfter(moment().add(-1, 'hour'))) {
-    logger.info('ip-' + req.ip + ' attempted update-competitions within 1 hour of a refresh.');
+    logger.info('attempted update-competitions within 1 hour of a refresh.');
     res.status(400).json({
       message:
         'Cannot update multiple times within an hour. Last update was: ' +
@@ -49,24 +48,17 @@ async function updateCompetitions(req, res) {
     });
   } else {
     // pull competitions from WCA
-    logger.info('ip-' + req.ip + ' Fetching competitions from wca on update-competitions request.');
+    logger.info('Fetching competitions from wca on update-competitions request.');
     try {
       const { competitions, discordPostFailures } = await refreshCompetitionsFromWCA();
-      logger.info(
-        'ip-' +
-          req.ip +
-          ' Successfully Fetched competitions from wca on update-competitions request.',
-      );
+      logger.info('Successfully Fetched competitions from wca on update-competitions request.');
 
       res.send({
         competitions,
         discordPostFailures: discordPostFailures.map((comp) => ({ id: comp.id, name: comp.name })),
       });
     } catch (err) {
-      logger.error(
-        'ip-' + req.ip + ' Failed to fetch competitions from wca on update-competitions request: ',
-        err,
-      );
+      logger.error('Failed to fetch competitions from wca on update-competitions request: ', err);
       if (!res.headersSent) {
         res.status(500).json({ message: 'Failed to fetch competitions from WCA.' });
       }

@@ -6,7 +6,7 @@ const logger = require('../utils/logger.util.js');
 // generically instead of Express's default stack-trace page, preserving the
 // error's status code if it set one.
 function errorHandler(err, req, res, next) {
-  logger.error('ip-' + req.ip + ' Unhandled error: ', err);
+  logger.error('Unhandled error: ', err);
   if (res.headersSent) {
     next(err);
     return;

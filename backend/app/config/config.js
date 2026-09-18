@@ -21,13 +21,19 @@ const configSchema = z.object({
   // optional env vars
   CONTENTFUL_SPACE: z.string().min(1).optional(),
   CONTENTFUL_ACCESS_TOKEN: z.string().min(1).optional(),
+  DISCORD_WEBHOOK: z.string().min(1).optional(),
   EMAIL_USER: z.string().min(1).optional(),
   EMAIL_PASS: z.string().min(1).optional(),
   EMAIL_TO_BOARD: z.string().min(1).optional(),
   EMAIL_TO_CLUBS: z.string().min(1).optional(),
   EMAIL_TO_COMPETITIONS: z.string().min(1).optional(),
   EMAIL_TO_CONTACT: z.string().min(1).optional(),
-  DISCORD_WEBHOOK: z.string().min(1).optional(),
+  // Controls log verbosity in utils/logger.util.js - unset defaults to
+  // development (debug logs).
+  NODE_ENV: z.enum(['development', 'production']).optional(),
+  // Explicit override of the NODE_ENV-derived log level - unset leaves the
+  // NODE_ENV default in place. This is the only way to enable `trace`.
+  LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).optional(),
 });
 
 // Human-readable description of what's disabled when each optional var is
@@ -38,6 +44,8 @@ const OPTIONAL_VAR_DESCRIPTIONS = {
     'manually-added Contentful competitions will be skipped (WCA-sourced competitions still work)',
   CONTENTFUL_ACCESS_TOKEN:
     'manually-added Contentful competitions will be skipped (WCA-sourced competitions still work)',
+  DISCORD_WEBHOOK:
+    'competition Discord posts will be skipped (the competitions refresh itself still succeeds)',
   EMAIL_USER: 'POST /email will respond 503 until this is set',
   EMAIL_PASS: 'POST /email will respond 503 until this is set',
   EMAIL_TO_BOARD:
@@ -48,8 +56,9 @@ const OPTIONAL_VAR_DESCRIPTIONS = {
     'POST /email requests for the "organizing" category will respond 503 until this is set',
   EMAIL_TO_CONTACT:
     'POST /email requests for the remaining categories will respond 503 until this is set',
-  DISCORD_WEBHOOK:
-    'competition Discord posts will be skipped (the competitions refresh itself still succeeds)',
+  NODE_ENV: 'defaulting to development-level (debug) logging',
+  LOG_LEVEL:
+    'log level is derived from NODE_ENV instead (debug in development, info in production)',
 };
 
 // Validates process.env against the schema above and returns a frozen config

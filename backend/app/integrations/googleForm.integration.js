@@ -46,7 +46,7 @@ async function getCompetitionsInVolunteerForm() {
       return [];
     }
 
-    logger.info('Successfully fetched Volunteers from Google Form.');
+    logger.debug('Successfully fetched Volunteers from Google Form.');
     return options
       .filter((comp) => {
         // A value without "(" doesn't match the expected "Competition Name (date)"

@@ -17,17 +17,21 @@ if (config.CONTENTFUL_SPACE && config.CONTENTFUL_ACCESS_TOKEN) {
 
 // retrieves all Contentful "Entries" pertaining to a "Content Type". Short-
 // circuits to an empty result if Contentful isn't configured.
-function getContentfulCompetitions() {
+async function getContentfulCompetitions() {
   if (!cdaClient) {
     logger.warn(
       'CONTENTFUL_SPACE/CONTENTFUL_ACCESS_TOKEN not set - skipping Contentful fetch and returning no manually-added competitions.',
     );
-    return Promise.resolve({ items: [] });
+    return { items: [] };
   }
-  return cdaClient.getEntries(Object.assign({ content_type: 'competition' })).catch((err) => {
-    logger.error('Error retrieving competitions from Contentful: ', err);
+  try {
+    const entries = await cdaClient.getEntries(Object.assign({ content_type: 'competition' }));
+    logger.debug(`Fetched ${entries.items.length} competition entries from Contentful.`);
+    return entries;
+  } catch (err) {
+    logger.error('Failed to fetch competitions from Contentful: ', err);
     throw err;
-  });
+  }
 }
 
 module.exports = { getContentfulCompetitions };

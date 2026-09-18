@@ -1,5 +1,8 @@
 const db = require('./pool.js');
 
+// Logger
+const logger = require('../utils/logger.util.js');
+
 // Columns of the `major_championship_announcements` table, in the order used
 // when building the multi-row upsert below.
 const COLUMNS = [
@@ -72,81 +75,125 @@ async function getEventIdsByMajorChampionship(queryable, majorChampionshipIds) {
 async function upsertMajorChampionships(comps) {
   if (!comps.length) return;
 
-  await db.withRetry(async (client) => {
-    const valueGroups = [];
-    const params = [];
-    comps.forEach((comp, i) => {
-      const row = toRow(comp);
-      const placeholders = row.map((_, colIdx) => `$${i * COLUMNS.length + colIdx + 1}`);
-      valueGroups.push(`(${placeholders.join(', ')})`);
-      params.push(...row);
-    });
-
-    const updateSet = COLUMNS.filter((col) => col !== 'id')
-      .map((col) => `${col} = EXCLUDED.${col}`)
-      .join(', ');
-
-    await client.query(
-      `INSERT INTO major_championship_announcements (${COLUMNS.join(', ')})
-       VALUES ${valueGroups.join(', ')}
-       ON CONFLICT (id) DO UPDATE SET ${updateSet}`,
-      params,
-    );
-
-    const competitionIds = comps.map((comp) => comp.id);
-    await client.query(
-      'DELETE FROM major_championship_events WHERE major_championship_id = ANY($1)',
-      [competitionIds],
-    );
-
-    const eventValueGroups = [];
-    const eventParams = [];
-    let paramIdx = 1;
-    comps.forEach((comp) => {
-      (comp.event_ids ?? []).forEach((eventId) => {
-        eventValueGroups.push(`($${paramIdx}, $${paramIdx + 1})`);
-        eventParams.push(comp.id, eventId);
-        paramIdx += 2;
+  try {
+    await db.withRetry(async (client) => {
+      const valueGroups = [];
+      const params = [];
+      comps.forEach((comp, i) => {
+        const row = toRow(comp);
+        const placeholders = row.map((_, colIdx) => `$${i * COLUMNS.length + colIdx + 1}`);
+        valueGroups.push(`(${placeholders.join(', ')})`);
+        params.push(...row);
       });
-    });
 
-    if (eventValueGroups.length) {
+      const updateSet = COLUMNS.filter((col) => col !== 'id')
+        .map((col) => `${col} = EXCLUDED.${col}`)
+        .join(', ');
+
       await client.query(
-        `INSERT INTO major_championship_events (major_championship_id, event_id) VALUES ${eventValueGroups.join(', ')}`,
-        eventParams,
+        `INSERT INTO major_championship_announcements (${COLUMNS.join(', ')})
+         VALUES ${valueGroups.join(', ')}
+         ON CONFLICT (id) DO UPDATE SET ${updateSet}`,
+        params,
       );
-    }
-  });
+
+      const competitionIds = comps.map((comp) => comp.id);
+      await client.query(
+        'DELETE FROM major_championship_events WHERE major_championship_id = ANY($1)',
+        [competitionIds],
+      );
+
+      const eventValueGroups = [];
+      const eventParams = [];
+      let paramIdx = 1;
+      comps.forEach((comp) => {
+        (comp.event_ids ?? []).forEach((eventId) => {
+          eventValueGroups.push(`($${paramIdx}, $${paramIdx + 1})`);
+          eventParams.push(comp.id, eventId);
+          paramIdx += 2;
+        });
+      });
+
+      if (eventValueGroups.length) {
+        await client.query(
+          `INSERT INTO major_championship_events (major_championship_id, event_id) VALUES ${eventValueGroups.join(', ')}`,
+          eventParams,
+        );
+      }
+    });
+    logger.debug(
+      `Upserted ${comps.length} major championship(s) in the major_championship_announcements table.`,
+    );
+  } catch (err) {
+    logger.error(
+      `Failed to upsert ${comps.length} major championship(s) in the major_championship_announcements table: `,
+      err,
+    );
+    throw err;
+  }
 }
 
 // Marks the given major championship ids as announced.
 async function markAnnounced(ids) {
   if (!ids.length) return;
-  await db.withRetry(async (client) => {
-    await client.query(
-      'UPDATE major_championship_announcements SET announced_on_discord_at = now() WHERE id = ANY($1)',
-      [ids],
+  try {
+    await db.withRetry(async (client) => {
+      await client.query(
+        'UPDATE major_championship_announcements SET announced_on_discord_at = now() WHERE id = ANY($1)',
+        [ids],
+      );
+    });
+    logger.debug(
+      `Marked ${ids.length} major championship(s) as announced in the major_championship_announcements table.`,
     );
-  });
+  } catch (err) {
+    logger.error(
+      `Failed to mark ${ids.length} major championship(s) as announced in the major_championship_announcements table: `,
+      err,
+    );
+    throw err;
+  }
 }
 
 // Returns every major championship that hasn't been announced on Discord yet.
 async function getUnannounced() {
-  const { rows } = await db.pool.query(
-    'SELECT * FROM major_championship_announcements WHERE announced_on_discord_at IS NULL',
-  );
-  const eventIdsByMajorChampionship = await getEventIdsByMajorChampionship(
-    db.pool,
-    rows.map((row) => row.id),
-  );
-  return rows.map((row) => fromRow(row, eventIdsByMajorChampionship.get(row.id) ?? []));
+  try {
+    const { rows } = await db.pool.query(
+      'SELECT * FROM major_championship_announcements WHERE announced_on_discord_at IS NULL',
+    );
+    const eventIdsByMajorChampionship = await getEventIdsByMajorChampionship(
+      db.pool,
+      rows.map((row) => row.id),
+    );
+    logger.debug(
+      `Fetched ${rows.length} unannounced major championship(s) from the major_championship_announcements table.`,
+    );
+    return rows.map((row) => fromRow(row, eventIdsByMajorChampionship.get(row.id) ?? []));
+  } catch (err) {
+    logger.error(
+      'Failed to fetch unannounced major championships from the major_championship_announcements table: ',
+      err,
+    );
+    throw err;
+  }
 }
 
 // Returns every tracked major championship id (announced or not). Used to
 // figure out which years are already known for a given prefix (e.g. "NAC").
 async function getTrackedIds() {
-  const { rows } = await db.pool.query('SELECT id FROM major_championship_announcements');
-  return rows.map((row) => row.id);
+  try {
+    const { rows } = await db.pool.query('SELECT id FROM major_championship_announcements');
+    logger.debug(
+      `Fetched ${rows.length} tracked major championship id(s) from the major_championship_announcements table.`,
+    );
+    return rows.map((row) => row.id);
+  } catch (err) {
+    logger.error(
+      'Failed to fetch tracked major championship ids from the major_championship_announcements table: ',
+      err,
+    );
+    throw err;
+  }
 }
 
 module.exports = { upsertMajorChampionships, markAnnounced, getUnannounced, getTrackedIds };

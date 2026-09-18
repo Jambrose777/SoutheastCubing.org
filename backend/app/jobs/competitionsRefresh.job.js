@@ -14,7 +14,6 @@ const {
 // delegate sync) has the same home instead of being bolted onto a
 // controller/service file.
 function registerCompetitionsRefreshJob() {
-  logger.info('Fetching competitions on startup.');
   fetchCompetitions().catch((e) => {
     logger.error('Error on fetching competitions on startup: ', e);
   });

@@ -34,9 +34,22 @@ function isConfigured() {
   return !!transporter;
 }
 
-// Sends `mailOptions` through the configured SMTP transporter.
-function sendMail(mailOptions) {
-  return transporter.sendMail(mailOptions);
+// Sends `mailOptions` through the configured SMTP transporter. `description`
+// is a caller-supplied, non-PII label for the debug/error log (e.g. an email
+// category) - callers must never pass anything derived from user-supplied
+// content (recipient address, subject, etc.) here, since sendMail itself has
+// no way to guarantee `mailOptions` won't contain a real competitor/user
+// address in the future.
+async function sendMail(mailOptions, description) {
+  const suffix = description ? ` ${description}` : '';
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    logger.debug(`Successfully sent email${suffix}.`);
+    return info;
+  } catch (err) {
+    logger.error(`Failed to send email${suffix}: `, err);
+    throw err;
+  }
 }
 
 module.exports = { isConfigured, sendMail };

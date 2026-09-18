@@ -116,7 +116,7 @@ async function postCompetitionInDiscord(competition, { attempt = 0, pingOverride
         },
       },
     );
-    logger.info(`Successfully posted ${competition.id} on Discord`);
+    logger.debug(`Successfully posted ${competition.id} on Discord`);
     return res;
   } catch (err) {
     // A 429 means this webhook's rate-limit bucket hasn't fully reset despite the

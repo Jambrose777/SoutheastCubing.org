@@ -38,6 +38,21 @@ pool.on('error', (err) => {
   logger.error('Unexpected error on an idle DSQL client: ', err);
 });
 
+// Wraps `queryable.query` (a Pool or a checked-out PoolClient) so every call
+// traces the query text - deliberately never the bound parameter values,
+// since those can carry competitor PII (names, emails, addresses). `trace`
+// sits below the default `debug` level, so this stays silent unless someone
+// deliberately lowers the log level to see it.
+function traceQueries(queryable) {
+  const originalQuery = queryable.query.bind(queryable);
+  queryable.query = (text, ...rest) => {
+    logger.trace(`Running query: ${typeof text === 'string' ? text : text.text}`);
+    return originalQuery(text, ...rest);
+  };
+  return queryable;
+}
+traceQueries(pool);
+
 // SQLSTATEs DSQL raises for optimistic-concurrency-control conflicts at
 // commit (isolation is fixed at Repeatable Read).
 const RETRYABLE_SQLSTATES = new Set([
@@ -50,7 +65,7 @@ const RETRYABLE_SQLSTATES = new Set([
 async function withRetry(work, { retries = 3 } = {}) {
   let attempt = 0;
   for (;;) {
-    const client = await pool.connect();
+    const client = traceQueries(await pool.connect());
     try {
       return await work(client);
     } catch (err) {
@@ -72,7 +87,7 @@ async function withRetry(work, { retries = 3 } = {}) {
 // loudly (in the log) if the dev cluster is unreachable or misconfigured,
 // without blocking the rest of the app from starting.
 async function verifyConnection() {
-  const client = await pool.connect();
+  const client = traceQueries(await pool.connect());
   try {
     await client.query('SELECT 1');
   } finally {
