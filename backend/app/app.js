@@ -1,0 +1,46 @@
+const express = require('express');
+
+// Logger
+const logger = require('./utils/logger.util.js');
+
+// Loads/validates all env vars once, at the very top before any other backend
+// module is required - requiring it here is what fails the process fast on a
+// missing/empty required var, before controllers/database/pool.js etc. get a
+// chance to run with an invalid value.
+const { config } = require('./config/config.js');
+
+const db = require('./database/pool.js');
+
+const { applySecurity } = require('./middleware/security.middleware.js');
+const requestLogging = require('./middleware/requestLogging.middleware.js');
+const { errorHandler } = require('./middleware/errorHandler.middleware.js');
+
+const publicRoutes = require('./routes/public.routes.js');
+const authRoutes = require('./routes/auth.routes.js');
+const dashboardRoutes = require('./routes/dashboard.routes.js');
+
+const { registerCompetitionsRefreshJob } = require('./jobs/competitionsRefresh.job.js');
+
+const app = express();
+
+// Setup middlewares
+applySecurity(app, config);
+app.use(express.json({ limit: '100kb' }));
+app.use(requestLogging);
+
+// Confirm the pooled DSQL connection actually works on boot - logged only, so a
+// misconfigured/unreachable cluster is visible immediately.
+db.verifyConnection()
+  .then(() => logger.info('Successfully connected to the dev DSQL cluster.'))
+  .catch((e) => logger.error('Failed to connect to the dev DSQL cluster: ', e));
+
+registerCompetitionsRefreshJob();
+
+app.use(publicRoutes);
+app.use(authRoutes);
+app.use(dashboardRoutes);
+
+// Registered last so it only catches errors that got past every route above.
+app.use(errorHandler);
+
+module.exports = app;

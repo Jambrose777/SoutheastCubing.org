@@ -46,10 +46,9 @@ testem.log
 Thumbs.db
 
 # Credentials
-backend/app.env
-backend/.env
-backend/.env.production
-backend/southeastcubing-org-api.json
+backend/.env/.env
+backend/.env/.env.production
+backend/.env/southeastcubing-org-api.json
 
 # AI agent instructions & local planning docs (not part of the shipped project)
 /.github

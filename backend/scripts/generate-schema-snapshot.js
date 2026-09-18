@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-// Regenerates db/schema-snapshot.sql by querying the live schema on the dev
-// Aurora DSQL cluster via information_schema, then formatting it back out as
-// one CREATE TABLE-shaped block per table. Reading it live means a table
+// Regenerates app/database/schema-snapshot.sql by querying the live schema on
+// the dev Aurora DSQL cluster via information_schema, then formatting it back
+// out as one CREATE TABLE-shaped block per table. Reading it live means a table
 // shows its actual current columns/constraints regardless of how many
 // separate migrations touched it over time (e.g. a later ALTER TABLE ADD
 // COLUMN migration would otherwise be a separate block far away from the
-// table's original CREATE TABLE) - db/migrations/ remains the source of
-// truth for *how* the schema got to this state, this file only documents
-// *what* it looks like now. Generated, never hand-edited or applied
+// table's original CREATE TABLE) - app/database/migrations/ remains the
+// source of truth for *how* the schema got to this state, this file only
+// documents *what* it looks like now. Generated, never hand-edited or applied
 // directly. Re-run (`pnpm --filter backend schema-snapshot`) after applying
 // a new migration (`pnpm --filter backend migrate`) so it reflects the
 // schema change.
@@ -24,7 +24,7 @@ logger.level = 'debug';
 
 const DSQL_ENDPOINT = process.env.DSQL_ENDPOINT;
 const DSQL_REGION = 'us-east-2';
-const OUTPUT_FILE = path.join(__dirname, '../db/schema-snapshot.sql');
+const OUTPUT_FILE = path.join(__dirname, '../app/database/schema-snapshot.sql');
 
 // Bookkeeping table for migrate.js itself, not part of the app's data model -
 // left out of the snapshot so it only documents the tables the app uses.
@@ -33,7 +33,7 @@ const EXCLUDED_TABLES = new Set(['schema_migrations']);
 const HEADER = `-- GENERATED FILE - do not edit by hand.
 -- Reflects the live schema on the dev DSQL cluster (queried via
 -- information_schema), not merely the migration files that produced it - see
--- db/migrations/ for that history. Regenerate with
+-- app/database/migrations/ for that history. Regenerate with
 -- \`pnpm --filter backend schema-snapshot\` after applying a new migration.
 `;
 

@@ -15,7 +15,7 @@ Install [pnpm](https://pnpm.io/installation), then from the repo root run
 `pnpm install` once to install both `frontend/` and `backend/` dependencies.
 
 Run `pnpm dev` from the repo root to start the frontend dev server (`ng serve`) and
-the backend (`node --env-file=.env app.js`) together. See "BE Development setup"
+the backend (`node --env-file=.env/.env server.js`) together. See "BE Development setup"
 below for the backend's required secret/config files before running this.
 
 ## Linting & formatting
@@ -61,15 +61,16 @@ reload if you change any of the source files.
 
 ## BE Development setup
 
-The backend needs two secret/config files that are never committed to the repo:
+The backend needs two secret/config files that are never committed to the repo, both
+living under `backend/.env/`:
 
 - `.env` — environment variables consumed via Node's built-in `--env-file` flag
   (email credentials, AWS keys, Contentful API keys, Discord webhook URL). `.env` is
-  gitignored and never committed - `backend/.env.template` is the only checked-in
+  gitignored and never committed - `backend/.env/.env.template` is the only checked-in
   reference for which variables exist and how to obtain each one. Copy
-  `backend/.env.template` to `backend/.env` and fill in the blanks - the template
-  only lists safe "Local Development" values (values that never touch real org
-  inboxes or the real Southeast Cubing Discord server).
+  `backend/.env/.env.template` to `backend/.env/.env` and fill in the blanks - the
+  template only lists safe "Local Development" values (values that never touch real
+  org inboxes or the real Southeast Cubing Discord server).
 - `southeastcubing-org-api.json` — a Google service account credentials file used to
   authenticate against the Google Forms API (reading the volunteer sign-up form). If
   this file is missing, the competitions update flow degrades gracefully (volunteer
@@ -77,12 +78,13 @@ The backend needs two secret/config files that are never committed to the repo:
 
 Neither file is checked into source control, and there's no secrets manager for this
 project — request both files directly from Jacob (org admin) and share/receive them,
-then place them in `backend/`.
+then place them in `backend/.env/`.
 
 ### Dev Aurora DSQL cluster
 
-The backend also connects to a dev Aurora DSQL cluster (`backend/db/pool.js`) using IAM
-token authentication — no database password to request. `backend/.env` needs:
+The backend also connects to a dev Aurora DSQL cluster (`backend/app/database/pool.js`)
+using IAM token authentication — no database password to request. `backend/.env/.env`
+needs:
 
 - `DSQL_ENDPOINT` — the dev cluster's endpoint (ask Jacob).
 - `DSQL_GRANT_IAM_ARN` — your own IAM user's ARN, only needed once to run the
@@ -102,12 +104,12 @@ pnpm --filter backend bootstrap-dsql-role
 ## BE Development server
 
 Run `pnpm --filter backend dev` (or `cd backend && pnpm dev`), equivalent to
-`node --env-file=.env app.js`.
+`node --env-file=.env/.env server.js`.
 
 ## Database migrations
 
 The competitions schema (tables/grants/seed data) is defined as one-statement-per-
-file migrations under `backend/db/migrations/`, since DSQL only allows one DDL
+file migrations under `backend/app/database/migrations/`, since DSQL only allows one DDL
 statement per transaction and never allows DDL/DML mixed in one transaction. Apply
 any pending migrations — safe to re-run any time, it only applies files it hasn't
 recorded as already applied (`backend/scripts/migrate.js`):
@@ -117,7 +119,7 @@ pnpm --filter backend migrate
 ```
 
 After applying a new migration, regenerate the read-only schema snapshot
-(`backend/db/schema-snapshot.sql`) — it queries the live schema on the dev
+(`backend/app/database/schema-snapshot.sql`) — it queries the live schema on the dev
 cluster and formats it as one table per block, so it always reflects the
 current columns/constraints even across multiple migrations touching the same
 table. This file is generated and never hand-edited or applied directly

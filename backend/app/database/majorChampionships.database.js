@@ -94,9 +94,10 @@ async function upsertMajorChampionships(comps) {
     );
 
     const competitionIds = comps.map((comp) => comp.id);
-    await client.query('DELETE FROM major_championship_events WHERE major_championship_id = ANY($1)', [
-      competitionIds,
-    ]);
+    await client.query(
+      'DELETE FROM major_championship_events WHERE major_championship_id = ANY($1)',
+      [competitionIds],
+    );
 
     const eventValueGroups = [];
     const eventParams = [];

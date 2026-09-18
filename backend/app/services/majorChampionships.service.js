@@ -1,31 +1,30 @@
 // Detection/posting logic for major championships (Nats/NAC/Worlds) that
 // aren't hosted in an SE state. Those never appear on the public competitions
-// page - they're tracked in their own table (db/majorChampionships.js) purely
-// so they can be announced on Discord with an @everyone ping. A major
+// page - they're tracked in their own table (database/majorChampionships.js)
+// purely so they can be announced on Discord with an @everyone ping. A major
 // championship that IS SE-hosted skips this module entirely.
 
-const axios = require('axios');
 const moment = require('moment');
 
-const discord = require('./discord.js');
-const majorChampionshipsDb = require('./db/majorChampionships.js');
-const discordPingPatternsDb = require('./db/discordPingPatterns.js');
-const { getFullCompetitionDate } = require('./utils/competitionDates.js');
+const wca = require('../integrations/wca.integration.js');
+const discord = require('../integrations/discord.integration.js');
+const majorChampionshipsDb = require('../database/majorChampionships.database.js');
+const discordPingPatternsDb = require('../database/discordPingPatterns.database.js');
+const { getFullCompetitionDate } = require('../helpers/competitionDates.helper.js');
 
 // Logger
-const logger = require('./logger.js');
+const logger = require('../utils/logger.util.js');
 
 // How many years beyond the current year to probe for a not-yet-tracked
 // supplemental competition.
 const SUPPLEMENTAL_LOOKAHEAD_YEARS = 2;
 
 // Looks up competition `id` directly against the WCA API's single-competition
-// endpoint, returning its record or null if it doesn't exist yet or the 
+// endpoint, returning its record or null if it doesn't exist yet or the
 // lookup fails.
 async function lookupCompetitionById(id) {
   try {
-    const res = await axios.get(`https://www.worldcubeassociation.org/api/v0/competitions/${id}`);
-    return res.data;
+    return await wca.fetchCompetitionById(id);
   } catch (err) {
     // A 404 just means that year's competition doesn't exist yet - the
     // expected outcome for most probed years, so only unexpected failures
@@ -45,7 +44,9 @@ async function fetchSupplementalMajorChampionships(alreadyFetchedIds, patterns) 
   // Each pattern's id prefix is derived by stripping its trailing '*'
   // (patterns needing this lookup are expected to be a plain prefix, e.g.
   // 'NAC*', so years can be appended directly).
-  const prefixes = patterns.filter((pattern) => pattern.try_direct_lookup).map((pattern) => pattern.id_pattern.replace(/\*$/, ''));
+  const prefixes = patterns
+    .filter((pattern) => pattern.try_direct_lookup)
+    .map((pattern) => pattern.id_pattern.replace(/\*$/, ''));
 
   const trackedIds = await majorChampionshipsDb.getTrackedIds();
   const currentYear = moment().year();
@@ -83,7 +84,11 @@ async function fetchSupplementalMajorChampionships(alreadyFetchedIds, patterns) 
 // major_championship_announcements/posted to Discord.
 function detectMajorChampionships(wcaCompetitions, patterns) {
   return wcaCompetitions
-    .filter((comp) => patterns.some((pattern) => discordPingPatternsDb.matchesIdPattern(comp.id, pattern.id_pattern)))
+    .filter((comp) =>
+      patterns.some((pattern) =>
+        discordPingPatternsDb.matchesIdPattern(comp.id, pattern.id_pattern),
+      ),
+    )
     .map((comp) => ({
       id: comp.id,
       name: comp.name,
@@ -131,7 +136,8 @@ async function refreshMajorChampionships(wcaCompetitions, patterns, excludedIds 
 
   logger.info(`Posting ${unannounced.length} unannounced major championship(s) to Discord.`);
   return discord.postToDiscordInChunks(unannounced, {
-    postFn: (majorChampionship) => discord.postCompetitionInDiscord(majorChampionship, { pingOverride: 'everyone' }),
+    postFn: (majorChampionship) =>
+      discord.postCompetitionInDiscord(majorChampionship, { pingOverride: 'everyone' }),
     markAnnouncedFn: majorChampionshipsDb.markAnnounced,
     getId: (majorChampionship) => majorChampionship.id,
   });

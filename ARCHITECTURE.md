@@ -58,7 +58,7 @@ flowchart TB
 - **pnpm workspace**, two packages: `frontend/` (Angular) and `backend/`
   (Express), each with its own dev/build/lint scripts, sharing root-level
   Prettier/ESLint config.
-- **Competitions data lives in Aurora DSQL** (`backend/db/pool.js`, IAM
+- **Competitions data lives in Aurora DSQL** (`backend/app/database/pool.js`, IAM
   token auth, no password) — `backend/aws.js` and the old S3
   `competitions.json` blob are gone from the code entirely.
   **This is proven against the dev cluster only** — the production backend
@@ -77,8 +77,8 @@ flowchart TB
   (`frontend/src/app/services/contentful.service.ts`, the `contentful` JS SDK)
   for page content, delegate/organizer entries, and the runtime links-override
   entry (`LinksService.pullLinksFromContentful()`). This is independent of the
-  backend's own Contentful integration (`backend/contentful.js`), which is used
-  for competitions data only.
+  backend's own Contentful integration (`backend/app/integrations/contentful.integration.js`),
+  which is used for competitions data only.
 - **Security hardening added since the original snapshot:** `helmet()`,
   a request body size limit, a tightened CORS allow-list, rate limiting on
   `/email` and `/update-competitions`, and sanitization of
@@ -86,9 +86,10 @@ flowchart TB
   headers, or the `safeUrl` pipe.
 - **Discord announcements** now use pattern-based `@everyone` pings (SE
   Championship, and any SE-hosted or supplementally-detected Nats/NAC/Worlds
-  match — `backend/majorChampionships.js`, `backend/db/discordPingPatterns.js`)
+  match — `backend/app/services/majorChampionships.service.js`,
+  `backend/app/database/discordPingPatterns.database.js`)
   alongside the original per-state role pings, with rate-limit-safe chunked
-  posting (`backend/discord.js`).
+  posting (`backend/app/integrations/discord.integration.js`).
 
 ## Known near-term changes (not yet reflected above)
 

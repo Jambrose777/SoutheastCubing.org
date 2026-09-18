@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node --env-file=.env app.js",
-    "bootstrap-dsql-role": "node --env-file=.env scripts/bootstrap-dsql-role.js",
-    "migrate": "node --env-file=.env scripts/migrate.js",
-    "schema-snapshot": "node --env-file=.env scripts/generate-schema-snapshot.js",
-    "test": "echo \"No automated tests configured for backend — smoke test manually via node app.js\" && exit 0"
+    "dev": "node --env-file=.env/.env server.js",
+    "bootstrap-dsql-role": "node --env-file=.env/.env scripts/bootstrap-dsql-role.js",
+    "migrate": "node --env-file=.env/.env scripts/migrate.js",
+    "schema-snapshot": "node --env-file=.env/.env scripts/generate-schema-snapshot.js",
+    "test": "echo \"No automated tests configured for backend — smoke test manually via node server.js\" && exit 0"
   },
   "keywords": [],
   "author": "",

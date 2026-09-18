@@ -3,13 +3,15 @@ const fs = require('fs');
 const google = require('@googleapis/forms');
 
 // Logger
-const logger = require('./logger.js');
+const logger = require('../utils/logger.util.js');
 
 const formID = '1vtcLw_QPrS-ZDKG9XxsN192xPEdr0gCA7vIoRVlTZmI';
 
 // gets competitions listed on the Southeast Cubing Volunteer Google Form
 async function getCompetitionsInVolunteerForm() {
-  const credentialsPath = path.join(__dirname, 'southeastcubing-org-api.json');
+  // Credentials live in backend/.env/, a sibling of app/ - not gitignored
+  // app/ itself, so this walks up two levels from app/integrations/.
+  const credentialsPath = path.join(__dirname, '..', '..', '.env', 'southeastcubing-org-api.json');
 
   // The Google service-account credentials file is gitignored and isn't always
   // present locally degrade gracefully instead of throwing and breaking the

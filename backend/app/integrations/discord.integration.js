@@ -1,10 +1,10 @@
 const axios = require('axios');
 const moment = require('moment-timezone');
-const { neutralizeMentions } = require('./utils/sanitize');
-const { config } = require('./utils/config.js');
+const { neutralizeMentions } = require('../helpers/sanitize.helper.js');
+const { config } = require('../config/config.js');
 
 // Logger
-const logger = require('./logger.js');
+const logger = require('../utils/logger.util.js');
 
 // Discord Icon and Tag Ids
 const eventIconMap = {

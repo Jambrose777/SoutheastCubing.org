@@ -5,7 +5,7 @@
 // identity via `AWS IAM GRANT`, so that identity can authenticate as
 // `app_dev` using a `dsql:DbConnect` token. Run manually
 // (`pnpm --filter backend bootstrap-dsql-role`) - never invoked by the
-// running backend, which only ever connects as `app_dev` (see ../db/pool.js).
+// running backend, which only ever connects as `app_dev` (see ../app/database/pool.js).
 //
 // To grant a different/additional IAM identity later (e.g. onboarding a
 // future contributor), re-run with DSQL_GRANT_IAM_ARN set to their ARN -

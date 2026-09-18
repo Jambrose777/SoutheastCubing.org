@@ -1,8 +1,8 @@
 const contentful = require('contentful');
 
 // Logger
-const logger = require('./logger.js');
-const { config } = require('./utils/config.js');
+const logger = require('../utils/logger.util.js');
+const { config } = require('../config/config.js');
 
 // Only built when both credentials are present - avoids handing the Contentful
 // client an undefined space/token pair and deferring the failure to whenever the

@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 
-// Applies any pending files under db/migrations/ to the dev Aurora DSQL cluster,
-// in filename order, tracking what's already been applied in a
+// Applies any pending files under app/database/migrations/ to the dev Aurora DSQL
+// cluster, in filename order, tracking what's already been applied in a
 // schema_migrations table. Run manually (`pnpm --filter backend migrate`) -
 // never invoked by the running backend, which only ever connects as the
-// non-admin app_dev role (see ../db/pool.js).
+// non-admin app_dev role (see ../app/database/pool.js).
 //
 // DSQL allows only one DDL statement per transaction, and never allows DDL
 // and DML mixed in the same transaction - so every migration file must
 // contain exactly one statement, and applying a migration (its own
 // statement/implicit transaction) can't be committed atomically together
 // with recording it in schema_migrations (a separate DML statement/
-// transaction): if this script dies between applying a migration and recording 
+// transaction): if this script dies between applying a migration and recording
 // it, re-running it harmlessly re-applies rather than corrupting state.
 
 const fs = require('fs');
@@ -25,11 +25,11 @@ logger.level = 'debug';
 
 const DSQL_ENDPOINT = process.env.DSQL_ENDPOINT;
 const DSQL_REGION = 'us-east-2';
-const MIGRATIONS_DIR = path.join(__dirname, '../db/migrations');
+const MIGRATIONS_DIR = path.join(__dirname, '../app/database/migrations');
 
 // SQLSTATE DSQL raises when a session's cached catalog version goes stale
 // after a DDL statement elsewhere bumps it (OCC code OC001) - the same
-// SQLSTATE db/pool.js already retries on for ordinary write conflicts.
+// SQLSTATE app/database/pool.js already retries on for ordinary write conflicts.
 const RETRYABLE_SQLSTATE = '40001';
 
 // Runs a single statement against `client`, retrying on catalog-concurrency

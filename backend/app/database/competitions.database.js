@@ -184,9 +184,9 @@ async function replaceEventIds(client, comps) {
 
 // Upserts `comps` (keyed on id) and returns the subset of ids that were
 // newly inserted rather than updates to an existing row - callers use this
-// to decide which competitions still need to be announced on Discord. New 
-// competitions get inserted, existing ones get all their columns refreshed 
-// to the latest WCA data, in one statement. If the table was empty before 
+// to decide which competitions still need to be announced on Discord. New
+// competitions get inserted, existing ones get all their columns refreshed
+// to the latest WCA data, in one statement. If the table was empty before
 // this call, every inserted row is stamped as already-announced instead, so a
 // first-time-populated store doesn't post its entire backlog to Discord.
 async function upsertCompetitions(comps) {

@@ -1,85 +1,16 @@
-const axios = require('axios');
 const moment = require('moment');
 
 // Logger
-const logger = require('./logger.js');
+const logger = require('../utils/logger.util.js');
 
-const googleForm = require('./googleForm.js');
-const contentful = require('./contentful.js');
-const discord = require('./discord.js');
-const competitionsDb = require('./db/competitions.js');
-const discordPingPatternsDb = require('./db/discordPingPatterns.js');
-const majorChampionships = require('./majorChampionships.js');
-const { getFullCompetitionDate } = require('./utils/competitionDates.js');
-const { isInSEState } = require('./utils/seState.js');
-
-// Gets upcoming competitions from the database.
-async function getCompetitions(req, res) {
-  const lastChecked = await competitionsDb.getLastChecked();
-  res.set('Cache-Control', 'no-cache');
-
-  if (lastChecked) {
-    // Weak ETag derived from lastChecked rather than the response body, so
-    // it represents freshness of the underlying data, not a byte-for-byte
-    // match of the response body.
-    const etag = `W/"${lastChecked.valueOf()}"`;
-    res.set('ETag', etag);
-    if (req.headers['if-none-match'] === etag) {
-      res.status(304).end();
-      return;
-    }
-  }
-
-  let comps;
-  try {
-    comps = await competitionsDb.getUpcomingCompetitions();
-  } catch (err) {
-    logger.error('Failed to load upcoming competitions from the database: ', err);
-    res.status(503).json({ message: 'Competition data is temporarily unavailable.' });
-    return;
-  }
-
-  res.status(200).json(comps);
-}
-
-// updates competitions with a fresh pull from wca.
-async function updateCompetitions(req, res) {
-  const lastChecked = await competitionsDb.getLastChecked();
-
-  // deny request if updated within the last hour
-  if (lastChecked && lastChecked.isAfter(moment().add(-1, 'hour'))) {
-    logger.info('ip-' + req.ip + ' attempted update-competitions within 1 hour of a refresh.');
-    res.status(400).json({
-      message:
-        'Cannot update multiple times within an hour. Last update was: ' +
-        lastChecked.format('YYYY-MM-DD HH:mm:ss'),
-    });
-  } else {
-    // pull competitions from WCA
-    logger.info('ip-' + req.ip + ' Fetching competitions from wca on update-competitions request.');
-    try {
-      const { competitions, discordPostFailures } = await refreshCompetitionsFromWCA();
-      logger.info(
-        'ip-' +
-          req.ip +
-          ' Successfully Fetched competitions from wca on update-competitions request.',
-      );
-      
-      res.send({
-        competitions,
-        discordPostFailures: discordPostFailures.map((comp) => ({ id: comp.id, name: comp.name })),
-      });
-    } catch (err) {
-      logger.error(
-        'ip-' + req.ip + ' Failed to fetch competitions from wca on update-competitions request: ',
-        err,
-      );
-      if (!res.headersSent) {
-        res.status(500).json({ message: 'Failed to fetch competitions from WCA.' });
-      }
-    }
-  }
-}
+const wca = require('../integrations/wca.integration.js');
+const googleForm = require('../integrations/googleForm.integration.js');
+const contentful = require('../integrations/contentful.integration.js');
+const discord = require('../integrations/discord.integration.js');
+const competitionsDb = require('../database/competitions.database.js');
+const discordPingPatternsDb = require('../database/discordPingPatterns.database.js');
+const majorChampionships = require('./majorChampionships.service.js');
+const { getFullCompetitionDate } = require('../helpers/competitionDates.helper.js');
 
 // Refetches competitions from WCA if the stored data is stale.
 async function fetchCompetitions() {
@@ -106,7 +37,9 @@ async function fetchCompetitions() {
 async function postCompetitionsToDiscord(competitions) {
   const patterns = await discordPingPatternsDb.getPatterns();
   const usesEveryonePing = (competitionId) =>
-    patterns.some((pattern) => discordPingPatternsDb.matchesIdPattern(competitionId, pattern.id_pattern));
+    patterns.some((pattern) =>
+      discordPingPatternsDb.matchesIdPattern(competitionId, pattern.id_pattern),
+    );
 
   return discord.postToDiscordInChunks(sortForDiscordPosting(competitions), {
     postFn: (competition) =>
@@ -143,27 +76,17 @@ async function refreshCompetitionsFromWCA() {
     // standard "last page" signal) so a true count over 1000 doesn't
     // silently drop competitions. Capped at maxPages (20,000 competitions)
     // as a guard against an unexpected API change causing an infinite loop.
-    const per_page = 1000;
     const maxPages = 20;
     let wcaCompetitions = [];
     for (let page = 1; page <= maxPages; page++) {
-      const res = await axios.get(
-        'https://www.worldcubeassociation.org/api/v0/competitions?country_iso2=US&per_page=' +
-          per_page +
-          '&page=' +
-          page +
-          '&start=' +
-          moment().add(-1, 'day').format('YYYY-MM-DD'),
-      );
+      const pageData = await wca.fetchUSCompetitionsPage({
+        page,
+        startDate: moment().add(-1, 'day').format('YYYY-MM-DD'),
+      });
 
-      // Fail loudly on a genuine WCA API shape break
-      if (!Array.isArray(res.data)) {
-        throw new Error('Unexpected WCA competitions response shape');
-      }
+      wcaCompetitions = wcaCompetitions.concat(pageData);
 
-      wcaCompetitions = wcaCompetitions.concat(res.data);
-
-      if (res.data.length < per_page) {
+      if (pageData.length < wca.US_COMPETITIONS_PAGE_SIZE) {
         // Short page means there's nothing more to fetch.
         break;
       }
@@ -244,7 +167,9 @@ async function refreshCompetitionsFromWCA() {
 
     const patterns = await discordPingPatternsDb.getPatterns();
     const matchesDiscordPingPattern = (competitionId) =>
-      patterns.some((pattern) => discordPingPatternsDb.matchesIdPattern(competitionId, pattern.id_pattern));
+      patterns.some((pattern) =>
+        discordPingPatternsDb.matchesIdPattern(competitionId, pattern.id_pattern),
+      );
 
     // Nats/NAC/Worlds are usually held outside the tracked SE states, so
     // they're normally Discord-only and tracked separately rather than ever reaching the public
@@ -252,7 +177,9 @@ async function refreshCompetitionsFromWCA() {
     // still show up on the public page like any other SE competition, just
     // with an @everyone ping instead of its state's role ping.
     const seHostedPatternMatchIds = new Set(
-      wcaCompetitions.filter((comp) => matchesDiscordPingPattern(comp.id) && isInSEState(comp)).map((comp) => comp.id),
+      wcaCompetitions
+        .filter((comp) => matchesDiscordPingPattern(comp.id) && isInSEState(comp))
+        .map((comp) => comp.id),
     );
     const majorChampionshipDiscordFailures = await majorChampionships.refreshMajorChampionships(
       wcaCompetitions,
@@ -275,7 +202,9 @@ async function refreshCompetitionsFromWCA() {
 
       const unannouncedCompetitions = await competitionsDb.getUnannouncedCompetitions();
       if (unannouncedCompetitions.length) {
-        discordPostFailures = discordPostFailures.concat(await postCompetitionsToDiscord(unannouncedCompetitions));
+        discordPostFailures = discordPostFailures.concat(
+          await postCompetitionsToDiscord(unannouncedCompetitions),
+        );
       }
 
       // Only recorded on a non-empty result - an empty result is more likely a
@@ -295,9 +224,9 @@ async function refreshCompetitionsFromWCA() {
   }
 }
 
-// Filters `comps` down to competitions in the tracked SE states and maps 
-// each one to the trimmed/enriched object shape used by the database layer 
-// and frontend 
+// Filters `comps` down to competitions in the tracked SE states and maps
+// each one to the trimmed/enriched object shape used by the database layer
+// and frontend
 async function formatCompetitionData(comps, competitionsWithVolunteerApp) {
   return await Promise.all(
     comps
@@ -356,17 +285,12 @@ function getRegistrationsFromWCA(competition) {
     return Promise.resolve(0);
   } else {
     // fetch registrations from WCA
-    return axios
-      .get(
-        `https://www.worldcubeassociation.org/api/v0/competitions/${competition.id}/registrations`,
-      )
-      .then((res) => res.data.length)
-      .catch((err) => {
-        logger.error(`Failed to fetch registrations from wca for ${competition.id}: `, err);
-        // Don't let one competition's failed lookup break the whole fetch cycle -
-        // treat it as having 0 registrations rather than propagating undefined.
-        return 0;
-      });
+    return wca.fetchCompetitionRegistrationsCount(competition.id).catch((err) => {
+      logger.error(`Failed to fetch registrations from wca for ${competition.id}: `, err);
+      // Don't let one competition's failed lookup break the whole fetch cycle -
+      // treat it as having 0 registrations rather than propagating undefined.
+      return 0;
+    });
   }
 }
 
@@ -378,15 +302,12 @@ function getWCACompetition(competitions, competitionId) {
     return Promise.resolve(wcaCompetition);
   } else {
     // fetch competition from WCA
-    return axios
-      .get(`https://www.worldcubeassociation.org/api/v0/competitions/${competitionId}`)
-      .then((res) => res.data)
-      .catch((err) => {
-        logger.error(`Failed to fetch competition from wca for ${competitionId}: `, err);
-        // Signal failure explicitly so callers can drop this competition instead of
-        // spreading undefined fields into a broken/incomplete record.
-        return null;
-      });
+    return wca.fetchCompetitionById(competitionId).catch((err) => {
+      logger.error(`Failed to fetch competition from wca for ${competitionId}: `, err);
+      // Signal failure explicitly so callers can drop this competition instead of
+      // spreading undefined fields into a broken/incomplete record.
+      return null;
+    });
   }
 }
 
@@ -410,9 +331,20 @@ function getCompetitionVenueUrl(venue) {
   }
 }
 
+// True if `comp`'s city is in one of the 6 states SECI tracks.
+function isInSEState(comp) {
+  return (
+    !!comp.city &&
+    (comp.city.includes(', Georgia') ||
+      comp.city.includes(', Tennessee') ||
+      comp.city.includes(', North Carolina') ||
+      comp.city.includes(', South Carolina') ||
+      comp.city.includes(', Alabama') ||
+      comp.city.includes(', Florida'))
+  );
+}
+
 module.exports = {
-  getCompetitions,
-  updateCompetitions,
   fetchCompetitions,
   refreshCompetitionsFromWCA,
 };
