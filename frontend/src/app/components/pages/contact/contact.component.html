@@ -1,5 +1,5 @@
 <div class="component-container">
-  <div class="main-pane">
+  <div class="main-pane" tabindex="0">
     <se-header id="header" [title]="title()" [showNavCluster]="isMobile()"></se-header>
 
     <form [formGroup]="contactForm" class="form">
@@ -167,7 +167,7 @@
 
     <!-- FAQ -->
     @if (!loadingContent()) {
-      <div class="list-container">
+      <div class="list-container" tabindex="0">
         <h2>Frequently Asked Questions</h2>
         <div>
           <markdown [data]="description()"></markdown>

@@ -1,5 +1,5 @@
 <div class="component-container">
-  <div class="main-pane">
+  <div class="main-pane" tabindex="0">
     <se-header id="header" [title]="title()" [showNavCluster]="isMobile()"></se-header>
 
     <!-- Loading Spinner -->
@@ -74,7 +74,7 @@
 
     <!-- List for all loaded championships -->
     @if (!loadingChampionships()) {
-      <div class="list-container">
+      <div class="list-container" tabindex="0">
         @for (championship of championships(); track championship; let i = $index) {
           <!-- Championship Bubble -->
           <div

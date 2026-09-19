@@ -1,5 +1,5 @@
 <div class="component-container">
-  <div class="main-pane">
+  <div class="main-pane" tabindex="0">
     <se-header id="header" [title]="title()" [showNavCluster]="isMobile()"></se-header>
 
     <!-- Loading Spinner -->
@@ -10,21 +10,22 @@
     @if (!loadingContent()) {
       <!-- Important Announcements -->
       @for (subTopic of subTopics(); track subTopic) {
-        <div
-          class="announcement-banner clickable"
-          (click)="announcementClick(subTopic)"
-          (keydown.enter)="announcementClick(subTopic)"
-          (keydown.space)="$event.preventDefault(); announcementClick(subTopic)"
-          [attr.role]="subTopic.buttonInternalLink || subTopic.buttonExternalLink ? 'button' : null"
-          [attr.tabindex]="subTopic.buttonInternalLink || subTopic.buttonExternalLink ? 0 : null"
-          [attr.aria-label]="
-            subTopic.buttonInternalLink || subTopic.buttonExternalLink
-              ? subTopic.buttonText || subTopic.title
-              : null
-          "
-          [style.--banner-color]="subTopic.color"
-        >
-          <div class="marquee-viewport">
+        <div class="announcement-banner" [style.--banner-color]="subTopic.color">
+          <div
+            class="marquee-viewport clickable"
+            (click)="announcementClick(subTopic)"
+            (keydown.enter)="announcementClick(subTopic)"
+            (keydown.space)="$event.preventDefault(); announcementClick(subTopic)"
+            [attr.role]="
+              subTopic.buttonInternalLink || subTopic.buttonExternalLink ? 'button' : null
+            "
+            [attr.tabindex]="subTopic.buttonInternalLink || subTopic.buttonExternalLink ? 0 : null"
+            [attr.aria-label]="
+              subTopic.buttonInternalLink || subTopic.buttonExternalLink
+                ? subTopic.buttonText || subTopic.title
+                : null
+            "
+          >
             <div
               class="items-container"
               [class.paused]="pausedAnnouncements().has(subTopic.title)"

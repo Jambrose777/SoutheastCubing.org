@@ -1,5 +1,5 @@
 <div class="component-container">
-  <div class="main-pane">
+  <div class="main-pane" tabindex="0">
     <se-header id="header" [title]="title()" [showNavCluster]="isMobile()">
       <!-- Filters Icon: Mobile only -->
       @if (
@@ -138,8 +138,8 @@
         <!-- Filters icon + clear filters: desktop only (mobile keeps its own filter
         icon in the main pane's header instead) -->
         @if (!isMobile()) {
-          <i
-            class="fa-solid fa-filter clickable icon-button"
+          <span
+            class="filter-toggle-btn clickable icon-button"
             (click)="toggleFiltersOpen()"
             (keydown.enter)="toggleFiltersOpen()"
             (keydown.space)="$event.preventDefault(); toggleFiltersOpen()"
@@ -148,7 +148,9 @@
             aria-label="Toggle filters"
             matTooltip="Toggle filters"
             matTooltipPosition="above"
-          ></i>
+          >
+            <i class="fa-solid fa-filter"></i>
+          </span>
           <button
             class="clear-filters-btn icon-button"
             type="button"
@@ -161,7 +163,7 @@
           </button>
         }
       </div>
-      <div id="competition-list-container" class="list-container">
+      <div id="competition-list-container" class="list-container" tabindex="0">
         <!-- List for all loaded competitions -->
         @for (competition of filteredCompetitions(); track competition) {
           <!-- Competition Bubble -->

@@ -14,17 +14,17 @@
 
   <!-- Close Icon for when the nav is open -->
   @if (isNavActive() || transition()) {
-    <i
-      class="close-icon fa-solid fa-close fa-2xl clickable icon-button"
+    <span
+      class="close-icon clickable icon-button"
       (click)="toggleNav(false)"
       (keydown.enter)="toggleNav(false)"
       (keydown.space)="$event.preventDefault(); toggleNav(false)"
       role="button"
       tabindex="0"
       aria-label="Close menu"
-      matTooltip="Close menu"
-      matTooltipPosition="above"
-    ></i>
+    >
+      <i class="fa-solid fa-close fa-2xl"></i>
+    </span>
   }
   <div class="nav-item-text">{{ navItemText() }}</div>
 </div>
