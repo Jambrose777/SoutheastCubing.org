@@ -39,6 +39,7 @@ import { SelectedClubComponent } from './selected-club/selected-club.component';
 import { SeSearchBarComponent } from '../../shared/se-search-bar/se-search-bar.component';
 import { matchesSearchTerm } from 'src/app/shared/matches-search-term';
 import { BreakStateOntoNewLinePipe } from 'src/app/pipes/breakStateOntoNewLine.pipe';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'se-clubs',
@@ -56,6 +57,7 @@ import { BreakStateOntoNewLinePipe } from 'src/app/pipes/breakStateOntoNewLine.p
     SeSearchBarComponent,
     BreakStateOntoNewLinePipe,
     RouterLink,
+    MatTooltipModule,
   ],
 })
 export class ClubsComponent implements OnInit, OnDestroy {

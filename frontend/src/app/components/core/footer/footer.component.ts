@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, computed, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavComponent } from '../nav/nav.component';
 
 @Component({
@@ -7,7 +8,7 @@ import { NavComponent } from '../nav/nav.component';
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgClass, NavComponent],
+  imports: [NgClass, NavComponent, MatTooltipModule],
 })
 export class FooterComponent {
   isNavActive = signal(false);

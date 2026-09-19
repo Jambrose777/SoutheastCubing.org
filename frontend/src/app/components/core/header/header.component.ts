@@ -2,6 +2,7 @@ import { Component, input, OnInit, ChangeDetectionStrategy, inject, signal } fro
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { RouterLink } from '@angular/router';
 import { NgClass, NgOptimizedImage } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavComponent } from '../nav/nav.component';
 
 @Component({
@@ -9,7 +10,7 @@ import { NavComponent } from '../nav/nav.component';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, NgClass, NgOptimizedImage, NavComponent],
+  imports: [RouterLink, NgClass, NgOptimizedImage, NavComponent, MatTooltipModule],
 })
 export class HeaderComponent implements OnInit {
   private screenSizeService = inject(ScreenSizeService);

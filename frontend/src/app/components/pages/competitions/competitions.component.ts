@@ -40,6 +40,7 @@ import { StripYearPipe } from 'src/app/pipes/stripYear.pipe';
 import { BreakYearOntoNewLinePipe } from 'src/app/pipes/breakYearOntoNewLine.pipe';
 import { SeSearchBarComponent } from '../../shared/se-search-bar/se-search-bar.component';
 import { matchesSearchTerm } from 'src/app/shared/matches-search-term';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'se-competitions',
@@ -59,6 +60,7 @@ import { matchesSearchTerm } from 'src/app/shared/matches-search-term';
     BreakYearOntoNewLinePipe,
     SeSearchBarComponent,
     RouterLink,
+    MatTooltipModule,
   ],
 })
 export class CompetitionsComponent implements OnInit, OnDestroy {

@@ -5,13 +5,14 @@ import { environment } from 'src/environments/environment';
 import { NgOptimizedImage } from '@angular/common';
 import { MarkdownComponent } from 'ngx-markdown';
 import { CarouselComponent, CarouselImage } from '../../../shared/carousel/carousel.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'se-selected-championship',
   templateUrl: './selected-championship.component.html',
   styleUrls: ['./selected-championship.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MarkdownComponent, NgOptimizedImage, CarouselComponent],
+  imports: [MarkdownComponent, NgOptimizedImage, CarouselComponent, MatTooltipModule],
 })
 export class SelectedChampionshipComponent {
   private screenSizeService = inject(ScreenSizeService);

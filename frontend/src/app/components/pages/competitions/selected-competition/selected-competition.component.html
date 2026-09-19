@@ -6,6 +6,8 @@
         [href]="environment.links.wcaCompetition + competition.id"
         target="_blank"
         rel="noopener noreferrer"
+        matTooltip="{{ competition.name }} on the WCA website"
+        matTooltipPosition="above"
       >
         <h2 class="title-text">
           {{ competition.name }}
@@ -36,6 +38,8 @@
             width="293"
             height="293"
             class="wca-logo-mobile"
+            matTooltip="World Cube Association"
+            matTooltipPosition="above"
           />
         </a>
       }

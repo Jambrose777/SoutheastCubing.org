@@ -4,13 +4,14 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { environment } from 'src/environments/environment';
 import { NgOptimizedImage } from '@angular/common';
 import { MarkdownComponent } from 'ngx-markdown';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'se-selected-delegate',
   templateUrl: './selected-delegate.component.html',
   styleUrls: ['./selected-delegate.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MarkdownComponent, NgOptimizedImage],
+  imports: [MarkdownComponent, NgOptimizedImage, MatTooltipModule],
 })
 export class SelectedDelegateComponent {
   private screenSizeService = inject(ScreenSizeService);

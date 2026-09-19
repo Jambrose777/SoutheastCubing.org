@@ -60,6 +60,12 @@
                 ? 'Resume announcement'
                 : 'Pause announcement'
             "
+            [matTooltip]="
+              pausedAnnouncements().has(subTopic.title)
+                ? 'Resume announcement'
+                : 'Pause announcement'
+            "
+            matTooltipPosition="above"
           >
             <i
               class="fa-solid"
@@ -129,26 +135,61 @@
             width="293"
             height="293"
             class="wca-logo"
+            matTooltip="World Cube Association"
+            matTooltipPosition="above"
           />
         </a>
         <!-- Link to email Southeast Cubing -->
-        <a [routerLink]="'/contact'">
+        <a
+          [routerLink]="'/contact'"
+          aria-label="Contact"
+          matTooltip="Contact"
+          matTooltipPosition="above"
+        >
           <i class="fa-solid fa-envelope fa-2xl clickable icon-button"></i>
         </a>
         <!-- Facebook -->
-        <a href="{{ linksService.facebook }}" target="_blank" rel="noopener noreferrer">
+        <a
+          href="{{ linksService.facebook }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Facebook"
+          matTooltip="Facebook"
+          matTooltipPosition="above"
+        >
           <i class="fa-brands fa-square-facebook fa-2xl clickable icon-button"></i>
         </a>
         <!-- Discord -->
-        <a href="{{ linksService.discord }}" target="_blank" rel="noopener noreferrer">
+        <a
+          href="{{ linksService.discord }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Discord"
+          matTooltip="Discord"
+          matTooltipPosition="above"
+        >
           <i class="fa-brands fa-discord fa-2xl clickable icon-button"></i>
         </a>
         <!-- Instagram -->
-        <a href="{{ linksService.instagram }}" target="_blank" rel="noopener noreferrer">
+        <a
+          href="{{ linksService.instagram }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram"
+          matTooltip="Instagram"
+          matTooltipPosition="above"
+        >
           <i class="fa-brands fa-instagram fa-2xl clickable icon-button"></i>
         </a>
         <!-- Youtube -->
-        <a href="{{ linksService.youtube }}" target="_blank" rel="noopener noreferrer">
+        <a
+          href="{{ linksService.youtube }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="YouTube"
+          matTooltip="YouTube"
+          matTooltipPosition="above"
+        >
           <i class="fa-brands fa-youtube fa-2xl clickable icon-button"></i>
         </a>
       </div>

@@ -30,6 +30,7 @@ import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-sp
 import { CarouselComponent, CarouselImage } from '../../shared/carousel/carousel.component';
 import { MarkdownComponent } from 'ngx-markdown';
 import { SafeUrlPipe } from 'src/app/pipes/safeUrl.pipe';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'se-home',
@@ -44,6 +45,7 @@ import { SafeUrlPipe } from 'src/app/pipes/safeUrl.pipe';
     RouterLink,
     NgOptimizedImage,
     SafeUrlPipe,
+    MatTooltipModule,
   ],
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {

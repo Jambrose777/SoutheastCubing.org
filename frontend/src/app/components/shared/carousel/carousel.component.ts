@@ -9,6 +9,7 @@ import {
   DestroyRef,
 } from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // A single carousel slide's image URL paired with its accessible alt text.
 export interface CarouselImage {
@@ -21,7 +22,7 @@ export interface CarouselImage {
   templateUrl: './carousel.component.html',
   styleUrls: ['./carousel.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgOptimizedImage],
+  imports: [NgOptimizedImage, MatTooltipModule],
 })
 export class CarouselComponent {
   images = input.required<CarouselImage[]>();

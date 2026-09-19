@@ -175,7 +175,6 @@ p {
 
 .title-text {
   font-size: 48px;
-  cursor: pointer;
   text-align: center;
   margin: 30px auto 0 auto;
 }
@@ -379,4 +378,9 @@ se-loading-spinner {
       margin: 10px auto;
     }
   }
+}
+
+// !important is needed because Material injects its own tooltip styles at runtime
+.mat-mdc-tooltip .mdc-tooltip__surface {
+  text-align: center !important;
 }

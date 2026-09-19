@@ -35,6 +35,7 @@ import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 import { MarkdownComponent } from 'ngx-markdown';
 import { SelectedChampionshipComponent } from './selected-championship/selected-championship.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'se-championships',
@@ -49,6 +50,7 @@ import { SelectedChampionshipComponent } from './selected-championship/selected-
     NgClass,
     NgOptimizedImage,
     RouterLink,
+    MatTooltipModule,
   ],
 })
 export class ChampionshipsComponent implements OnInit, OnDestroy {

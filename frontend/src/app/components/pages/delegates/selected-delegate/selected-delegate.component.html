@@ -48,7 +48,15 @@
       rel="noopener noreferrer"
       class="wca-logo-container"
     >
-      <img ngSrc="assets/wca_logo.svg" alt="WCA Logo" width="293" height="293" class="wca-logo" />
+      <img
+        ngSrc="assets/wca_logo.svg"
+        alt="WCA Logo"
+        width="293"
+        height="293"
+        class="wca-logo"
+        matTooltip="{{ delegate.name }}'s WCA Profile"
+        matTooltipPosition="above"
+      />
     </a>
   </div>
 }
