@@ -7,10 +7,10 @@
 
       <!-- Refresh Competitions Button -->
       @if (updateCompetitionsStatus() === 'default') {
-        <a class="btn" (click)="updateCompetitions()">
+        <button type="button" class="btn" (click)="updateCompetitions()">
           Refresh Competitions
           <i class="fa-solid fa-arrows-rotate fa-sm"></i>
-        </a>
+        </button>
       }
 
       <!-- Loading text for Registration Status open -->

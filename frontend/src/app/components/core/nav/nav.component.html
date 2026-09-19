@@ -2,6 +2,10 @@
   <div
     class="navigation"
     (click)="toggleNav()"
+    (keydown.enter)="toggleNav()"
+    (keydown.space)="$event.preventDefault(); toggleNav()"
+    tabindex="0"
+    aria-label="Menu"
     [ngClass]="{ active: isNavActive(), transitioned: !transition() }"
   >
     <a

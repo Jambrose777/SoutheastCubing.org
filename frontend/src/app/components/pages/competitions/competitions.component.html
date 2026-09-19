@@ -175,13 +175,15 @@
                 selectedCompetition()?.id === competition.id ||
                 hoveredMapCompetition === competition.id,
             }"
-            (mouseover)="competitionHover(competition)"
-            (mouseout)="competitionHover()"
           >
             <a
               class="item-row"
               [routerLink]="buildDetailUrl('/competitions', competition.id)"
               (click)="onCompetitionRowClick($event, competition)"
+              (mouseover)="competitionHover(competition)"
+              (mouseout)="competitionHover()"
+              (focus)="competitionHover(competition)"
+              (blur)="competitionHover()"
               id="{{ competition.id }}"
             >
               <div class="item-title">

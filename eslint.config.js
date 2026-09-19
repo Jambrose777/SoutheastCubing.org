@@ -58,15 +58,6 @@ module.exports = tseslint.config(
   {
     files: ['frontend/src/**/*.html'],
     extends: [...angular.configs.templateRecommended, ...angular.configs.templateAccessibility],
-    rules: {
-      // A dedicated accessibility pass (alt text, keyboard handlers for
-      // clickable elements, focusability) is already tracked as its own piece
-      // of work, so these are left off here rather than patched over.
-      '@angular-eslint/template/alt-text': 'off',
-      '@angular-eslint/template/click-events-have-key-events': 'off',
-      '@angular-eslint/template/interactive-supports-focus': 'off',
-      '@angular-eslint/template/mouse-events-have-key-events': 'off',
-    },
   },
   {
     files: ['backend/**/*.js', 'scripts/**/*.js'],
