@@ -24,27 +24,49 @@
           "
           [style.--banner-color]="subTopic.color"
         >
-          <div class="items-container" #itemsContainer>
-            <!-- Exactly two identical copies of the announcement, back to
-            back: the CSS animation translates this container left by exactly
-            half its own width (one copy's worth), so the moment the first
-            copy scrolls fully out of view the second copy is sitting exactly
-            where the first one started - the loop restarts with no visible
-            seam, regardless of how long the announcement text is. -->
-            @for (copy of [0, 1]; track copy) {
-              <div class="announcement-text">
-                <span>
-                  {{ subTopic.title }}
-                  {{ subTopic.description }}
-                  {{ subTopic.buttonText }}
-                  @if (subTopic.buttonIcon) {
-                    <i class="fa-solid {{ subTopic.buttonIcon }} fa-2xl"></i>
-                  }
-                  &nbsp;
-                </span>
-              </div>
-            }
+          <div class="marquee-viewport">
+            <div
+              class="items-container"
+              [class.paused]="pausedAnnouncements().has(subTopic.title)"
+              #itemsContainer
+            >
+              <!-- Exactly two identical copies of the announcement, back to
+              back: the CSS animation translates this container left by exactly
+              half its own width (one copy's worth), so the moment the first
+              copy scrolls fully out of view the second copy is sitting exactly
+              where the first one started - the loop restarts with no visible
+              seam, regardless of how long the announcement text is. -->
+              @for (copy of [0, 1]; track copy) {
+                <div class="announcement-text">
+                  <span>
+                    {{ subTopic.title }}
+                    {{ subTopic.description }}
+                    {{ subTopic.buttonText }}
+                    @if (subTopic.buttonIcon) {
+                      <i class="fa-solid {{ subTopic.buttonIcon }} fa-2xl"></i>
+                    }
+                    &nbsp;
+                  </span>
+                </div>
+              }
+            </div>
           </div>
+          <button
+            type="button"
+            class="marquee-toggle icon-button"
+            (click)="toggleAnnouncementPause(subTopic, $event)"
+            [attr.aria-label]="
+              pausedAnnouncements().has(subTopic.title)
+                ? 'Resume announcement'
+                : 'Pause announcement'
+            "
+          >
+            <i
+              class="fa-solid"
+              [class.fa-pause]="!pausedAnnouncements().has(subTopic.title)"
+              [class.fa-play]="pausedAnnouncements().has(subTopic.title)"
+            ></i>
+          </button>
         </div>
       }
       @if (homePageOverride(); as override) {

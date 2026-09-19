@@ -10,8 +10,15 @@
       box-sizing: border-box;
       margin: 0 0 10px 0;
       box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
-      overflow: hidden;
       min-height: calc(1.25em + 40px);
+      display: flex;
+      align-items: center;
+
+      .marquee-viewport {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+      }
 
       .items-container {
         display: flex;
@@ -20,6 +27,27 @@
         // that announcement's actual rendered width so scroll speed stays
         // constant regardless of message length.
         animation: infiniteScroll var(--marquee-duration, 20s) linear infinite;
+
+        // Resumes from wherever the animation was paused, rather than
+        // restarting it.
+        &.paused {
+          animation-play-state: paused;
+        }
+      }
+
+      .marquee-toggle {
+        flex: 0 0 auto;
+        margin-left: 10px;
+        padding: 0;
+        border: none;
+        background-color: var(--banner-color);
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+
+        &:hover {
+          opacity: 0.7;
+        }
       }
 
       .announcement-text {

@@ -66,6 +66,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     undefined,
   );
   subscriptions: Subscription = new Subscription();
+  // Titles of announcements whose marquee is currently paused, keyed by subTopic.title
+  pausedAnnouncements = signal<Set<string>>(new Set());
 
   // Each announcement's `.items-container` holds exactly two identical
   // copies of that announcement's text back to back.
@@ -170,5 +172,19 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         window.open(subTopic.buttonExternalLink, '_blank');
       });
     }
+  }
+
+  // Pauses/resumes one announcement's marquee in place via CSS
+  // animation-play-state, which suspends/resumes the existing animation
+  // timeline rather than restarting it.
+  toggleAnnouncementPause(subTopic: SubTopic, event: Event): void {
+    event.stopPropagation();
+    const paused = new Set(this.pausedAnnouncements());
+    if (paused.has(subTopic.title)) {
+      paused.delete(subTopic.title);
+    } else {
+      paused.add(subTopic.title);
+    }
+    this.pausedAnnouncements.set(paused);
   }
 }
