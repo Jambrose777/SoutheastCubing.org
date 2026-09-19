@@ -388,3 +388,56 @@ se-loading-spinner {
 .mat-mdc-tooltip .mdc-tooltip__surface {
   text-align: center !important;
 }
+
+// ToastService's success() panelClass - MatSnackBar renders into a CDK
+// overlay outside any component's view encapsulation. !important is needed
+// because this app's prebuilt Material theme sets these as hardcoded values.
+.se-toast-success {
+  &.mat-snack-bar-container-enter {
+    animation: se-toast-slide-in-right 0.3s ease-out !important;
+  }
+
+  &.mat-snack-bar-container-exit {
+    animation: se-toast-slide-out-right 0.3s ease-in !important;
+  }
+
+  .mdc-snackbar__surface {
+    background-color: color-pallet.$se-dark-green !important;
+    border-radius: 30px !important;
+    min-width: unset !important;
+  }
+
+  .mdc-snackbar__label {
+    color: color-pallet.$se-grey !important;
+  }
+
+  .mat-mdc-snack-bar-action {
+    min-width: 32px !important;
+    padding: 0 8px !important;
+  }
+}
+
+// Replaces Material's default fade+scale enter/exit (confirmed via its own
+// _mat-snack-bar-enter/-exit keyframes, applied through these same classes)
+// with a slide from/to the right instead.
+@keyframes se-toast-slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes se-toast-slide-out-right {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}

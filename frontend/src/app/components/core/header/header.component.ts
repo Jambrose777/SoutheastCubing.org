@@ -1,5 +1,6 @@
 import { Component, input, OnInit, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
+import { AuthService } from 'src/app/services/auth.service';
 import { RouterLink } from '@angular/router';
 import { NgClass, NgOptimizedImage } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -14,6 +15,7 @@ import { NavComponent } from '../nav/nav.component';
 })
 export class HeaderComponent implements OnInit {
   private screenSizeService = inject(ScreenSizeService);
+  authService = inject(AuthService);
 
   isMobile = this.screenSizeService.isMobile;
 
@@ -43,5 +45,9 @@ export class HeaderComponent implements OnInit {
   // finishes the transisition once done
   onTransitionEnd() {
     this.transition.set(false);
+  }
+
+  signIn() {
+    this.authService.signIn();
   }
 }

@@ -28,11 +28,17 @@ const configSchema = z.object({
   EMAIL_TO_CLUBS: z.string().min(1).optional(),
   EMAIL_TO_COMPETITIONS: z.string().min(1).optional(),
   EMAIL_TO_CONTACT: z.string().min(1).optional(),
-  // Controls log verbosity in utils/logger.util.js - unset defaults to
-  // development (debug logs).
+  // Missing any of the three disables sign-in entirely.
+  WCA_OAUTH_CLIENT_ID: z.string().min(1).optional(),
+  WCA_OAUTH_CLIENT_SECRET: z.string().min(1).optional(),
+  WCA_OAUTH_REDIRECT_URI: z.string().min(1).optional(),
+  FRONTEND_URL: z.string().min(1).optional(),
+  // unset leaves the cookie host-only (fine for local dev where frontend/backend
+  // share a hostname);
+  SESSION_COOKIE_DOMAIN: z.string().min(1).optional(),
+  // Unset defaults to development (debug logs).
   NODE_ENV: z.enum(['development', 'production']).optional(),
-  // Explicit override of the NODE_ENV-derived log level - unset leaves the
-  // NODE_ENV default in place. This is the only way to enable `trace`.
+  // unset leaves the NODE_ENV default in place.
   LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).optional(),
 });
 
@@ -56,6 +62,12 @@ const OPTIONAL_VAR_DESCRIPTIONS = {
     'POST /email requests for the "organizing" category will respond 503 until this is set',
   EMAIL_TO_CONTACT:
     'POST /email requests for the remaining categories will respond 503 until this is set',
+  WCA_OAUTH_CLIENT_ID: 'WCA sign-in routes will respond 503 until this is set',
+  WCA_OAUTH_CLIENT_SECRET: 'WCA sign-in routes will respond 503 until this is set',
+  WCA_OAUTH_REDIRECT_URI: 'WCA sign-in routes will respond 503 until this is set',
+  FRONTEND_URL: 'WCA sign-in routes will respond 503 until this is set',
+  SESSION_COOKIE_DOMAIN:
+    'the session cookie will be host-only instead of scoped to a parent domain',
   NODE_ENV: 'defaulting to development-level (debug) logging',
   LOG_LEVEL:
     'log level is derived from NODE_ENV instead (debug in development, info in production)',

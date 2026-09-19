@@ -1,0 +1,16 @@
+@if (visible() || closing()) {
+  <div class="error-banner" [class.closing]="closing()" role="alert">
+    <span>{{ lastMessage() }}</span>
+    <span
+      class="close-icon clickable"
+      (click)="dismiss()"
+      (keydown.enter)="dismiss()"
+      (keydown.space)="$event.preventDefault(); dismiss()"
+      role="button"
+      tabindex="0"
+      aria-label="Dismiss"
+    >
+      <i class="fa-solid fa-close"></i>
+    </span>
+  </div>
+}

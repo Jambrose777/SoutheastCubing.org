@@ -1,4 +1,5 @@
 <div class="project-container">
+  <se-error-banner></se-error-banner>
   <div [class.desktop-container]="!isMobile()" [class.mobile-container]="isMobile()">
     <router-outlet></router-outlet>
   </div>

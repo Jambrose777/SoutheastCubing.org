@@ -4,6 +4,7 @@ import { environment } from 'src/environments/environment';
 import { EmailRequestBody } from '../models/EmailRequestBody';
 import { Observable, map } from 'rxjs';
 import { Competition } from '../models/Competition';
+import { CurrentUser } from '../models/CurrentUser';
 import { getRegistrationStatus, getReadableRegistrationOpen } from '../shared/competition.utils';
 
 // Shape of a competition as returned by the backend's /competitions endpoint,
@@ -48,5 +49,18 @@ export class SouteastcubingApiService {
       competitions: unknown;
       discordPostFailures: { id: string; name: string }[];
     }>(`${environment.links.southeastCubingApi}/update-competitions`, null);
+  }
+
+  // Checks whether the session cookie still resolves to a signed-in user.
+  getCurrentUser(): Observable<CurrentUser> {
+    return this.http.get<CurrentUser>(`${environment.links.southeastCubingApi}/auth/me`);
+  }
+
+  // Deletes the session's server-side row and clears the cookie.
+  signOut(): Observable<{ status: string }> {
+    return this.http.post<{ status: string }>(
+      `${environment.links.southeastCubingApi}/auth/logout`,
+      null,
+    );
   }
 }

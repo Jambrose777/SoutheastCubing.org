@@ -15,6 +15,7 @@ const router = express.Router();
  * /email:
  *   post:
  *     summary: Send a contact-form email.
+ *     tags: [Email]
  *     requestBody:
  *       required: true
  *       content:
@@ -56,6 +57,7 @@ router.post('/email', emailLimiter, async (req, res) => {
  * /competitions:
  *   get:
  *     summary: Get the list of cached upcoming competitions.
+ *     tags: [Competitions]
  *     parameters:
  *       - in: header
  *         name: If-None-Match
@@ -85,6 +87,7 @@ router.get('/competitions', async (req, res) => {
  * /update-competitions:
  *   post:
  *     summary: Refresh competitions data from the WCA API and Contentful.
+ *     tags: [Competitions]
  *     responses:
  *       200:
  *         description: Competitions refreshed successfully.
@@ -109,6 +112,7 @@ router.post('/update-competitions', async (req, res) => {
  * /:
  *   get:
  *     summary: Health check.
+ *     tags: [Health]
  *     responses:
  *       200:
  *         description: The API is up and running.

@@ -1,7 +1,7 @@
 -- GENERATED FILE - do not edit by hand.
 -- Reflects the live schema on the dev DSQL cluster (queried via
 -- information_schema), not merely the migration files that produced it - see
--- db/migrations/ for that history. Regenerate with
+-- app/database/migrations/ for that history. Regenerate with
 -- `pnpm --filter backend schema-snapshot` after applying a new migration.
 
 CREATE TABLE competition_events (
@@ -63,4 +63,38 @@ CREATE TABLE major_championship_events (
   major_championship_id TEXT NOT NULL REFERENCES major_championship_announcements (id),
   event_id TEXT NOT NULL,
   PRIMARY KEY (major_championship_id, event_id)
+);
+
+CREATE TABLE people (
+  id TEXT NOT NULL PRIMARY KEY,
+  wca_id TEXT,
+  wca_user_id TEXT,
+  name TEXT NOT NULL,
+  picture_url TEXT,
+  picture_synced_with_wca BOOLEAN NOT NULL DEFAULT true,
+  wca_picture_source_url TEXT,
+  thumbnail_crop_x INTEGER,
+  thumbnail_crop_y INTEGER,
+  thumbnail_crop_w INTEGER,
+  thumbnail_crop_h INTEGER,
+  cubingusa_state TEXT,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+CREATE TABLE sessions (
+  id TEXT NOT NULL PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users (id),
+  ip_address TEXT,
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+CREATE TABLE users (
+  id TEXT NOT NULL PRIMARY KEY,
+  people_id TEXT NOT NULL REFERENCES people (id),
+  email TEXT,
+  dob DATE,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );

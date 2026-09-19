@@ -1,0 +1,1 @@
+GRANT SELECT, INSERT, UPDATE, DELETE ON sessions TO app_dev;

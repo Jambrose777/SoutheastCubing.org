@@ -5,6 +5,7 @@
 
 .header {
   display: flex;
+  position: relative;
   height: 80px;
   width: 100%;
   margin-bottom: 10px;
@@ -31,6 +32,46 @@
     .se-title {
       margin-right: 0;
       margin-left: 0;
+    }
+  }
+
+  // Top-right sign-in action / signed-in thumbnail
+  .auth-action {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    z-index: 10002;
+    display: flex;
+    align-items: center;
+
+    .sign-in {
+      // Overrides .btn's block/auto-margin layout
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      white-space: nowrap;
+      font-size: 12px;
+    }
+
+    .user-thumbnail {
+      height: 40px;
+      width: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    // Matches .user-thumbnail's size, as a grey circle behind the icon when
+    // the person has no picture to show.
+    .avatar-fallback {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 40px;
+      width: 40px;
+      border-radius: 50%;
+      background-color: color-pallet.$se-grey;
     }
   }
 

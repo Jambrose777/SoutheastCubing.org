@@ -10,6 +10,12 @@ const options = {
       title: 'SoutheastCubing.org API',
       version: '1.0.0',
     },
+    tags: [
+      { name: 'Auth', description: "WCA OAuth sign-in/out and the current session." },
+      { name: 'Competitions', description: 'Cached WCA competitions data.' },
+      { name: 'Email', description: 'Contact-form email.' },
+      { name: 'Health', description: 'Service status.' },
+    ],
   },
   apis: [path.join(__dirname, '../routes/*.routes.js')],
 };

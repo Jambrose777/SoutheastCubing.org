@@ -1,0 +1,65 @@
+@use 'src/styles/color-pallet';
+@use 'src/styles/screen-sizes';
+
+// Plays automatically whenever the banner is inserted into the DOM.
+@keyframes slide-down-fade-in {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Plays while .closing is applied.
+@keyframes slide-up-fade-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+.error-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 20000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+  background-color: color-pallet.$se-red;
+  color: color-pallet.$se-black;
+  text-align: center;
+  box-shadow: 0 3px 5px rgb(0 0 0 / 0.4);
+  animation: slide-down-fade-in 0.4s ease-out;
+
+  &.closing {
+    animation: slide-up-fade-out 0.4s ease-in forwards;
+  }
+
+  .close-icon {
+    display: flex;
+    align-items: center;
+  }
+}
+
+// Above the mobile breakpoint, the page is split into a side-pane (nav,
+// fixed at up to 475px) and a main-pane (the rest) - the sign-in button
+// lives in the main-pane's own header, so beyond just dropping below the
+// header (above), also confine the banner to the main-pane's width instead
+// of spanning the side-pane too.
+@media only screen and (min-width: (screen-sizes.$small-breakpoint + 1)) {
+  .error-banner {
+    left: 475px;
+    width: calc(100% - 475px);
+  }
+}

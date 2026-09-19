@@ -1,0 +1,1 @@
+GRANT SELECT, INSERT, UPDATE ON people TO app_dev;

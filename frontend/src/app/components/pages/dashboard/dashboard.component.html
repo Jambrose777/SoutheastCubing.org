@@ -1,0 +1,27 @@
+<div class="component-container">
+  <div class="main-pane" tabindex="0">
+    <se-header id="header" [title]="'Dashboard'" [showNavCluster]="isMobile()"></se-header>
+    <div class="large-text-content">
+      Welcome, {{ authService.currentUser()?.name }}! Your full dashboard is coming soon.
+    </div>
+    @if (isMobile()) {
+      <!-- TEMPORARY: the desktop sign-out (see below) doesn't exist on
+      mobile - remove this once a permanent mobile placement is designed. -->
+      <span class="btn sign-out" (click)="signOut()" role="button" tabindex="0">
+        Sign out
+        <i class="fa-solid fa-right-from-bracket fa-sm"></i>
+      </span>
+    }
+  </div>
+  @if (!isMobile()) {
+    <div class="side-pane">
+      <se-header id="header" [showTitle]="false"></se-header>
+    </div>
+    <div class="side-pane-sign-out">
+      <span class="btn" (click)="signOut()" role="button" tabindex="0" aria-label="Sign out">
+        Sign out
+        <i class="fa-solid fa-right-from-bracket fa-sm"></i>
+      </span>
+    </div>
+  }
+</div>

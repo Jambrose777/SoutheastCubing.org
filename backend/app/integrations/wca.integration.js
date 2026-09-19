@@ -66,9 +66,49 @@ async function fetchCompetitionRegistrationsCount(competitionId) {
   }
 }
 
+// Exchanges a Doorkeeper authorization code for an access token, using the
+// standard OAuth2 authorization-code grant. The returned token is only ever
+// used once (immediately below, for fetchWcaProfile) and then discarded -
+// nothing from a sign-in grant is persisted or refreshed.
+async function exchangeAuthorizationCodeForToken({ code, clientId, clientSecret, redirectUri }) {
+  const url = 'https://www.worldcubeassociation.org/oauth/token';
+  const body = new URLSearchParams({
+    grant_type: 'authorization_code',
+    client_id: clientId,
+    client_secret: clientSecret,
+    code,
+    redirect_uri: redirectUri,
+  });
+  try {
+    const res = await axios.post(url, body);
+    logger.debug('WCA OAuth token exchange succeeded.');
+    return res.data.access_token;
+  } catch (err) {
+    logger.error('WCA OAuth token exchange failed: ', err);
+    throw err;
+  }
+}
+
+// Calls GET /api/v0/me to read the profile fields. Called exactly once per sign-in.
+async function fetchWcaProfile(accessToken) {
+  const url = 'https://www.worldcubeassociation.org/api/v0/me';
+  try {
+    const res = await axios.get(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    logger.debug('WCA profile fetch (GET /api/v0/me) succeeded.');
+    return res.data.me;
+  } catch (err) {
+    logger.error('WCA profile fetch (GET /api/v0/me) failed: ', err);
+    throw err;
+  }
+}
+
 module.exports = {
   US_COMPETITIONS_PAGE_SIZE,
   fetchUSCompetitionsPage,
   fetchCompetitionById,
   fetchCompetitionRegistrationsCount,
+  exchangeAuthorizationCodeForToken,
+  fetchWcaProfile,
 };

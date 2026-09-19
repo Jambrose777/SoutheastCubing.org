@@ -36,6 +36,46 @@
     </span>
   }
 
+  <!-- Sign-in button (signed out) or the thumbnail linking to the dashboard
+  (signed in), top right of the main-pane header -->
+  @if (showTitle()) {
+    <div class="auth-action">
+      @if (authService.currentUser(); as user) {
+        <a
+          [routerLink]="'/dashboard'"
+          aria-label="Your dashboard"
+          matTooltip="Your dashboard"
+          matTooltipPosition="above"
+        >
+          @if (user.pictureUrl) {
+            <img
+              [ngSrc]="user.pictureUrl"
+              [alt]="user.name + '\'s profile picture'"
+              width="40"
+              height="40"
+              class="user-thumbnail"
+            />
+          } @else {
+            <i class="fa-solid fa-circle-user fa-2xl clickable avatar-fallback"></i>
+          }
+        </a>
+      } @else {
+        <span
+          class="btn sign-in"
+          (click)="signIn()"
+          (keydown.enter)="signIn()"
+          (keydown.space)="$event.preventDefault(); signIn()"
+          role="button"
+          tabindex="0"
+          aria-label="Sign in"
+        >
+          Sign in
+          <i class="fa-solid fa-right-to-bracket fa-sm"></i>
+        </span>
+      }
+    </div>
+  }
+
   <!-- Nav system -->
   @if (showNavCluster() && !isMobile()) {
     <div class="nav-container" [ngClass]="{ active: isNavActive(), transition: transition() }">
