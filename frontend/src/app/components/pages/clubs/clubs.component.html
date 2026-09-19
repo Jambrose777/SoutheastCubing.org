@@ -3,7 +3,15 @@
     <se-header id="header" [title]="title()" [showNavCluster]="isMobile()">
       <!-- Filters Icon: Mobile only -->
       @if (isMobile() && !loadingClubs()) {
-        <div mobileHeaderAction (click)="toggleFiltersOpen()">
+        <div
+          mobileHeaderAction
+          (click)="toggleFiltersOpen()"
+          (keydown.enter)="toggleFiltersOpen()"
+          (keydown.space)="$event.preventDefault(); toggleFiltersOpen()"
+          role="button"
+          tabindex="0"
+          aria-label="Toggle filters"
+        >
           <i class="fa-solid fa-filter"></i>
         </div>
       }
@@ -90,7 +98,15 @@
         <!-- Filters icon + clear filters: desktop only (mobile keeps its own filter
         icon in the main pane's header instead) -->
         @if (!isMobile()) {
-          <i class="fa-solid fa-filter clickable icon-button" (click)="toggleFiltersOpen()"></i>
+          <i
+            class="fa-solid fa-filter clickable icon-button"
+            (click)="toggleFiltersOpen()"
+            (keydown.enter)="toggleFiltersOpen()"
+            (keydown.space)="$event.preventDefault(); toggleFiltersOpen()"
+            role="button"
+            tabindex="0"
+            aria-label="Toggle filters"
+          ></i>
           <button
             class="clear-filters-btn icon-button"
             type="button"

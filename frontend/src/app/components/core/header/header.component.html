@@ -24,6 +24,11 @@
     <i
       class="close-icon fa-solid fa-close fa-2xl clickable icon-button"
       (click)="toggleNav(false)"
+      (keydown.enter)="toggleNav(false)"
+      (keydown.space)="$event.preventDefault(); toggleNav(false)"
+      role="button"
+      tabindex="0"
+      aria-label="Close menu"
     ></i>
   }
 
