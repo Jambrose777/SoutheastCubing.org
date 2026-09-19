@@ -134,7 +134,7 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
                     path: asset.fields.file!.url,
                     alt: asset.fields.description ?? '',
                   })),
-                state: stateAbbreviationFromCity(championship.fields.cityState),
+                state: stateAbbreviationFromCity(championship.fields.city),
                 champions: (championship.fields.champions ?? [])
                   .map((champion) => resolvedEntry<ChampionSkeleton>(champion)?.fields)
                   .filter((fields): fields is NonNullable<typeof fields> => !!fields),
