@@ -34,6 +34,7 @@ export const StateColors: Record<string, Colors> = {
   TN: Colors.yellow,
   Southeast: Colors.purple,
   '??': Colors.grey,
+  '???': Colors.grey,
 };
 
 export enum States {
