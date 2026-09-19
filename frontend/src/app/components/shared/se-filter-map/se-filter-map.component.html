@@ -16,6 +16,11 @@
     <path
       class="clickable"
       (click)="stateClicked(States.AL)"
+      (keydown.enter)="stateClicked(States.AL)"
+      (keydown.space)="$event.preventDefault(); stateClicked(States.AL)"
+      role="button"
+      tabindex="0"
+      aria-label="Alabama"
       inkscape:connector-curvature="0"
       id="AL"
       data-name="Alabama"
@@ -27,6 +32,11 @@
     <path
       class="clickable"
       (click)="stateClicked(States.FL)"
+      (keydown.enter)="stateClicked(States.FL)"
+      (keydown.space)="$event.preventDefault(); stateClicked(States.FL)"
+      role="button"
+      tabindex="0"
+      aria-label="Florida"
       inkscape:connector-curvature="0"
       id="FL"
       data-name="Florida"
@@ -38,6 +48,11 @@
     <path
       class="clickable"
       (click)="stateClicked(States.GA)"
+      (keydown.enter)="stateClicked(States.GA)"
+      (keydown.space)="$event.preventDefault(); stateClicked(States.GA)"
+      role="button"
+      tabindex="0"
+      aria-label="Georgia"
       inkscape:connector-curvature="0"
       id="GA"
       data-name="Georgia"
@@ -49,6 +64,11 @@
     <path
       class="clickable"
       (click)="stateClicked(States.SC)"
+      (keydown.enter)="stateClicked(States.SC)"
+      (keydown.space)="$event.preventDefault(); stateClicked(States.SC)"
+      role="button"
+      tabindex="0"
+      aria-label="South Carolina"
       inkscape:connector-curvature="0"
       id="SC"
       data-name="South Carolina"
@@ -60,6 +80,11 @@
     <path
       class="clickable"
       (click)="stateClicked(States.NC)"
+      (keydown.enter)="stateClicked(States.NC)"
+      (keydown.space)="$event.preventDefault(); stateClicked(States.NC)"
+      role="button"
+      tabindex="0"
+      aria-label="North Carolina"
       inkscape:connector-curvature="0"
       id="NC"
       data-name="North Carolina"
@@ -71,6 +96,11 @@
     <path
       class="clickable"
       (click)="stateClicked(States.TN)"
+      (keydown.enter)="stateClicked(States.TN)"
+      (keydown.space)="$event.preventDefault(); stateClicked(States.TN)"
+      role="button"
+      tabindex="0"
+      aria-label="Tennessee"
       inkscape:connector-curvature="0"
       id="TN"
       data-name="Tennessee"
@@ -82,6 +112,7 @@
     <text
       class="clickable"
       (click)="stateClicked(States.AL)"
+      aria-hidden="true"
       id="text4598"
       y="385"
       x="735"
@@ -122,6 +153,7 @@
     <text
       class="clickable"
       (click)="stateClicked(States.GA)"
+      aria-hidden="true"
       xml:space="preserve"
       style="
         font-style: normal;
@@ -162,6 +194,7 @@
     <text
       class="clickable"
       (click)="stateClicked(States.FL)"
+      aria-hidden="true"
       id="text4606"
       y="480"
       x="847"
@@ -202,6 +235,7 @@
     <text
       class="clickable"
       (click)="stateClicked(States.SC)"
+      aria-hidden="true"
       xml:space="preserve"
       style="
         font-style: normal;
@@ -242,6 +276,7 @@
     <text
       class="clickable"
       (click)="stateClicked(States.NC)"
+      aria-hidden="true"
       id="text4614"
       y="312"
       x="850"
@@ -282,6 +317,7 @@
     <text
       class="clickable"
       (click)="stateClicked(States.TN)"
+      aria-hidden="true"
       xml:space="preserve"
       style="
         font-style: normal;

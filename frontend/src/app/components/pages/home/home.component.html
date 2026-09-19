@@ -13,6 +13,15 @@
         <div
           class="announcement-banner clickable"
           (click)="announcementClick(subTopic)"
+          (keydown.enter)="announcementClick(subTopic)"
+          (keydown.space)="$event.preventDefault(); announcementClick(subTopic)"
+          [attr.role]="subTopic.buttonInternalLink || subTopic.buttonExternalLink ? 'button' : null"
+          [attr.tabindex]="subTopic.buttonInternalLink || subTopic.buttonExternalLink ? 0 : null"
+          [attr.aria-label]="
+            subTopic.buttonInternalLink || subTopic.buttonExternalLink
+              ? subTopic.buttonText || subTopic.title
+              : null
+          "
           [style.--banner-color]="subTopic.color"
         >
           <div class="items-container" #itemsContainer>
