@@ -23,6 +23,7 @@
         @for (image of imageAsArray(); track image) {
           <img
             ngSrc="{{ image }}"
+            [alt]="club.imageAlt ?? ''"
             [width]="club.imageWidth"
             [height]="club.imageHeight"
             priority

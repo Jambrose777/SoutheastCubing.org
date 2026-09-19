@@ -103,9 +103,11 @@ export class DelegatesComponent implements OnInit, OnDestroy {
                   ...delegate.fields,
                   delegateType: delegate.fields.delegateType as DelegateType | undefined,
                   photo: photo?.fields.file?.url,
+                  photoAlt: photo?.fields.description ?? '',
                   photoWidth: photoSize.width,
                   photoHeight: photoSize.height,
                   thumbnail: thumbnail?.fields.file?.url,
+                  thumbnailAlt: thumbnail?.fields.description ?? '',
                   thumbnailWidth: thumbnailSize.width,
                   thumbnailHeight: thumbnailSize.height,
                 };

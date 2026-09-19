@@ -54,6 +54,7 @@
             <div class="item-row" (click)="selectDelegate(delegate)" id="{{ delegate.name }}">
               <img
                 ngSrc="{{ delegate.thumbnail }}"
+                [alt]="delegate.thumbnailAlt ?? ''"
                 [width]="delegate.thumbnailWidth"
                 [height]="delegate.thumbnailHeight"
                 class="thumbnail"

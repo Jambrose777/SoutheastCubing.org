@@ -149,6 +149,7 @@ export class InvolvementComponent implements OnInit, OnDestroy {
       ...subTopic?.fields,
       title: subTopic?.fields.title ?? '',
       photo: photo?.fields.file?.url,
+      photoAlt: photo?.fields.description ?? '',
       photoWidth: photoSize.width,
       photoHeight: photoSize.height,
       color: colorFromField(subTopic?.fields.color),

@@ -42,6 +42,7 @@
             <div class="item-row" (click)="selectCat(cat)" id="{{ cat.name }}">
               <img
                 ngSrc="{{ cat.thumbnail }}"
+                [alt]="cat.thumbnailAlt ?? ''"
                 [width]="cat.thumbnailWidth"
                 [height]="cat.thumbnailHeight"
                 class="thumbnail"

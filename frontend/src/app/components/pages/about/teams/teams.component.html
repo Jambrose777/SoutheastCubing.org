@@ -19,6 +19,7 @@
               @if (teamMember.thumbnail) {
                 <img
                   ngSrc="{{ teamMember.thumbnail }}"
+                  [alt]="teamMember.thumbnailAlt ?? ''"
                   [width]="teamMember.thumbnailWidth"
                   [height]="teamMember.thumbnailHeight"
                   class="thumbnail"

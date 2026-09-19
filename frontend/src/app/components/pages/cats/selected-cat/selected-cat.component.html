@@ -16,6 +16,7 @@
         @for (photo of photoAsArray(); track photo) {
           <img
             ngSrc="{{ photo }}"
+            [alt]="cat.photoAlt ?? ''"
             [width]="cat.photoWidth"
             [height]="cat.photoHeight"
             priority

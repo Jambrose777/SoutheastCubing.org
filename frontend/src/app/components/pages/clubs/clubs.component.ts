@@ -168,6 +168,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
               return {
                 ...club.fields,
                 image: image?.fields.file?.url,
+                imageAlt: image?.fields.description ?? '',
                 imageWidth: imageSize.width,
                 imageHeight: imageSize.height,
                 state: club.fields?.city ? stateAbbreviationFromCity(club.fields.city) : undefined,

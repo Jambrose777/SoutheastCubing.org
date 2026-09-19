@@ -10,6 +10,7 @@ export interface TeamMember {
   color?: string;
   title?: string;
   thumbnail?: string;
+  thumbnailAlt?: string;
   thumbnailWidth?: number;
   thumbnailHeight?: number;
 }

@@ -27,7 +27,7 @@ import { LinksService } from 'src/app/services/links.service';
 import { NgOptimizedImage } from '@angular/common';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
-import { CarouselComponent } from '../../shared/carousel/carousel.component';
+import { CarouselComponent, CarouselImage } from '../../shared/carousel/carousel.component';
 import { MarkdownComponent } from 'ngx-markdown';
 import { SafeUrlPipe } from 'src/app/pipes/safeUrl.pipe';
 
@@ -57,7 +57,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   environment = environment;
   title = signal('Southeast Cubing');
   description = signal('');
-  photos = signal<string[]>([]);
+  photos = signal<CarouselImage[]>([]);
   loadingContent = signal(true);
   subTopics = signal<SubTopic[] | undefined>(undefined);
   // Set from a separate, independently-queried content type (not referenced from the
@@ -102,8 +102,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           );
           this.photos.set(
             (res.fields.photos ?? [])
-              .map((photo) => resolvedAsset(photo)?.fields.file?.url)
-              .filter((url): url is string => !!url),
+              .map((photo) => resolvedAsset(photo))
+              .filter((asset): asset is NonNullable<typeof asset> => !!asset?.fields.file?.url)
+              .map((asset) => ({
+                url: asset.fields.file!.url,
+                alt: asset.fields.description ?? '',
+              })),
           );
           this.loadingContent.set(false);
         },

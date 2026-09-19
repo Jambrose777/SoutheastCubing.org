@@ -4,7 +4,7 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { environment } from 'src/environments/environment';
 import { NgOptimizedImage } from '@angular/common';
 import { MarkdownComponent } from 'ngx-markdown';
-import { CarouselComponent } from '../../../shared/carousel/carousel.component';
+import { CarouselComponent, CarouselImage } from '../../../shared/carousel/carousel.component';
 
 @Component({
   selector: 'se-selected-championship',
@@ -28,8 +28,14 @@ export class SelectedChampionshipComponent {
     return logo ? [logo] : [];
   });
 
-  // se-carousel takes plain string paths, but Championship.images is
-  // { path: string }[] - memoized so this only recomputes when the
+  // se-carousel takes { url, alt } pairs, but Championship.images is
+  // { path, alt }[] - memoized so this only recomputes when the
   // championship itself changes
-  imagePaths = computed(() => this.selectedChampionship()?.images.map((image) => image.path) ?? []);
+  imagePaths = computed<CarouselImage[]>(
+    () =>
+      this.selectedChampionship()?.images.map((image) => ({
+        url: image.path,
+        alt: image.alt,
+      })) ?? [],
+  );
 }

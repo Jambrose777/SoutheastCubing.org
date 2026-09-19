@@ -6,8 +6,9 @@ export interface Championship {
   cityState: string;
   city: string;
   date: string;
-  images: { path: string }[];
+  images: { path: string; alt: string }[];
   logo?: string;
+  logoAlt?: string;
   logoWidth?: number;
   logoHeight?: number;
   description?: string;

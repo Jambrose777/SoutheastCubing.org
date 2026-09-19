@@ -151,6 +151,7 @@ export class AboutComponent implements OnInit, OnDestroy {
                     name: teamMember?.fields.name ?? '',
                     color: colorFromField(teamMember?.fields.color),
                     thumbnail: thumbnail?.fields.file?.url,
+                    thumbnailAlt: thumbnail?.fields.description ?? '',
                     thumbnailWidth: thumbnailSize.width,
                     thumbnailHeight: thumbnailSize.height,
                   };
@@ -234,6 +235,7 @@ export class AboutComponent implements OnInit, OnDestroy {
       ...subTopic?.fields,
       title: subTopic?.fields.title ?? '',
       photo: photo?.fields.file?.url,
+      photoAlt: photo?.fields.description ?? '',
       photoWidth: photoSize.width,
       photoHeight: photoSize.height,
       color: colorFromField(subTopic?.fields.color),

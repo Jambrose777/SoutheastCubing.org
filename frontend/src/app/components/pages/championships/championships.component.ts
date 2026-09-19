@@ -124,12 +124,16 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
                 ...championship.fields,
                 championshipType: championship.fields.championshipType || 'Southeast',
                 logo: logo?.fields.file?.url,
+                logoAlt: logo?.fields.description ?? '',
                 logoWidth: logoSize.width,
                 logoHeight: logoSize.height,
                 images: (championship.fields.images ?? [])
-                  .map((image) => resolvedAsset(image)?.fields.file?.url)
-                  .filter((url): url is string => !!url)
-                  .map((url) => ({ path: url })),
+                  .map((image) => resolvedAsset(image))
+                  .filter((asset): asset is NonNullable<typeof asset> => !!asset?.fields.file?.url)
+                  .map((asset) => ({
+                    path: asset.fields.file!.url,
+                    alt: asset.fields.description ?? '',
+                  })),
                 state: stateAbbreviationFromCity(championship.fields.cityState),
                 champions: (championship.fields.champions ?? [])
                   .map((champion) => resolvedEntry<ChampionSkeleton>(champion)?.fields)

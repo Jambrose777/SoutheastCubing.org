@@ -10,6 +10,12 @@ import {
 } from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
 
+// A single carousel slide's image URL paired with its accessible alt text.
+export interface CarouselImage {
+  url: string;
+  alt: string;
+}
+
 @Component({
   selector: 'se-carousel',
   templateUrl: './carousel.component.html',
@@ -18,7 +24,7 @@ import { NgOptimizedImage } from '@angular/common';
   imports: [NgOptimizedImage],
 })
 export class CarouselComponent {
-  images = input.required<string[]>();
+  images = input.required<CarouselImage[]>();
   height = input.required<number>();
   loop = input(false);
   autoplay = input(false);

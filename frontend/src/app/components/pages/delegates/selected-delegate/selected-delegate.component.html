@@ -24,6 +24,7 @@
         @for (photo of photoAsArray(); track photo) {
           <img
             ngSrc="{{ photo }}"
+            [alt]="delegate.photoAlt ?? ''"
             [width]="delegate.photoWidth"
             [height]="delegate.photoHeight"
             priority
@@ -47,7 +48,7 @@
       rel="noopener noreferrer"
       class="wca-logo-container"
     >
-      <img ngSrc="assets/wca_logo.svg" width="293" height="293" class="wca-logo" />
+      <img ngSrc="assets/wca_logo.svg" alt="WCA Logo" width="293" height="293" class="wca-logo" />
     </a>
   </div>
 }

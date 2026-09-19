@@ -5,10 +5,12 @@ export interface Delegate {
   name: string;
   order: number;
   photo?: string;
+  photoAlt?: string;
   photoWidth?: number;
   photoHeight?: number;
   state?: string;
   thumbnail?: string;
+  thumbnailAlt?: string;
   thumbnailWidth?: number;
   thumbnailHeight?: number;
   wcaid?: string;

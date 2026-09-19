@@ -3,6 +3,7 @@ export interface Club {
   name: string;
   description?: string;
   image?: string;
+  imageAlt?: string;
   imageWidth?: number;
   imageHeight?: number;
   city: string;
