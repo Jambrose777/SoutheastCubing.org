@@ -12,6 +12,7 @@ import { DelegateSkeleton, DelegatesPageSkeleton } from 'src/app/models/Contentf
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { resolvedAsset } from 'src/app/shared/contentful-links';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
+import { isPlainLeftClick } from 'src/app/shared/is-plain-left-click';
 import { SelectItemService } from 'src/app/services/select-item.service';
 import { Delegate, DelegateType } from 'src/app/models/Delegate';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -19,6 +20,7 @@ import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, StateColors } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
 import { Location, NgClass, NgOptimizedImage } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
@@ -39,6 +41,7 @@ import { SelectedDelegateComponent } from './selected-delegate/selected-delegate
     SelectedDelegateComponent,
     NgClass,
     NgOptimizedImage,
+    RouterLink,
   ],
 })
 export class DelegatesComponent implements OnInit, OnDestroy {
@@ -64,6 +67,7 @@ export class DelegatesComponent implements OnInit, OnDestroy {
   loadingDelegates = signal(true);
   selectedDelegate = signal<Delegate | undefined>(undefined);
   subscriptions: Subscription = new Subscription();
+  buildDetailUrl = buildDetailUrl;
 
   // Keeps the main pane color in sync with the current viewport/selection.
   private syncMainPaneColor = this.selectItemService.syncMainPaneColorWithViewport({
@@ -168,5 +172,15 @@ export class DelegatesComponent implements OnInit, OnDestroy {
       updateUrl: () =>
         this.location.replaceState(buildDetailUrl('/delegates', this.selectedDelegate()?.name)),
     });
+  }
+
+  // A plain left click is intercepted here to keep the existing cheap in-place
+  // selection instead of a full router navigation.
+  onDelegateRowClick(event: MouseEvent, delegate: Delegate): void {
+    if (!isPlainLeftClick(event)) {
+      return;
+    }
+    event.preventDefault();
+    this.selectDelegate(delegate);
   }
 }

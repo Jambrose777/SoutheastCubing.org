@@ -4,78 +4,89 @@
     (click)="toggleNav()"
     [ngClass]="{ active: isNavActive(), transitioned: !transition() }"
   >
-    <span
+    <a
       style="--i: 5; --x: -1; --y: -1"
       class="blue-cube"
       [ngClass]="{ disabled: disableHomeLink() }"
       [routerLink]="isNavActive() && !disableHomeLink() ? '/home' : []"
+      [attr.tabindex]="disableHomeLink() ? -1 : null"
+      [attr.aria-disabled]="disableHomeLink() ? true : null"
+      aria-label="Home"
     >
       <i class="fa-solid fa-home fa-2xl clickable"></i>
       <div class="hidden-text">Home</div>
-    </span>
-    <span
+    </a>
+    <a
       style="--i: 2; --x: 0; --y: -1"
       class="grey-cube"
       [routerLink]="isNavActive() ? '/competitions' : []"
+      aria-label="Competitions"
     >
       <i class="fa-solid fa-table-list fa-2xl clickable"></i>
       <div class="hidden-text">Competitions</div>
-    </span>
-    <span
+    </a>
+    <a
       style="--i: 6; --x: 1; --y: -1"
       class="purple-cube"
       [routerLink]="isNavActive() ? '/clubs' : []"
+      aria-label="Clubs"
     >
       <i class="fa-solid fa-location-dot fa-2xl clickable"></i>
       <div class="hidden-text">Clubs</div>
-    </span>
-    <span
+    </a>
+    <a
       style="--i: 0; --x: -1; --y: 0"
       class="red-cube"
       [routerLink]="isNavActive() ? '/involvement' : []"
+      aria-label="Get Involved"
     >
       <i class="fa-solid fa-handshake-angle fa-2xl clickable"></i>
       <div class="hidden-text">Get Involved</div>
-    </span>
-    <span
+    </a>
+    <a
       style="--i: 8; --x: 0; --y: 0"
       class="black-cube"
       [routerLink]="isNavActive() ? '/championships' : []"
+      aria-label="Championships"
     >
       <i class="fa-solid fa-trophy fa-2xl clickable"></i>
       <div class="hidden-text">Championships</div>
-    </span>
-    <span
+    </a>
+    <a
       style="--i: 1; --x: 1; --y: 0"
       class="green-cube"
       [routerLink]="isNavActive() ? '/delegates' : []"
+      aria-label="Delegates"
     >
       <i class="fa-solid fa-address-card fa-2xl clickable"></i>
       <div class="hidden-text">Delegates</div>
-    </span>
-    <span
+    </a>
+    <a
       style="--i: 4; --x: -1; --y: 1"
       class="white-cube"
       [routerLink]="isNavActive() ? '/organizers' : []"
+      aria-label="Organizers"
     >
       <i class="fa-solid fa-file-lines fa-2xl clickable"></i>
       <div class="hidden-text">Organizers</div>
-    </span>
-    <span
+    </a>
+    <a
       style="--i: 3; --x: 0; --y: 1"
       class="orange-cube"
       [routerLink]="isNavActive() ? '/about' : []"
+      aria-label="About SECI"
     >
       <i class="fa-solid fa-circle-info fa-2xl clickable"></i>
       <div class="hidden-text">About SECI</div>
-    </span>
-    <span
+    </a>
+    <a
       style="--i: 7; --x: 1; --y: 1"
       class="yellow-cube"
       [routerLink]="isNavActive() ? '/contact' : []"
+      aria-label="Contact"
     >
       <i class="fa-solid fa-envelope fa-2xl clickable"></i>
       <div class="hidden-text">Contact</div>
-    </span>
+    </a>
   </div>
 </div>

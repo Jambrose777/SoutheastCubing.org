@@ -39,7 +39,12 @@
             [style.--state-color]="cat.color"
             [ngClass]="{ active: selectedCat()?.name === cat.name }"
           >
-            <div class="item-row" (click)="selectCat(cat)" id="{{ cat.name }}">
+            <a
+              class="item-row"
+              [routerLink]="buildDetailUrl('/cats', cat.name)"
+              (click)="onCatRowClick($event, cat)"
+              id="{{ cat.name }}"
+            >
               <img
                 ngSrc="{{ cat.thumbnail }}"
                 [alt]="cat.thumbnailAlt ?? ''"
@@ -50,7 +55,7 @@
               <div class="item-title">
                 {{ cat.name }}
               </div>
-            </div>
+            </a>
             <!-- Information for selected competition details -->
             @if (isMobile() && selectedCat()?.name === cat.name) {
               <se-selected-cat [selectedCat]="selectedCat()"> </se-selected-cat>

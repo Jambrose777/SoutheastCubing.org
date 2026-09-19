@@ -51,7 +51,12 @@
             [style.--state-color]="StateColors[delegate.state ?? '??']"
             [ngClass]="{ active: selectedDelegate()?.name === delegate.name }"
           >
-            <div class="item-row" (click)="selectDelegate(delegate)" id="{{ delegate.name }}">
+            <a
+              class="item-row"
+              [routerLink]="buildDetailUrl('/delegates', delegate.name)"
+              (click)="onDelegateRowClick($event, delegate)"
+              id="{{ delegate.name }}"
+            >
               <img
                 ngSrc="{{ delegate.thumbnail }}"
                 [alt]="delegate.thumbnailAlt ?? ''"
@@ -65,7 +70,7 @@
               <div class="item-sub-text">
                 {{ delegate.state }}
               </div>
-            </div>
+            </a>
             <!-- Information for selected competition details -->
             @if (isMobile() && selectedDelegate()?.name === delegate.name) {
               <se-selected-delegate [selectedDelegate]="selectedDelegate()"> </se-selected-delegate>

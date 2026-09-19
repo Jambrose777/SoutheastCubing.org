@@ -134,9 +134,10 @@
             (mouseover)="competitionHover(competition)"
             (mouseout)="competitionHover()"
           >
-            <div
+            <a
               class="item-row"
-              (click)="selectCompetition(competition)"
+              [routerLink]="buildDetailUrl('/competitions', competition.id)"
+              (click)="onCompetitionRowClick($event, competition)"
               id="{{ competition.id }}"
             >
               <div class="item-title">
@@ -145,7 +146,7 @@
               <div class="item-sub-text">
                 {{ competition.full_date | breakYearOntoNewLine }}
               </div>
-            </div>
+            </a>
             <!-- Information for selected competition details -->
             @if (isMobile() && selectedCompetition()?.id === competition.id) {
               <se-selected-competition [selectedCompetition]="selectedCompetition()">

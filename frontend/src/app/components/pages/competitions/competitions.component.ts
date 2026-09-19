@@ -19,8 +19,10 @@ import { resolvedEntry } from 'src/app/shared/contentful-links';
 import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 import { SelectItemService } from 'src/app/services/select-item.service';
 import { toggleFilterSelection } from 'src/app/shared/toggle-filter-selection';
+import { buildDetailUrl } from 'src/app/shared/build-detail-url';
+import { isPlainLeftClick } from 'src/app/shared/is-plain-left-click';
 import { environment } from 'src/environments/environment';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Location, NgClass } from '@angular/common';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
@@ -56,6 +58,7 @@ import { matchesSearchTerm } from 'src/app/shared/matches-search-term';
     StripYearPipe,
     BreakYearOntoNewLinePipe,
     SeSearchBarComponent,
+    RouterLink,
   ],
 })
 export class CompetitionsComponent implements OnInit, OnDestroy {
@@ -96,6 +99,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   filtersOpen = signal(false);
   competitionMapPoints = signal<MapPoint[] | undefined>(undefined);
   subscriptions: Subscription = new Subscription();
+  buildDetailUrl = buildDetailUrl;
 
   // Keeps the main pane color in sync with the current viewport/selection.
   private syncMainPaneColor = this.selectItemService.syncMainPaneColorWithViewport({
@@ -199,6 +203,17 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
       updateUrl: () => this.updateUrl(),
     });
   }
+
+  // A plain left click is intercepted here to keep the existing cheap in-place
+  // selection instead of a full router navigation.
+  onCompetitionRowClick(event: MouseEvent, competition: Competition): void {
+    if (!isPlainLeftClick(event)) {
+      return;
+    }
+    event.preventDefault();
+    this.selectCompetition(competition);
+  }
+
   // Adds a state to the filters
   handleStateSelection(state: States) {
     const currentFilters = this.filters();

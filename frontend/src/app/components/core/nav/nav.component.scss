@@ -32,7 +32,7 @@
   transition-delay: 0.5s;
 }
 
-.menu .navigation span {
+.menu .navigation a {
   position: absolute;
   width: 10px;
   height: 10px;
@@ -49,13 +49,13 @@
   box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
 }
 
-.menu .navigation span .fa-solid {
+.menu .navigation a .fa-solid {
   font-size: 0.25rem;
   height: 0.125px;
   transition: 0.5s;
 }
 
-.menu .navigation.active span .fa-solid {
+.menu .navigation.active a .fa-solid {
   font-size: 1.75rem;
   height: 28px;
   transition: 0.5s;
@@ -74,7 +74,7 @@
   transition: 0.5s;
 }
 
-.menu .navigation.active span {
+.menu .navigation.active a {
   width: 115px;
   height: 115px;
   border: 2px solid color-pallet.$se-black;
@@ -136,19 +136,19 @@
   }
 }
 
-.menu .navigation.transitioned.active span:hover .fa-solid {
+.menu .navigation.transitioned.active a:hover .fa-solid {
   display: block;
 }
 
 .navigation {
-  span {
+  a {
     margin-top: 10px;
     flex-direction: column;
   }
 }
 
 @media only screen and (max-width: screen-sizes.$small-breakpoint) {
-  .menu .navigation.active span {
+  .menu .navigation.active a {
     transform: translate(calc(120px * var(--x)), calc(120px * var(--y)));
   }
 

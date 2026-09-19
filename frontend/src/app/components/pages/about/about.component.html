@@ -55,11 +55,16 @@
             [style.--state-color]="subTopic.color"
             [ngClass]="{ active: selectedSubTopic()?.title === subTopic.title }"
           >
-            <div class="item-row" (click)="selectSubTopic(subTopic)" id="{{ subTopic.title }}">
+            <a
+              class="item-row"
+              [routerLink]="buildDetailUrl('/about', subTopic.title)"
+              (click)="onSubTopicRowClick($event, subTopic)"
+              id="{{ subTopic.title }}"
+            >
               <div class="item-title">
                 {{ subTopic.title }}
               </div>
-            </div>
+            </a>
             <!-- Information for selected Sub Topic details -->
             @if (
               isMobile() &&
@@ -115,15 +120,16 @@
           [style.--state-color]="nestedSubTopic.color"
           [ngClass]="{ active: selectedSubTopic()?.title === nestedSubTopic.title }"
         >
-          <div
+          <a
             class="item-row"
-            (click)="selectSubTopic(nestedSubTopic)"
+            [routerLink]="buildDetailUrl('/about', nestedSubTopic.title)"
+            (click)="onSubTopicRowClick($event, nestedSubTopic)"
             id="{{ nestedSubTopic.title }}"
           >
             <div class="item-title">
               {{ nestedSubTopic.title }}
             </div>
-          </div>
+          </a>
           @if (isMobile() && selectedSubTopic()?.title === nestedSubTopic.title) {
             <se-selected-sub-topic [selectedSubTopic]="selectedSubTopic()"> </se-selected-sub-topic>
           }

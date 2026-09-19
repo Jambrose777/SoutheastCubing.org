@@ -65,9 +65,10 @@
                 i > 0 && championships()![i - 1].championshipType !== championship.championshipType,
             }"
           >
-            <div
+            <a
               class="item-row"
-              (click)="selectChampionship(championship)"
+              [routerLink]="buildDetailUrl('/championships', championship.id)"
+              (click)="onChampionshipRowClick($event, championship)"
               id="{{ championship.id }}"
             >
               <!-- Relies on the Contentful logo asset being square. If
@@ -88,7 +89,7 @@
               <div class="item-sub-text">
                 {{ isMobile() ? championship.city : championship.cityState }}
               </div>
-            </div>
+            </a>
             <!-- Information for selected championship details -->
             @if (isMobile() && selectedChampionship()?.id === championship.id) {
               <se-selected-championship [selectedChampionship]="selectedChampionship()">

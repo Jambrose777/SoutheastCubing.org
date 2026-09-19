@@ -112,14 +112,19 @@
             (mouseover)="clubHover(club)"
             (mouseout)="clubHover()"
           >
-            <div class="item-row" (click)="selectClub(club)" id="{{ club.id }}">
+            <a
+              class="item-row"
+              [routerLink]="buildDetailUrl('/clubs', club.id)"
+              (click)="onClubRowClick($event, club)"
+              id="{{ club.id }}"
+            >
               <div class="item-title">
                 {{ club.name }}
               </div>
               <div class="item-sub-text">
                 {{ club.city | breakStateOntoNewLine }}
               </div>
-            </div>
+            </a>
             <!-- Information for selected club details -->
             @if (isMobile() && selectedClub()?.id === club.id) {
               <se-selected-club [selectedClub]="selectedClub()"> </se-selected-club>

@@ -9,7 +9,7 @@ import {
   signal,
   ViewChild,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Club } from 'src/app/models/Club';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { ClubSkeleton, ClubsPageSkeleton } from 'src/app/models/ContentfulSkeletons';
@@ -19,6 +19,8 @@ import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 import { stateAbbreviationFromCity } from 'src/app/shared/state-abbreviation-from-city';
 import { SelectItemService } from 'src/app/services/select-item.service';
 import { toggleFilterSelection } from 'src/app/shared/toggle-filter-selection';
+import { buildDetailUrl } from 'src/app/shared/build-detail-url';
+import { isPlainLeftClick } from 'src/app/shared/is-plain-left-click';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, StateColors, States } from 'src/app/shared/types';
@@ -53,6 +55,7 @@ import { BreakStateOntoNewLinePipe } from 'src/app/pipes/breakStateOntoNewLine.p
     NgClass,
     SeSearchBarComponent,
     BreakStateOntoNewLinePipe,
+    RouterLink,
   ],
 })
 export class ClubsComponent implements OnInit, OnDestroy {
@@ -96,6 +99,7 @@ export class ClubsComponent implements OnInit, OnDestroy {
   filtersDescription = signal<string | undefined>(undefined);
   filtersOpen = signal(false);
   subscriptions: Subscription = new Subscription();
+  buildDetailUrl = buildDetailUrl;
 
   // Keeps the main pane color in sync with the current viewport/selection.
   private syncMainPaneColor = this.selectItemService.syncMainPaneColorWithViewport({
@@ -214,6 +218,16 @@ export class ClubsComponent implements OnInit, OnDestroy {
       selectColor: (c) => StateColors[c.state ?? '??'],
       updateUrl: () => this.updateUrl(),
     });
+  }
+
+  // A plain left click is intercepted here to keep the existing cheap in-place
+  // selection instead of a full router navigation.
+  onClubRowClick(event: MouseEvent, club: Club): void {
+    if (!isPlainLeftClick(event)) {
+      return;
+    }
+    event.preventDefault();
+    this.selectClub(club);
   }
 
   // Adds a state to the filters

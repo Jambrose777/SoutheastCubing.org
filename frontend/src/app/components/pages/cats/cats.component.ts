@@ -8,6 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { Location, NgClass, NgOptimizedImage } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { Cat } from 'src/app/models/Cat';
 import { Subscription } from 'rxjs';
 import { ContentfulService } from 'src/app/services/contentful.service';
@@ -15,6 +16,7 @@ import { ThemeService } from 'src/app/services/theme.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Colors } from 'src/app/shared/types';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
+import { isPlainLeftClick } from 'src/app/shared/is-plain-left-click';
 import { SelectItemService } from 'src/app/services/select-item.service';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
 import { CatSkeleton, CatsPageSkeleton } from 'src/app/models/ContentfulSkeletons';
@@ -37,6 +39,7 @@ import { SelectedCatComponent } from './selected-cat/selected-cat.component';
     SelectedCatComponent,
     NgClass,
     NgOptimizedImage,
+    RouterLink,
   ],
 })
 export class CatsComponent implements OnInit, OnDestroy {
@@ -56,6 +59,7 @@ export class CatsComponent implements OnInit, OnDestroy {
   loadingCats = signal(true);
   selectedCat = signal<Cat | undefined>(undefined);
   subscriptions: Subscription = new Subscription();
+  buildDetailUrl = buildDetailUrl;
   availableColors: Colors[] = [
     Colors.blue,
     Colors.green,
@@ -163,5 +167,15 @@ export class CatsComponent implements OnInit, OnDestroy {
       updateUrl: () =>
         this.location.replaceState(buildDetailUrl('/cats', this.selectedCat()?.name)),
     });
+  }
+
+  // A plain left click is intercepted here to keep the existing cheap in-place
+  // selection instead of a full router navigation.
+  onCatRowClick(event: MouseEvent, cat: Cat): void {
+    if (!isPlainLeftClick(event)) {
+      return;
+    }
+    event.preventDefault();
+    this.selectCat(cat);
   }
 }

@@ -18,6 +18,7 @@ import {
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { resolvedAsset, resolvedEntry, SubTopicEntryLink } from 'src/app/shared/contentful-links';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
+import { isPlainLeftClick } from 'src/app/shared/is-plain-left-click';
 import { colorFromField } from 'src/app/shared/color-from-field';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { Team } from 'src/app/models/Team';
@@ -27,6 +28,7 @@ import { SelectItemService } from 'src/app/services/select-item.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
 import { Location, NgClass, NgTemplateOutlet } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { DocumentLink } from 'src/app/models/Document';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
@@ -49,6 +51,7 @@ import { DoucmentsComponent } from './documents/documents.component';
     DoucmentsComponent,
     NgClass,
     NgTemplateOutlet,
+    RouterLink,
   ],
 })
 export class AboutComponent implements OnInit, OnDestroy {
@@ -71,6 +74,7 @@ export class AboutComponent implements OnInit, OnDestroy {
   teams = signal<Team[] | undefined>(undefined);
   documents = signal<DocumentLink[] | undefined>(undefined);
   subscriptions: Subscription = new Subscription();
+  buildDetailUrl = buildDetailUrl;
 
   // Keeps the main pane color in sync with the current viewport/selection.
   private syncMainPaneColor = this.selectItemService.syncMainPaneColorWithViewport({
@@ -208,6 +212,16 @@ export class AboutComponent implements OnInit, OnDestroy {
       updateUrl: () =>
         this.location.replaceState(buildDetailUrl('/about', this.selectedSubTopic()?.title)),
     });
+  }
+
+  // A plain left click is intercepted here to keep the existing cheap in-place
+  // selection instead of a full router navigation.
+  onSubTopicRowClick(event: MouseEvent, subTopic: SubTopic): void {
+    if (!isPlainLeftClick(event)) {
+      return;
+    }
+    event.preventDefault();
+    this.selectSubTopic(subTopic);
   }
 
   // Whether a top-level subtopic's nested list should be shown in the side panel -

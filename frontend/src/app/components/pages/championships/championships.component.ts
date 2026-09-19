@@ -22,10 +22,12 @@ import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { resolvedAsset, resolvedEntry } from 'src/app/shared/contentful-links';
 import { stateAbbreviationFromCity } from 'src/app/shared/state-abbreviation-from-city';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
+import { isPlainLeftClick } from 'src/app/shared/is-plain-left-click';
 import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 import { SelectItemService } from 'src/app/services/select-item.service';
 import { environment } from 'src/environments/environment';
 import { Location, NgClass, NgOptimizedImage } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
@@ -46,6 +48,7 @@ import { SelectedChampionshipComponent } from './selected-championship/selected-
     SelectedChampionshipComponent,
     NgClass,
     NgOptimizedImage,
+    RouterLink,
   ],
 })
 export class ChampionshipsComponent implements OnInit, OnDestroy {
@@ -70,6 +73,7 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
   championshipId = input<string>();
   subText1 = signal('');
   subscriptions: Subscription = new Subscription();
+  buildDetailUrl = buildDetailUrl;
 
   // Keeps the main pane color in sync with the current viewport/selection.
   private syncMainPaneColor = this.selectItemService.syncMainPaneColorWithViewport({
@@ -199,5 +203,15 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
     if (!this.isMobile() && this.selectedChampionship()?.id === championship.id) {
       scrollIntoViewSafely(championship.id, this.injector);
     }
+  }
+
+  // A plain left click is intercepted here to keep the existing cheap in-place
+  // selection instead of a full router navigation.
+  onChampionshipRowClick(event: MouseEvent, championship: Championship): void {
+    if (!isPlainLeftClick(event)) {
+      return;
+    }
+    event.preventDefault();
+    this.selectChampionship(championship);
   }
 }
