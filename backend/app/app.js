@@ -1,4 +1,5 @@
 const express = require('express');
+const swaggerUi = require('swagger-ui-express');
 
 // Logger
 const logger = require('./utils/logger.util.js');
@@ -26,6 +27,7 @@ const authRoutes = require('./routes/auth.routes.js');
 const dashboardRoutes = require('./routes/dashboard.routes.js');
 
 const { registerCompetitionsRefreshJob } = require('./jobs/competitionsRefresh.job.js');
+const { swaggerSpec } = require('./config/swagger.config.js');
 
 const app = express();
 
@@ -44,6 +46,9 @@ db.verifyConnection()
   .catch((e) => logger.error('Failed to connect to the dev DSQL cluster: ', e));
 
 registerCompetitionsRefreshJob();
+
+// Public, unauthenticated docs UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(publicRoutes);
 app.use(authRoutes);

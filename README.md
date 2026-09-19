@@ -106,6 +106,9 @@ pnpm --filter backend bootstrap-dsql-role
 Run `pnpm --filter backend dev` (or `cd backend && pnpm dev`), equivalent to
 `node --env-file=.env/.env server.js`.
 
+Once running, interactive Swagger/OpenAPI docs for the backend's endpoints are
+available at `http://localhost:8080/api-docs`.
+
 ## Database migrations
 
 The competitions schema (tables/grants/seed data) is defined as one-statement-per-

@@ -3,6 +3,7 @@ packages:
   - 'backend'
 allowBuilds:
   '@parcel/watcher': true
+  '@scarf/scarf': false
   aws-sdk: true
   esbuild: true
   lmdb: true
