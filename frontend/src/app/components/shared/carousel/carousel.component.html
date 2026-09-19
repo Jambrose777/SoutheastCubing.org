@@ -19,6 +19,16 @@
       }
     </div>
   }
+  @if (autoplay() && images().length > 1) {
+    <button
+      type="button"
+      class="carousel-pause-toggle"
+      (click)="togglePause()"
+      [attr.aria-label]="isPaused() ? 'Play slideshow' : 'Pause slideshow'"
+    >
+      <i class="fa-solid" [class.fa-play]="isPaused()" [class.fa-pause]="!isPaused()"></i>
+    </button>
+  }
   @if (arrows() && images().length > 1) {
     <button
       type="button"

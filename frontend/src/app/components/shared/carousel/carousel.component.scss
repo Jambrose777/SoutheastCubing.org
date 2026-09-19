@@ -34,6 +34,30 @@
     object-fit: cover;
   }
 
+  .carousel-arrow,
+  .carousel-pause-toggle {
+    // Hidden until the carousel is hovered/focused
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  &:hover,
+  &:focus-within {
+    .carousel-arrow,
+    .carousel-pause-toggle {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    // Disabled arrows (at either end, non-looping) stay dimmed even while
+    // the carousel is hovered/focused.
+    .carousel-arrow:disabled {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+  }
+
   .carousel-arrow {
     // Guarantees the arrows paint above the slide images.
     z-index: 10;
@@ -52,7 +76,6 @@
     cursor: pointer;
 
     &:disabled {
-      opacity: 0.3;
       cursor: default;
     }
   }
@@ -63,5 +86,23 @@
 
   .carousel-arrow-next {
     right: 10px;
+  }
+
+  .carousel-pause-toggle {
+    // Guarantees the button paints above the slide images.
+    z-index: 10;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgb(0 0 0 / 0.4);
+    color: white;
+    cursor: pointer;
   }
 }

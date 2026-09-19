@@ -99,26 +99,14 @@
         <!-- Photo Carousel on Mobile -->
         @if (isMobile()) {
           <div class="mobile-home-photo-container">
-            <se-carousel
-              [images]="photos()"
-              [height]="200"
-              [loop]="true"
-              [autoplay]="true"
-              [arrows]="false"
-            >
+            <se-carousel [images]="photos()" [height]="200" [loop]="true" [autoplay]="true">
             </se-carousel>
           </div>
         }
         <!-- Photo Carousel on Desktop -->
         @if (!isMobile()) {
           <div class="home-photo-container">
-            <se-carousel
-              [images]="photos()"
-              [height]="500"
-              [loop]="true"
-              [autoplay]="true"
-              [arrows]="false"
-            >
+            <se-carousel [images]="photos()" [height]="500" [loop]="true" [autoplay]="true">
             </se-carousel>
           </div>
         }

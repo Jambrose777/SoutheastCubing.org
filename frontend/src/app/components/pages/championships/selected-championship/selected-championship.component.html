@@ -56,13 +56,7 @@
     <!-- Championship Photos in a carousel -->
     @if (imagePaths().length > 0) {
       <div class="photo-container">
-        <se-carousel
-          [images]="imagePaths()"
-          [height]="300"
-          [loop]="true"
-          [autoplay]="true"
-          [arrows]="false"
-        >
+        <se-carousel [images]="imagePaths()" [height]="300" [loop]="true" [autoplay]="true">
         </se-carousel>
       </div>
     }

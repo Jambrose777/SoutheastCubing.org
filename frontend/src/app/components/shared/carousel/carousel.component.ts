@@ -64,6 +64,9 @@ export class CarouselComponent {
   isAtStart = computed(() => !this.loop() && this.trackIndex() <= 0);
   isAtEnd = computed(() => !this.loop() && this.trackIndex() >= this.images().length - 1);
 
+  // Suspends autoplay in place when true (resumed, not restarted, on toggle).
+  isPaused = signal(false);
+
   // Background tabs suspend rendering.
   private isPageVisible = signal(!document.hidden);
 
@@ -83,16 +86,26 @@ export class CarouselComponent {
     });
 
     // (Re)start the autoplay timer whenever autoplay/loop/images/page-
-    // visibility changes, relying on the effect's cleanup callback to clear
-    // the previous interval first so there's never more than one running
-    // at once.
+    // visibility/pause state changes, relying on the effect's cleanup
+    // callback to clear the previous interval first so there's never more
+    // than one running at once.
     effect((onCleanup) => {
-      if (!this.autoplay() || this.images().length <= 1 || !this.isPageVisible()) {
+      if (
+        !this.autoplay() ||
+        this.images().length <= 1 ||
+        !this.isPageVisible() ||
+        this.isPaused()
+      ) {
         return;
       }
       const intervalId = setInterval(() => this.next(), CarouselComponent.AUTOPLAY_INTERVAL_MS);
       onCleanup(() => clearInterval(intervalId));
     });
+  }
+
+  // Suspends/resumes autoplay in place
+  togglePause(): void {
+    this.isPaused.update((paused) => !paused);
   }
 
   // Advances to the next slide.
