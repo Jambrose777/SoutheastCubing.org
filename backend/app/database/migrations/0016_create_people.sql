@@ -19,7 +19,6 @@ CREATE TABLE IF NOT EXISTS people (
   thumbnail_crop_y INTEGER,
   thumbnail_crop_w INTEGER,
   thumbnail_crop_h INTEGER,
-  cubingusa_state TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

@@ -77,7 +77,6 @@ CREATE TABLE people (
   thumbnail_crop_y INTEGER,
   thumbnail_crop_w INTEGER,
   thumbnail_crop_h INTEGER,
-  cubingusa_state TEXT,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
