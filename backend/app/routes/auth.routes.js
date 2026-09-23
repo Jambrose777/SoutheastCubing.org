@@ -1,9 +1,7 @@
 const express = require('express');
 
-// Logger
-const logger = require('../utils/logger.util.js');
-
 const authController = require('../controllers/auth.controller.js');
+const { asyncRoute } = require('../helpers/asyncRoute.helper.js');
 
 // WCA OAuth sign-in/sign-out and the current-session check - the only
 // genuinely public routes here are /wca/login and /wca/callback (they exist
@@ -28,16 +26,7 @@ const router = express.Router();
  *       503:
  *         description: WCA sign-in is not configured.
  */
-router.get('/auth/wca/login', (req, res) => {
-  try {
-    authController.beginSignIn(req, res);
-  } catch (e) {
-    logger.error('GET /auth/wca/login ', e);
-    if (!res.headersSent) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  }
-});
+router.get('/auth/wca/login', asyncRoute(authController.beginSignIn));
 
 /**
  * @openapi
@@ -60,16 +49,7 @@ router.get('/auth/wca/login', (req, res) => {
  *       302:
  *         description: Redirect back to the frontend, with ?authError=... on failure/denial.
  */
-router.get('/auth/wca/callback', async (req, res) => {
-  try {
-    await authController.handleCallback(req, res);
-  } catch (e) {
-    logger.error('GET /auth/wca/callback ', e);
-    if (!res.headersSent) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  }
-});
+router.get('/auth/wca/callback', asyncRoute(authController.handleCallback));
 
 /**
  * @openapi
@@ -83,16 +63,7 @@ router.get('/auth/wca/callback', async (req, res) => {
  *       401:
  *         description: Not signed in.
  */
-router.get('/auth/me', (req, res) => {
-  try {
-    authController.getCurrentUser(req, res);
-  } catch (e) {
-    logger.error('GET /auth/me ', e);
-    if (!res.headersSent) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  }
-});
+router.get('/auth/me', asyncRoute(authController.getCurrentUser));
 
 /**
  * @openapi
@@ -104,15 +75,6 @@ router.get('/auth/me', (req, res) => {
  *       200:
  *         description: Signed out successfully.
  */
-router.post('/auth/logout', async (req, res) => {
-  try {
-    await authController.signOut(req, res);
-  } catch (e) {
-    logger.error('POST /auth/logout ', e);
-    if (!res.headersSent) {
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  }
-});
+router.post('/auth/logout', asyncRoute(authController.signOut));
 
 module.exports = router;

@@ -1,6 +1,5 @@
 const db = require('./pool.js');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 
 // Columns of the `major_championship_announcements` table, in the order used

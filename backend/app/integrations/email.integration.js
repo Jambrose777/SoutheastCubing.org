@@ -1,7 +1,6 @@
 const nodemailer = require('nodemailer');
 const { config } = require('../config/config.js');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 
 // Email mailer - only built once EMAIL_USER/EMAIL_PASS are confirmed present, so a

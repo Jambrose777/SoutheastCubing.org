@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { roleGuard } from './guards/role.guard';
 
 // Several pages need two route entries (bare path + path with an optional
 // trailing id param); each pair shares a single `loadComponent` callback
@@ -80,6 +81,16 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
     title: 'SoutheastCubing - Dashboard',
+  },
+  {
+    path: 'dashboard/manage-teams',
+    canActivate: [authGuard, roleGuard('board', 'admin')],
+    data: { requiresAuth: true },
+    loadComponent: () =>
+      import('./components/pages/dashboard/manage-teams/manage-teams.component').then(
+        (m) => m.ManageTeamsComponent,
+      ),
+    title: 'SoutheastCubing - Manage Teams',
   },
   {
     path: 'involvement',

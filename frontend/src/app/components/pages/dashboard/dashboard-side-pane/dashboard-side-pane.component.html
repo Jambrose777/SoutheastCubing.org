@@ -1,0 +1,26 @@
+<div class="side-pane">
+  <se-header id="header" [showTitle]="false"></se-header>
+
+  @if (tools().length) {
+    <div class="list-container" tabindex="0">
+      @for (tool of tools(); track tool.routerLink) {
+        <div class="item-container clickable" [style.--state-color]="tool.color">
+          <a class="item-row" [routerLink]="tool.routerLink">
+            <div class="item-title">
+              {{ tool.label }}
+              <i class="fa-solid {{ tool.icon }} fa-sm"></i>
+            </div>
+          </a>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Sign-out button -->
+<div class="side-pane-sign-out">
+  <span class="btn" (click)="signOut()" role="button" tabindex="0" aria-label="Sign out">
+    Sign out
+    <i class="fa-solid fa-right-from-bracket fa-sm"></i>
+  </span>
+</div>

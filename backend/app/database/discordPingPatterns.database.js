@@ -1,6 +1,5 @@
 const db = require('./pool.js');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 
 // Converts a stored wildcard pattern (using `*` to mean "any characters") to

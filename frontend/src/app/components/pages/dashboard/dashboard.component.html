@@ -1,9 +1,15 @@
 <div class="component-container">
   <div class="main-pane" tabindex="0">
     <se-header id="header" [title]="'Dashboard'" [showNavCluster]="isMobile()"></se-header>
-    <div class="large-text-content">
-      Welcome, {{ authService.currentUser()?.name }}! Your full dashboard is coming soon.
-    </div>
+    <div class="large-text-content">Welcome, {{ authService.currentUser()?.name }}!</div>
+    @if (isMobile()) {
+      @for (tool of mobileTools(); track tool.routerLink) {
+        <a class="btn tool-btn" [style.--tool-color]="tool.color" [routerLink]="tool.routerLink">
+          {{ tool.label }}
+          <i class="fa-solid {{ tool.icon }} fa-sm"></i>
+        </a>
+      }
+    }
     @if (isMobile()) {
       <!-- TEMPORARY: the desktop sign-out (see below) doesn't exist on
       mobile - remove this once a permanent mobile placement is designed. -->
@@ -14,14 +20,6 @@
     }
   </div>
   @if (!isMobile()) {
-    <div class="side-pane">
-      <se-header id="header" [showTitle]="false"></se-header>
-    </div>
-    <div class="side-pane-sign-out">
-      <span class="btn" (click)="signOut()" role="button" tabindex="0" aria-label="Sign out">
-        Sign out
-        <i class="fa-solid fa-right-from-bracket fa-sm"></i>
-      </span>
-    </div>
+    <se-dashboard-side-pane></se-dashboard-side-pane>
   }
 </div>

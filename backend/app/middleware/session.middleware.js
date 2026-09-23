@@ -2,7 +2,6 @@ const authService = require('../services/auth.service.js');
 const sessionsDb = require('../database/sessions.database.js');
 const usersDb = require('../database/users.database.js');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 
 // Reads the session cookie (if any), validates it against the sessions

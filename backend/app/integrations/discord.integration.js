@@ -3,7 +3,6 @@ const moment = require('moment-timezone');
 const { neutralizeMentions } = require('../helpers/sanitize.helper.js');
 const { config } = require('../config/config.js');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 
 // Discord Icon and Tag Ids

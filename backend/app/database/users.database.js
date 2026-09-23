@@ -1,7 +1,6 @@
 const crypto = require('crypto');
 const db = require('./pool.js');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 
 // Upserts the `users` row linked to `peopleId` - creates it on a person's

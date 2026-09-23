@@ -2,7 +2,6 @@ const path = require('path');
 const fs = require('fs');
 const google = require('@googleapis/forms');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 
 const formID = '1vtcLw_QPrS-ZDKG9XxsN192xPEdr0gCA7vIoRVlTZmI';

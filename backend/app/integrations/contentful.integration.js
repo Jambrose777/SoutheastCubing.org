@@ -1,6 +1,5 @@
 const contentful = require('contentful');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 const { config } = require('../config/config.js');
 

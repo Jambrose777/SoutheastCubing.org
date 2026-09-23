@@ -1,0 +1,27 @@
+@forward '../sheet-shared';
+@use 'src/styles/color-pallet';
+
+.visibility-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  // Greys out the label text too, alongside the button's own disabled
+  // treatment.
+  &.disabled span {
+    color: color-pallet.$se-dark-grey;
+  }
+
+  .btn.small.icon-only {
+    margin: 0;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+
+      &:hover {
+        opacity: 0.5;
+      }
+    }
+  }
+}

@@ -4,4 +4,8 @@ export interface CurrentUser {
   name: string;
   pictureUrl: string | null;
   wcaId: string | null;
+  roles: {
+    isAdmin: boolean;
+    isBoard: boolean;
+  };
 }

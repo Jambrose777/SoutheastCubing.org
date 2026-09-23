@@ -2,8 +2,8 @@ const crypto = require('crypto');
 const { config } = require('../config/config.js');
 const authService = require('../services/auth.service.js');
 const sessionsDb = require('../database/sessions.database.js');
+const { getCurrentRoles } = require('../helpers/roles.helper.js');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 
 // Cookies used only to carry state across the brief redirect round-trip to
@@ -95,17 +95,21 @@ async function handleCallback(req, res) {
 }
 
 // Returns the currently signed-in user (from req.user, set by
-// session.middleware.js), or 401 if there isn't one - the frontend treats
-// that 401 as simply "signed out", not an error state.
-function getCurrentUser(req, res) {
+// session.middleware.js), or 401 if there isn't one. Also resolves their
+// current Admin/Board access (roles.helper.js's shared role-check helper) so
+// the frontend can gate nav links (e.g. Manage Teams) without a second
+// round-trip.
+async function getCurrentUser(req, res) {
   if (!req.user) {
     res.status(401).json({ message: 'Not signed in.' });
     return;
   }
+  const { isAdmin, isBoard } = await getCurrentRoles(req.user.people_id);
   res.json({
     name: req.user.name,
     pictureUrl: req.user.picture_url,
     wcaId: req.user.wca_id,
+    roles: { isAdmin, isBoard },
   });
 }
 

@@ -2,7 +2,6 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const swaggerUi = require('swagger-ui-express');
 
-// Logger
 const logger = require('./utils/logger.util.js');
 
 // Loads/validates all env vars once, at the very top before any other backend

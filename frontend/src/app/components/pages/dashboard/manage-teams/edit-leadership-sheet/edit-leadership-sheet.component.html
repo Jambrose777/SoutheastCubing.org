@@ -1,0 +1,64 @@
+<div class="sheet-header">
+  <button type="button" class="back-btn" (click)="close()" aria-label="Back">
+    <i class="fa-solid fa-arrow-left"></i>
+  </button>
+  <h2>Edit Leadership</h2>
+</div>
+
+<form [formGroup]="form" class="sheet-body">
+  @if (stints().length > 1) {
+    <mat-form-field>
+      <mat-label>Leadership stint</mat-label>
+      <mat-select [value]="selectedStint()?.id" (selectionChange)="selectStint($event.value)">
+        @for (stint of stints(); track stint.id) {
+          <mat-option [value]="stint.id">
+            {{ formatDate(stint.start_date) }} -
+            {{ stint.end_date ? formatDate(stint.end_date) : 'present' }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+
+  <mat-form-field>
+    <mat-label>Start date</mat-label>
+    <input
+      matInput
+      type="date"
+      formControlName="startDate"
+      (input)="checkBadDateInput($event, form.controls.startDate)"
+      (blur)="checkBadDateInput($event, form.controls.startDate)"
+    />
+    @if (form.controls.startDate.hasError('required')) {
+      <mat-error>Start date is required.</mat-error>
+    }
+    @if (form.controls.startDate.hasError('badDate')) {
+      <mat-error>Enter a valid start date.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field class="has-hint">
+    <mat-label>End date</mat-label>
+    <input
+      matInput
+      type="date"
+      formControlName="endDate"
+      (input)="checkBadDateInput($event, form.controls.endDate)"
+      (blur)="checkBadDateInput($event, form.controls.endDate)"
+    />
+    <mat-hint>Leave blank if they're still the current leader</mat-hint>
+    @if (form.controls.endDate.hasError('badDate')) {
+      <mat-error>Enter a valid end date, or leave it blank.</mat-error>
+    }
+  </mat-form-field>
+</form>
+
+<div class="sheet-footer">
+  @if (isAdmin()) {
+    <button type="button" class="btn" (click)="delete()">
+      <i class="fa-solid fa-trash"></i>
+      Delete
+    </button>
+  }
+  <button type="button" class="btn" [disabled]="saving" (click)="save()">Save</button>
+</div>

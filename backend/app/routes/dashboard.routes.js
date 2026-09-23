@@ -1,8 +1,199 @@
 const express = require('express');
 
-// Placeholder router for the user dashboard - stood up now, empty, so future
-// dashboard work adds to an existing file instead of creating one from
-// scratch.
+const teamsController = require('../controllers/teams.controller.js');
+const { requireAnyRole, requireAdmin } = require('../middleware/roles.middleware.js');
+const { asyncRoute } = require('../helpers/asyncRoute.helper.js');
+
+// User dashboard endpoints. The Manage Teams routes below are gated behind
+// Board/Admin access (requireBoardOrAdmin), with hard-delete actions
+// additionally requiring Admin specifically (requireAdmin)
 const router = express.Router();
+
+// Routes that require Board / Admin access
+const requireBoardOrAdmin = requireAnyRole('isBoard', 'isAdmin');
+
+/**
+ * @openapi
+ * /dashboard/teams:
+ *   get:
+ *     summary: List every team (fixed and ordinary), grouped/sorted into the Manage Teams canonical order.
+ *     tags: [Teams]
+ *     responses:
+ *       200:
+ *         description: Every team with its members and (for ordinary teams) active leader.
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not Board/Admin.
+ *   post:
+ *     summary: Create a new ordinary team.
+ *     tags: [Teams]
+ *     responses:
+ *       201:
+ *         description: The newly-created team.
+ */
+router.get('/dashboard/teams', requireBoardOrAdmin, asyncRoute(teamsController.listTeams));
+router.post('/dashboard/teams', requireBoardOrAdmin, asyncRoute(teamsController.createTeam));
+
+/**
+ * @openapi
+ * /dashboard/teams/{teamId}:
+ *   put:
+ *     summary: Edit a team's name/description/email/hidden flag (name is protected for fixed teams; Admin isn't editable at all).
+ *     tags: [Teams]
+ *   delete:
+ *     summary: Permanently delete an ordinary team and its membership/leadership history - Admin only, irreversible.
+ *     tags: [Teams]
+ */
+router.put('/dashboard/teams/:teamId', requireBoardOrAdmin, asyncRoute(teamsController.updateTeam));
+router.delete('/dashboard/teams/:teamId', requireAdmin, asyncRoute(teamsController.hardDeleteTeam));
+
+/**
+ * @openapi
+ * /dashboard/teams/{teamId}/archive:
+ *   post:
+ *     summary: Archive an ordinary team - end-dates every active membership/leadership row on it.
+ *     tags: [Teams]
+ */
+router.post(
+  '/dashboard/teams/:teamId/archive',
+  requireBoardOrAdmin,
+  asyncRoute(teamsController.archiveTeam),
+);
+
+/**
+ * @openapi
+ * /dashboard/teams/{teamId}/unarchive:
+ *   post:
+ *     summary: Unarchive a team - does not restore any previously end-dated rows.
+ *     tags: [Teams]
+ */
+router.post(
+  '/dashboard/teams/:teamId/unarchive',
+  requireBoardOrAdmin,
+  asyncRoute(teamsController.unarchiveTeam),
+);
+
+/**
+ * @openapi
+ * /dashboard/teams/{teamId}/members:
+ *   post:
+ *     summary: Add a member to a team, by existing peopleId or by wcaId (add-by-WCA-ID fallback).
+ *     tags: [Teams]
+ */
+router.post(
+  '/dashboard/teams/:teamId/members',
+  requireBoardOrAdmin,
+  asyncRoute(teamsController.addMember),
+);
+
+/**
+ * @openapi
+ * /dashboard/team-memberships/{membershipId}:
+ *   put:
+ *     summary: Edit a membership row's dates/special role/color.
+ *     tags: [Teams]
+ *   delete:
+ *     summary: Permanently delete a membership row - Admin only, irreversible.
+ *     tags: [Teams]
+ */
+router.put(
+  '/dashboard/team-memberships/:membershipId',
+  requireBoardOrAdmin,
+  asyncRoute(teamsController.updateMembership),
+);
+router.delete(
+  '/dashboard/team-memberships/:membershipId',
+  requireAdmin,
+  asyncRoute(teamsController.hardDeleteMembership),
+);
+
+/**
+ * @openapi
+ * /dashboard/team-memberships/{membershipId}/remove:
+ *   post:
+ *     summary: Remove a member (soft delete - end-dates the row, also ending any active leadership stint for the same team/person).
+ *     tags: [Teams]
+ */
+router.post(
+  '/dashboard/team-memberships/:membershipId/remove',
+  requireBoardOrAdmin,
+  asyncRoute(teamsController.removeMember),
+);
+
+/**
+ * @openapi
+ * /dashboard/teams/{teamId}/leader:
+ *   post:
+ *     summary: Set a team's Leader (end-dates the prior leader, if any, and auto-suggests a color).
+ *     tags: [Teams]
+ *   delete:
+ *     summary: Remove a team's active Leader, leaving it at zero leaders.
+ *     tags: [Teams]
+ */
+router.post(
+  '/dashboard/teams/:teamId/leader',
+  requireBoardOrAdmin,
+  asyncRoute(teamsController.setLeader),
+);
+router.delete(
+  '/dashboard/teams/:teamId/leader',
+  requireBoardOrAdmin,
+  asyncRoute(teamsController.removeLeader),
+);
+
+/**
+ * @openapi
+ * /dashboard/team-leaders/{leaderId}:
+ *   put:
+ *     summary: Correct a leadership stint's start/end dates.
+ *     tags: [Teams]
+ *   delete:
+ *     summary: Permanently delete a leadership row - Admin only, irreversible.
+ *     tags: [Teams]
+ */
+router.put(
+  '/dashboard/team-leaders/:leaderId',
+  requireBoardOrAdmin,
+  asyncRoute(teamsController.updateLeadershipStint),
+);
+router.delete(
+  '/dashboard/team-leaders/:leaderId',
+  requireAdmin,
+  asyncRoute(teamsController.hardDeleteLeadershipRow),
+);
+
+/**
+ * @openapi
+ * /dashboard/people/search:
+ *   get:
+ *     summary: Search-as-you-type combobox for the Add/Edit Member sheet - our own people/users data only.
+ *     tags: [Teams]
+ *     parameters:
+ *       - in: query
+ *         name: q
+ *         schema: { type: string }
+ */
+router.get(
+  '/dashboard/people/search',
+  requireBoardOrAdmin,
+  asyncRoute(teamsController.searchPeople),
+);
+
+/**
+ * @openapi
+ * /dashboard/people/wca-lookup/{wcaId}:
+ *   get:
+ *     summary: Add-by-WCA-ID fallback - proxies WCA's public GET /api/v0/persons/:wca_id.
+ *     tags: [Teams]
+ *     responses:
+ *       404:
+ *         description: No WCA account with that WCA ID.
+ */
+router.get(
+  '/dashboard/people/wca-lookup/:wcaId',
+  requireBoardOrAdmin,
+  asyncRoute(teamsController.lookupWcaId),
+);
 
 module.exports = router;

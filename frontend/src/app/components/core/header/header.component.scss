@@ -58,11 +58,11 @@
     .user-thumbnail {
       height: 40px;
       width: 40px;
-      border-radius: 50%;
+      border-radius: 10px;
       object-fit: cover;
     }
 
-    // Matches .user-thumbnail's size, as a grey circle behind the icon when
+    // Matches .user-thumbnail's size, as a grey box behind the icon when
     // the person has no picture to show.
     .avatar-fallback {
       display: flex;
@@ -70,7 +70,7 @@
       justify-content: center;
       height: 40px;
       width: 40px;
-      border-radius: 50%;
+      border-radius: 10px;
       background-color: color-pallet.$se-grey;
     }
   }

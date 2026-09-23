@@ -1,6 +1,5 @@
 const moment = require('moment');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 
 const competitionsDb = require('../database/competitions.database.js');

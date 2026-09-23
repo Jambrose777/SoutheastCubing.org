@@ -1,0 +1,33 @@
+@forward '../sheet-shared';
+@use 'src/styles/color-pallet';
+
+.search-result,
+.selected-person {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: color-pallet.$se-grey;
+  }
+
+  .avatar {
+    border-radius: 10px;
+    object-fit: cover;
+  }
+}
+
+.selected-person {
+  cursor: default;
+
+  &:hover {
+    background-color: transparent;
+  }
+}
+
+.btn.small {
+  padding: 4px 10px;
+  font-size: 14px;
+}

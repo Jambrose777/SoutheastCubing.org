@@ -1,7 +1,6 @@
 const { Pool } = require('pg');
 const { DsqlSigner } = require('@aws-sdk/dsql-signer');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 const { config } = require('../config/config.js');
 

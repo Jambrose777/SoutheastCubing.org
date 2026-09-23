@@ -1,0 +1,66 @@
+<div class="sheet-header">
+  <button type="button" class="back-btn" (click)="close()" aria-label="Back">
+    <i class="fa-solid fa-arrow-left"></i>
+  </button>
+  <h2>{{ isCreateMode ? 'Add Team' : 'Edit Team' }}</h2>
+</div>
+
+<form [formGroup]="form" class="sheet-body">
+  <mat-form-field>
+    <mat-label>Name</mat-label>
+    <input matInput formControlName="name" />
+    @if (form.controls.name.hasError('required')) {
+      <mat-error>Name is required.</mat-error>
+    } @else if (form.controls.name.hasError('pattern')) {
+      <mat-error>Name must include at least one letter or number.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Description</mat-label>
+    <input matInput formControlName="description" />
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Contact email</mat-label>
+    <input matInput formControlName="email" />
+    @if (form.controls.email.hasError('email')) {
+      <mat-error>Must be a valid email address.</mat-error>
+    }
+  </mat-form-field>
+
+  <div class="visibility-row" [class.disabled]="form.controls.hidden.disabled">
+    <button
+      type="button"
+      class="btn small icon-only"
+      [disabled]="form.controls.hidden.disabled"
+      [matTooltip]="
+        form.controls.hidden.disabled
+          ? ''
+          : form.controls.hidden.value
+            ? 'Show on public page'
+            : 'Hide from public page'
+      "
+      matTooltipPosition="above"
+      [attr.aria-label]="
+        form.controls.hidden.disabled
+          ? 'Visibility cannot be changed for this team'
+          : form.controls.hidden.value
+            ? 'Show on public page'
+            : 'Hide from public page'
+      "
+      (click)="toggleHidden()"
+    >
+      <i [class]="form.controls.hidden.value ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+    </button>
+    @if (form.controls.hidden.value) {
+      <span>Hidden from the public "Who We Are" page</span>
+    } @else {
+      <span>Shown on the public "Who We Are" page</span>
+    }
+  </div>
+</form>
+
+<div class="sheet-footer">
+  <button type="button" class="btn" [disabled]="saving" (click)="save()">Save</button>
+</div>

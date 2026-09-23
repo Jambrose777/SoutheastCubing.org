@@ -1,6 +1,5 @@
 const schedule = require('node-schedule');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 
 const sessionsDb = require('../database/sessions.database.js');

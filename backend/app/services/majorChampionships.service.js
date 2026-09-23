@@ -12,7 +12,6 @@ const majorChampionshipsDb = require('../database/majorChampionships.database.js
 const discordPingPatternsDb = require('../database/discordPingPatterns.database.js');
 const { getFullCompetitionDate } = require('../helpers/competitionDates.helper.js');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 
 // How many years beyond the current year to probe for a not-yet-tracked

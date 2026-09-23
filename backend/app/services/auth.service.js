@@ -5,7 +5,6 @@ const usersDb = require('../database/users.database.js');
 const sessionsDb = require('../database/sessions.database.js');
 const { generateSessionToken } = require('../helpers/session.helper.js');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 
 const WCA_AUTHORIZE_URL = 'https://www.worldcubeassociation.org/oauth/authorize';

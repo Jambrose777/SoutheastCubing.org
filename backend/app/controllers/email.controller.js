@@ -1,7 +1,6 @@
 const emailIntegration = require('../integrations/email.integration.js');
 const emailService = require('../services/email.service.js');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 
 // Sends email from notifications@southeastcubing.org to requested entity

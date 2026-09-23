@@ -1,6 +1,5 @@
 const moment = require('moment');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 
 const wca = require('../integrations/wca.integration.js');

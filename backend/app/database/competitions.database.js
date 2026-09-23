@@ -1,7 +1,6 @@
 const moment = require('moment');
 const db = require('./pool.js');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 
 // Columns of the `competitions` table, in the order used when building the

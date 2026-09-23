@@ -1,6 +1,5 @@
 const { z } = require('zod');
 
-// Logger
 const logger = require('../utils/logger.util.js');
 
 // Every env var app.js validates at boot. Required fields have no `.optional()` - a

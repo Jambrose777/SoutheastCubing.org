@@ -1,0 +1,1 @@
+GRANT SELECT, INSERT, UPDATE, DELETE ON teams TO app_dev;

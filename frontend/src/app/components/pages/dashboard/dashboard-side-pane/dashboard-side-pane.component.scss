@@ -1,0 +1,40 @@
+@use 'src/styles/color-pallet';
+
+// display: contents makes this component's own host element invisible to
+// layout, so .component-container's flexbox (in styles.scss) treats the
+// .side-pane div below as its direct flex item, sized the same way it was
+// before this markup was pulled out into its own component.
+:host {
+  display: contents;
+}
+
+.item-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+
+  i {
+    margin-right: 16px;
+  }
+}
+
+// Sticks to the bottom of the side-pane
+.side-pane-sign-out {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  max-width: 475px;
+  z-index: 10001;
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+  background-color: color-pallet.$se-dark-grey;
+
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}

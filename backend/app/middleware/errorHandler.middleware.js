@@ -1,4 +1,3 @@
-// Logger
 const logger = require('../utils/logger.util.js');
 
 // Catch-all error handler - catches errors from middleware before any route

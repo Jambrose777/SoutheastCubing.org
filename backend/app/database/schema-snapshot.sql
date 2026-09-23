@@ -90,6 +90,46 @@ CREATE TABLE sessions (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
+CREATE TABLE team_leaders (
+  id TEXT NOT NULL PRIMARY KEY,
+  team_id TEXT NOT NULL REFERENCES teams (id),
+  people_id TEXT NOT NULL REFERENCES people (id),
+  start_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  end_date DATE,
+  created_by TEXT REFERENCES users (id),
+  updated_by TEXT REFERENCES users (id),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+CREATE TABLE team_memberships (
+  id TEXT NOT NULL PRIMARY KEY,
+  team_id TEXT NOT NULL REFERENCES teams (id),
+  people_id TEXT NOT NULL REFERENCES people (id),
+  start_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  end_date DATE,
+  special_role TEXT,
+  color TEXT,
+  created_by TEXT REFERENCES users (id),
+  updated_by TEXT REFERENCES users (id),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  CHECK (color IS NULL) OR (color = ANY (ARRAY['black'::text, 'blue'::text, 'dark_grey'::text, 'green'::text, 'grey'::text, 'yellow'::text, 'purple'::text, 'orange'::text, 'red'::text])
+);
+
+CREATE TABLE teams (
+  id TEXT NOT NULL PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT,
+  email TEXT,
+  hidden BOOLEAN NOT NULL DEFAULT false,
+  archived_at TIMESTAMP WITH TIME ZONE,
+  created_by TEXT REFERENCES users (id),
+  updated_by TEXT REFERENCES users (id),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
 CREATE TABLE users (
   id TEXT NOT NULL PRIMARY KEY,
   people_id TEXT NOT NULL REFERENCES people (id),

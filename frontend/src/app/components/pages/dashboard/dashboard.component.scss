@@ -4,25 +4,13 @@
   .sign-out {
     margin-top: 20px;
   }
-}
 
-// Sticks to the bottom of the side-pane - a centering wrapper, the .btn
-// inside keeps its own fit-content sizing rather than stretching to fill this.
-.side-pane-sign-out {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 50%;
-  max-width: 475px;
-  z-index: 10001;
-  display: flex;
-  justify-content: center;
-  padding: 16px 0;
-  background-color: color-pallet.$se-dark-grey;
-
-  .btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  // Matches each tool's own color (the same tool.color the desktop
+  // side-pane's .item-container already applies via --state-color, in
+  // styles.scss) - .btn's own base style hardcodes a plain grey background,
+  // so this overrides it per-button via the --tool-color variable set
+  // directly on the anchor.
+  .tool-btn {
+    background-color: var(--tool-color);
   }
 }

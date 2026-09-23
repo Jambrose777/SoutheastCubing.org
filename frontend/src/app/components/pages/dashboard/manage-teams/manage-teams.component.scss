@@ -1,0 +1,323 @@
+@use 'src/styles/color-pallet';
+@use 'src/styles/screen-sizes';
+
+.manage-teams-content {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// Every member/team actions menu item pairs an icon with text.
+::ng-deep .mat-mdc-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  i {
+    width: 16px;
+    margin-right: 10px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+}
+
+// Three-column layout - equal-width side columns keep the view-mode toggle
+// truly centered regardless of how wide the actions column on the right
+// ends up, rather than space-between (which centers nothing once the two
+// sides are different widths).
+.content-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  // Stays visible while scrolling through a long team list - stacks right
+  // below se-header's own sticky position (80px height + 10px margin-bottom,
+  // both fixed in header.component.scss, so this stays accurate without
+  // measuring the header at runtime), one z-index lower than the header's
+  // own 10001 (styles.scss) so the header still draws on top of it.
+  position: sticky;
+  top: 90px;
+  z-index: 10000;
+  background-color: var(--main-pane-color);
+  padding: 12px 0;
+}
+
+.content-toolbar-side {
+  flex: 1;
+  display: flex;
+}
+
+.content-toolbar-actions {
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+// One divided button.
+.view-mode-toggle {
+  display: flex;
+  border: 1px solid color-pallet.$se-black;
+  border-radius: 4px;
+  overflow: hidden;
+
+  .toggle-half {
+    padding: 4px 10px;
+    font-size: 14px;
+    background-color: color-pallet.$se-grey;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    &:not(:last-child) {
+      border-right: 1px solid color-pallet.$se-black;
+    }
+
+    &.active {
+      background-color: color-pallet.$se-black;
+      color: white;
+    }
+  }
+}
+
+.team-card {
+  border: 1px solid color-pallet.$se-black;
+  border-radius: 6px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &.archived {
+    opacity: 0.6;
+  }
+}
+
+.team-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.team-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .team-name {
+    font-size: 1.5em;
+    font-family: 'MontserratBold';
+  }
+}
+
+.not-editable-note {
+  font-style: italic;
+}
+
+.team-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.btn.small {
+  padding: 4px 10px;
+  font-size: 14px;
+}
+
+.btn.small.icon-only {
+  padding: 4px 8px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background-color: color-pallet.$se-grey;
+  font-size: 12px;
+}
+
+// `table-layout: fixed` plus an explicit width on every column except
+// info (the one meant to flex) forces every .member-list on the page to use
+// the exact same column widths, rather than each team's own table sizing
+// its columns from only that team's own content.
+.member-list {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.member-row {
+  display: table-row;
+  transition: background-color 0.15s;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid color-pallet.$se-grey;
+  }
+
+  &:hover {
+    background-color: rgb(0 0 0 / 0.08);
+  }
+
+  &.inactive {
+    opacity: 0.6;
+  }
+
+  .member-avatar-cell,
+  .member-info-cell,
+  .member-dates-cell,
+  .member-actions-cell {
+    display: table-cell;
+    vertical-align: middle;
+    padding: 6px 4px;
+  }
+
+  .member-avatar-cell {
+    width: 36px;
+  }
+
+  .member-info-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  // Wide enough for "Leader: MM/DD/YYYY - MM/DD/YYYY" (the longest line that
+  // can appear here) on one line - right-aligned so every line's dates (the
+  // membership range and each "Leader:" sub-line below it) end at the same
+  // x, even though "Leader: " makes those lines a different length overall.
+  .member-dates-cell {
+    width: 230px;
+    text-align: right;
+    font-size: 14px;
+    color: color-pallet.$se-dark-grey;
+  }
+
+  // Only the top (membership range) line stays on one line - a
+  // .leader-stint-date sub-line below it can still wrap onto a second line
+  // rather than overflowing into the row above/below if it doesn't fit at
+  // this column's width.
+  .member-date-range {
+    white-space: nowrap;
+  }
+
+  .leader-stint-date {
+    font-style: italic;
+  }
+
+  .member-actions-cell {
+    width: 50px;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .avatar {
+    border-radius: 10px;
+    object-fit: cover;
+  }
+}
+
+// `null`/no color renders as gray (see backend's team_memberships.color) -
+// every value here mirrors frontend/src/styles/color-pallet.scss. Shared
+// between the plain color-swatch dot (color present, no special role) and
+// the special-role badge.
+.color-swatch,
+.badge-colored {
+  &[data-color='black'] {
+    background-color: color-pallet.$se-black;
+    // Only color dark enough in this palette to need light text for contrast.
+    color: white;
+  }
+  &[data-color='blue'] {
+    background-color: color-pallet.$se-blue;
+  }
+  &[data-color='dark_grey'] {
+    background-color: color-pallet.$se-dark-grey;
+  }
+  &[data-color='green'] {
+    background-color: color-pallet.$se-green;
+  }
+  &[data-color='grey'] {
+    background-color: color-pallet.$se-grey;
+  }
+  &[data-color='yellow'] {
+    background-color: color-pallet.$se-yellow;
+  }
+  &[data-color='purple'] {
+    background-color: color-pallet.$se-purple;
+  }
+  &[data-color='orange'] {
+    background-color: color-pallet.$se-orange;
+  }
+  &[data-color='red'] {
+    background-color: color-pallet.$se-red;
+  }
+}
+
+.color-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+// Covers the whole page behind the sheet
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgb(0 0 0 / 0.3);
+  z-index: 20000;
+}
+
+// The Add/Edit Team, Add/Edit Member, and Edit Leadership sheets all render
+// through this same overlay - fixed to the right edge of the screen and
+// animated in, rather than three separately-positioned overlays.
+.sheet-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  max-width: 100vw;
+  height: 100%;
+  background-color: white;
+  box-shadow: -3px 0 8px rgb(0 0 0 / 0.3);
+  z-index: 20000;
+  display: flex;
+  flex-direction: column;
+  animation: slide-in 0.2s ease-out;
+
+  // Applied instead of the default slide-in animation above, for the
+  // duration the sheet stays mounted after being dismissed.
+  &.closing {
+    animation: slide-out 0.2s ease-in forwards;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media only screen and (max-width: screen-sizes.$small-breakpoint) {
+  .sheet-overlay {
+    width: 100vw;
+  }
+}

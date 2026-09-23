@@ -21,4 +21,15 @@ export class ToastService {
       panelClass: 'se-toast-success',
     });
   }
+
+  // For a failure that doesn't warrant ErrorBannerService's bigger banner -
+  // e.g. a sheet's own save failing.
+  error(message: string) {
+    this.snackBar.open(message, '✕', {
+      duration: 6000,
+      horizontalPosition: 'end',
+      verticalPosition: 'bottom',
+      panelClass: 'se-toast-error',
+    });
+  }
 }

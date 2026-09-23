@@ -1,0 +1,336 @@
+<div class="component-container">
+  <div class="main-pane" tabindex="0">
+    <se-header id="header" [title]="'Manage Teams'" [showNavCluster]="isMobile()"></se-header>
+
+    <div class="manage-teams-content">
+      @if (loading()) {
+        <se-loading-spinner></se-loading-spinner>
+      } @else {
+        <!-- Top Toolbar for Managing Teams -->
+        <div class="content-toolbar">
+          <div class="content-toolbar-side"></div>
+
+          <div class="view-mode-toggle">
+            <button
+              type="button"
+              class="toggle-half"
+              [class.active]="viewMode() === 'current'"
+              (click)="toggleViewMode()"
+            >
+              <i class="fa-solid fa-users fa-sm"></i>
+              Current Members
+            </button>
+            <button
+              type="button"
+              class="toggle-half"
+              [class.active]="viewMode() === 'history'"
+              (click)="toggleViewMode()"
+            >
+              <i class="fa-solid fa-clock-rotate-left fa-sm"></i>
+              Show History
+            </button>
+          </div>
+
+          <div class="content-toolbar-side content-toolbar-actions">
+            <button type="button" class="btn small" (click)="openAddTeam()">
+              <i class="fa-solid fa-plus fa-sm"></i>
+              Add Team
+            </button>
+            <button type="button" class="btn small" (click)="openAddMember()">
+              <i class="fa-solid fa-user-plus fa-sm"></i>
+              Add Member
+            </button>
+          </div>
+        </div>
+      }
+
+      @for (team of visibleTeams(); track team.id) {
+        <div class="team-card" [class.archived]="team.archivedAt">
+          <div class="team-card-header">
+            <div class="team-title">
+              @if (team.archivedAt) {
+                <i
+                  class="fa-solid fa-box-archive"
+                  matTooltip="Archived"
+                  matTooltipPosition="above"
+                  aria-label="Archived"
+                ></i>
+              }
+              @if (team.hidden) {
+                <i
+                  class="fa-solid fa-eye-slash"
+                  matTooltip="Hidden"
+                  matTooltipPosition="above"
+                  aria-label="Hidden"
+                ></i>
+              }
+              <span class="team-name">{{ team.name }}</span>
+            </div>
+
+            @if (team.kind === 'admin') {
+              <span class="small-text-content not-editable-note">
+                Not editable here - granted only via a one-off database migration.
+              </span>
+            } @else {
+              <div class="team-actions">
+                <button
+                  type="button"
+                  class="btn small icon-only"
+                  (click)="openEditTeam(team)"
+                  matTooltip="Edit team"
+                  matTooltipPosition="above"
+                  aria-label="Edit team"
+                >
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                @if (!team.isFixed) {
+                  @if (team.archivedAt) {
+                    <button
+                      type="button"
+                      class="btn small icon-only"
+                      (click)="unarchiveTeam(team)"
+                      matTooltip="Unarchive team"
+                      matTooltipPosition="above"
+                      aria-label="Unarchive team"
+                    >
+                      <i class="fa-solid fa-box-open"></i>
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="btn small icon-only"
+                      (click)="archiveTeam(team)"
+                      matTooltip="Archive team"
+                      matTooltipPosition="above"
+                      aria-label="Archive team"
+                    >
+                      <i class="fa-solid fa-box-archive"></i>
+                    </button>
+                  }
+                  @if (isAdmin()) {
+                    <button
+                      type="button"
+                      class="btn small icon-only"
+                      (click)="hardDeleteTeam(team)"
+                      matTooltip="Permanently delete team"
+                      matTooltipPosition="above"
+                      aria-label="Permanently delete team"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  }
+                }
+                <button
+                  type="button"
+                  class="btn small icon-only"
+                  (click)="openAddMember(team)"
+                  matTooltip="Add member"
+                  matTooltipPosition="above"
+                  aria-label="Add member"
+                >
+                  <i class="fa-solid fa-user-plus"></i>
+                </button>
+              </div>
+            }
+          </div>
+
+          @if (team.description) {
+            <div class="small-text-content team-description">{{ team.description }}</div>
+          }
+
+          <div class="member-list">
+            @for (member of visibleMembers(team); track member.id) {
+              <div class="member-row" [class.inactive]="member.end_date">
+                <div class="member-avatar-cell">
+                  @if (member.picture_url) {
+                    <img
+                      [ngSrc]="member.picture_url"
+                      width="28"
+                      height="28"
+                      alt=""
+                      class="avatar"
+                    />
+                  }
+                </div>
+                <div class="member-info-cell">
+                  <div class="member-info-row">
+                    <span class="member-name">{{ member.name }}</span>
+                    @if (member.is_active_leader) {
+                      <span
+                        class="badge"
+                        [class.badge-colored]="displayColor(member)"
+                        [attr.data-color]="displayColor(member)"
+                        >Leader</span
+                      >
+                    }
+                    @if (member.officerRole) {
+                      <span
+                        class="badge"
+                        [class.badge-colored]="displayColor(member)"
+                        [attr.data-color]="displayColor(member)"
+                        >{{ member.officerRole }}</span
+                      >
+                    }
+                    @if (member.special_role) {
+                      <span
+                        class="badge"
+                        [class.badge-colored]="displayColor(member)"
+                        [attr.data-color]="displayColor(member)"
+                        >{{ member.special_role }}</span
+                      >
+                    }
+                    @if (
+                      displayColor(member) &&
+                      !member.special_role &&
+                      !member.is_active_leader &&
+                      !member.officerRole
+                    ) {
+                      <span class="color-swatch" [attr.data-color]="displayColor(member)"></span>
+                    }
+                  </div>
+                </div>
+                <div class="member-dates-cell">
+                  <div class="member-date-range">
+                    {{ formatDate(memberDateRange(team, member).start) }} -
+                    {{
+                      memberDateRange(team, member).end
+                        ? formatDate(memberDateRange(team, member).end!)
+                        : 'present'
+                    }}
+                  </div>
+                  @if (viewMode() === 'history' && team.kind === 'ordinary') {
+                    @for (stint of stintsForMember(team, member); track stint.id) {
+                      <div class="leader-stint-date">
+                        Leader: {{ formatDate(stint.start_date) }} -
+                        {{ stint.end_date ? formatDate(stint.end_date) : 'present' }}
+                      </div>
+                    }
+                  }
+                </div>
+                <div class="member-actions-cell">
+                  @if (team.kind !== 'admin') {
+                    <button
+                      type="button"
+                      class="btn small icon-only"
+                      [matMenuTriggerFor]="memberMenu"
+                      matTooltip="Actions"
+                      matTooltipPosition="above"
+                      aria-label="Member actions"
+                    >
+                      <i class="fa-solid fa-ellipsis"></i>
+                    </button>
+                    <mat-menu #memberMenu="matMenu">
+                      <button mat-menu-item (click)="openEditMember(team, member)">
+                        <i class="fa-solid fa-pen"></i>
+                        Edit
+                      </button>
+                      @if (!member.end_date) {
+                        @if (team.kind === 'ordinary') {
+                          @if (member.is_active_leader) {
+                            <button mat-menu-item (click)="removeLeader(team)">
+                              <i class="fa-solid fa-crown"></i>
+                              Remove Leader
+                            </button>
+                          } @else {
+                            <button mat-menu-item (click)="setLeader(team, member)">
+                              <i class="fa-solid fa-crown"></i>
+                              Set Leader
+                            </button>
+                          }
+                        }
+                        <button mat-menu-item (click)="removeMember(member)">
+                          <i class="fa-solid fa-user-minus"></i>
+                          Remove
+                        </button>
+                      }
+                      @if (isAdmin()) {
+                        <button mat-menu-item (click)="hardDeleteMembership(member)">
+                          <i class="fa-solid fa-trash"></i>
+                          Delete
+                        </button>
+                      }
+                      @if (team.kind === 'ordinary' && stintsForMember(team, member).length > 0) {
+                        <button mat-menu-item (click)="openEditLeadership(team, member)">
+                          <i class="fa-solid fa-pen"></i>
+                          Edit Leadership
+                        </button>
+                      }
+                    </mat-menu>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (!isMobile()) {
+    <se-dashboard-side-pane></se-dashboard-side-pane>
+  }
+</div>
+
+<!-- Sheet Overlay for Add/Edit Team, Add/Edit Member, and Edit Leadership Stint -->
+@switch (activeSheet()) {
+  @case ('team') {
+    <div
+      class="sheet-backdrop"
+      (click)="closeSheetIfBackdrop($event, teamSheet)"
+      (keydown.escape)="requestClose(teamSheet)"
+      role="button"
+      tabindex="0"
+      aria-label="Close"
+    >
+      <div class="sheet-overlay" [class.closing]="isSheetClosing()">
+        <se-add-edit-team-sheet
+          #teamSheet
+          [team]="sheetTeam()"
+          (closed)="requestClose(teamSheet)"
+          (saved)="onSheetSaved()"
+        ></se-add-edit-team-sheet>
+      </div>
+    </div>
+  }
+  @case ('member') {
+    <div
+      class="sheet-backdrop"
+      (click)="closeSheetIfBackdrop($event, memberSheet)"
+      (keydown.escape)="requestClose(memberSheet)"
+      role="button"
+      tabindex="0"
+      aria-label="Close"
+    >
+      <div class="sheet-overlay" [class.closing]="isSheetClosing()">
+        <se-add-edit-member-sheet
+          #memberSheet
+          [team]="sheetTeam()"
+          [teams]="teams()"
+          [membership]="sheetMembership()"
+          (closed)="requestClose(memberSheet)"
+          (saved)="onSheetSaved()"
+        ></se-add-edit-member-sheet>
+      </div>
+    </div>
+  }
+  @case ('leadershipStint') {
+    <div
+      class="sheet-backdrop"
+      (click)="closeSheetIfBackdrop($event, leadershipSheet)"
+      (keydown.escape)="requestClose(leadershipSheet)"
+      role="button"
+      tabindex="0"
+      aria-label="Close"
+    >
+      <div class="sheet-overlay" [class.closing]="isSheetClosing()">
+        <se-edit-leadership-sheet
+          #leadershipSheet
+          [stints]="sheetLeadershipStints()"
+          (closed)="requestClose(leadershipSheet)"
+          (saved)="onSheetSaved()"
+          (deleted)="onLeadershipDeleted()"
+        ></se-edit-leadership-sheet>
+      </div>
+    </div>
+  }
+}
