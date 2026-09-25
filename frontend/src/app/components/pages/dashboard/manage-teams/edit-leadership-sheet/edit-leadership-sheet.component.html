@@ -9,7 +9,7 @@
   @if (stints().length > 1) {
     <mat-form-field>
       <mat-label>Leadership stint</mat-label>
-      <mat-select [value]="selectedStint()?.id" (selectionChange)="selectStint($event.value)">
+      <mat-select [value]="selectedStint().id" (selectionChange)="selectStint($event.value)">
         @for (stint of stints(); track stint.id) {
           <mat-option [value]="stint.id">
             {{ formatDate(stint.start_date) }} -

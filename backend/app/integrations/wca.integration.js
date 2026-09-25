@@ -103,20 +103,15 @@ async function fetchWcaProfile(accessToken) {
   }
 }
 
-// Looks up a person directly by WCA ID via WCA's confirmed public,
-// unauthenticated GET /api/v0/persons/:wca_id endpoint. A 404 (unknown WCA ID) 
-// is an expected, routine outcome here, so it's logged at debug, not error.
+// Looks up a person on WCA directly by WCA ID.
 async function fetchPersonByWcaId(wcaId) {
-  const url = `https://www.worldcubeassociation.org/api/v0/persons/${wcaId}`;
+  const url = `https://www.worldcubeassociation.org/api/v0/search/users?q=${encodeURIComponent(wcaId)}&persons_table=true`;
   try {
     const res = await axios.get(url);
-    logger.debug(`WCA person lookup succeeded: ${url}`);
-    return res.data.person;
+    const person = res.data.result?.find((candidate) => candidate.wca_id === wcaId) ?? null;
+    logger.debug(`WCA person lookup ${person ? 'succeeded' : 'found no match'}: ${url}`);
+    return person;
   } catch (err) {
-    if (err.response?.status === 404) {
-      logger.debug(`WCA person lookup returned 404: ${url}`);
-      return null;
-    }
     logger.error(`WCA person lookup failed: ${url} - `, err);
     throw err;
   }
