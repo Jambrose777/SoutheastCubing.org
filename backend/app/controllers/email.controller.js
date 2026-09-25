@@ -4,7 +4,7 @@ const emailService = require('../services/email.service.js');
 const logger = require('../utils/logger.util.js');
 
 // Sends email from notifications@southeastcubing.org to requested entity
-function sendEmail(req, res) {
+async function sendEmail(req, res) {
   // Validations
   if (!req.body || !req.body.name || !req.body.email || !req.body.text || !req.body.subject) {
     res.status(400).json({ message: 'must provide name, email, subject, and text.' });
@@ -15,7 +15,8 @@ function sendEmail(req, res) {
     return;
   }
 
-  const message = emailService.buildContactFormMessage({
+  // Resolves the destination address
+  const message = await emailService.buildContactFormMessage({
     name: req.body.name,
     email: req.body.email,
     subject: req.body.subject,

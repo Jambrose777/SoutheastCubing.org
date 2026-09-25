@@ -1,5 +1,9 @@
 const { stripNewlines } = require('../helpers/sanitize.helper.js');
 const { config } = require('../config/config.js');
+const teamsDb = require('../database/teams.database.js');
+const { BOARD_TEAM_ID } = require('../helpers/fixedTeams.helper.js');
+
+const logger = require('../utils/logger.util.js');
 
 const EmailType = {
   clubs: 'clubs',
@@ -11,22 +15,57 @@ const EmailType = {
   organizing: 'organizing',
 };
 
-// Converts email type to a send to address
-function getToEmail(emailType) {
+// The ordinary team backing the "clubs" contact-form category.
+const CLUBS_TEAM_ID = 'clubs_team';
+
+// In production returns the real address for the email to send to.
+// Outside production, aliases `realAddress` to `${localPart}+${context}@${domain}`
+// derived from DEV_EMAIL_OVERRIDE. Returns null (never `realAddress`) if it can't 
+// safely alias which the controller's existing check turns into a 503.
+function resolveRecipient(realAddress, context) {
+  if (config.NODE_ENV === 'production') {
+    return realAddress;
+  }
+  if (!config.DEV_EMAIL_OVERRIDE) {
+    logger.warn(
+      `DEV_EMAIL_OVERRIDE is not set - refusing to send to "${realAddress}" outside production (context: "${context}").`,
+    );
+    return null;
+  }
+  const [localPart, domain] = config.DEV_EMAIL_OVERRIDE.split('@');
+  return `${localPart}+${context}@${domain}`;
+}
+
+// Converts email type to a send to address.
+async function getToEmail(emailType) {
   switch (emailType) {
     case EmailType.getInvolved:
-      return config.EMAIL_TO_BOARD;
+      return resolveTeamEmail(BOARD_TEAM_ID, emailType, 'contact-get-involved');
     case EmailType.clubs:
-      return config.EMAIL_TO_CLUBS;
+      return resolveTeamEmail(CLUBS_TEAM_ID, emailType, 'contact-clubs');
     case EmailType.organizing:
-      return config.EMAIL_TO_COMPETITIONS;
+      return resolveRecipient(config.EMAIL_TO_COMPETITIONS, 'contact-organizing');
     case EmailType.pastCompetition:
     case EmailType.socialMedia:
     case EmailType.software:
     case EmailType.general:
     default:
-      return config.EMAIL_TO_CONTACT;
+      return resolveRecipient(config.EMAIL_TO_CONTACT, 'contact');
   }
+}
+
+// Looks up `teamId`'s teams.email for a contact-form category backed by a
+// team - falls back to EMAIL_TO_CONTACT (logging a warning) if that team
+// has no email set.
+async function resolveTeamEmail(teamId, emailType, context) {
+  const team = await teamsDb.findTeamById(teamId);
+  if (team?.email) {
+    return resolveRecipient(team.email, context);
+  }
+  logger.warn(
+    `Team "${teamId}" has no email set - falling back to EMAIL_TO_CONTACT for the "${emailType}" contact-form category.`,
+  );
+  return resolveRecipient(config.EMAIL_TO_CONTACT, 'contact');
 }
 
 // Formats Subject
@@ -52,8 +91,8 @@ function getEmailText(name, email, text, ip) {
 // user-supplied fields that end up in email headers. Returns null if
 // emailType has no configured destination address, leaving it to the caller
 // to decide how to respond to that.
-function buildContactFormMessage({ name, email, subject, text, ip, emailType }) {
-  const toEmail = getToEmail(emailType);
+async function buildContactFormMessage({ name, email, subject, text, ip, emailType }) {
+  const toEmail = await getToEmail(emailType);
   if (!toEmail) {
     return null;
   }

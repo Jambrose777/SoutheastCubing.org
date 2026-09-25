@@ -23,10 +23,12 @@ const configSchema = z.object({
   DISCORD_WEBHOOK: z.string().min(1).optional(),
   EMAIL_USER: z.string().min(1).optional(),
   EMAIL_PASS: z.string().min(1).optional(),
-  EMAIL_TO_BOARD: z.string().min(1).optional(),
-  EMAIL_TO_CLUBS: z.string().min(1).optional(),
   EMAIL_TO_COMPETITIONS: z.string().min(1).optional(),
   EMAIL_TO_CONTACT: z.string().min(1).optional(),
+  // DEV_EMAIL_OVERRIDE deliberately left out of OPTIONAL_VAR_DESCRIPTIONS below
+  // since that warning loop isn't NODE_ENV-aware and would otherwise wrongly
+  // warn on every production boot that it's "missing".
+  DEV_EMAIL_OVERRIDE: z.string().min(1).optional(),
   // Missing any of the three disables sign-in entirely.
   WCA_OAUTH_CLIENT_ID: z.string().min(1).optional(),
   WCA_OAUTH_CLIENT_SECRET: z.string().min(1).optional(),
@@ -53,14 +55,10 @@ const OPTIONAL_VAR_DESCRIPTIONS = {
     'competition Discord posts will be skipped (the competitions refresh itself still succeeds)',
   EMAIL_USER: 'POST /email will respond 503 until this is set',
   EMAIL_PASS: 'POST /email will respond 503 until this is set',
-  EMAIL_TO_BOARD:
-    'POST /email requests for the "getInvolved" category will respond 503 until this is set',
-  EMAIL_TO_CLUBS:
-    'POST /email requests for the "clubs" category will respond 503 until this is set',
   EMAIL_TO_COMPETITIONS:
     'POST /email requests for the "organizing" category will respond 503 until this is set',
   EMAIL_TO_CONTACT:
-    'POST /email requests for the remaining categories will respond 503 until this is set',
+    'POST /email requests for the remaining categories, and the null-teams.email fallback, will respond 503 until this is set',
   WCA_OAUTH_CLIENT_ID: 'WCA sign-in routes will respond 503 until this is set',
   WCA_OAUTH_CLIENT_SECRET: 'WCA sign-in routes will respond 503 until this is set',
   WCA_OAUTH_REDIRECT_URI: 'WCA sign-in routes will respond 503 until this is set',
