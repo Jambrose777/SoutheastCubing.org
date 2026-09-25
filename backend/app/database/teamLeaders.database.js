@@ -42,6 +42,21 @@ async function listLeadershipHistoryForTeam(teamId) {
   return rows;
 }
 
+// Every team_leaders stint (current and past) for a person, across every
+// team - backs My Info's roles/memberships list.
+async function listLeadershipStintsForPerson(peopleId) {
+  const { rows } = await db.pool.query(
+    `SELECT tl.id, tl.team_id, tl.start_date, tl.end_date,
+            t.name AS team_name, t.hidden AS team_hidden, t.archived_at AS team_archived_at
+     FROM team_leaders tl
+     JOIN teams t ON t.id = tl.team_id
+     WHERE tl.people_id = $1
+     ORDER BY tl.start_date DESC`,
+    [peopleId],
+  );
+  return rows;
+}
+
 // Finds a leadership row by its ID. Returns null if not found.
 async function findLeadershipRowById(id) {
   const { rows } = await db.pool.query('SELECT * FROM team_leaders WHERE id = $1', [id]);
@@ -168,6 +183,7 @@ module.exports = {
   MEMBERSHIP_COLORS,
   getActiveLeader,
   listLeadershipHistoryForTeam,
+  listLeadershipStintsForPerson,
   findLeadershipRowById,
   findOverlappingLeadershipStint,
   mostCommonActiveLeaderColor,

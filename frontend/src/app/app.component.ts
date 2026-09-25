@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@
 import { Subscription } from 'rxjs';
 import { ScreenSizeService } from './services/screen-size.service';
 import { LinksService } from './services/links.service';
-import { AuthService } from './services/auth.service';
+import { AuthService } from './services/southeastcubing-api/auth.service';
 import { ErrorBannerService } from './services/error-banner.service';
 import { ToastService } from './services/toast.service';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';

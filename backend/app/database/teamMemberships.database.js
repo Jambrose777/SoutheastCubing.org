@@ -43,6 +43,22 @@ async function listMembershipsForTeam(teamId) {
   return rows;
 }
 
+// Lists every membership row for a person (active and past), joined with
+// the team's name/hidden/archived_at. Ordered active first, then most-recently-
+// ended first among past rows.
+async function listMembershipsForPerson(peopleId) {
+  const { rows } = await db.pool.query(
+    `SELECT tm.id, tm.team_id, tm.start_date, tm.end_date, tm.special_role, tm.color,
+            t.name AS team_name, t.hidden AS team_hidden, t.archived_at AS team_archived_at
+     FROM team_memberships tm
+     JOIN teams t ON t.id = tm.team_id
+     WHERE tm.people_id = $1
+     ORDER BY tm.end_date IS NOT NULL, tm.end_date DESC, t.name`,
+    [peopleId],
+  );
+  return rows;
+}
+
 // Finds a single membership row by its ID. Returns null if not found.
 async function findMembershipById(membershipId) {
   const { rows } = await db.pool.query('SELECT * FROM team_memberships WHERE id = $1', [
@@ -190,6 +206,7 @@ module.exports = {
   getActiveTeamIdsForPerson,
   getActiveMembershipsForTeams,
   listMembershipsForTeam,
+  listMembershipsForPerson,
   findMembershipById,
   hasActiveMembership,
   findOverlappingMembership,

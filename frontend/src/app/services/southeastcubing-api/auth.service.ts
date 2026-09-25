@@ -1,15 +1,15 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { CurrentUser } from '../models/CurrentUser';
-import { SouteastcubingApiService } from './souteastcubing-api.service';
-import { ToastService } from './toast.service';
+import { CurrentUser } from '../../models/CurrentUser';
+import { SoutheastcubingApiService } from './southeastcubing-api.service';
+import { ToastService } from '../toast.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private api = inject(SouteastcubingApiService);
+  private api = inject(SoutheastcubingApiService);
   private toastService = inject(ToastService);
 
   private currentUserSignal = signal<CurrentUser | null>(null);
@@ -45,6 +45,11 @@ export class AuthService {
     const url = new URL(`${environment.links.southeastCubingApi}/auth/wca/login`);
     url.searchParams.set('returnTo', returnTo);
     window.location.href = url.toString();
+  }
+
+  // My Info's dob field click-to-grant action. Always lands back on My Info.
+  beginDobStepUp() {
+    window.location.href = `${environment.links.southeastCubingApi}/auth/wca/dob/begin`;
   }
 
   // Signs out, then redirects to the homepage only if the current page

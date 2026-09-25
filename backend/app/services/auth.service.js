@@ -14,6 +14,10 @@ const WCA_AUTHORIZE_URL = 'https://www.worldcubeassociation.org/oauth/authorize'
 // feature needs them.
 const SIGN_IN_SCOPE = 'public email';
 
+// Scope requested by the My Info dob step-up flow - the *union* of the
+// sign-in scope plus dob.
+const DOB_STEP_UP_SCOPE = `${SIGN_IN_SCOPE} dob`;
+
 // True once every env var the WCA sign-in flow needs is present - callers
 // respond 503 rather than attempting the flow with a partially-configured
 // OAuth app.
@@ -36,12 +40,12 @@ function sanitizeReturnPath(returnTo) {
 }
 
 // Builds the URL to redirect the browser to for WCA's own consent screen.
-function buildAuthorizeUrl({ state }) {
+function buildAuthorizeUrl({ state, scope = SIGN_IN_SCOPE }) {
   const params = new URLSearchParams({
     client_id: config.WCA_OAUTH_CLIENT_ID,
     redirect_uri: config.WCA_OAUTH_REDIRECT_URI,
     response_type: 'code',
-    scope: SIGN_IN_SCOPE,
+    scope,
     state,
   });
   return `${WCA_AUTHORIZE_URL}?${params.toString()}`;
@@ -82,6 +86,32 @@ async function completeSignIn({ code, ipAddress }) {
   return { rawToken, person, user };
 }
 
+// Completes the dob OAuth step-up flow for an already-signed-in user - the
+// callback exchanges the code (requested with DOB_STEP_UP_SCOPE) for a
+// token, reads dob off the resulting profile, and saves it against the
+// signed-in user's own row.
+async function completeDobStepUp({ code, peopleId }) {
+  // Create Access Token from WCA.
+  const accessToken = await wcaIntegration.exchangeAuthorizationCodeForToken({
+    code,
+    clientId: config.WCA_OAUTH_CLIENT_ID,
+    clientSecret: config.WCA_OAUTH_CLIENT_SECRET,
+    redirectUri: config.WCA_OAUTH_REDIRECT_URI,
+  });
+
+  // Fetch the DOB From WCA with the access token.
+  const profile = await wcaIntegration.fetchWcaProfile(accessToken);
+  if (!profile.dob) {
+    logger.warn(`Dob step-up callback completed but WCA profile carried no dob (people_id ${peopleId}).`);
+    return null;
+  }
+
+  // Save the DOB to our database.
+  const user = await usersDb.updateDob(peopleId, profile.dob);
+  logger.info(`Completed dob step-up for people_id ${peopleId}.`);
+  return user;
+}
+
 // Cookie options shared by both setting the cookie (on sign-in) and clearing
 // it (on sign-out), so they can't drift out of sync with each other.
 function sessionCookieOptions() {
@@ -97,9 +127,11 @@ function sessionCookieOptions() {
 module.exports = {
   SESSION_COOKIE_NAME: 'se_session',
   SESSION_TTL_MS: sessionsDb.SESSION_TTL_MS,
+  DOB_STEP_UP_SCOPE,
   isOAuthConfigured,
   sanitizeReturnPath,
   buildAuthorizeUrl,
   completeSignIn,
+  completeDobStepUp,
   sessionCookieOptions,
 };

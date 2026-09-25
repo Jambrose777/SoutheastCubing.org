@@ -1,0 +1,71 @@
+@use 'src/styles/color-pallet';
+
+.my-info-content {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.info-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatar {
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.field-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.field-label {
+  width: 130px;
+  flex-shrink: 0;
+  font-family: 'MontserratBold';
+}
+
+.field-value {
+  word-break: break-word;
+}
+
+// Plain clickable inline text (dob not-yet-granted case).
+.link-text {
+  color: color-pallet.$se-dark-blue;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.roles-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.roles-section-title {
+  font-family: 'MontserratBold';
+  margin-bottom: 8px;
+}
+
+.roles-list {
+  margin: 0;
+  padding-left: 20px;
+
+  li {
+    margin-bottom: 4px;
+  }
+}

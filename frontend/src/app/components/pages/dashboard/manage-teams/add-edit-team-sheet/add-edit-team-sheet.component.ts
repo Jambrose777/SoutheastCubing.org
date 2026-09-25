@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ManageTeamsApiService } from 'src/app/services/manage-teams-api.service';
+import { ManageTeamsApiService } from 'src/app/services/southeastcubing-api/manage-teams-api.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { ManageTeam } from 'src/app/models/ManageTeam';
 

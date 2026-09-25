@@ -30,4 +30,17 @@ async function findUserWithPeopleById(userId) {
   return rows[0] ?? null;
 }
 
-module.exports = { upsertUserForPerson, findUserWithPeopleById };
+// Sets a user's dob - called once the dob OAuth step-up grant completes.
+async function updateDob(peopleId, dob) {
+  const { rows } = await db.pool.query(
+    `UPDATE users
+     SET dob = $2, updated_at = now()
+     WHERE people_id = $1
+     RETURNING *`,
+    [peopleId, dob],
+  );
+  logger.debug(`Updated dob for people_id ${peopleId}.`);
+  return rows[0] ?? null;
+}
+
+module.exports = { upsertUserForPerson, findUserWithPeopleById, updateDob };

@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, OnInit, computed } from '@a
 import { RouterLink } from '@angular/router';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { ThemeService } from 'src/app/services/theme.service';
-import { AuthService } from 'src/app/services/auth.service';
+import { AuthService } from 'src/app/services/southeastcubing-api/auth.service';
 import { Colors } from 'src/app/shared/types';
 import { HeaderComponent } from '../../core/header/header.component';
 import { DashboardSidePaneComponent } from './dashboard-side-pane/dashboard-side-pane.component';

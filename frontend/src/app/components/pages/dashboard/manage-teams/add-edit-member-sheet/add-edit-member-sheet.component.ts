@@ -17,7 +17,7 @@ import { MatInput } from '@angular/material/input';
 import { MatSelect, MatOption } from '@angular/material/select';
 import { NgOptimizedImage } from '@angular/common';
 import { debounceTime, distinctUntilChanged, switchMap, of, catchError, map, filter } from 'rxjs';
-import { ManageTeamsApiService } from 'src/app/services/manage-teams-api.service';
+import { ManageTeamsApiService } from 'src/app/services/southeastcubing-api/manage-teams-api.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { toDateInputValue, checkBadDateInput } from 'src/app/shared/date.util';
 import {

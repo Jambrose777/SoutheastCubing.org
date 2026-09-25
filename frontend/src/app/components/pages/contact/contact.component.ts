@@ -15,7 +15,7 @@ import { ContactPageSkeleton } from 'src/app/models/ContentfulSkeletons';
 import { EmailRequestBody } from 'src/app/models/EmailRequestBody';
 import { ContentfulService } from 'src/app/services/contentful.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
-import { SouteastcubingApiService } from 'src/app/services/souteastcubing-api.service';
+import { SoutheastcubingApiService } from 'src/app/services/southeastcubing-api/southeastcubing-api.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, EmailApiStatus, EmailType } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
@@ -48,7 +48,7 @@ import { NgOptimizedImage } from '@angular/common';
 export class ContactComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
   private themeService = inject(ThemeService);
-  private southeastcubingApiService = inject(SouteastcubingApiService);
+  private southeastcubingApiService = inject(SoutheastcubingApiService);
   private route = inject(ActivatedRoute);
   private screenSizeService = inject(ScreenSizeService);
 

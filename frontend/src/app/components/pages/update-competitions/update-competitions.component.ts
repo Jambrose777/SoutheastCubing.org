@@ -7,7 +7,7 @@ import {
   computed,
 } from '@angular/core';
 import { Subscription, take } from 'rxjs';
-import { SouteastcubingApiService } from 'src/app/services/souteastcubing-api.service';
+import { SoutheastcubingApiService } from 'src/app/services/southeastcubing-api/southeastcubing-api.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
@@ -30,7 +30,7 @@ enum UpdateStatus {
 })
 export class UpdateCompetitionsComponent implements OnInit {
   private themeService = inject(ThemeService);
-  private southeastcubingApi = inject(SouteastcubingApiService);
+  private southeastcubingApi = inject(SoutheastcubingApiService);
   private screenSizeService = inject(ScreenSizeService);
 
   isMobile = this.screenSizeService.isMobile;

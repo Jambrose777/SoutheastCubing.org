@@ -13,6 +13,10 @@ const OAUTH_RETURN_TO_COOKIE = 'oauth_return_to';
 const OAUTH_COOKIE_PATH = '/auth/wca';
 const OAUTH_COOKIE_MAX_AGE_MS = 10 * 60 * 1000; // 10 minutes - the OAuth round-trip is quick
 
+// Separate state cookie for the dob step-up flow, so it can never be
+// confused with (or clobber) an in-flight plain sign-in round-trip.
+const DOB_STEP_UP_STATE_COOKIE = 'oauth_dob_state';
+
 function shortLivedCookieOptions() {
   return {
     httpOnly: true,
@@ -55,10 +59,75 @@ function frontendRedirectUrl(returnTo, { authError, signedIn } = {}) {
   return url.toString();
 }
 
+// Redirects the browser into WCA's own OAuth consent screen requesting the
+// dob step-up scope (public email dob). Requires an existing session.
+function beginDobStepUp(req, res) {
+  if (!authService.isOAuthConfigured()) {
+    res.status(503).json({ message: 'WCA sign-in is not configured.' });
+    return;
+  }
+  if (!req.user) {
+    res.status(401).json({ message: 'Sign-in required.' });
+    return;
+  }
+
+  const state = crypto.randomBytes(16).toString('hex');
+  res.cookie(DOB_STEP_UP_STATE_COOKIE, state, shortLivedCookieOptions());
+  res.redirect(authService.buildAuthorizeUrl({ state, scope: authService.DOB_STEP_UP_SCOPE }));
+}
+
+// WCA OAuth apps are registered with a single fixed redirect URI, so the dob
+// step-up flow's authorize request comes back to this same /auth/wca/callback. 
+// Whichever flow's own state cookie is actually present on the request is the 
+// one that was in flight - that's what decides which completion path below runs.
+async function handleDobStepUpCallback(req, res, cookieState) {
+  const myInfoUrl = new URL('/dashboard/my-info', config.FRONTEND_URL);
+
+  if (req.query.error) {
+    logger.info(`Dob step-up denied on the consent screen: ${req.query.error}`);
+    myInfoUrl.searchParams.set('authError', 'denied');
+    res.redirect(myInfoUrl.toString());
+    return;
+  }
+
+  if (!req.user) {
+    logger.warn('Dob step-up callback reached with no active session.');
+    myInfoUrl.searchParams.set('authError', 'failed');
+    res.redirect(myInfoUrl.toString());
+    return;
+  }
+
+  if (!req.query.code || !req.query.state || req.query.state !== cookieState) {
+    logger.warn('Dob step-up callback missing/mismatched code or state.');
+    myInfoUrl.searchParams.set('authError', 'failed');
+    res.redirect(myInfoUrl.toString());
+    return;
+  }
+
+  try {
+    await authService.completeDobStepUp({ code: req.query.code, peopleId: req.user.people_id });
+    myInfoUrl.searchParams.set('dobGranted', '1');
+    res.redirect(myInfoUrl.toString());
+  } catch (err) {
+    logger.error('Dob step-up callback failed to complete: ', err);
+    myInfoUrl.searchParams.set('authError', 'failed');
+    res.redirect(myInfoUrl.toString());
+  }
+}
+
 // Handles WCA's redirect back after the consent screen - a deny, a state
 // mismatch, and a genuine success are each routed back to the frontend at
 // `returnTo`, differing only in whether an authError flag is appended.
+// Dispatches to the dob step-up's own completion path first, since both
+// flows land here (see handleDobStepUpCallback above).
 async function handleCallback(req, res) {
+  const dobStepUpState = req.cookies?.[DOB_STEP_UP_STATE_COOKIE];
+  if (dobStepUpState) {
+    res.clearCookie(DOB_STEP_UP_STATE_COOKIE, { path: OAUTH_COOKIE_PATH });
+    await handleDobStepUpCallback(req, res, dobStepUpState);
+    return;
+  }
+
   const cookieState = req.cookies?.[OAUTH_STATE_COOKIE];
   const returnTo = authService.sanitizeReturnPath(req.cookies?.[OAUTH_RETURN_TO_COOKIE]);
   res.clearCookie(OAUTH_STATE_COOKIE, { path: OAUTH_COOKIE_PATH });
@@ -125,4 +194,10 @@ async function signOut(req, res) {
   res.json({ status: 'success' });
 }
 
-module.exports = { beginSignIn, handleCallback, getCurrentUser, signOut };
+module.exports = {
+  beginSignIn,
+  handleCallback,
+  beginDobStepUp,
+  getCurrentUser,
+  signOut,
+};

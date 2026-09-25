@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AuthService } from 'src/app/services/auth.service';
+import { AuthService } from 'src/app/services/southeastcubing-api/auth.service';
 import { HeaderComponent } from '../../../core/header/header.component';
 import { DASHBOARD_TOOLS, hasAnyRole } from '../dashboard-tools';
 

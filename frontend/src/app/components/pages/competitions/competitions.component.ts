@@ -27,7 +27,7 @@ import { Location, NgClass } from '@angular/common';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
-import { SouteastcubingApiService } from 'src/app/services/souteastcubing-api.service';
+import { SoutheastcubingApiService } from 'src/app/services/southeastcubing-api/southeastcubing-api.service';
 import { MapPoint, MarkerColorClass } from 'src/app/models/Map';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
@@ -66,7 +66,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 export class CompetitionsComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
   private injector = inject(Injector);
-  private southeastcubingApiService = inject(SouteastcubingApiService);
+  private southeastcubingApiService = inject(SoutheastcubingApiService);
   private themeService = inject(ThemeService);
   private route = inject(ActivatedRoute);
   private location = inject(Location);

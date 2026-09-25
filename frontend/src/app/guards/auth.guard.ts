@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn } from '@angular/router';
 import { map } from 'rxjs';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../services/southeastcubing-api/auth.service';
 
 // Protects a route behind a signed-in session. Checks the backend directly.
 export const authGuard: CanActivateFn = (_route, state) => {

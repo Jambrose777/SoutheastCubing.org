@@ -1,6 +1,6 @@
 import { Component, input, OnInit, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
-import { AuthService } from 'src/app/services/auth.service';
+import { AuthService } from 'src/app/services/southeastcubing-api/auth.service';
 import { RouterLink } from '@angular/router';
 import { NgClass, NgOptimizedImage } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';

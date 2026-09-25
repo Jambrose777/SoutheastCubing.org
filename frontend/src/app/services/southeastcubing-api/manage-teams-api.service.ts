@@ -8,7 +8,7 @@ import {
   TeamLeaderStint,
   TeamMembership,
   WcaPersonLookupResult,
-} from '../models/ManageTeam';
+} from '../../models/ManageTeam';
 
 // Backs the Manage Teams dashboard
 @Injectable({

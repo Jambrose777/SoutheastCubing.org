@@ -23,6 +23,13 @@ export interface DashboardTool {
 // One entry per dashboard tool
 export const DASHBOARD_TOOLS: DashboardTool[] = [
   {
+    label: 'My Info',
+    routerLink: '/dashboard/my-info',
+    icon: 'fa-user',
+    color: Colors.grey,
+    // No requiresAnyRole - always present for every signed-in user.
+  },
+  {
     label: 'Manage Teams',
     routerLink: '/dashboard/manage-teams',
     icon: 'fa-people-group',

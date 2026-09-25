@@ -1,0 +1,122 @@
+<div class="component-container">
+  <div class="main-pane" tabindex="0">
+    <se-header id="header" [title]="'My Info'" [showNavCluster]="isMobile()"></se-header>
+
+    <div class="my-info-content">
+      @if (loading()) {
+        <se-loading-spinner></se-loading-spinner>
+      } @else if (myInfo(); as info) {
+        <div class="info-card">
+          @if (info.pictureUrl) {
+            <img
+              [ngSrc]="info.pictureUrl"
+              width="96"
+              height="96"
+              [alt]="info.name"
+              class="avatar"
+              priority
+            />
+          }
+
+          <div class="field-list">
+            <div class="field-row">
+              <span class="field-label">WCA ID</span>
+              <span class="field-value">{{ info.wcaId ?? 'Not linked' }}</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">WCA User ID</span>
+              <span class="field-value">{{ info.wcaUserId ?? 'Not linked' }}</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Name</span>
+              <span class="field-value">{{ info.name }}</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Email</span>
+              <span class="field-value">{{ info.email ?? 'Not shared' }}</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Date of birth</span>
+              @if (info.dob) {
+                <span class="field-value">{{ formatDate(info.dob) }}</span>
+              } @else {
+                <span
+                  class="field-value link-text"
+                  (click)="beginDobStepUp()"
+                  (keydown.enter)="beginDobStepUp()"
+                  (keydown.space)="$event.preventDefault(); beginDobStepUp()"
+                  role="button"
+                  tabindex="0"
+                  aria-label="Date of birth not shared - click to grant access"
+                  matTooltip="Shared with SECI members to help them evaluate volunteer/organizer applications"
+                  matTooltipPosition="above"
+                >
+                  Not shared - click to grant access
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+
+        @if (info.memberships.current.length) {
+          <div class="roles-section">
+            <div class="roles-section-title">Current roles</div>
+            <ul class="roles-list">
+              @for (membership of info.memberships.current; track membership.membershipId) {
+                <li>
+                  @if (membership.linksToWhoWeAre) {
+                    <a [routerLink]="whoWeAreUrl">{{ membership.teamName }}</a>
+                  } @else {
+                    <span>{{ membership.teamName }}</span>
+                  }
+                  @if (membership.isLeader) {
+                    <span class="small-text-content"> — Leader</span>
+                  } @else if (membership.specialRole) {
+                    <span class="small-text-content"> — {{ membership.specialRole }}</span>
+                  }
+                  <span class="small-text-content">
+                    (since {{ formatDate(membership.sinceDate) }})
+                  </span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        @if (info.memberships.past.length) {
+          <div class="roles-section">
+            <div class="roles-section-title">Past roles</div>
+            <ul class="roles-list">
+              @for (
+                entry of info.memberships.past;
+                track entry.type +
+                  (entry.type === 'membership' ? entry.membershipId : entry.leaderId)
+              ) {
+                <li>
+                  @if (entry.linksToWhoWeAre) {
+                    <a [routerLink]="whoWeAreUrl">{{ entry.teamName }}</a>
+                  } @else {
+                    <span>{{ entry.teamName }}</span>
+                  }
+                  @if (entry.type === 'leadershipStint') {
+                    <span class="small-text-content"> — Leader</span>
+                  } @else if (entry.specialRole) {
+                    <span class="small-text-content"> — {{ entry.specialRole }}</span>
+                  }
+                  <span class="small-text-content">
+                    ({{ formatDate(entry.startDate) }} -
+                    {{ entry.endDate ? formatDate(entry.endDate) : 'present' }})
+                  </span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  @if (!isMobile()) {
+    <se-dashboard-side-pane></se-dashboard-side-pane>
+  }
+</div>

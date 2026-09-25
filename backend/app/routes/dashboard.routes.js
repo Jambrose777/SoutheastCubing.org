@@ -1,16 +1,33 @@
 const express = require('express');
 
 const teamsController = require('../controllers/teams.controller.js');
+const myInfoController = require('../controllers/myInfo.controller.js');
 const { requireAnyRole, requireAdmin } = require('../middleware/roles.middleware.js');
+const { requireAuth } = require('../middleware/session.middleware.js');
 const { asyncRoute } = require('../helpers/asyncRoute.helper.js');
 
-// User dashboard endpoints. The Manage Teams routes below are gated behind
+// User dashboard endpoints. My Info is auth-only (any signed-in user can see
+// their own info); the Manage Teams routes below are gated behind
 // Board/Admin access (requireBoardOrAdmin), with hard-delete actions
 // additionally requiring Admin specifically (requireAdmin)
 const router = express.Router();
 
 // Routes that require Board / Admin access
 const requireBoardOrAdmin = requireAnyRole('isBoard', 'isAdmin');
+
+/**
+ * @openapi
+ * /dashboard/my-info:
+ *   get:
+ *     summary: The signed-in user's own identity/contact fields plus their current/past roles and memberships.
+ *     tags: [Dashboard]
+ *     responses:
+ *       200:
+ *         description: The signed-in user's My Info payload.
+ *       401:
+ *         description: Not signed in.
+ */
+router.get('/dashboard/my-info', requireAuth, asyncRoute(myInfoController.getMyInfo));
 
 /**
  * @openapi
