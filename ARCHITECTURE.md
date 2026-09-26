@@ -45,8 +45,10 @@ flowchart TB
     Cron --> BE
     FE -->|"XHR"| BE
     Browser -->|"Contentful JS SDK (browser-side)"| Contentful
+    Browser -->|"WCA OAuth consent screen redirect"| WCA
+    WCA -->|"redirect back with auth code"| BE
     BE -->|"IAM token auth (DsqlSigner)"| DSQL
-    BE --> WCA
+    BE -->|"OAuth token exchange + profile fetch"| WCA
     BE --> Contentful
     BE --> Discord
     BE --> Gmail
@@ -90,6 +92,18 @@ flowchart TB
   `backend/app/database/discordPingPatterns.database.js`)
   alongside the original per-state role pings, with rate-limit-safe chunked
   posting (`backend/app/integrations/discord.integration.js`).
+- **"Sign in with WCA" (OAuth) now backs a first-party session** —
+  `backend/app/services/auth.service.js`/`auth.controller.js`, DSQL-backed
+  `people`/`users`/`sessions` tables. The browser is redirected to WCA's own
+  OAuth consent screen (not an XHR call), then WCA redirects back to the
+  backend's `/auth/wca/callback`, which exchanges the code for a token, fetches
+  the WCA profile, upserts `people`/`users`, and sets a session cookie. A
+  My Info "grant dob access" step-up flow (`/auth/wca/dob/begin`) reuses this
+  same `/auth/wca/callback` endpoint rather than a separate one, since a WCA
+  OAuth app can only be registered with a single redirect URI — the callback
+  dispatches between "completing sign-in" and "completing the dob step-up"
+  based on which flow's own short-lived state cookie is present on the
+  request.
 
 ## Known near-term changes (not yet reflected above)
 
@@ -106,6 +120,13 @@ diagram when it lands:
 - Move frontend hosting off the Apache EC2 instance onto a private S3
   bucket behind CloudFront (Origin Access Control, no more public-ACL
   deploys), retiring that instance entirely.
+- Managed Team/Board member profile photos: local dev stores these
+  on the backend's local filesystem, behind a storage abstraction
+  (`photoStorage.js`) with no AWS involvement at all. Production instead gets
+  a second, dedicated S3 bucket plus a second CloudFront origin/behavior
+  (`/photos/*`) on the same distribution for the frontend
+  — not a new distribution. Will add a new S3 bucket and a second CloudFront
+  behavior to the diagram once that production cutover lands.
 
 ## Keeping this up to date
 
