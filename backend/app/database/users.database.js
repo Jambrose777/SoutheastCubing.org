@@ -21,7 +21,9 @@ async function upsertUserForPerson({ peopleId, email }) {
 // Looks up a user (joined with their linked people row) by user id.
 async function findUserWithPeopleById(userId) {
   const { rows } = await db.pool.query(
-    `SELECT u.id, u.email, u.dob, p.id AS people_id, p.wca_id, p.wca_user_id, p.name, p.picture_url
+    `SELECT u.id, u.email, u.dob, p.id AS people_id, p.wca_id, p.wca_user_id, p.name, p.picture_url,
+            p.has_managed_photo, p.picture_synced_with_wca,
+            p.thumbnail_crop_x, p.thumbnail_crop_y, p.thumbnail_crop_w, p.thumbnail_crop_h
      FROM users u
      JOIN people p ON p.id = u.people_id
      WHERE u.id = $1`,

@@ -1,6 +1,9 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const swaggerUi = require('swagger-ui-express');
+const helmet = require('helmet');
+
+const { PHOTOS_DIR, PHOTOS_URL_PREFIX } = require('./integrations/photoStorage.integration.js');
 
 const logger = require('./utils/logger.util.js');
 
@@ -57,6 +60,17 @@ registerSessionsCleanupJob();
 
 // Public, unauthenticated docs UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Public, unauthenticated - serves local dev's managed photos. Local-dev-only: 
+// production reads managed photos from S3 via CloudFront instead, and has no
+// backend/uploads/photos/ directory to serve at all.
+if (config.NODE_ENV !== 'production') {
+  app.use(
+    PHOTOS_URL_PREFIX,
+    helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }),
+    express.static(PHOTOS_DIR),
+  );
+}
 
 app.use(publicRoutes);
 app.use(authRoutes);

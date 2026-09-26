@@ -1,8 +1,5 @@
 @use 'src/styles/color-pallet';
 
-// Shared look for the three Manage Teams slide-in sheets (Add/Edit Team,
-// Add/Edit Member, Edit Leadership) - forwarded via @use so each sheet's own
-// .scss file isn't repeating this same structural boilerplate.
 // Three equal columns (back button / heading / empty spacer) so the
 // heading is centered in the whole header regardless of the back button's
 // own width.

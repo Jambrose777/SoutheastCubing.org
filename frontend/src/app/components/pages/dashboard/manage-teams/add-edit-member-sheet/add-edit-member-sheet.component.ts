@@ -15,7 +15,6 @@ import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { MatFormField, MatLabel, MatError, MatHint } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect, MatOption } from '@angular/material/select';
-import { NgOptimizedImage } from '@angular/common';
 import { debounceTime, distinctUntilChanged, switchMap, of, catchError, map, filter } from 'rxjs';
 import { ManageTeamsApiService } from 'src/app/services/southeastcubing-api/manage-teams-api.service';
 import { ToastService } from 'src/app/services/toast.service';
@@ -28,14 +27,20 @@ import {
   WcaPersonLookupResult,
 } from 'src/app/models/ManageTeam';
 import { WCA_ID_FORMAT } from 'src/app/shared/wcaId.util';
+import { AvatarComponent } from '../../../../shared/avatar/avatar.component';
 
 // A person selected either from our own search results or from the WCA-ID
-// lookup fallback - not yet a `people` row in the latter case.
+// lookup fallback - not yet a `people` row (and so no crop data) in the
+// latter case.
 interface SelectedPerson {
   peopleId?: string;
   wcaId?: string;
   name: string;
   pictureUrl: string | null;
+  thumbnailCropX?: number | null;
+  thumbnailCropY?: number | null;
+  thumbnailCropW?: number | null;
+  thumbnailCropH?: number | null;
 }
 
 const COLOR_OPTIONS: { value: TeamMemberColor; label: string }[] = [
@@ -72,7 +77,7 @@ function today(): string {
     MatInput,
     MatSelect,
     MatOption,
-    NgOptimizedImage,
+    AvatarComponent,
   ],
 })
 export class AddEditMemberSheetComponent implements OnInit {
@@ -142,6 +147,10 @@ export class AddEditMemberSheetComponent implements OnInit {
           peopleId: membership.people_id,
           name: membership.name,
           pictureUrl: membership.picture_url,
+          thumbnailCropX: membership.thumbnail_crop_x,
+          thumbnailCropY: membership.thumbnail_crop_y,
+          thumbnailCropW: membership.thumbnail_crop_w,
+          thumbnailCropH: membership.thumbnail_crop_h,
         });
         this.detailsForm.reset({
           startDate: toDateInputValue(membership.start_date),
@@ -223,9 +232,15 @@ export class AddEditMemberSheetComponent implements OnInit {
       peopleId: result.id,
       name: result.name,
       pictureUrl: result.picture_url,
+      thumbnailCropX: result.thumbnail_crop_x,
+      thumbnailCropY: result.thumbnail_crop_y,
+      thumbnailCropW: result.thumbnail_crop_w,
+      thumbnailCropH: result.thumbnail_crop_h,
     });
   }
 
+  // A fresh WCA-ID lookup result never carries crop data - it isn't a
+  // `people` row yet, so selectedPerson's crop fields are left undefined.
   selectWcaResult(result: WcaPersonLookupResult) {
     this.selectedPerson.set({
       wcaId: result.wcaId,

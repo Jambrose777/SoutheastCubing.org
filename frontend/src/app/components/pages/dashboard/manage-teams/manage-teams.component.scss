@@ -1,5 +1,4 @@
 @use 'src/styles/color-pallet';
-@use 'src/styles/screen-sizes';
 
 .manage-teams-content {
   padding: 16px 24px;
@@ -215,11 +214,6 @@
     text-align: right;
     white-space: nowrap;
   }
-
-  .avatar {
-    border-radius: 10px;
-    object-fit: cover;
-  }
 }
 
 // `null`/no color renders as gray (see backend's team_memberships.color) -
@@ -264,60 +258,4 @@
   height: 14px;
   border-radius: 50%;
   display: inline-block;
-}
-
-// Covers the whole page behind the sheet
-.sheet-backdrop {
-  position: fixed;
-  inset: 0;
-  background-color: rgb(0 0 0 / 0.3);
-  z-index: 20000;
-}
-
-// The Add/Edit Team, Add/Edit Member, and Edit Leadership sheets all render
-// through this same overlay - fixed to the right edge of the screen and
-// animated in, rather than three separately-positioned overlays.
-.sheet-overlay {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 400px;
-  max-width: 100vw;
-  height: 100%;
-  background-color: white;
-  box-shadow: -3px 0 8px rgb(0 0 0 / 0.3);
-  z-index: 20000;
-  display: flex;
-  flex-direction: column;
-  animation: slide-in 0.2s ease-out;
-
-  // Applied instead of the default slide-in animation above, for the
-  // duration the sheet stays mounted after being dismissed.
-  &.closing {
-    animation: slide-out 0.2s ease-in forwards;
-  }
-}
-
-@keyframes slide-in {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-@keyframes slide-out {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(100%);
-  }
-}
-
-@media only screen and (max-width: screen-sizes.$small-breakpoint) {
-  .sheet-overlay {
-    width: 100vw;
-  }
 }

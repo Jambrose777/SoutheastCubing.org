@@ -1,5 +1,6 @@
 const teamMembershipsDb = require('../database/teamMemberships.database.js');
 const teamLeadersDb = require('../database/teamLeaders.database.js');
+const { resolvePersonPicture } = require('../helpers/personPicture.helper.js');
 const { ADMIN_TEAM_ID, BOARD_TEAM_ID, OFFICER_TEAM_IDS } = require('../helpers/fixedTeams.helper.js');
 
 // Whether a membership's team should link to the Who We Are page
@@ -90,7 +91,9 @@ async function getMyInfo(user) {
     name: user.name,
     email: user.email,
     dob: user.dob,
-    pictureUrl: user.picture_url,
+    ...resolvePersonPicture(user),
+    hasManagedPhoto: user.has_managed_photo,
+    pictureSyncedWithWca: user.picture_synced_with_wca,
     memberships: { current, past },
   };
 }

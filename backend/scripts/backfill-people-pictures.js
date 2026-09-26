@@ -1,27 +1,29 @@
 #!/usr/bin/env node
 
-// One-off (re-runnable) script: fills in `picture_url` (and refreshes
-// `name`) for `people` rows that have a `wca_id`, no picture yet, and no
-// `users` row - the gap left by a migration-seeded row, which only ever
-// gets a name/wca_id via raw SQL `INSERT`s, never a live WCA lookup.
+// One-off (re-runnable) script: mirrors a managed photo into local storage
+// for every `people` row with no `picture_url` yet - the gap left by the 
+// migrations, which only ever sets the flag via SQL and never makes an 
+// outbound HTTP call to WCA.
 //
-// Run via `pnpm --filter backend backfill-people-pictures`.
+// Run via `pnpm --filter southeastcubing-org-api run backfill-people-pictures`.
 
 const db = require('../app/database/pool.js');
 const peopleDb = require('../app/database/people.database.js');
-const wcaIntegration = require('../app/integrations/wca.integration.js');
+const photosService = require('../app/services/photos.service.js');
 const logger = require('../app/utils/logger.util.js');
 
 async function main() {
   const { rows } = await db.pool.query(
-    `SELECT p.id, p.wca_id, p.name
-     FROM people p
-     WHERE p.wca_id IS NOT NULL
-       AND p.picture_url IS NULL
-       AND NOT EXISTS (SELECT 1 FROM users u WHERE u.people_id = p.id)`,
+    `SELECT id, wca_id, name, picture_url
+     FROM people
+     WHERE has_managed_photo = true
+       AND wca_id IS NOT NULL
+       AND picture_url IS NULL`,
   );
 
-  logger.info(`Found ${rows.length} people row(s) with a wca_id but no picture (and no users row) yet.`);
+  logger.info(
+    `Found ${rows.length} managed-photo people row(s) with no stored photo yet.`,
+  );
 
   let succeeded = 0;
   let skipped = 0;
@@ -29,22 +31,27 @@ async function main() {
 
   for (const person of rows) {
     try {
-      const wcaPerson = await wcaIntegration.fetchPersonByWcaId(person.wca_id);
-      if (!wcaPerson) {
-        logger.warn(`No WCA person found for wca_id ${person.wca_id} (${person.name}) - skipping.`);
+      const avatarUrl = await photosService.resolveCurrentWcaAvatarUrl(person.wca_id);
+      if (!avatarUrl) {
+        logger.warn(
+          `No WCA avatar found for wca_id ${person.wca_id} (${person.name}) - skipping.`,
+        );
         skipped += 1;
         continue;
       }
-      await peopleDb.upsertPersonFromWcaIdLookup({
-        wcaId: person.wca_id,
-        name: wcaPerson.name,
-        pictureUrl: wcaPerson.avatar?.thumb_url ?? null,
+
+      const { key, crop } = await photosService.mirrorWcaAvatar(person.id, avatarUrl);
+      await peopleDb.setManagedPhoto(person.id, {
+        pictureKey: key,
+        wcaPictureSourceUrl: avatarUrl,
+        pictureSyncedWithWca: true,
+        ...crop,
       });
-      logger.info(`Backfilled picture for ${wcaPerson.name} (wca_id ${person.wca_id}).`);
+      logger.info(`Backfilled managed photo for ${person.name} (wca_id ${person.wca_id}).`);
       succeeded += 1;
     } catch (err) {
       logger.error(
-        `Failed to backfill picture for wca_id ${person.wca_id} (${person.name}): `,
+        `Failed to backfill managed photo for wca_id ${person.wca_id} (${person.name}): `,
         err,
       );
       failed += 1;

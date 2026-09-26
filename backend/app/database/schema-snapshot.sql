@@ -78,7 +78,8 @@ CREATE TABLE people (
   thumbnail_crop_w INTEGER,
   thumbnail_crop_h INTEGER,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  has_managed_photo BOOLEAN DEFAULT false
 );
 
 CREATE TABLE sessions (

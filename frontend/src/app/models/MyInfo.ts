@@ -45,6 +45,12 @@ export interface MyInfo {
   email: string | null;
   dob: string | null;
   pictureUrl: string | null;
+  hasManagedPhoto: boolean;
+  pictureSyncedWithWca: boolean;
+  thumbnailCropX: number | null;
+  thumbnailCropY: number | null;
+  thumbnailCropW: number | null;
+  thumbnailCropH: number | null;
   memberships: {
     current: MyInfoCurrentMembership[];
     past: MyInfoPastEntry[];

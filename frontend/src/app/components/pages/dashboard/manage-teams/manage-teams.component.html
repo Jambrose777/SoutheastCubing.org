@@ -143,13 +143,16 @@
               <div class="member-row" [class.inactive]="member.end_date">
                 <div class="member-avatar-cell">
                   @if (member.picture_url) {
-                    <img
-                      [ngSrc]="member.picture_url"
-                      width="28"
-                      height="28"
-                      alt=""
+                    <se-avatar
+                      [src]="member.picture_url"
+                      [size]="28"
+                      [cropX]="member.thumbnail_crop_x"
+                      [cropY]="member.thumbnail_crop_y"
+                      [cropW]="member.thumbnail_crop_w"
+                      [cropH]="member.thumbnail_crop_h"
+                      [alt]="member.name"
                       class="avatar"
-                    />
+                    ></se-avatar>
                   }
                 </div>
                 <div class="member-info-cell">

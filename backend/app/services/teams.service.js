@@ -3,6 +3,9 @@ const teamMembershipsDb = require('../database/teamMemberships.database.js');
 const teamLeadersDb = require('../database/teamLeaders.database.js');
 const peopleDb = require('../database/people.database.js');
 const wcaIntegration = require('../integrations/wca.integration.js');
+const photosService = require('./photos.service.js');
+const { httpError } = require('../helpers/httpError.helper.js');
+const { resolvePersonPicture } = require('../helpers/personPicture.helper.js');
 const {
   ADMIN_TEAM_ID,
   BOARD_TEAM_ID,
@@ -27,13 +30,6 @@ function assertValidTeamName(name) {
   if (!SLUGGABLE_CHARACTER.test(name)) {
     throw httpError(400, 'Team name must include at least one letter or number.');
   }
-}
-
-// Creates an HTTP error object with the given status and message.
-function httpError(status, message) {
-  const err = new Error(message);
-  err.status = status;
-  return err;
 }
 
 // Membership/leadership dates default to today (matching the DB layer's own
@@ -81,6 +77,20 @@ function sortTeamsForDashboard(teams) {
   });
 }
 
+// Resolves a joined `people` row's picture in place, keeping this response's
+// existing snake_case `picture_url`/`thumbnail_crop_*` fields.
+function withResolvedPicture(row) {
+  const resolved = resolvePersonPicture(row);
+  return {
+    ...row,
+    picture_url: resolved.pictureUrl,
+    thumbnail_crop_x: resolved.thumbnailCropX,
+    thumbnail_crop_y: resolved.thumbnailCropY,
+    thumbnail_crop_w: resolved.thumbnailCropW,
+    thumbnail_crop_h: resolved.thumbnailCropH,
+  };
+}
+
 // Lists every team (including archived/hidden) with its members and, for
 // ordinary teams, its full leadership history (current + past stints) -
 // already sorted into the dashboard's canonical display order.
@@ -109,10 +119,14 @@ async function listTeamsForDashboard() {
   const withMembers = await Promise.all(
     sorted.map(async (team) => {
       const kind = kindOf(team);
-      let members = await teamMembershipsDb.listMembershipsForTeam(team.id);
+      let members = (await teamMembershipsDb.listMembershipsForTeam(team.id)).map(
+        withResolvedPicture,
+      );
       // Only ordinary teams have a Leader concept.
       const leadershipHistory =
-        kind === 'ordinary' ? await teamLeadersDb.listLeadershipHistoryForTeam(team.id) : [];
+        kind === 'ordinary'
+          ? (await teamLeadersDb.listLeadershipHistoryForTeam(team.id)).map(withResolvedPicture)
+          : [];
 
       // add officer role/color to each board member if they have one
       if (team.id === BOARD_TEAM_ID) {
@@ -272,6 +286,9 @@ async function addMember(teamId, { person, specialRole, color, startDate, endDat
   assertValidColor(color);
 
   const peopleId = await resolvePeopleId(person);
+
+  // First-ever Team/Board membership promotes a person into a managed photo.
+  await photosService.promoteToManagedPhoto(peopleId);
 
   // Enforce Board-specific rule that Board membership rows never carry a special role.
   if (teamId === BOARD_TEAM_ID && specialRole) {
@@ -444,7 +461,8 @@ async function hardDeleteLeadershipRow(id) {
 // `people`/`users` data only. 
 async function searchPeople(searchTerm) {
   if (!searchTerm || !searchTerm.trim()) return [];
-  return peopleDb.searchPeople(searchTerm.trim());
+  const results = await peopleDb.searchPeople(searchTerm.trim());
+  return results.map(withResolvedPicture);
 }
 
 // Proxies WCA's public GET /api/v0/persons/:wca_id lookup - the "add by WCA

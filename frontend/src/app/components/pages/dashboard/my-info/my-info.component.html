@@ -7,15 +7,25 @@
         <se-loading-spinner></se-loading-spinner>
       } @else if (myInfo(); as info) {
         <div class="info-card">
-          @if (info.pictureUrl) {
-            <img
-              [ngSrc]="info.pictureUrl"
-              width="96"
-              height="96"
-              [alt]="info.name"
-              class="avatar"
-              priority
-            />
+          @if (pictureUrl(); as photoUrl) {
+            <div class="avatar-wrapper">
+              <!-- Full uncropped photo -->
+              <img [src]="photoUrl" [alt]="info.name" class="avatar" />
+
+              <!-- Button to open Picture & Crop Sheet -->
+              @if (info.hasManagedPhoto) {
+                <button
+                  type="button"
+                  class="btn small icon-only edit-picture-btn"
+                  (click)="openPictureSheet()"
+                  matTooltip="Change Picture & Adjust Crop"
+                  matTooltipPosition="above"
+                  aria-label="Change Picture & Adjust Crop"
+                >
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+              }
+            </div>
           }
 
           <div class="field-list">
@@ -54,6 +64,9 @@
                   Not shared - click to grant access
                 </span>
               }
+            </div>
+            <div class="small-text-content refresh-hint">
+              Sign out &amp; Sign in to refresh your data with WCA.
             </div>
           </div>
         </div>
@@ -120,3 +133,24 @@
     <se-dashboard-side-pane></se-dashboard-side-pane>
   }
 </div>
+
+<!-- Sheet Overlay for Picture & Crop -->
+@if (pictureSheetOpen() && myInfo(); as info) {
+  <div
+    class="sheet-backdrop"
+    (click)="closeSheetIfBackdrop($event, pictureSheet)"
+    (keydown.escape)="requestCloseSheet(pictureSheet)"
+    role="button"
+    tabindex="0"
+    aria-label="Close"
+  >
+    <div class="sheet-overlay" [class.closing]="isSheetClosing()">
+      <se-picture-crop-sheet
+        #pictureSheet
+        [info]="info"
+        (closed)="requestCloseSheet(pictureSheet)"
+        (saved)="onPictureSheetSaved()"
+      ></se-picture-crop-sheet>
+    </div>
+  </div>
+}

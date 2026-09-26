@@ -1,0 +1,25 @@
+:host {
+  display: inline-block;
+}
+
+.avatar-box {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+// Cropped mode - the whole image is rendered oversized/offset (via
+// avatar.component.ts's scale math) so only its cropped square shows
+// through this box's own overflow:hidden.
+.cropped-img {
+  position: absolute;
+  max-width: none;
+}
+
+// No-crop fallback - a plain centered cover fill.
+.cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

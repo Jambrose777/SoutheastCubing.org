@@ -15,16 +15,39 @@
   gap: 20px;
 }
 
+// Positions the edit-picture button in the photo's own top-right corner.
+.avatar-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+// The full uncropped source photo (not se-avatar's square crop).
 .avatar {
+  display: block;
+  max-width: 350px;
+  max-height: 350px;
   border-radius: 10px;
-  object-fit: cover;
-  flex-shrink: 0;
+}
+
+.edit-picture-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  margin: 0;
+  background-color: white;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.3);
 }
 
 .field-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.refresh-hint {
+  margin-top: 4px;
+  font-size: 12px;
+  color: color-pallet.$se-dark-grey;
 }
 
 .field-row {

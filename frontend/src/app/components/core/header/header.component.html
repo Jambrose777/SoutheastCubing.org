@@ -47,14 +47,17 @@
           matTooltip="Your dashboard"
           matTooltipPosition="above"
         >
-          @if (user.pictureUrl) {
-            <img
-              [ngSrc]="user.pictureUrl"
+          @if (userPictureUrl(); as pictureUrl) {
+            <se-avatar
+              [src]="pictureUrl"
               [alt]="user.name + '\'s profile picture'"
-              width="40"
-              height="40"
+              [size]="40"
+              [cropX]="user.thumbnailCropX"
+              [cropY]="user.thumbnailCropY"
+              [cropW]="user.thumbnailCropW"
+              [cropH]="user.thumbnailCropH"
               class="user-thumbnail"
-            />
+            ></se-avatar>
           } @else {
             <i class="fa-solid fa-circle-user fa-2xl clickable avatar-fallback"></i>
           }

@@ -1,0 +1,79 @@
+<div class="sheet-header">
+  <button type="button" class="back-btn" (click)="close()" aria-label="Back">
+    <i class="fa-solid fa-arrow-left"></i>
+  </button>
+  <h2>Picture &amp; Crop</h2>
+</div>
+
+<div class="sheet-body">
+  <div class="sync-row">
+    <span class="sync-label">
+      Sync with WCA
+      <i
+        class="fa-solid fa-circle-info"
+        matTooltip="When on, your photo automatically updates to match your WCA profile picture. Turn it off to keep your photo in place."
+        matTooltipPosition="above"
+        aria-label="What does syncing with WCA do?"
+      ></i>
+    </span>
+    <mat-slide-toggle
+      [checked]="info().pictureSyncedWithWca"
+      [disabled]="syncing()"
+      (change)="onToggleSync($event.checked)"
+    ></mat-slide-toggle>
+  </div>
+
+  <div class="upload-row">
+    <input
+      #fileInput
+      type="file"
+      accept="image/*"
+      class="file-input"
+      (change)="onFileSelected($event)"
+    />
+    <button type="button" class="btn small" [disabled]="uploading()" (click)="openFilePicker()">
+      <i class="fa-solid fa-upload"></i>
+      Upload a new photo
+    </button>
+  </div>
+
+  @if (displayImageUrl()) {
+    <div class="crop-editor">
+      <img
+        #cropImg
+        [src]="displayImageUrl()"
+        [alt]="info().name"
+        class="crop-image"
+        (load)="onImageLoad()"
+      />
+      @if (renderedWidth() > 0) {
+        <div
+          class="crop-box"
+          [style.left.px]="boxLeft()"
+          [style.top.px]="boxTop()"
+          [style.width.px]="boxSize()"
+          [style.height.px]="boxSize()"
+          (pointerdown)="startDrag($event)"
+        >
+          <div class="resize-edge edge-n" (pointerdown)="startResize($event, 'n')"></div>
+          <div class="resize-edge edge-s" (pointerdown)="startResize($event, 's')"></div>
+          <div class="resize-edge edge-e" (pointerdown)="startResize($event, 'e')"></div>
+          <div class="resize-edge edge-w" (pointerdown)="startResize($event, 'w')"></div>
+          <div class="resize-corner corner-ne" (pointerdown)="startResize($event, 'ne')"></div>
+          <div class="resize-corner corner-nw" (pointerdown)="startResize($event, 'nw')"></div>
+          <div class="resize-corner corner-se" (pointerdown)="startResize($event, 'se')"></div>
+          <div class="resize-corner corner-sw" (pointerdown)="startResize($event, 'sw')"></div>
+        </div>
+      }
+    </div>
+    <div class="small-text-content crop-hint">
+      Drag the box to reposition it, or drag any edge/corner to resize it.
+    </div>
+  }
+</div>
+
+<div class="sheet-footer">
+  <button type="button" class="btn" [disabled]="!cropDirty() || savingCrop()" (click)="saveCrop()">
+    Save crop
+  </button>
+</div>

@@ -1,0 +1,17 @@
+<div class="avatar-box" [style.width.px]="size()" [style.height.px]="size()">
+  @if (hasCrop()) {
+    <img
+      #croppedImg
+      [src]="src()"
+      [alt]="alt()"
+      class="cropped-img"
+      [style.width.px]="imgWidth()"
+      [style.height.px]="imgHeight()"
+      [style.left.px]="imgLeft()"
+      [style.top.px]="imgTop()"
+      (load)="onLoad(croppedImg)"
+    />
+  } @else {
+    <img [src]="src()" [alt]="alt()" class="cover-img" />
+  }
+</div>

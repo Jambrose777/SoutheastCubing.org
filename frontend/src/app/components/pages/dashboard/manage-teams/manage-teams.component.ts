@@ -6,7 +6,6 @@ import {
   signal,
   computed,
 } from '@angular/core';
-import { NgOptimizedImage } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
@@ -19,6 +18,7 @@ import { HeaderComponent } from '../../../core/header/header.component';
 import { DashboardSidePaneComponent } from '../dashboard-side-pane/dashboard-side-pane.component';
 import { DASHBOARD_TOOLS } from '../dashboard-tools';
 import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading-spinner.component';
+import { AvatarComponent } from '../../../shared/avatar/avatar.component';
 import { AddEditTeamSheetComponent } from './add-edit-team-sheet/add-edit-team-sheet.component';
 import { AddEditMemberSheetComponent } from './add-edit-member-sheet/add-edit-member-sheet.component';
 import { EditLeadershipSheetComponent } from './edit-leadership-sheet/edit-leadership-sheet.component';
@@ -67,7 +67,7 @@ function datesOverlap(
     HeaderComponent,
     DashboardSidePaneComponent,
     LoadingSpinnerComponent,
-    NgOptimizedImage,
+    AvatarComponent,
     MatMenuModule,
     MatTooltipModule,
     AddEditTeamSheetComponent,

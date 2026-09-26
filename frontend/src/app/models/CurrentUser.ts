@@ -3,6 +3,10 @@
 export interface CurrentUser {
   name: string;
   pictureUrl: string | null;
+  thumbnailCropX: number | null;
+  thumbnailCropY: number | null;
+  thumbnailCropW: number | null;
+  thumbnailCropH: number | null;
   wcaId: string | null;
   roles: {
     isAdmin: boolean;

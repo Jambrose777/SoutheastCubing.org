@@ -3,6 +3,7 @@ const { config } = require('../config/config.js');
 const authService = require('../services/auth.service.js');
 const sessionsDb = require('../database/sessions.database.js');
 const { getCurrentRoles } = require('../helpers/roles.helper.js');
+const { resolvePersonPicture } = require('../helpers/personPicture.helper.js');
 
 const logger = require('../utils/logger.util.js');
 
@@ -176,7 +177,7 @@ async function getCurrentUser(req, res) {
   const { isAdmin, isBoard } = await getCurrentRoles(req.user.people_id);
   res.json({
     name: req.user.name,
-    pictureUrl: req.user.picture_url,
+    ...resolvePersonPicture(req.user),
     wcaId: req.user.wca_id,
     roles: { isAdmin, isBoard },
   });

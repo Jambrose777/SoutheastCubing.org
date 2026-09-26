@@ -32,7 +32,8 @@ async function getActiveLeader(teamId) {
 // since left the team entirely) - backs the "Edit Leadership" sheet.
 async function listLeadershipHistoryForTeam(teamId) {
   const { rows } = await db.pool.query(
-    `SELECT tl.*, p.name, p.picture_url
+    `SELECT tl.*, p.name, p.picture_url, p.has_managed_photo,
+            p.thumbnail_crop_x, p.thumbnail_crop_y, p.thumbnail_crop_w, p.thumbnail_crop_h
      FROM team_leaders tl
      JOIN people p ON p.id = tl.people_id
      WHERE tl.team_id = $1

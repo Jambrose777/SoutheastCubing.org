@@ -1,4 +1,4 @@
-@forward '../sheet-shared';
+@forward 'src/styles/sheet';
 @use 'src/styles/color-pallet';
 
 .search-result,
@@ -11,11 +11,6 @@
 
   &:hover {
     background-color: color-pallet.$se-grey;
-  }
-
-  .avatar {
-    border-radius: 10px;
-    object-fit: cover;
   }
 }
 

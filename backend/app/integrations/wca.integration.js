@@ -117,6 +117,18 @@ async function fetchPersonByWcaId(wcaId) {
   }
 }
 
+// Downloads the raw bytes of a WCA avatar image at `avatarUrl`. Returns a Buffer.
+async function fetchAvatarImage(avatarUrl) {
+  try {
+    const res = await axios.get(avatarUrl, { responseType: 'arraybuffer' });
+    logger.debug(`WCA avatar image download succeeded: ${avatarUrl}`);
+    return Buffer.from(res.data);
+  } catch (err) {
+    logger.error(`WCA avatar image download failed: ${avatarUrl} - `, err);
+    throw err;
+  }
+}
+
 module.exports = {
   US_COMPETITIONS_PAGE_SIZE,
   fetchUSCompetitionsPage,
@@ -125,4 +137,5 @@ module.exports = {
   exchangeAuthorizationCodeForToken,
   fetchWcaProfile,
   fetchPersonByWcaId,
+  fetchAvatarImage,
 };

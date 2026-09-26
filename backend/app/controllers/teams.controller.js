@@ -1,18 +1,5 @@
 const teamsService = require('../services/teams.service.js');
-
-const logger = require('../utils/logger.util.js');
-
-// Handles service errors and sends appropriate HTTP responses.
-function respondWithServiceError(res, err, fallbackMessage) {
-  const status = err.status || 500;
-  if (status < 500) {
-    logger.warn(`${fallbackMessage}: ${err.message}`);
-    res.status(status).json({ message: err.message });
-    return;
-  }
-  logger.error(`${fallbackMessage}: `, err);
-  res.status(500).json({ message: 'Internal server error' });
-}
+const { respondWithServiceError } = require('../helpers/httpError.helper.js');
 
 // GET /dashboard/teams - lists every team, grouped/sorted for the dashboard.
 async function listTeams(req, res) {

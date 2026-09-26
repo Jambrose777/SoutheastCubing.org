@@ -1,5 +1,11 @@
-import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@angular/core';
-import { NgOptimizedImage } from '@angular/common';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  inject,
+  OnInit,
+  signal,
+  computed,
+} from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
@@ -13,7 +19,16 @@ import { buildDetailUrl } from 'src/app/shared/build-detail-url';
 import { HeaderComponent } from '../../../core/header/header.component';
 import { DashboardSidePaneComponent } from '../dashboard-side-pane/dashboard-side-pane.component';
 import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading-spinner.component';
+import { PictureCropSheetComponent } from '../../../shared/picture-crop-sheet/picture-crop-sheet.component';
+import { cacheBustUrl } from 'src/app/shared/cache-bust-url.util';
 import { MyInfo } from 'src/app/models/MyInfo';
+
+// A DirtyCheckable sheet component, checked before actually dismissing it.
+interface DirtyCheckable {
+  isDirty(): boolean;
+}
+
+const CLOSE_ANIMATION_MS = 200;
 
 // The "Who We Are" page's URL.
 const WHO_WE_ARE_URL = buildDetailUrl('/about', 'Who We Are');
@@ -29,9 +44,9 @@ const WHO_WE_ARE_URL = buildDetailUrl('/about', 'Who We Are');
     HeaderComponent,
     DashboardSidePaneComponent,
     LoadingSpinnerComponent,
-    NgOptimizedImage,
     RouterLink,
     MatTooltipModule,
+    PictureCropSheetComponent,
   ],
 })
 export class MyInfoComponent implements OnInit {
@@ -48,6 +63,18 @@ export class MyInfoComponent implements OnInit {
 
   loading = signal(true);
   myInfo = signal<MyInfo | null>(null);
+
+  // Cache-busted so a managed photo replaced via the Picture & Crop sheet
+  // actually reloads here too.
+  pictureUrl = computed(() => {
+    const url = this.myInfo()?.pictureUrl;
+    return url ? cacheBustUrl(url) : null;
+  });
+
+  pictureSheetOpen = signal(false);
+  // True for the duration of the slide-out exit animation, so the template
+  // keeps the sheet mounted long enough for it to actually play.
+  isSheetClosing = signal(false);
 
   formatDate = formatDate;
 
@@ -67,6 +94,15 @@ export class MyInfoComponent implements OnInit {
       error: () => {
         this.loading.set(false);
       },
+    });
+  }
+
+  // Re-fetches without toggling `loading` - used while the Picture & Crop
+  // sheet is open, so the page behind it doesn't flash to the loading
+  // spinner (which would also unmount the sheet's backdrop) on every save.
+  private refreshMyInfo() {
+    this.myInfoApi.getMyInfo().subscribe({
+      next: (myInfo) => this.myInfo.set(myInfo),
     });
   }
 
@@ -98,5 +134,42 @@ export class MyInfoComponent implements OnInit {
   // My Info's dob field click-to-grant action.
   beginDobStepUp() {
     this.authService.beginDobStepUp();
+  }
+
+  openPictureSheet() {
+    this.pictureSheetOpen.set(true);
+  }
+
+  private closeSheet() {
+    this.isSheetClosing.set(true);
+    setTimeout(() => {
+      this.pictureSheetOpen.set(false);
+      this.isSheetClosing.set(false);
+    }, CLOSE_ANIMATION_MS);
+  }
+
+  // Only requests a close when the backdrop itself (not a click bubbling up
+  // from the sheet panel inside it) was the actual click target.
+  closeSheetIfBackdrop(event: MouseEvent, sheet: DirtyCheckable) {
+    if (event.target === event.currentTarget) {
+      this.requestCloseSheet(sheet);
+    }
+  }
+
+  // Any way of dismissing the sheet (backdrop click, Escape, or its own
+  // back button) routes through here.
+  requestCloseSheet(sheet: DirtyCheckable) {
+    if (sheet.isDirty() && !confirm('You have an unsaved crop change. Discard it?')) {
+      return;
+    }
+    this.closeSheet();
+  }
+
+  // A mutation inside the sheet (sync toggle, upload, or crop save)
+  // resolved - refetch so the sheet (and the rest of the page) reflects the
+  // new server state, without closing the sheet itself.
+  onPictureSheetSaved() {
+    this.refreshMyInfo();
+    this.authService.refreshCurrentUser();
   }
 }

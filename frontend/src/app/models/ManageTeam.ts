@@ -17,6 +17,10 @@ export interface TeamMembership {
   color: TeamMemberColor | null;
   name: string;
   picture_url: string | null;
+  thumbnail_crop_x: number | null;
+  thumbnail_crop_y: number | null;
+  thumbnail_crop_w: number | null;
+  thumbnail_crop_h: number | null;
   wca_id: string | null;
   is_active_leader: boolean;
   // Only ever set on the Board team's own members - their current Officer
@@ -35,6 +39,10 @@ export interface TeamLeaderStint {
   end_date: string | null;
   name: string;
   picture_url: string | null;
+  thumbnail_crop_x: number | null;
+  thumbnail_crop_y: number | null;
+  thumbnail_crop_w: number | null;
+  thumbnail_crop_h: number | null;
 }
 
 export interface ManageTeam {
@@ -54,6 +62,10 @@ export interface PersonSearchResult {
   id: string;
   name: string;
   picture_url: string | null;
+  thumbnail_crop_x: number | null;
+  thumbnail_crop_y: number | null;
+  thumbnail_crop_w: number | null;
+  thumbnail_crop_h: number | null;
   wca_id: string | null;
   wca_user_id: string | null;
   email: string | null;

@@ -18,8 +18,11 @@ async function findPersonByWcaIdentifiers(queryable, { wcaId, wcaUserId }) {
 // Upserts a `people` row from a WCA OAuth profile (GET /api/v0/me) - creates
 // a new row the first time this wca_user_id is seen, or claims/updates an
 // existing row. `picture_url` (and wca_picture_source_url) is left untouched
-// whenever the existing row has picture_synced_with_wca = false, so a manual
-// override is never silently clobbered by a login.
+// whenever the existing row has picture_synced_with_wca = false (a manual
+// override), or has_managed_photo = true (a managed photo is only ever
+// touched via photos.service.js's own resync/upload/promotion paths, never
+// this plain login upsert - even with sync on, the managed-photo resync is
+// its own explicit call, not folded into every login).
 async function upsertPersonFromWcaProfile({ wcaId, wcaUserId, name, pictureUrl }) {
   const attempt = async () =>
     db.withRetry(async (client) => {
@@ -27,7 +30,7 @@ async function upsertPersonFromWcaProfile({ wcaId, wcaUserId, name, pictureUrl }
 
       // If an existing row is found, update it with the new WCA profile data.
       if (existing) {
-        const shouldSyncPicture = existing.picture_synced_with_wca;
+        const shouldSyncPicture = existing.picture_synced_with_wca && !existing.has_managed_photo;
         const { rows } = await client.query(
           `UPDATE people
            SET wca_id = COALESCE($1, wca_id),
@@ -74,7 +77,8 @@ async function upsertPersonFromWcaProfile({ wcaId, wcaUserId, name, pictureUrl }
 // (GET /api/v0/persons/:wca_id, proxied via wca.integration.js) - unlike a
 // WCA login, that lookup never yields a wca_user_id, so this can only ever
 // match/create by wca_id. `picture_url` is likewise skipped whenever the
-// existing row has picture_synced_with_wca = false.
+// existing row has picture_synced_with_wca = false, or has_managed_photo =
+// true (see upsertPersonFromWcaProfile's comment above for why).
 async function upsertPersonFromWcaIdLookup({ wcaId, name, pictureUrl }) {
   return db.withRetry(async (client) => {
     // Look for an existing person by WCA ID.
@@ -85,7 +89,7 @@ async function upsertPersonFromWcaIdLookup({ wcaId, name, pictureUrl }) {
     const existing = existingRows[0];
 
     if (existing) {
-      const shouldSyncPicture = existing.picture_synced_with_wca;
+      const shouldSyncPicture = existing.picture_synced_with_wca && !existing.has_managed_photo;
       const { rows } = await client.query(
         `UPDATE people
          SET name = $1,
@@ -112,6 +116,68 @@ async function upsertPersonFromWcaIdLookup({ wcaId, name, pictureUrl }) {
   });
 }
 
+// Promotes a person into a managed photo (or updates their existing managed
+// photo on a resync/upload) - sets picture_url to the new stored object's
+// key, wca_picture_source_url to the WCA avatar URL that was mirrored (null
+// for a manual upload, which isn't mirrored from any WCA URL), and
+// has_managed_photo to true. Also accepts the crop columns so a resync/
+// upload can reset them to a default in the same write.
+async function setManagedPhoto(
+  peopleId,
+  { pictureKey, wcaPictureSourceUrl, pictureSyncedWithWca, cropX, cropY, cropW, cropH },
+) {
+  const { rows } = await db.pool.query(
+    `UPDATE people
+     SET picture_url = $2,
+         wca_picture_source_url = $3,
+         picture_synced_with_wca = $4,
+         has_managed_photo = true,
+         thumbnail_crop_x = $5,
+         thumbnail_crop_y = $6,
+         thumbnail_crop_w = $7,
+         thumbnail_crop_h = $8,
+         updated_at = now()
+     WHERE id = $1
+     RETURNING *`,
+    [peopleId, pictureKey, wcaPictureSourceUrl ?? null, pictureSyncedWithWca, cropX, cropY, cropW, cropH],
+  );
+  logger.debug(`Set managed photo for people_id ${peopleId}.`);
+  return rows[0] ?? null;
+}
+
+// Flips only picture_synced_with_wca, leaving picture_url/wca_picture_source_url/
+// crop untouched - used when re-enabling sync but there's nothing new to
+// actually mirror.
+async function setPictureSyncedWithWca(peopleId, pictureSyncedWithWca) {
+  const { rows } = await db.pool.query(
+    `UPDATE people
+     SET picture_synced_with_wca = $2,
+         updated_at = now()
+     WHERE id = $1
+     RETURNING *`,
+    [peopleId, pictureSyncedWithWca],
+  );
+  logger.debug(`Set picture_synced_with_wca=${pictureSyncedWithWca} for people_id ${peopleId}.`);
+  return rows[0] ?? null;
+}
+
+// Updates only the thumbnail crop columns on an already-managed photo.
+async function updateThumbnailCrop(peopleId, { cropX, cropY, cropW, cropH }) {
+  const { rows } = await db.pool.query(
+    `UPDATE people
+     SET thumbnail_crop_x = $2,
+         thumbnail_crop_y = $3,
+         thumbnail_crop_w = $4,
+         thumbnail_crop_h = $5,
+         updated_at = now()
+     WHERE id = $1
+     RETURNING *`,
+    [peopleId, cropX, cropY, cropW, cropH],
+  );
+  logger.debug(`Updated thumbnail crop for people_id ${peopleId}.`);
+  return rows[0] ?? null;
+}
+
 // Looks up a single `people` row by id
 async function findPersonById(peopleId) {
   const { rows } = await db.pool.query('SELECT * FROM people WHERE id = $1', [peopleId]);
@@ -125,7 +191,9 @@ async function findPersonById(peopleId) {
 // to the browser in bulk just to power a search box.
 async function searchPeople(searchTerm, { limit = 10 } = {}) {
   const { rows } = await db.pool.query(
-    `SELECT p.id, p.name, p.picture_url, p.wca_id, p.wca_user_id, u.email, (u.id IS NOT NULL) AS has_account
+    `SELECT p.id, p.name, p.picture_url, p.wca_id, p.wca_user_id, p.has_managed_photo,
+            p.thumbnail_crop_x, p.thumbnail_crop_y, p.thumbnail_crop_w, p.thumbnail_crop_h,
+            u.email, (u.id IS NOT NULL) AS has_account
      FROM people p
      LEFT JOIN users u ON u.people_id = p.id
      WHERE p.name ILIKE $1
@@ -143,6 +211,9 @@ async function searchPeople(searchTerm, { limit = 10 } = {}) {
 module.exports = {
   upsertPersonFromWcaProfile,
   upsertPersonFromWcaIdLookup,
+  setManagedPhoto,
+  setPictureSyncedWithWca,
+  updateThumbnailCrop,
   findPersonById,
   searchPeople,
 };

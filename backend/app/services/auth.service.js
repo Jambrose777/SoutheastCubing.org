@@ -3,6 +3,7 @@ const wcaIntegration = require('../integrations/wca.integration.js');
 const peopleDb = require('../database/people.database.js');
 const usersDb = require('../database/users.database.js');
 const sessionsDb = require('../database/sessions.database.js');
+const photosService = require('./photos.service.js');
 const { generateSessionToken } = require('../helpers/session.helper.js');
 
 const logger = require('../utils/logger.util.js');
@@ -64,13 +65,18 @@ async function completeSignIn({ code, ipAddress }) {
   // Fetch the user's WCA profile using the access token.
   const profile = await wcaIntegration.fetchWcaProfile(accessToken);
 
-  // Upsert the local person record based on the WCA profile.
+  // Upsert the local person record based on the WCA profile. Uses WCA's own
+  // pre-cropped thumb_url, who has no crop metadata to pair with the full-size 
+  // original and just needs something reasonable to show as-is.
   const person = await peopleDb.upsertPersonFromWcaProfile({
     wcaId: profile.wca_id ?? null,
     wcaUserId: String(profile.id),
     name: profile.name,
-    pictureUrl: profile.avatar?.url ?? null,
+    pictureUrl: profile.avatar?.thumb_url ?? null,
   });
+
+  // Carry out a login-time resync for a managed photo with sync still on.
+  await photosService.resyncOnLoginIfNeeded(person.id);
 
   // Upsert the local user record associated with the person.
   const user = await usersDb.upsertUserForPerson({

@@ -31,7 +31,8 @@ async function getActiveMembershipsForTeams(teamIds) {
 async function listMembershipsForTeam(teamId) {
   const { rows } = await db.pool.query(
     `SELECT tm.id, tm.team_id, tm.people_id, tm.start_date, tm.end_date, tm.special_role, tm.color,
-            p.name, p.picture_url, p.wca_id,
+            p.name, p.picture_url, p.wca_id, p.has_managed_photo,
+            p.thumbnail_crop_x, p.thumbnail_crop_y, p.thumbnail_crop_w, p.thumbnail_crop_h,
             (tl.id IS NOT NULL) AS is_active_leader
      FROM team_memberships tm
      JOIN people p ON p.id = tm.people_id
