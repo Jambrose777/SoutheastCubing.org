@@ -117,6 +117,53 @@ async function fetchPersonByWcaId(wcaId) {
   }
 }
 
+// Number of roles requested per page from WCA's user_roles endpoint.
+const USER_ROLES_PAGE_SIZE = 1000;
+
+// Fetches every WCA user_roles page, filtered by either a specific groupId
+// or a groupType (e.g. 'delegate_regions' for a worldwide pull). Exactly one
+// of groupId/groupType is expected per call.
+async function fetchUserRoles({ groupId, groupType, isActive = true } = {}) {
+  const maxPages = 20; // guard against an unexpected API change looping forever
+  let allRoles = [];
+
+  for (let page = 1; page <= maxPages; page++) {
+    const params = new URLSearchParams({
+      isActive: String(isActive),
+      per_page: String(USER_ROLES_PAGE_SIZE),
+      page: String(page),
+    });
+    if (groupId !== undefined) params.set('groupId', String(groupId));
+    if (groupType !== undefined) params.set('groupType', groupType);
+
+    const url = `https://www.worldcubeassociation.org/api/v0/user_roles?${params.toString()}`;
+    try {
+      const res = await axios.get(url);
+
+      if (!Array.isArray(res.data)) {
+        throw new Error('Unexpected WCA user_roles response shape');
+      }
+
+      logger.debug(`WCA user_roles page fetch succeeded (${res.data.length} results): ${url}`);
+      allRoles = allRoles.concat(res.data);
+
+      if (res.data.length < USER_ROLES_PAGE_SIZE) {
+        break; // short page means there's nothing more to fetch
+      }
+      if (page === maxPages) {
+        logger.warn(
+          `Hit the WCA user_roles pagination cap of ${maxPages} pages - some roles may be missing.`,
+        );
+      }
+    } catch (err) {
+      logger.error(`WCA user_roles fetch failed: ${url} - `, err);
+      throw err;
+    }
+  }
+
+  return allRoles;
+}
+
 // Downloads the raw bytes of a WCA avatar image at `avatarUrl`. Returns a Buffer.
 async function fetchAvatarImage(avatarUrl) {
   try {
@@ -137,5 +184,6 @@ module.exports = {
   exchangeAuthorizationCodeForToken,
   fetchWcaProfile,
   fetchPersonByWcaId,
+  fetchUserRoles,
   fetchAvatarImage,
 };

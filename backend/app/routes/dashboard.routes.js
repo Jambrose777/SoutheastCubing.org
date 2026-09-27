@@ -3,6 +3,7 @@ const express = require('express');
 const teamsController = require('../controllers/teams.controller.js');
 const myInfoController = require('../controllers/myInfo.controller.js');
 const photosController = require('../controllers/photos.controller.js');
+const delegatesController = require('../controllers/delegates.controller.js');
 const { requireAnyRole, requireAdmin } = require('../middleware/roles.middleware.js');
 const { requireAuth } = require('../middleware/session.middleware.js');
 const { photoUploadMiddleware } = require('../middleware/photoUpload.middleware.js');
@@ -16,6 +17,9 @@ const router = express.Router();
 
 // Routes that require Board / Admin access
 const requireBoardOrAdmin = requireAnyRole('isBoard', 'isAdmin');
+
+// Manual Delegate sync is available to Regional Delegate/Admin/Board.
+const requireDelegateSyncAccess = requireAnyRole('isRegionalDelegate', 'isAdmin', 'isBoard');
 
 /**
  * @openapi
@@ -274,6 +278,28 @@ router.get(
   '/dashboard/people/wca-lookup/:wcaId',
   requireBoardOrAdmin,
   asyncRoute(teamsController.lookupWcaId),
+);
+
+/**
+ * @openapi
+ * /dashboard/delegates/sync:
+ *   post:
+ *     summary: Manually triggers the same nightly WCA Delegate roster sync, on demand.
+ *     tags: [Delegates]
+ *     responses:
+ *       200:
+ *         description: Sync completed - a structured summary of what changed (promotions, demotions, rank/state changes, Regional/Senior stints).
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not Regional Delegate/Admin/Board.
+ *       502:
+ *         description: Sync failed (e.g. WCA returned no Southeast Delegates) - see the response body's errors array.
+ */
+router.post(
+  '/dashboard/delegates/sync',
+  requireDelegateSyncAccess,
+  asyncRoute(delegatesController.syncDelegates),
 );
 
 module.exports = router;

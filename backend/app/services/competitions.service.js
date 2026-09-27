@@ -10,6 +10,7 @@ const competitionsDb = require('../database/competitions.database.js');
 const discordPingPatternsDb = require('../database/discordPingPatterns.database.js');
 const majorChampionships = require('./majorChampionships.service.js');
 const { getFullCompetitionDate } = require('../helpers/competitionDates.helper.js');
+const { SOUTHEAST_STATES } = require('../helpers/southeastStates.helper.js');
 
 // Refetches competitions from WCA if the stored data is stale.
 async function fetchCompetitions() {
@@ -324,16 +325,6 @@ function getCompetitionVenueUrl(venue) {
   return match ? match[2] : undefined;
 }
 
-// The states SECI tracks/considers "Southeast"
-const TRACKED_SE_STATES = [
-  'Alabama',
-  'Florida',
-  'Georgia',
-  'North Carolina',
-  'South Carolina',
-  'Tennessee',
-];
-
 // Returns the trimmed segment after the last comma in a WCA/Contentful city string
 // (e.g. "Atlanta, Georgia" -> "Georgia")
 function getStateFromCity(city) {
@@ -347,7 +338,7 @@ function getStateFromCity(city) {
 // matches one of TRACKED_SE_STATES case-insensitively, or undefined otherwise.
 function getTrackedSEState(city) {
   const state = getStateFromCity(city);
-  return state && TRACKED_SE_STATES.find((tracked) => tracked.toLowerCase() === state.toLowerCase());
+  return state && SOUTHEAST_STATES.find((tracked) => tracked.toLowerCase() === state.toLowerCase());
 }
 
 // True if `comp`'s city is in one of the 6 states SECI tracks.

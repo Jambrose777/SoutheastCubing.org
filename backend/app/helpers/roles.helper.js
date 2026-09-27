@@ -1,18 +1,31 @@
 const teamMembershipsDb = require('../database/teamMemberships.database.js');
+const delegatesDb = require('../database/delegates.database.js');
 const { ADMIN_TEAM_ID, BOARD_TEAM_ID } = require('./fixedTeams.helper.js');
 
-// Computes every team id `peopleId` currently (actively) belongs to, plus
-// the Admin/Board convenience flags every later role check is built on -
-// the single shared "does this user currently hold role X" helper every
+// Delegate Type ordering that a person can display/sort as.
+const RANK_DISPLAY_ORDER = ['regional', 'senior', 'delegate', 'junior', 'trainee'];
+
+// Of every rank `ranks` currently holds concurrently open, returns the
+// single highest one per RANK_DISPLAY_ORDER.
+function highestDisplayRank(ranks) {
+  return RANK_DISPLAY_ORDER.find((rank) => ranks.includes(rank)) ?? null;
+}
+
+// Computes every team id `peopleId` currently (actively) belongs to, a person's
+// highest delegate rank, plus the Admin/Board convenience flags every later role 
+// check is built on - the single shared "does this user currently hold role X" helper every
 // protected route reuses.
 async function getCurrentRoles(peopleId) {
   if (!peopleId) {
-    return { teamIds: [], isAdmin: false, isBoard: false };
+    return { teamIds: [], delegateRank: null, isAdmin: false, isBoard: false, isRegionalDelegate: false };
   }
   const teamIds = await teamMembershipsDb.getActiveTeamIdsForPerson(peopleId);
   const isAdmin = teamIds.includes(ADMIN_TEAM_ID);
   const isBoard = teamIds.includes(BOARD_TEAM_ID);
-  return { teamIds, isAdmin, isBoard };
+  const openRanks = await delegatesDb.getOpenRanksForPerson(peopleId);
+  const delegateRank = highestDisplayRank(openRanks);
+  const isRegionalDelegate = delegateRank === 'regional';
+  return { teamIds, delegateRank, isAdmin, isBoard, isRegionalDelegate };
 }
 
 // True if `user` (req.user, set by session.middleware.js's attachSession)

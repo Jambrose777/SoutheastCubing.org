@@ -32,6 +32,7 @@ const dashboardRoutes = require('./routes/dashboard.routes.js');
 
 const { registerCompetitionsRefreshJob } = require('./jobs/competitionsRefresh.job.js');
 const { registerSessionsCleanupJob } = require('./jobs/sessionsCleanup.job.js');
+const { registerDelegateSyncJob } = require('./jobs/delegateSync.job.js');
 const { swaggerSpec } = require('./config/swagger.config.js');
 
 const app = express();
@@ -57,6 +58,7 @@ db.verifyConnection()
 
 registerCompetitionsRefreshJob();
 registerSessionsCleanupJob();
+registerDelegateSyncJob();
 
 // Public, unauthenticated docs UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
