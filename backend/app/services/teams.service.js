@@ -91,6 +91,69 @@ function withResolvedPicture(row) {
   };
 }
 
+// Collapses a member's badges into the single display tag the public page shows.
+function publicDisplayTag(member) {
+  return member.officerRole ?? (member.is_active_leader ? 'Leader' : null) ?? member.special_role;
+}
+
+// Lists every team for the public.
+async function listTeamsForPublicPage() {
+  const teams = await teamsDb.listTeams();
+  const sorted = sortTeamsForDashboard(teams).filter((team) => !team.archived_at && !team.hidden);
+
+  // get officer information
+  const officerMemberships = await teamMembershipsDb.getActiveMembershipsForTeams(
+    OFFICER_TEAM_IDS,
+  );
+  const officerTeamIdByPeopleId = new Map(
+    officerMemberships.map((row) => [row.people_id, row.team_id]),
+  );
+  const officerColorByPeopleId = new Map(
+    officerMemberships.map((row) => [row.people_id, row.color]),
+  );
+  const officerTeamNameById = new Map(
+    teams.filter((team) => OFFICER_TEAM_IDS.includes(team.id)).map((team) => [team.id, team.name]),
+  );
+
+  const withMembers = await Promise.all(
+    sorted.map(async (team) => {
+      let members = (await teamMembershipsDb.listMembershipsForTeam(team.id))
+        .filter((member) => !member.end_date)
+        .map(withResolvedPicture);
+
+      if (team.id === BOARD_TEAM_ID) {
+        members = members.map((member) => ({
+          ...member,
+          officerRole: officerTeamNameById.get(officerTeamIdByPeopleId.get(member.people_id)) ?? null,
+          officerColor: officerColorByPeopleId.get(member.people_id) ?? null,
+        }));
+        members = sortBoardMembers(members, officerTeamIdByPeopleId);
+      }
+
+      members = members.map((member) => ({
+        peopleId: member.people_id,
+        name: member.name,
+        tag: publicDisplayTag(member),
+        color: member.officerColor ?? member.color,
+        pictureUrl: member.picture_url,
+        thumbnailCropX: member.thumbnail_crop_x,
+        thumbnailCropY: member.thumbnail_crop_y,
+        thumbnailCropW: member.thumbnail_crop_w,
+        thumbnailCropH: member.thumbnail_crop_h,
+      }));
+
+      return {
+        id: team.id,
+        name: team.name,
+        description: team.description,
+        members,
+      };
+    }),
+  );
+
+  return withMembers.filter((team) => team.members.length > 0);
+}
+
 // Lists every team (including archived/hidden) with its members and, for
 // ordinary teams, its full leadership history (current + past stints) -
 // already sorted into the dashboard's canonical display order.
@@ -484,6 +547,7 @@ async function lookupWcaId(wcaId) {
 module.exports = {
   WCA_ID_FORMAT,
   listTeamsForDashboard,
+  listTeamsForPublicPage,
   createTeam,
   updateTeam,
   archiveTeam,

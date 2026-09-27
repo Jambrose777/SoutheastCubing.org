@@ -11,6 +11,16 @@ async function listTeams(req, res) {
   }
 }
 
+// GET /teams - public "Who We Are" page listing.
+async function listPublicTeams(req, res) {
+  try {
+    const teams = await teamsService.listTeamsForPublicPage();
+    res.json(teams);
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to list teams');
+  }
+}
+
 // POST /dashboard/teams - creates a new ordinary team.
 async function createTeam(req, res) {
   try {
@@ -184,6 +194,7 @@ async function lookupWcaId(req, res) {
 
 module.exports = {
   listTeams,
+  listPublicTeams,
   createTeam,
   updateTeam,
   archiveTeam,

@@ -5,6 +5,7 @@ import { EmailRequestBody } from '../../models/EmailRequestBody';
 import { Observable, map } from 'rxjs';
 import { Competition } from '../../models/Competition';
 import { CurrentUser } from '../../models/CurrentUser';
+import { Team } from '../../models/Team';
 import { getRegistrationStatus, getReadableRegistrationOpen } from '../../shared/competition.utils';
 
 // Shape of a competition as returned by the backend's /competitions endpoint,
@@ -49,6 +50,11 @@ export class SoutheastcubingApiService {
       competitions: unknown;
       discordPostFailures: { id: string; name: string }[];
     }>(`${environment.links.southeastCubingApi}/update-competitions`, null);
+  }
+
+  // Public "Who We Are" page listing
+  getPublicTeams(): Observable<Team[]> {
+    return this.http.get<Team[]>(`${environment.links.southeastCubingApi}/teams`);
   }
 
   // Checks whether the session cookie still resolves to a signed-in user.

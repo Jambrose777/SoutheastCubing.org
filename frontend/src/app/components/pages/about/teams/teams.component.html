@@ -11,20 +11,22 @@
           {{ team.description }}
         </div>
         <div class="team-persons-container">
-          <!-- {{team.persons}} -->
-          @for (teamMember of team.teamMembers; track teamMember) {
-            <div class="team-person" [style.--team-member-color]="teamMember.color">
-              <b>{{ teamMember.name }}</b>
-              {{ teamMember.title }}
-              @if (teamMember.thumbnail) {
-                <img
-                  ngSrc="{{ teamMember.thumbnail }}"
-                  [alt]="teamMember.thumbnailAlt ?? ''"
-                  [width]="teamMember.thumbnailWidth"
-                  [height]="teamMember.thumbnailHeight"
+          @for (member of team.members; track member.peopleId) {
+            <div class="team-person" [attr.data-color]="member.color ?? 'grey'">
+              <b>{{ member.name }}</b>
+              {{ member.tag }}
+              @if (member.pictureUrl) {
+                <se-avatar
+                  [src]="member.pictureUrl"
+                  [alt]="member.name"
+                  [size]="60"
+                  [cropX]="member.thumbnailCropX"
+                  [cropY]="member.thumbnailCropY"
+                  [cropW]="member.thumbnailCropW"
+                  [cropH]="member.thumbnailCropH"
                   class="thumbnail"
-                  [ngClass]="{ 'extra-spacing': !teamMember.title }"
-                />
+                  [ngClass]="{ 'extra-spacing': !member.tag }"
+                ></se-avatar>
               }
             </div>
           }

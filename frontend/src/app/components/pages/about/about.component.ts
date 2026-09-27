@@ -9,12 +9,7 @@ import {
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
-import {
-  AboutPageSkeleton,
-  DocumentSkeleton,
-  TeamMemberSkeleton,
-  TeamSkeleton,
-} from 'src/app/models/ContentfulSkeletons';
+import { AboutPageSkeleton, DocumentSkeleton } from 'src/app/models/ContentfulSkeletons';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { resolvedAsset, resolvedEntry, SubTopicEntryLink } from 'src/app/shared/contentful-links';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
@@ -23,6 +18,7 @@ import { colorFromField } from 'src/app/shared/color-from-field';
 import { SubTopic } from 'src/app/models/SubTopic';
 import { Team } from 'src/app/models/Team';
 import { ContentfulService } from 'src/app/services/contentful.service';
+import { SoutheastcubingApiService } from 'src/app/services/southeastcubing-api/southeastcubing-api.service';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { SelectItemService } from 'src/app/services/select-item.service';
 import { ThemeService } from 'src/app/services/theme.service';
@@ -56,6 +52,7 @@ import { DoucmentsComponent } from './documents/documents.component';
 })
 export class AboutComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
+  private southeastcubingApi = inject(SoutheastcubingApiService);
   private themeService = inject(ThemeService);
   private screenSizeService = inject(ScreenSizeService);
   private location = inject(Location);
@@ -131,42 +128,15 @@ export class AboutComponent implements OnInit, OnDestroy {
       }),
     );
 
-    // retrieve teams list from the CMS Teams
+    // retrieve the "Who We Are" team/board listing.
     this.subscriptions.add(
-      this.contentful.getContentfulGroup<TeamSkeleton>(ContentfulContentType.teams).subscribe({
-        next: (res) => {
-          this.teams.set(
-            res.items
-              .map((team) => ({
-                ...team.fields,
-                teamMembers: team.fields.teamMembers.map((teamMemberLink) => {
-                  const teamMember = resolvedEntry<TeamMemberSkeleton>(teamMemberLink);
-                  // Team member thumbnails render in a 60x60 box; scale the native
-                  // Contentful asset down (max ~120px, covering a 2x-density srcset)
-                  // instead of shipping the full-resolution upload for a tiny thumbnail.
-                  const thumbnail = resolvedAsset(teamMember?.fields['thumbnail']);
-                  const thumbnailSize = scaleToDisplaySize(
-                    thumbnail?.fields.file?.details?.image?.width,
-                    thumbnail?.fields.file?.details?.image?.height,
-                    120,
-                  );
-                  return {
-                    ...teamMember?.fields,
-                    name: teamMember?.fields.name ?? '',
-                    color: colorFromField(teamMember?.fields.color),
-                    thumbnail: thumbnail?.fields.file?.url,
-                    thumbnailAlt: thumbnail?.fields.description ?? '',
-                    thumbnailWidth: thumbnailSize.width,
-                    thumbnailHeight: thumbnailSize.height,
-                  };
-                }),
-              }))
-              .sort((a: Team, b: Team) => (a.order > b.order ? 1 : -1)),
-          );
+      this.southeastcubingApi.getPublicTeams().subscribe({
+        next: (teams) => {
+          this.teams.set(teams);
           this.loadingTeams.set(false);
         },
         error: (err) => {
-          console.error('Failed to load the teams list from Contentful:', err);
+          console.error('Failed to load the teams list:', err);
           this.loadingTeams.set(false);
         },
       }),

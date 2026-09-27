@@ -1,28 +1,22 @@
 @use 'src/styles/color-pallet';
-
 .list-container {
   margin: 30px 20px 0 20px;
 }
-
 .team-container {
   border-bottom: 3px dashed color-pallet.$se-dark-grey;
   margin-bottom: 20px;
-
   .team-row {
     display: flex;
     flex-direction: column;
     margin-bottom: 20px;
   }
-
   .team-title {
     font-size: 24px;
   }
-
   .team-description {
     font-size: 16px;
     margin-bottom: 10px;
   }
-
   .team-persons-container {
     display: flex;
     flex-direction: row;
@@ -37,21 +31,43 @@
       width: 130px;
       min-height: 100px;
       padding: 5px;
-      background-color: var(--team-member-color);
       border-radius: 10px;
       font-size: 12px;
       text-align: center;
-
+      &[data-color='black'] {
+        background-color: color-pallet.$se-black;
+        // Only color dark enough in this palette to need light text for contrast.
+        color: white;
+      }
+      &[data-color='blue'] {
+        background-color: color-pallet.$se-blue;
+      }
+      &[data-color='dark_grey'] {
+        background-color: color-pallet.$se-dark-grey;
+      }
+      &[data-color='green'] {
+        background-color: color-pallet.$se-green;
+      }
+      &[data-color='grey'] {
+        background-color: color-pallet.$se-grey;
+      }
+      &[data-color='yellow'] {
+        background-color: color-pallet.$se-yellow;
+      }
+      &[data-color='purple'] {
+        background-color: color-pallet.$se-purple;
+      }
+      &[data-color='orange'] {
+        background-color: color-pallet.$se-orange;
+      }
+      &[data-color='red'] {
+        background-color: color-pallet.$se-red;
+      }
       .thumbnail {
-        height: 60px;
-        width: 60px;
         margin: 5px;
-        border-radius: 10px;
-        object-fit: cover;
         // Never let the thumbnail shrink to make room for a long name/title.
         flex-shrink: 0;
       }
-
       .extra-spacing {
         margin-top: 20px;
       }

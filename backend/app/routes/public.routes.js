@@ -2,6 +2,7 @@ const express = require('express');
 
 const emailController = require('../controllers/email.controller.js');
 const competitionsController = require('../controllers/competitions.controller.js');
+const teamsController = require('../controllers/teams.controller.js');
 const { emailLimiter } = require('../middleware/rateLimit.middleware.js');
 const { asyncRoute } = require('../helpers/asyncRoute.helper.js');
 
@@ -77,6 +78,18 @@ router.get('/competitions', asyncRoute(competitionsController.getCompetitions));
  *         description: Internal server error.
  */
 router.post('/update-competitions', asyncRoute(competitionsController.updateCompetitions));
+
+/**
+ * @openapi
+ * /teams:
+ *   get:
+ *     summary: Get the public "Who We Are" team/board listing.
+ *     tags: [Teams]
+ *     responses:
+ *       200:
+ *         description: Teams with their current members, in display order.
+ */
+router.get('/teams', asyncRoute(teamsController.listPublicTeams));
 
 /**
  * @openapi

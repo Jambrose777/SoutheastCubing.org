@@ -26,7 +26,11 @@
 
     <!-- Information when Who We Are is selected -->
     @if (selectedSubTopic() && !isMobile() && selectedSubTopic()?.title === 'Who We Are') {
-      <se-teams [teams]="teams()"> </se-teams>
+      @if (loadingTeams()) {
+        <se-loading-spinner></se-loading-spinner>
+      } @else {
+        <se-teams [teams]="teams()"> </se-teams>
+      }
     }
 
     <!-- Information when Documents is selected -->
@@ -81,7 +85,11 @@
               selectedSubTopic()?.title === subTopic.title &&
               selectedSubTopic()?.title === 'Who We Are'
             ) {
-              <se-teams [teams]="teams()"> </se-teams>
+              @if (loadingTeams()) {
+                <se-loading-spinner></se-loading-spinner>
+              } @else {
+                <se-teams [teams]="teams()"> </se-teams>
+              }
             }
             <!-- Information when Documents is selected -->
             @if (
