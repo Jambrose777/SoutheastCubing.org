@@ -47,6 +47,36 @@ CREATE TABLE competitions_meta (
   CHECK (id = 1)
 );
 
+CREATE TABLE delegate_rank_history (
+  id TEXT NOT NULL PRIMARY KEY,
+  delegate_id TEXT NOT NULL REFERENCES delegates (id),
+  rank TEXT NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  CHECK (rank = ANY (ARRAY['trainee'::text, 'junior'::text, 'delegate'::text, 'senior'::text, 'regional'::text, 'temporary'::text])
+);
+
+CREATE TABLE delegate_state_history (
+  id TEXT NOT NULL PRIMARY KEY,
+  delegate_id TEXT NOT NULL REFERENCES delegates (id),
+  state TEXT NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+CREATE TABLE delegates (
+  id TEXT NOT NULL PRIMARY KEY,
+  people_id TEXT NOT NULL REFERENCES people (id),
+  bio TEXT,
+  competitions_delegated_count INTEGER,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
 CREATE TABLE major_championship_announcements (
   id TEXT NOT NULL PRIMARY KEY,
   name TEXT,
