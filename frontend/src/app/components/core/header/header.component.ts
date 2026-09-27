@@ -9,9 +9,11 @@ import {
 } from '@angular/core';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { AuthService } from 'src/app/services/southeastcubing-api/auth.service';
+import { DevImpersonationService } from 'src/app/services/southeastcubing-api/dev-impersonation.service';
 import { RouterLink } from '@angular/router';
 import { NgClass, NgOptimizedImage } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
 import { NavComponent } from '../nav/nav.component';
 import { AvatarComponent } from '../../shared/avatar/avatar.component';
 import { cacheBustUrl } from 'src/app/shared/cache-bust-url.util';
@@ -21,11 +23,20 @@ import { cacheBustUrl } from 'src/app/shared/cache-bust-url.util';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, NgClass, NgOptimizedImage, NavComponent, MatTooltipModule, AvatarComponent],
+  imports: [
+    RouterLink,
+    NgClass,
+    NgOptimizedImage,
+    NavComponent,
+    MatTooltipModule,
+    MatMenuModule,
+    AvatarComponent,
+  ],
 })
 export class HeaderComponent implements OnInit {
   private screenSizeService = inject(ScreenSizeService);
   authService = inject(AuthService);
+  devImpersonationService = inject(DevImpersonationService);
 
   isMobile = this.screenSizeService.isMobile;
 
@@ -66,5 +77,12 @@ export class HeaderComponent implements OnInit {
 
   signIn() {
     this.authService.signIn();
+  }
+
+  // Dev-only role-picker preset selection - still runs the
+  // developer through the exact same real WCA OAuth round-trip,
+  // just tagged with which preset to apply to the resulting session.
+  signInAs(presetKey: string) {
+    this.authService.signIn(undefined, presetKey);
   }
 }

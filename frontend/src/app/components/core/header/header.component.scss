@@ -45,6 +45,11 @@
     display: flex;
     align-items: center;
 
+    .sign-in-split {
+      display: flex;
+      align-items: stretch;
+    }
+
     .sign-in {
       // Overrides .btn's block/auto-margin layout
       display: flex;
@@ -55,8 +60,39 @@
       font-size: 12px;
     }
 
+    // Squares off the edge shared with the chevron below, so the two
+    // read as one continuous pill rather than two separate buttons.
+    .sign-in-split.has-dev-picker .sign-in {
+      border-radius: 30px 0 0 30px;
+      border-right: none;
+    }
+
+    // dev-only role-picker chevron
+    .sign-in-dev-chevron {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      // Height comes from .sign-in-split's align-items: stretch above.
+      padding: 0 10px;
+      border: 3px solid color-pallet.$se-black;
+      border-radius: 0 30px 30px 0;
+      background-color: color-pallet.$se-grey;
+
+      &:hover {
+        opacity: 0.7;
+      }
+    }
+
     .user-thumbnail {
       display: block;
+    }
+
+    // Dev-only role-impersonation indicator
+    .impersonation-ring {
+      display: block;
+      border-radius: 10px;
+      outline: 3px solid color-pallet.$se-dark-red;
     }
 
     // Matches .user-thumbnail's size, as a grey box behind the icon when

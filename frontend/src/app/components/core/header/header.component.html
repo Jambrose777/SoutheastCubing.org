@@ -41,10 +41,17 @@
   @if (showTitle()) {
     <div class="auth-action">
       @if (authService.currentUser(); as user) {
+        <!-- Dev-only role impersonation shows as a colored avatar border,
+        with the tooltip itself naming which role -->
         <a
           [routerLink]="'/dashboard'"
+          [ngClass]="{ 'impersonation-ring': user.impersonatedRole }"
           aria-label="Your dashboard"
-          matTooltip="Your dashboard"
+          [matTooltip]="
+            user.impersonatedRole
+              ? 'Signed in as ' + devImpersonationService.labelFor(user.impersonatedRole)
+              : 'Your dashboard'
+          "
           matTooltipPosition="above"
         >
           @if (userPictureUrl(); as pictureUrl) {
@@ -63,18 +70,44 @@
           }
         </a>
       } @else {
-        <span
-          class="btn sign-in"
-          (click)="signIn()"
-          (keydown.enter)="signIn()"
-          (keydown.space)="$event.preventDefault(); signIn()"
-          role="button"
-          tabindex="0"
-          aria-label="Sign in"
+        <div
+          class="sign-in-split"
+          [ngClass]="{ 'has-dev-picker': devImpersonationService.enabled() }"
         >
-          Sign in
-          <i class="fa-solid fa-right-to-bracket fa-sm"></i>
-        </span>
+          <span
+            class="btn sign-in"
+            (click)="signIn()"
+            (keydown.enter)="signIn()"
+            (keydown.space)="$event.preventDefault(); signIn()"
+            role="button"
+            tabindex="0"
+            aria-label="Sign in"
+          >
+            Sign in
+            <i class="fa-solid fa-right-to-bracket fa-sm"></i>
+          </span>
+          <!-- Dev-only role picker - only ever renders in local dev. -->
+          @if (devImpersonationService.enabled()) {
+            <span
+              class="sign-in-dev-chevron"
+              [matMenuTriggerFor]="devRoleMenu"
+              role="button"
+              tabindex="0"
+              aria-label="Sign in as a dev role preset"
+              matTooltip="Sign in as..."
+              matTooltipPosition="above"
+            >
+              <i class="fa-solid fa-chevron-down fa-sm"></i>
+            </span>
+            <mat-menu #devRoleMenu="matMenu">
+              @for (preset of devImpersonationService.presets(); track preset) {
+                <button mat-menu-item (click)="signInAs(preset)">
+                  {{ devImpersonationService.labelFor(preset) }}
+                </button>
+              }
+            </mat-menu>
+          }
+        </div>
       }
     </div>
   }

@@ -12,4 +12,5 @@ export interface CurrentUser {
     isAdmin: boolean;
     isBoard: boolean;
   };
+  impersonatedRole?: string;
 }

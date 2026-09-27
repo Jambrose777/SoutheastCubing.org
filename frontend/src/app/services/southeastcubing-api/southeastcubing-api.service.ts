@@ -5,6 +5,7 @@ import { EmailRequestBody } from '../../models/EmailRequestBody';
 import { Observable, map } from 'rxjs';
 import { Competition } from '../../models/Competition';
 import { CurrentUser } from '../../models/CurrentUser';
+import { DevImpersonationConfig } from '../../models/DevImpersonationConfig';
 import { Team } from '../../models/Team';
 import { getRegistrationStatus, getReadableRegistrationOpen } from '../../shared/competition.utils';
 
@@ -60,6 +61,14 @@ export class SoutheastcubingApiService {
   // Checks whether the session cookie still resolves to a signed-in user.
   getCurrentUser(): Observable<CurrentUser> {
     return this.http.get<CurrentUser>(`${environment.links.southeastCubingApi}/auth/me`);
+  }
+
+  // Dev-only role-impersonation runtime config check - always
+  // reports enabled=false outside local dev.
+  getDevImpersonationConfig(): Observable<DevImpersonationConfig> {
+    return this.http.get<DevImpersonationConfig>(
+      `${environment.links.southeastCubingApi}/auth/dev-impersonation-config`,
+    );
   }
 
   // Deletes the session's server-side row and clears the cookie.

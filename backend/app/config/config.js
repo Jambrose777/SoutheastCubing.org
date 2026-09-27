@@ -29,6 +29,10 @@ const configSchema = z.object({
   // since that warning loop isn't NODE_ENV-aware and would otherwise wrongly
   // warn on every production boot that it's "missing".
   DEV_EMAIL_OVERRIDE: z.string().min(1).optional(),
+  // Dev-only "login as" role impersonation. Opt-in so the deployed EC2
+  // instance disables role impersonation. Also cross-checked against
+  // NODE_ENV below at boot.
+  ALLOW_DEV_ROLE_IMPERSONATION: z.string().min(1).optional(),
   // Missing any of the three disables sign-in entirely.
   WCA_OAUTH_CLIENT_ID: z.string().min(1).optional(),
   WCA_OAUTH_CLIENT_SECRET: z.string().min(1).optional(),
@@ -84,6 +88,21 @@ function loadConfig(env = process.env) {
   if (!result.success) {
     const missing = [...new Set(result.error.issues.map((issue) => issue.path[0]))];
     logger.fatal(`Missing/invalid required environment variable(s): ${missing.join(', ')}`);
+    process.exit(1);
+  }
+
+  // Dev role impersonation grants full Admin access to any WCA
+  // account-holder if it's ever live in production. This turns 
+  // a stray ALLOW_DEV_ROLE_IMPERSONATION=true in a production-configured
+  // deployment into a loud boot-time failure, so a misconfigured 
+  // deploy can't ship at all.
+  if (
+    result.data.ALLOW_DEV_ROLE_IMPERSONATION === 'true' &&
+    result.data.NODE_ENV === 'production'
+  ) {
+    logger.fatal(
+      'ALLOW_DEV_ROLE_IMPERSONATION is set to "true" while NODE_ENV is "production" - refusing to start. This combination would let any WCA account-holder impersonate Admin.',
+    );
     process.exit(1);
   }
 

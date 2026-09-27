@@ -66,7 +66,7 @@ async function completeSignIn({ code, ipAddress }) {
   const profile = await wcaIntegration.fetchWcaProfile(accessToken);
 
   // Upsert the local person record based on the WCA profile. Uses WCA's own
-  // pre-cropped thumb_url, who has no crop metadata to pair with the full-size 
+  // pre-cropped thumb_url, who has no crop metadata to pair with the full-size
   // original and just needs something reasonable to show as-is.
   const person = await peopleDb.upsertPersonFromWcaProfile({
     wcaId: profile.wca_id ?? null,
@@ -86,10 +86,10 @@ async function completeSignIn({ code, ipAddress }) {
 
   // Create a new first-party session for the user.
   const rawToken = generateSessionToken();
-  await sessionsDb.createSession({ rawToken, userId: user.id, ipAddress });
+  const session = await sessionsDb.createSession({ rawToken, userId: user.id, ipAddress });
 
   logger.info(`Completed WCA sign-in for people_id ${person.id}.`);
-  return { rawToken, person, user };
+  return { rawToken, sessionId: session.id, person, user };
 }
 
 // Completes the dob OAuth step-up flow for an already-signed-in user - the
@@ -108,7 +108,9 @@ async function completeDobStepUp({ code, peopleId }) {
   // Fetch the DOB From WCA with the access token.
   const profile = await wcaIntegration.fetchWcaProfile(accessToken);
   if (!profile.dob) {
-    logger.warn(`Dob step-up callback completed but WCA profile carried no dob (people_id ${peopleId}).`);
+    logger.warn(
+      `Dob step-up callback completed but WCA profile carried no dob (people_id ${peopleId}).`,
+    );
     return null;
   }
 

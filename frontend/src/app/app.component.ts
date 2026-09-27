@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 import { ScreenSizeService } from './services/screen-size.service';
 import { LinksService } from './services/links.service';
 import { AuthService } from './services/southeastcubing-api/auth.service';
+import { DevImpersonationService } from './services/southeastcubing-api/dev-impersonation.service';
 import { ErrorBannerService } from './services/error-banner.service';
 import { ToastService } from './services/toast.service';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
@@ -20,6 +21,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private screenSizeService = inject(ScreenSizeService);
   private linksService = inject(LinksService);
   private authService = inject(AuthService);
+  private devImpersonationService = inject(DevImpersonationService);
   private errorBannerService = inject(ErrorBannerService);
   private toastService = inject(ToastService);
   private route = inject(ActivatedRoute);
@@ -39,6 +41,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // resolves whether the session cookie (if any) is still signed in.
     this.authService.refreshCurrentUser();
+
+    // resolves whether dev-only role picker should render -
+    // always false outside local dev.
+    this.devImpersonationService.checkEnabled();
 
     // A WCA sign-in deny/failure redirects back here with ?authError=..., a
     // successful one with ?signedIn=1, and a redirect-triggering sign-out

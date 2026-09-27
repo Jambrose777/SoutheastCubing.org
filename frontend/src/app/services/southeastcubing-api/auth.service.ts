@@ -41,9 +41,14 @@ export class AuthService {
   // current page, so the user lands back on whatever they were doing (an
   // auth-gated action or a directly-navigated guarded route) rather than the
   // homepage.
-  signIn(returnTo: string = `${location.pathname}${location.search}`) {
+  // `impersonate` is Dev-only role-picker preset key - the backend silently
+  // ignores this param entirely outside local dev, so passing it is always safe.
+  signIn(returnTo: string = `${location.pathname}${location.search}`, impersonate?: string) {
     const url = new URL(`${environment.links.southeastCubingApi}/auth/wca/login`);
     url.searchParams.set('returnTo', returnTo);
+    if (impersonate) {
+      url.searchParams.set('impersonate', impersonate);
+    }
     window.location.href = url.toString();
   }
 

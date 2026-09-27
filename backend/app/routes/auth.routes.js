@@ -76,6 +76,18 @@ router.get('/auth/wca/dob/begin', requireAuth, asyncRoute(authController.beginDo
 
 /**
  * @openapi
+ * /auth/dev-impersonation-config:
+ *   get:
+ *     summary: Dev-only role-impersonation runtime config - whether the feature is enabled server-side, and which presets it offers. Always reports enabled=false outside local dev.
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: "{ enabled: boolean, presets: string[] }"
+ */
+router.get('/auth/dev-impersonation-config', asyncRoute(authController.getDevImpersonationConfig));
+
+/**
+ * @openapi
  * /auth/me:
  *   get:
  *     summary: Get the currently signed-in user.

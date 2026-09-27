@@ -10,7 +10,7 @@ const logger = require('../utils/logger.util.js');
 // re-implementing this lookup.
 async function attachSession(req, res, next) {
   const rawToken = req.cookies?.[authService.SESSION_COOKIE_NAME];
-  
+
   // A missing session cookie means the user is not signed in. Don't reject
   // the request here, a route requiring authentication will call requireAuth.
   if (!rawToken) {
@@ -22,6 +22,7 @@ async function attachSession(req, res, next) {
     const session = await sessionsDb.findValidSessionAndTouch(rawToken);
     if (session) {
       req.user = await usersDb.findUserWithPeopleById(session.user_id);
+      req.user.sessionId = session.id;
     }
   } catch (err) {
     // A lookup failure shouldn't take down an otherwise-public request -
