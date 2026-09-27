@@ -35,7 +35,8 @@ FROM (
   ('8b8b0c12-e560-48ce-ad85-af38da57b5c0', '2009LIAN03'),
   ('5c769f72-54cc-40db-b66f-1246831586bd', '2006KANG01'),
   ('a44d486b-a6ca-4fb4-90e5-dd99c526011f', '2005BLAN01'),
-  ('2fa6c638-d92e-4570-b34f-8b65d8429ef6', '2017MEAD01')
+  ('2fa6c638-d92e-4570-b34f-8b65d8429ef6', '2017MEAD01'),
+  ('5f560fcc-84e4-404c-97fd-9a3dc7398339', '2018JOHN03')
 ) AS v (id, wca_id)
 JOIN people p ON p.wca_id = v.wca_id
 ON CONFLICT (people_id) DO NOTHING;

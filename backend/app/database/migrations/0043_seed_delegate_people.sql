@@ -33,5 +33,6 @@ VALUES
   ('89a70dba-3def-420e-aad0-f32a6f81ec11', '2009LIAN03', 'Chester Lian'),
   ('95de130e-d231-4474-a201-645afc14a805', '2006KANG01', 'Andrew Kang'),
   ('2381b2aa-d425-4246-bc52-98b34dbea091', '2005BLAN01', 'Brandon Blankenship'),
-  ('12233ead-8f1d-4b69-acff-5e828fe740db', '2017MEAD01', 'Alison Meador')
+  ('12233ead-8f1d-4b69-acff-5e828fe740db', '2017MEAD01', 'Alison Meador'),
+  ('7a75e375-8425-4c07-a464-bab13dced85e', '2018JOHN03', 'Elmer Alexander Johnsen')
 ON CONFLICT (wca_id) DO NOTHING;

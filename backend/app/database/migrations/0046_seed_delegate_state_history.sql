@@ -35,7 +35,15 @@ FROM (
   ('987bb377-8959-46de-8513-ac96f1224873', '2006KANG01', 'Georgia', DATE '2010-07-31', DATE '2010-07-31'),
   ('2c250136-3f3a-4351-9c05-56c0b2ad7c06', '2006KANG01', 'Georgia', DATE '2011-07-30', DATE '2011-07-30'),
   ('2d80336c-8536-431d-b0ae-7dc83c38e6db', '2005BLAN01', 'Florida', DATE '2008-05-17', DATE '2008-12-01'),
-  ('00e8f238-4e68-49fd-a54b-464e32d9e624', '2017MEAD01', 'Kentucky', DATE '2022-10-15', DATE '2022-12-31')
+  ('00e8f238-4e68-49fd-a54b-464e32d9e624', '2017MEAD01', 'Kentucky', DATE '2022-10-15', DATE '2022-12-31'),
+  -- Elmer Alexander Johnsen (2018JOHN03) - his Georgia stint starts exactly
+  -- on his Heartland->Southeast move date (2025-03-05, see
+  -- 0045_seed_delegate_rank_history.sql's comment) - not the date our
+  -- nightly sync happened to first detect him, which would understate how
+  -- long he's actually been in Georgia. Only this one state row is stored
+  -- for him - his prior (non-SE) North Dakota residency is never recorded,
+  -- per delegate_state_history's own "only SE states are ever stored" rule.
+  ('39a4a651-bae9-4e17-b666-729a45bceca6', '2018JOHN03', 'Georgia', DATE '2025-03-05', NULL::date)
 ) AS v (id, wca_id, state, start_date, end_date)
 JOIN people p ON p.wca_id = v.wca_id
 JOIN delegates d ON d.people_id = p.id
