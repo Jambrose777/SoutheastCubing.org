@@ -71,15 +71,6 @@ FROM (
   ('7021d19a-dd9c-4104-a555-674e5cb87092', '2005BLAN01', 'delegate', DATE '2008-05-17', DATE '2008-12-01'),
   ('7f16e3d9-c422-4f83-a760-9617e170f69c', '2017MEAD01', 'trainee', DATE '2022-10-15', DATE '2023-05-31'),
   ('dc349e73-422b-4f09-9fbb-c63fbb4bb420', '2017MEAD01', 'junior', DATE '2023-05-31', DATE '2024-11-30'),
-  -- Elmer Alexander Johnsen (2018JOHN03) - not from our own tracking
-  -- spreadsheet (he was never one of our own delegates historically) - a
-  -- brand-new-to-us Delegate the nightly sync first picked up after he
-  -- moved into the Southeast from WCA's "Heartland" region on 2025-03-05
-  -- (confirmed live: his Heartland junior_delegate role's own end_date
-  -- exactly matches his Southeast junior_delegate role's start_date).
-  -- WCA's own user_roles data has no trainee_delegate record for him at
-  -- all (both of his roles start already at junior_delegate) - his
-  -- trainee/junior dates below come directly from Jacob, not WCA.
   ('bda7131c-9418-4149-ae08-07eb47bbd28b', '2018JOHN03', 'trainee', DATE '2021-07-31', DATE '2022-05-31'),
   ('261b0872-fa73-45db-ab06-b5a7037135e6', '2018JOHN03', 'junior', DATE '2022-05-31', NULL::date)
 ) AS v (id, wca_id, rank, start_date, end_date)
