@@ -2,15 +2,7 @@ const teamMembershipsDb = require('../database/teamMemberships.database.js');
 const delegatesDb = require('../database/delegates.database.js');
 const devImpersonation = require('./devImpersonation.helper.js');
 const { ADMIN_TEAM_ID, BOARD_TEAM_ID } = require('./fixedTeams.helper.js');
-
-// Delegate Type ordering that a person can display/sort as.
-const RANK_DISPLAY_ORDER = ['regional', 'senior', 'delegate', 'junior', 'trainee'];
-
-// Of every rank `ranks` currently holds concurrently open, returns the
-// single highest one per RANK_DISPLAY_ORDER.
-function highestDisplayRank(ranks) {
-  return RANK_DISPLAY_ORDER.find((rank) => ranks.includes(rank)) ?? null;
-}
+const { highestDisplayRank } = require('./delegateRanks.helper.js');
 
 // Computes every team id `peopleId` currently (actively) belongs to, a person's
 // highest delegate rank, plus the Admin/Board convenience flags every later role
@@ -27,7 +19,7 @@ async function getCurrentRoles(peopleId, sessionId) {
     };
   }
 
-  // If this session picked a role preset, report that directly and 
+  // If this session picked a role preset, report that directly and
   // never touch team_memberships/delegates at all.
   const impersonated = devImpersonation.getImpersonation(sessionId);
   if (impersonated) return impersonated;

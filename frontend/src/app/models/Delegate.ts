@@ -1,19 +1,19 @@
+// Shape returned by GET /delegates - the public Delegate roster.
 export interface Delegate {
-  contact?: string;
-  delegateType?: DelegateType;
-  description?: string;
+  peopleId: string;
   name: string;
-  order: number;
-  photo?: string;
-  photoAlt?: string;
-  photoWidth?: number;
-  photoHeight?: number;
-  state?: string;
-  thumbnail?: string;
-  thumbnailAlt?: string;
-  thumbnailWidth?: number;
-  thumbnailHeight?: number;
-  wcaid?: string;
+  wcaId: string | null;
+  pictureUrl: string | null;
+  thumbnailCropX: number | null;
+  thumbnailCropY: number | null;
+  thumbnailCropW: number | null;
+  thumbnailCropH: number | null;
+  bio: string | null;
+  competitionsDelegatedCount: number | null;
+  // Their single highest concurrently-open rank
+  rank: string;
+  // WCA's full state name (e.g. "Georgia"), or "Southeast" for a Regional Delegate.
+  state: string | null;
 }
 
 export enum DelegateType {

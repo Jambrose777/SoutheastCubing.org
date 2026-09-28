@@ -49,21 +49,6 @@ export type TeamMemberSkeleton = {
 
 // --- List content types, queried via `getContentfulGroup` ---
 
-export type DelegateSkeleton = {
-  contentTypeId: 'delegates';
-  fields: {
-    name: EntryFieldTypes.Symbol;
-    order: EntryFieldTypes.Integer;
-    contact?: EntryFieldTypes.Symbol;
-    delegateType?: EntryFieldTypes.Symbol;
-    description?: EntryFieldTypes.Text;
-    photo?: EntryFieldTypes.AssetLink;
-    thumbnail?: EntryFieldTypes.AssetLink;
-    state?: EntryFieldTypes.Symbol;
-    wcaid?: EntryFieldTypes.Symbol;
-  };
-};
-
 export type DocumentSkeleton = {
   contentTypeId: 'documents';
   fields: {

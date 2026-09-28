@@ -1,6 +1,7 @@
 const wca = require('../integrations/wca.integration.js');
 const delegatesDb = require('../database/delegates.database.js');
 const peopleDb = require('../database/people.database.js');
+const photosService = require('./photos.service.js');
 const emailIntegration = require('../integrations/email.integration.js');
 const emailService = require('./email.service.js');
 const logger = require('../utils/logger.util.js');
@@ -301,6 +302,10 @@ async function ensureDelegateRow(wcaId) {
     name: wcaPerson.name,
     pictureUrl: wcaPerson.avatar?.thumb_url ?? null,
   });
+
+  // First-ever Delegate row promotes a person into a managed photo.
+  await photosService.promoteToManagedPhoto(person.id);
+
   return delegatesDb.upsertDelegate(person.id);
 }
 

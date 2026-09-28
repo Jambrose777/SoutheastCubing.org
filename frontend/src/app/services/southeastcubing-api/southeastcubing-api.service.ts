@@ -7,6 +7,7 @@ import { Competition } from '../../models/Competition';
 import { CurrentUser } from '../../models/CurrentUser';
 import { DevImpersonationConfig } from '../../models/DevImpersonationConfig';
 import { Team } from '../../models/Team';
+import { Delegate } from '../../models/Delegate';
 import { getRegistrationStatus, getReadableRegistrationOpen } from '../../shared/competition.utils';
 
 // Shape of a competition as returned by the backend's /competitions endpoint,
@@ -56,6 +57,11 @@ export class SoutheastcubingApiService {
   // Public "Who We Are" page listing
   getPublicTeams(): Observable<Team[]> {
     return this.http.get<Team[]>(`${environment.links.southeastCubingApi}/teams`);
+  }
+
+  // Public Delegate roster page listing.
+  getPublicDelegates(): Observable<Delegate[]> {
+    return this.http.get<Delegate[]>(`${environment.links.southeastCubingApi}/delegates`);
   }
 
   // Checks whether the session cookie still resolves to a signed-in user.

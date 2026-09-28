@@ -116,6 +116,8 @@
                   Keep it factual and avoid specifics that will change over time (e.g. "I've
                   delegated 10 competitions") — this bio isn't automatically updated, so it can go
                   stale.
+                  <br />
+                  Markdown is supported.
                 </p>
                 <textarea
                   #bioTextarea
@@ -145,7 +147,9 @@
                 </div>
               </div>
             } @else if (info.delegateBio) {
-              <p class="bio-text">{{ info.delegateBio }}</p>
+              <div class="bio-text">
+                <markdown [data]="info.delegateBio"></markdown>
+              </div>
             }
           </div>
         }

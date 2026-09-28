@@ -13,7 +13,6 @@ export enum ContentfulEntryId {
 }
 
 export enum ContentfulContentType {
-  delegates = 'delegates',
   documents = 'documents',
   clubs = 'clubs',
   championships = 'championships',

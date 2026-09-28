@@ -9,41 +9,41 @@
 
     <!-- Delegate Status & Location  -->
     <div class="small-text-content">
-      {{ delegate.delegateType }}
+      {{ rankLabel() }}
       @if (!isMobile()) {
         <span>- {{ delegate.state }}</span>
       }
     </div>
 
-    <!-- Delegate Photo -->
-    @if (delegate.photo) {
+    <!-- Delegate Photo - full, uncropped -->
+    @if (delegate.pictureUrl) {
       <div class="photo-container">
         <!-- Keyed by the (memoized) photo URL so a new <img> is created 
          whenever a different delegate is selected - but not on every unrelated 
          change-detection run. -->
         @for (photo of photoAsArray(); track photo) {
-          <img
-            ngSrc="{{ photo }}"
-            [alt]="delegate.photoAlt ?? ''"
-            [width]="delegate.photoWidth"
-            [height]="delegate.photoHeight"
-            priority
-            class="image medium-image"
-          />
+          <img [src]="photo" [alt]="delegate.name" class="image medium-image" />
         }
       </div>
     }
 
-    <!-- Short Delegate description -->
-    @if (delegate.description) {
+    <!-- Number of competitions delegated -->
+    @if (delegate.competitionsDelegatedCount !== null) {
       <div class="small-text-content">
-        <markdown [data]="delegate.description"></markdown>
+        Competitions delegated: {{ delegate.competitionsDelegatedCount }}
+      </div>
+    }
+
+    <!-- Short Delegate description -->
+    @if (delegate.bio) {
+      <div class="small-text-content">
+        <markdown [data]="delegate.bio"></markdown>
       </div>
     }
 
     <!-- WCA Logo -->
     <a
-      href="{{ environment.links.wcaProfile + delegate.wcaid }}"
+      href="{{ environment.links.wcaProfile + delegate.wcaId }}"
       target="_blank"
       rel="noopener noreferrer"
       class="wca-logo-container"

@@ -57,13 +57,18 @@
               (click)="onDelegateRowClick($event, delegate)"
               id="{{ delegate.name }}"
             >
-              <img
-                ngSrc="{{ delegate.thumbnail }}"
-                [alt]="delegate.thumbnailAlt ?? ''"
-                [width]="delegate.thumbnailWidth"
-                [height]="delegate.thumbnailHeight"
-                class="thumbnail"
-              />
+              @if (delegate.pictureUrl) {
+                <se-avatar
+                  [src]="delegate.pictureUrl"
+                  [alt]="delegate.name"
+                  [size]="60"
+                  [cropX]="delegate.thumbnailCropX"
+                  [cropY]="delegate.thumbnailCropY"
+                  [cropW]="delegate.thumbnailCropW"
+                  [cropH]="delegate.thumbnailCropH"
+                  class="thumbnail"
+                ></se-avatar>
+              }
               <div class="item-title">
                 {{ delegate.name }}
               </div>

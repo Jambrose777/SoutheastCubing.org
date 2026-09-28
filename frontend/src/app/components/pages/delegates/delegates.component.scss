@@ -6,4 +6,16 @@
       }
     }
   }
+
+  .side-pane {
+    // Overrides the global .item-container .thumbnail rule -
+    // se-avatar sizes/crops itself via its own [size] input.
+    .thumbnail {
+      height: auto;
+      width: auto;
+      margin: 5px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+  }
 }

@@ -3,6 +3,7 @@ const express = require('express');
 const emailController = require('../controllers/email.controller.js');
 const competitionsController = require('../controllers/competitions.controller.js');
 const teamsController = require('../controllers/teams.controller.js');
+const delegatesController = require('../controllers/delegates.controller.js');
 const { emailLimiter } = require('../middleware/rateLimit.middleware.js');
 const { asyncRoute } = require('../helpers/asyncRoute.helper.js');
 
@@ -90,6 +91,18 @@ router.post('/update-competitions', asyncRoute(competitionsController.updateComp
  *         description: Teams with their current members, in display order.
  */
 router.get('/teams', asyncRoute(teamsController.listPublicTeams));
+
+/**
+ * @openapi
+ * /delegates:
+ *   get:
+ *     summary: Get the public Delegate roster listing.
+ *     tags: [Delegates]
+ *     responses:
+ *       200:
+ *         description: Every current Delegate, in display order (Delegate Type, then promotion date, then name).
+ */
+router.get('/delegates', asyncRoute(delegatesController.listPublicDelegates));
 
 /**
  * @openapi

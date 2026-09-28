@@ -20,4 +20,20 @@ const PERSONAL_RANK_STATUSES = ['trainee_delegate', 'junior_delegate', 'delegate
 // separately-maintained list, so the two can never drift apart.
 const PERSONAL_RANKS = PERSONAL_RANK_STATUSES.map((status) => WCA_STATUS_TO_RANK[status]);
 
-module.exports = { WCA_STATUS_TO_RANK, PERSONAL_RANK_STATUSES, PERSONAL_RANKS };
+// Every displayable rank, highest to lowest.
+const RANK_DISPLAY_ORDER = ['regional', 'senior', 'delegate', 'junior', 'trainee'];
+
+// Of every rank `ranks` currently holds concurrently open, returns the
+// single highest one per RANK_DISPLAY_ORDER - e.g. someone open on both
+// `delegate` and `regional` displays/sorts as simply "Regional."
+function highestDisplayRank(ranks) {
+  return RANK_DISPLAY_ORDER.find((rank) => ranks.includes(rank)) ?? null;
+}
+
+module.exports = {
+  WCA_STATUS_TO_RANK,
+  PERSONAL_RANK_STATUSES,
+  PERSONAL_RANKS,
+  RANK_DISPLAY_ORDER,
+  highestDisplayRank,
+};

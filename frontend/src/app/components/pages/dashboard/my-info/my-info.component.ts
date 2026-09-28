@@ -15,6 +15,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MarkdownComponent } from 'ngx-markdown';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { AuthService } from 'src/app/services/southeastcubing-api/auth.service';
@@ -77,6 +78,7 @@ function myInfoEntryTrackKey(entry: MyInfoCurrentEntry | MyInfoPastEntry): strin
     MatTooltipModule,
     PictureCropSheetComponent,
     FormsModule,
+    MarkdownComponent,
   ],
 })
 export class MyInfoComponent implements OnInit {

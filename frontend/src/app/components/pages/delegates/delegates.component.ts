@@ -7,19 +7,18 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { ContentfulContentType, ContentfulEntryId } from 'src/app/models/Contentful';
-import { DelegateSkeleton, DelegatesPageSkeleton } from 'src/app/models/ContentfulSkeletons';
-import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
-import { resolvedAsset } from 'src/app/shared/contentful-links';
+import { ContentfulEntryId } from 'src/app/models/Contentful';
+import { DelegatesPageSkeleton } from 'src/app/models/ContentfulSkeletons';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
 import { isPlainLeftClick } from 'src/app/shared/is-plain-left-click';
 import { SelectItemService } from 'src/app/services/select-item.service';
-import { Delegate, DelegateType } from 'src/app/models/Delegate';
+import { Delegate } from 'src/app/models/Delegate';
 import { ContentfulService } from 'src/app/services/contentful.service';
+import { SoutheastcubingApiService } from 'src/app/services/southeastcubing-api/southeastcubing-api.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, StateColors } from 'src/app/shared/types';
 import { environment } from 'src/environments/environment';
-import { Location, NgClass, NgOptimizedImage } from '@angular/common';
+import { Location, NgClass } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
@@ -27,6 +26,7 @@ import { LinksService } from 'src/app/services/links.service';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 import { MarkdownComponent } from 'ngx-markdown';
+import { AvatarComponent } from '../../shared/avatar/avatar.component';
 import { SelectedDelegateComponent } from './selected-delegate/selected-delegate.component';
 
 @Component({
@@ -39,13 +39,14 @@ import { SelectedDelegateComponent } from './selected-delegate/selected-delegate
     LoadingSpinnerComponent,
     MarkdownComponent,
     SelectedDelegateComponent,
+    AvatarComponent,
     NgClass,
-    NgOptimizedImage,
     RouterLink,
   ],
 })
 export class DelegatesComponent implements OnInit, OnDestroy {
   private contentful = inject(ContentfulService);
+  private api = inject(SoutheastcubingApiService);
   private themeService = inject(ThemeService);
   private location = inject(Location);
   private screenSizeService = inject(ScreenSizeService);
@@ -80,60 +81,28 @@ export class DelegatesComponent implements OnInit, OnDestroy {
     // sets up main color for the delegates page
     this.themeService.setMainPaneColor(Colors.green);
 
-    // retrieve, sorts, and formats data from the CMS Delegates Entries
+    // retrieves the Delegate roster from our own API.
     this.subscriptions.add(
-      this.contentful
-        .getContentfulGroup<DelegateSkeleton>(ContentfulContentType.delegates)
-        .subscribe({
-          next: (res) => {
-            const delegates = res.items
-              .sort((a, b) => a['fields']['order'] - b.fields['order'])
-              .map((delegate) => {
-                const photo = resolvedAsset(delegate.fields['photo']);
-                const photoSize = scaleToDisplaySize(
-                  photo?.fields.file?.details?.image?.width,
-                  photo?.fields.file?.details?.image?.height,
-                );
-                // Delegate thumbnails render in a 60x60 box; scale the native
-                // Contentful asset down (max ~120px, covering a 2x-density srcset)
-                // instead of shipping the full-resolution upload for a tiny thumbnail.
-                const thumbnail = resolvedAsset(delegate.fields['thumbnail']);
-                const thumbnailSize = scaleToDisplaySize(
-                  thumbnail?.fields.file?.details?.image?.width,
-                  thumbnail?.fields.file?.details?.image?.height,
-                  120,
-                );
-                return {
-                  ...delegate.fields,
-                  delegateType: delegate.fields.delegateType as DelegateType | undefined,
-                  photo: photo?.fields.file?.url,
-                  photoAlt: photo?.fields.description ?? '',
-                  photoWidth: photoSize.width,
-                  photoHeight: photoSize.height,
-                  thumbnail: thumbnail?.fields.file?.url,
-                  thumbnailAlt: thumbnail?.fields.description ?? '',
-                  thumbnailWidth: thumbnailSize.width,
-                  thumbnailHeight: thumbnailSize.height,
-                };
-              });
-            this.delegates.set(delegates);
-            if (this.delegateName()) {
-              const foundDelegate = delegates.find(
-                (delegate) => delegate.name.replace(/ +/g, '-') === this.delegateName(),
-              );
-              if (foundDelegate) {
-                this.selectDelegate(foundDelegate);
-              } else {
-                this.location.replaceState('/delegates');
-              }
+      this.api.getPublicDelegates().subscribe({
+        next: (delegates) => {
+          this.delegates.set(delegates);
+          if (this.delegateName()) {
+            const foundDelegate = delegates.find(
+              (delegate) => delegate.name.replace(/ +/g, '-') === this.delegateName(),
+            );
+            if (foundDelegate) {
+              this.selectDelegate(foundDelegate);
+            } else {
+              this.location.replaceState('/delegates');
             }
-            this.loadingDelegates.set(false);
-          },
-          error: (err) => {
-            console.error('Failed to load the delegates list from Contentful:', err);
-            this.loadingDelegates.set(false);
-          },
-        }),
+          }
+          this.loadingDelegates.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load the delegates list:', err);
+          this.loadingDelegates.set(false);
+        },
+      }),
     );
 
     // retrieve and formats data from the CMS Delegate Page

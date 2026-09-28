@@ -49,6 +49,19 @@ async function listAllDelegatesWithWcaId() {
   return rows;
 }
 
+// Every `delegates` row at once, joined with its person's public-facing
+// fields (name/wca_id/picture+crop).
+async function listAllDelegatesWithPeople() {
+  const { rows } = await db.pool.query(
+    `SELECT d.id, d.bio, d.competitions_delegated_count,
+            p.id AS people_id, p.name, p.wca_id, p.picture_url, p.has_managed_photo,
+            p.thumbnail_crop_x, p.thumbnail_crop_y, p.thumbnail_crop_w, p.thumbnail_crop_h
+     FROM delegates d
+     JOIN people p ON p.id = d.people_id`,
+  );
+  return rows;
+}
+
 // Every currently-open rank row across every delegate at once, each tagged
 // with its person's wca_id.
 async function listAllOpenRankRows() {
@@ -201,6 +214,7 @@ module.exports = {
   findDelegateByWcaId,
   upsertDelegate,
   listAllDelegatesWithWcaId,
+  listAllDelegatesWithPeople,
   listAllOpenRankRows,
   openRankRow,
   closeRankRow,

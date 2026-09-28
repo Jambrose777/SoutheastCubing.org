@@ -1,6 +1,18 @@
 const logger = require('../utils/logger.util.js');
+const { respondWithServiceError } = require('../helpers/httpError.helper.js');
 
 const { syncDelegatesFromWca } = require('../services/delegateSync.service.js');
+const delegatesService = require('../services/delegates.service.js');
+
+// GET /delegates - public Delegate roster page listing.
+async function listPublicDelegates(req, res) {
+  try {
+    const delegates = await delegatesService.listDelegatesForPublicPage();
+    res.json(delegates);
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to list delegates');
+  }
+}
 
 // Manually triggers the same WCA sync as the nightly job, outside its
 // schedule - mirrors update-competitions' manual-refresh button, but
@@ -22,4 +34,4 @@ async function syncDelegates(req, res) {
   res.status(200).json(summary);
 }
 
-module.exports = { syncDelegates };
+module.exports = { listPublicDelegates, syncDelegates };

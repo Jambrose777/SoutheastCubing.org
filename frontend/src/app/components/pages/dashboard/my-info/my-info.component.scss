@@ -177,12 +177,18 @@
   font-weight: bold;
 }
 
-// Preserves the bio's own line breaks/spacing rather than collapsing them
-// the way plain inline text normally would.
+// Rendered markdown. Strips the rendered markdown's own first/last paragraph margin
+// so it doesn't add extra space inside this box's own padding.
 .bio-text {
-  margin: 0;
-  white-space: pre-wrap;
   word-break: break-word;
+
+  ::ng-deep markdown > :first-child {
+    margin-top: 0;
+  }
+
+  ::ng-deep markdown > :last-child {
+    margin-bottom: 0;
+  }
 }
 
 .bio-edit {
