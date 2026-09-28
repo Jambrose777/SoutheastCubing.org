@@ -33,4 +33,15 @@ async function getContentfulCompetitions() {
   }
 }
 
-module.exports = { getContentfulCompetitions };
+// True once CONTENTFUL_SPACE/CONTENTFUL_ACCESS_TOKEN are present and the
+// client is built.
+function isConfigured() {
+  return !!cdaClient;
+}
+
+// The underlying Contentful client.
+function getClient() {
+  return cdaClient;
+}
+
+module.exports = { getContentfulCompetitions, isConfigured, getClient };

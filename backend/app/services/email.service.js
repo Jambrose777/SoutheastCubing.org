@@ -20,7 +20,7 @@ const CLUBS_TEAM_ID = 'clubs_team';
 
 // In production returns the real address for the email to send to.
 // Outside production, aliases `realAddress` to `${localPart}+${context}@${domain}`
-// derived from DEV_EMAIL_OVERRIDE. Returns null (never `realAddress`) if it can't 
+// derived from DEV_EMAIL_OVERRIDE. Returns null (never `realAddress`) if it can't
 // safely alias which the controller's existing check turns into a 503.
 function resolveRecipient(realAddress, context) {
   if (config.NODE_ENV === 'production') {
@@ -86,6 +86,30 @@ function getEmailText(name, email, text, ip) {
   return emailText;
 }
 
+// Builds the reminder email a newly-promoted Delegate with a still-blank
+// bio gets.
+function buildDelegateBioReminderMessage({ name, wcaEmail }) {
+  const toEmail = resolveRecipient(wcaEmail, 'delegate-bio-reminder');
+  if (!toEmail) {
+    return null;
+  }
+
+  const myInfoUrl = new URL('/dashboard/my-info', config.FRONTEND_URL);
+  myInfoUrl.searchParams.set('focusField', 'delegate-bio-field');
+
+  return {
+    from: `"Southeast Cubing" <${config.EMAIL_USER}>`,
+    to: toEmail,
+    subject: '[SoutheastCubing.org] Welcome! Add your Delegate bio',
+    text:
+      `Congratulations on becoming a Delegate, ${stripNewlines(name)}!\n\n` +
+      "We'd love for the Southeast Cubing community to get to know you a bit better. " +
+      'Whenever you get a chance, sign in and add a short Delegate bio on your My Info page:\n\n' +
+      `${myInfoUrl.toString()}\n\n` +
+      "Sign in with the WCA account linked to your Delegate role. This is a one-time email - you won't be reminded again once it's filled in.",
+  };
+}
+
 // Builds the nodemailer message options for a contact-form submission -
 // resolves the destination address from emailType and strips \r/\n from
 // user-supplied fields that end up in email headers. Returns null if
@@ -110,4 +134,9 @@ async function buildContactFormMessage({ name, email, subject, text, ip, emailTy
   };
 }
 
-module.exports = { EmailType, buildContactFormMessage };
+module.exports = {
+  EmailType,
+  buildContactFormMessage,
+  buildDelegateBioReminderMessage,
+  resolveRecipient,
+};

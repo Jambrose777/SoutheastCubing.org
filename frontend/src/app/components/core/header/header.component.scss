@@ -84,8 +84,30 @@
       }
     }
 
+    .avatar-wrapper {
+      position: relative;
+      display: block;
+    }
+
     .user-thumbnail {
       display: block;
+    }
+
+    // The generic notification-badge mechanism's "!" indicator.
+    .pending-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: color-pallet.$se-dark-red;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
     }
 
     // Dev-only role-impersonation indicator

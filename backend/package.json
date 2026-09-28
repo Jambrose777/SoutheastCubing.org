@@ -9,6 +9,7 @@
     "migrate": "node --env-file=.env/.env scripts/migrate.js",
     "schema-snapshot": "node --env-file=.env/.env scripts/generate-schema-snapshot.js",
     "backfill-people-pictures": "node --env-file=.env/.env scripts/backfill-people-pictures.js",
+    "backfill-delegate-bios": "node --env-file=.env/.env scripts/backfill-delegate-bios-from-contentful.js",
     "test": "echo \"No automated tests configured for backend — smoke test manually via node server.js\" && exit 0"
   },
   "keywords": [],

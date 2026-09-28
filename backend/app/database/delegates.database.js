@@ -6,9 +6,7 @@ const logger = require('../utils/logger.util.js');
 // Looks up a single `delegates` row by people_id. Returns null if this
 // person has never been tracked as a Delegate.
 async function findDelegateByPeopleId(peopleId) {
-  const { rows } = await db.pool.query('SELECT * FROM delegates WHERE people_id = $1', [
-    peopleId,
-  ]);
+  const { rows } = await db.pool.query('SELECT * FROM delegates WHERE people_id = $1', [peopleId]);
   return rows[0] ?? null;
 }
 
@@ -27,17 +25,15 @@ async function findDelegateByWcaId(wcaId) {
 // Creates a `delegates` row for `peopleId` if one doesn't already exist.
 // Idempotent - ON CONFLICT DO NOTHING, then re-selects, so a concurrent
 // insert race just resolves to the same row.
-async function upsertDelegate(peopleId) {
+async function upsertDelegate(peopleId, actorId = null) {
   return db.withRetry(async (client) => {
     const id = crypto.randomUUID();
     await client.query(
-      `INSERT INTO delegates (id, people_id) VALUES ($1, $2)
+      `INSERT INTO delegates (id, people_id, created_by, updated_by) VALUES ($1, $2, $3, $3)
        ON CONFLICT (people_id) DO NOTHING`,
-      [id, peopleId],
+      [id, peopleId, actorId],
     );
-    const { rows } = await client.query('SELECT * FROM delegates WHERE people_id = $1', [
-      peopleId,
-    ]);
+    const { rows } = await client.query('SELECT * FROM delegates WHERE people_id = $1', [peopleId]);
     logger.debug(`Upserted delegates row for people_id ${peopleId}.`);
     return rows[0];
   });
@@ -67,28 +63,28 @@ async function listAllOpenRankRows() {
 }
 
 // Opens a new rank row - a promotion. `startDate` is a 'YYYY-MM-DD' string.
-async function openRankRow(delegateId, rank, startDate) {
+async function openRankRow(delegateId, rank, startDate, actorId = null) {
   const id = crypto.randomUUID();
   const { rows } = await db.pool.query(
-    `INSERT INTO delegate_rank_history (id, delegate_id, rank, start_date)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO delegate_rank_history (id, delegate_id, rank, start_date, created_by, updated_by)
+     VALUES ($1, $2, $3, $4, $5, $5)
      RETURNING *`,
-    [id, delegateId, rank, startDate],
+    [id, delegateId, rank, startDate, actorId],
   );
   logger.debug(`Opened ${rank} rank row (id ${id}) for delegate_id ${delegateId}.`);
   return rows[0];
 }
 
-// Closes an open rank row - a promotion/demotion. `endDate` is a 'YYYY-MM-DD' string 
-// (or a Date). Only closes it if it's still actually open (end_date IS NULL), so a 
+// Closes an open rank row - a promotion/demotion. `endDate` is a 'YYYY-MM-DD' string
+// (or a Date). Only closes it if it's still actually open (end_date IS NULL), so a
 // caller can't accidentally stomp an already-closed historical row.
-async function closeRankRow(rankRowId, endDate) {
+async function closeRankRow(rankRowId, endDate, actorId = null) {
   const { rows } = await db.pool.query(
     `UPDATE delegate_rank_history
-     SET end_date = $2, updated_at = now()
+     SET end_date = $2, updated_by = $3, updated_at = now()
      WHERE id = $1 AND end_date IS NULL
      RETURNING *`,
-    [rankRowId, endDate],
+    [rankRowId, endDate, actorId],
   );
   logger.debug(`Closed rank row (id ${rankRowId}).`);
   return rows[0] ?? null;
@@ -109,13 +105,13 @@ async function listAllOpenStateRows() {
 
 // Opens a new SE state row - moving into the Southeast, or moving from one
 // SE state to another. `startDate` is a 'YYYY-MM-DD' string (or a Date).
-async function openStateRow(delegateId, state, startDate) {
+async function openStateRow(delegateId, state, startDate, actorId = null) {
   const id = crypto.randomUUID();
   const { rows } = await db.pool.query(
-    `INSERT INTO delegate_state_history (id, delegate_id, state, start_date)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO delegate_state_history (id, delegate_id, state, start_date, created_by, updated_by)
+     VALUES ($1, $2, $3, $4, $5, $5)
      RETURNING *`,
-    [id, delegateId, state, startDate],
+    [id, delegateId, state, startDate, actorId],
   );
   logger.debug(`Opened ${state} state row (id ${id}) for delegate_id ${delegateId}.`);
   return rows[0];
@@ -123,13 +119,13 @@ async function openStateRow(delegateId, state, startDate) {
 
 // Closes the open SE state row. `endDate` is a 'YYYY-MM-DD' string (or a
 // Date). Only closes it if it's still actually open.
-async function closeStateRow(stateRowId, endDate) {
+async function closeStateRow(stateRowId, endDate, actorId = null) {
   const { rows } = await db.pool.query(
     `UPDATE delegate_state_history
-     SET end_date = $2, updated_at = now()
+     SET end_date = $2, updated_by = $3, updated_at = now()
      WHERE id = $1 AND end_date IS NULL
      RETURNING *`,
-    [stateRowId, endDate],
+    [stateRowId, endDate, actorId],
   );
   logger.debug(`Closed state row (id ${stateRowId}).`);
   return rows[0] ?? null;
@@ -137,15 +133,48 @@ async function closeStateRow(stateRowId, endDate) {
 
 // Refreshes competitions_delegated_count directly from the sync payload's
 // total_delegated field - no separate per-delegate WCA call.
-async function updateCompetitionsDelegatedCount(delegateId, count) {
+async function updateCompetitionsDelegatedCount(delegateId, count, actorId = null) {
   const { rows } = await db.pool.query(
     `UPDATE delegates
-     SET competitions_delegated_count = $2, updated_at = now()
+     SET competitions_delegated_count = $2, updated_by = $3, updated_at = now()
      WHERE id = $1
      RETURNING *`,
-    [delegateId, count],
+    [delegateId, count, actorId],
   );
   logger.debug(`Updated competitions_delegated_count for delegate_id ${delegateId} to ${count}.`);
+  return rows[0] ?? null;
+}
+
+// Every rank row (open and closed) for one delegate, most-recently-started
+// first.
+async function listRankRowsForDelegate(delegateId) {
+  const { rows } = await db.pool.query(
+    'SELECT * FROM delegate_rank_history WHERE delegate_id = $1 ORDER BY start_date DESC',
+    [delegateId],
+  );
+  return rows;
+}
+
+// Every state row (open and closed) for one delegate, most-recently-started
+// first.
+async function listStateRowsForDelegate(delegateId) {
+  const { rows } = await db.pool.query(
+    'SELECT * FROM delegate_state_history WHERE delegate_id = $1 ORDER BY start_date DESC',
+    [delegateId],
+  );
+  return rows;
+}
+
+// Sets a delegate's own bio.
+async function updateBio(delegateId, bio, actorId = null) {
+  const { rows } = await db.pool.query(
+    `UPDATE delegates
+     SET bio = $2, updated_by = $3, updated_at = now()
+     WHERE id = $1
+     RETURNING *`,
+    [delegateId, bio, actorId],
+  );
+  logger.debug(`Updated bio for delegate_id ${delegateId}.`);
   return rows[0] ?? null;
 }
 
@@ -180,4 +209,7 @@ module.exports = {
   closeStateRow,
   updateCompetitionsDelegatedCount,
   getOpenRanksForPerson,
+  listRankRowsForDelegate,
+  listStateRowsForDelegate,
+  updateBio,
 };

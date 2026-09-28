@@ -39,4 +39,11 @@ export class MyInfoService {
   }): Observable<void> {
     return this.http.put<void>(`${this.base}/my-info/photo/crop`, crop);
   }
+
+  // Sets the signed-in Delegate's own bio - returns the refreshed My Info
+  // payload, same shape as getMyInfo, so the caller can update in one round
+  // trip.
+  updateBio(bio: string): Observable<MyInfo> {
+    return this.http.put<MyInfo>(`${this.base}/my-info/bio`, { bio });
+  }
 }

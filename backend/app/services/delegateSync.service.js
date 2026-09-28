@@ -1,26 +1,17 @@
 const wca = require('../integrations/wca.integration.js');
 const delegatesDb = require('../database/delegates.database.js');
 const peopleDb = require('../database/people.database.js');
+const emailIntegration = require('../integrations/email.integration.js');
+const emailService = require('./email.service.js');
 const logger = require('../utils/logger.util.js');
 const { SOUTHEAST_STATES } = require('../helpers/southeastStates.helper.js');
+const {
+  WCA_STATUS_TO_RANK,
+  PERSONAL_RANK_STATUSES,
+} = require('../helpers/delegateRanks.helper.js');
 
 // SECI's own delegate_regions group id.
 const SECI_GROUP_ID = 32;
-
-// WCA's delegate_status values map one-to-one onto our rank enum, except
-// they carry a "_delegate" suffix we drop. `temporary` excluded
-const WCA_STATUS_TO_RANK = {
-  trainee_delegate: 'trainee',
-  junior_delegate: 'junior',
-  delegate: 'delegate',
-  senior_delegate: 'senior',
-  regional_delegate: 'regional',
-};
-
-// The personal-rank track - trainee/junior/delegate are mutually exclusive
-// (WCA reports at most one at a time), unlike Regional/Senior which can be
-// concurrently open alongside a personal rank.
-const TRACK_RANK_STATUSES = ['trainee_delegate', 'junior_delegate', 'delegate'];
 
 // Parses WCA's `location` field down to the first Southeast state it lists,
 // or null if there isn't one. WCA's location is free text, usually
@@ -64,9 +55,9 @@ function todayIsoDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
-// Runs the WCA sync: reconciles every currently-open 
-// delegate_rank_history/delegate_state_history row against WCA's own live 
-// user_roles data, and refreshes competitions_delegated_count. Returns a 
+// Runs the WCA sync: reconciles every currently-open
+// delegate_rank_history/delegate_state_history row against WCA's own live
+// user_roles data, and refreshes competitions_delegated_count. Returns a
 // structured summary of what changed.
 async function syncDelegatesFromWca() {
   const summary = {
@@ -135,9 +126,9 @@ async function syncDelegatesFromWca() {
 }
 
 // Reconciles one person's rank/state rows against their current WCA roles.
-// Isolated per-person so one bad record can't abort the whole sync run. 
-// Handles the personal-rank track (trainee/junior/delegate - mutually exclusive) 
-// and the Regional/Senior tracks (independently open/closed, concurrent with 
+// Isolated per-person so one bad record can't abort the whole sync run.
+// Handles the personal-rank track (trainee/junior/delegate - mutually exclusive)
+// and the Regional/Senior tracks (independently open/closed, concurrent with
 // the personal track) separately.
 async function reconcileOneDelegate({
   wcaId,
@@ -148,14 +139,14 @@ async function reconcileOneDelegate({
   summary,
 }) {
   const personalRole = currentRoles.find((role) =>
-    TRACK_RANK_STATUSES.includes(role.metadata?.status),
+    PERSONAL_RANK_STATUSES.includes(role.metadata?.status),
   );
   const regionalRole = currentRoles.find((role) => role.metadata?.status === 'regional_delegate');
   const seniorRole = currentRoles.find((role) => role.metadata?.status === 'senior_delegate');
 
-  const openPersonalRow = openRankRows.find((row) => TRACK_RANK_STATUSES.some(
-    (status) => WCA_STATUS_TO_RANK[status] === row.rank,
-  ));
+  const openPersonalRow = openRankRows.find((row) =>
+    PERSONAL_RANK_STATUSES.some((status) => WCA_STATUS_TO_RANK[status] === row.rank),
+  );
   const openRegionalRow = openRankRows.find((row) => row.rank === 'regional');
   const openSeniorRow = openRankRows.find((row) => row.rank === 'senior');
 
@@ -193,7 +184,10 @@ async function reconcileOneDelegate({
 
   // Refreshed directly from the sync payload's total_delegated field.
   const totalDelegated = personalRole?.metadata?.total_delegated;
-  if (typeof totalDelegated === 'number' && totalDelegated !== delegate.competitions_delegated_count) {
+  if (
+    typeof totalDelegated === 'number' &&
+    totalDelegated !== delegate.competitions_delegated_count
+  ) {
     await delegatesDb.updateCompetitionsDelegatedCount(delegate.id, totalDelegated);
   }
 }
@@ -225,6 +219,36 @@ async function reconcilePersonalTrack({ delegate, wcaId, personalRole, openPerso
     summary.demoted.push({ wcaId, from: openPersonalRow.rank });
   } else {
     summary.promoted.push({ wcaId, rank: newRank, startDate: personalRole.start_date });
+    // Sends reminder to fill out Delegate bio for new promotions.
+    if (!delegate.bio) {
+      await sendDelegateBioReminderEmail({
+        name: personalRole.user.name,
+        wcaEmail: personalRole.user.email,
+      });
+    }
+  }
+}
+
+// Sends the one-time "welcome, add your bio" reminder to a newly-promoted
+// Delegate's WCA-reported email address.
+async function sendDelegateBioReminderEmail({ name, wcaEmail }) {
+  if (!emailIntegration.isConfigured()) {
+    logger.warn(
+      `Skipping the new-Delegate bio reminder email for ${name} - email is not configured (EMAIL_USER/EMAIL_PASS).`,
+    );
+    return;
+  }
+  const message = emailService.buildDelegateBioReminderMessage({ name, wcaEmail });
+  if (!message) {
+    logger.warn(
+      `Skipping the new-Delegate bio reminder email for ${name} - no destination address resolved.`,
+    );
+    return;
+  }
+  try {
+    await emailIntegration.sendMail(message, 'new-Delegate bio reminder');
+  } catch (err) {
+    logger.error(`Failed to send the new-Delegate bio reminder email for ${name}: `, err);
   }
 }
 
@@ -261,8 +285,8 @@ async function reconcileState({ delegate, wcaId, openStateRow, newState, summary
   summary.stateChanged.push({ wcaId, from: openStateRow?.state ?? null, to: newState });
 }
 
-// Creates a brand-new delegate's `delegates` row. Upserts the underlying 
-// `people` row first, so a brand-new Delegate gets a `people` row without 
+// Creates a brand-new delegate's `delegates` row. Upserts the underlying
+// `people` row first, so a brand-new Delegate gets a `people` row without
 // requiring them to log in first.
 async function ensureDelegateRow(wcaId) {
   const wcaPerson = await wca.fetchPersonByWcaId(wcaId);

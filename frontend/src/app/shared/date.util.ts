@@ -10,7 +10,7 @@ export function toDateInputValue(date: string | null): string | null {
 
 // Formats a backend date column for human-readable display, as MM/DD/YYYY.
 export function formatDate(date: string): string {
-  return moment.utc(date).format('MM/DD/YYYY');
+  return moment.utc(date).format('MM-DD-YYYY');
 }
 
 // A native <input type="date"> reports an empty string for BOTH "left

@@ -8,6 +8,10 @@ CREATE TABLE IF NOT EXISTS delegates (
   bio TEXT,
   -- Refreshed directly from the `total_delegated` field in the nightly sync payload.
   competitions_delegated_count INTEGER,
+  -- Nullable - null means seeded by migration or written by the nightly
+  -- sync (a system actor, not a signed-in user).
+  created_by TEXT REFERENCES users (id),
+  updated_by TEXT REFERENCES users (id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

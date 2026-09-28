@@ -7,6 +7,12 @@ const logger = require('../utils/logger.util.js');
 // never persisted to DSQL.
 const impersonatedRolesBySessionId = new Map();
 
+// A session impersonating a Delegate role has no real `delegates` row to
+// write a bio to - this holds what My Info's bio editor shows for that
+// session instead, purely in memory, so an edit visibly "sticks" for the
+// rest of the session without ever touching the real `delegates` table.
+const impersonatedBiosBySessionId = new Map();
+
 // Every preset the role picker offers, and exactly what each one makes
 // getCurrentRoles() report.
 const PRESETS = {
@@ -95,6 +101,20 @@ function getImpersonation(sessionId) {
   return PRESETS[presetKey];
 }
 
+// The bio text My Info should show for an impersonated Delegate session.
+function getImpersonatedBio(sessionId) {
+  if (!isEnabled() || !sessionId) return '';
+  return impersonatedBiosBySessionId.get(sessionId) ?? '';
+}
+
+// Records the bio text an impersonated session's My Info edit should show
+// from now on - purely in this module's own memory, never written to
+// `delegates.bio`.
+function setImpersonatedBio(sessionId, bio) {
+  if (!isEnabled() || !getImpersonationPresetKey(sessionId)) return;
+  impersonatedBiosBySessionId.set(sessionId, bio);
+}
+
 module.exports = {
   PRESETS,
   isEnabled,
@@ -102,4 +122,6 @@ module.exports = {
   setImpersonation,
   getImpersonation,
   getImpersonationPresetKey,
+  getImpersonatedBio,
+  setImpersonatedBio,
 };

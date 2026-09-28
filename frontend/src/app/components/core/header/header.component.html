@@ -54,20 +54,25 @@
           "
           matTooltipPosition="above"
         >
-          @if (userPictureUrl(); as pictureUrl) {
-            <se-avatar
-              [src]="pictureUrl"
-              [alt]="user.name + '\'s profile picture'"
-              [size]="40"
-              [cropX]="user.thumbnailCropX"
-              [cropY]="user.thumbnailCropY"
-              [cropW]="user.thumbnailCropW"
-              [cropH]="user.thumbnailCropH"
-              class="user-thumbnail"
-            ></se-avatar>
-          } @else {
-            <i class="fa-solid fa-circle-user fa-2xl clickable avatar-fallback"></i>
-          }
+          <div class="avatar-wrapper">
+            @if (userPictureUrl(); as pictureUrl) {
+              <se-avatar
+                [src]="pictureUrl"
+                [alt]="user.name + '\'s profile picture'"
+                [size]="40"
+                [cropX]="user.thumbnailCropX"
+                [cropY]="user.thumbnailCropY"
+                [cropW]="user.thumbnailCropW"
+                [cropH]="user.thumbnailCropH"
+                class="user-thumbnail"
+              ></se-avatar>
+            } @else {
+              <i class="fa-solid fa-circle-user fa-2xl clickable avatar-fallback"></i>
+            }
+            @if (user.pendingItems.length) {
+              <span class="pending-badge" aria-label="You have pending items to address">!</span>
+            }
+          </div>
         </a>
       } @else {
         <div

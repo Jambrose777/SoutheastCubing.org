@@ -1,12 +1,19 @@
 import {
+  afterNextRender,
   Component,
   ChangeDetectionStrategy,
+  DestroyRef,
+  ElementRef,
   inject,
+  Injector,
   OnInit,
   signal,
   computed,
+  viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { ThemeService } from 'src/app/services/theme.service';
@@ -16,12 +23,14 @@ import { ToastService } from 'src/app/services/toast.service';
 import { Colors } from 'src/app/shared/types';
 import { formatDate } from 'src/app/shared/date.util';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
+import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 import { HeaderComponent } from '../../../core/header/header.component';
 import { DashboardSidePaneComponent } from '../dashboard-side-pane/dashboard-side-pane.component';
 import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading-spinner.component';
 import { PictureCropSheetComponent } from '../../../shared/picture-crop-sheet/picture-crop-sheet.component';
 import { cacheBustUrl } from 'src/app/shared/cache-bust-url.util';
-import { MyInfo } from 'src/app/models/MyInfo';
+import { MyInfo, MyInfoCurrentEntry, MyInfoPastEntry } from 'src/app/models/MyInfo';
+import { RANK_LABELS } from 'src/app/models/Delegate';
 
 // A DirtyCheckable sheet component, checked before actually dismissing it.
 interface DirtyCheckable {
@@ -32,6 +41,26 @@ const CLOSE_ANIMATION_MS = 200;
 
 // The "Who We Are" page's URL.
 const WHO_WE_ARE_URL = buildDetailUrl('/about', 'Who We Are');
+
+// The signed-in Delegate's own public Delegate page URL - same
+// /delegates/{name} slug pattern delegates.component.ts already uses.
+function delegatePageUrl(name: string): string {
+  return buildDetailUrl('/delegates', name);
+}
+
+// A stable track() key for a current/past roles-list entry.
+function myInfoEntryTrackKey(entry: MyInfoCurrentEntry | MyInfoPastEntry): string {
+  switch (entry.type) {
+    case 'membership':
+      return `membership-${entry.membershipId}`;
+    case 'leadershipStint':
+      return `leadershipStint-${entry.leaderId}`;
+    case 'delegateRank':
+      return `delegateRank-${entry.rankRowId}`;
+    case 'delegateState':
+      return `delegateState-${entry.stateRowId}`;
+  }
+}
 
 // My Info tab - every stored profile field for the signed-in user, the dob
 // step-up flow, and their current/past roles-memberships.
@@ -47,6 +76,7 @@ const WHO_WE_ARE_URL = buildDetailUrl('/about', 'Who We Are');
     RouterLink,
     MatTooltipModule,
     PictureCropSheetComponent,
+    FormsModule,
   ],
 })
 export class MyInfoComponent implements OnInit {
@@ -56,13 +86,23 @@ export class MyInfoComponent implements OnInit {
   private toastService = inject(ToastService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private injector = inject(Injector);
+  private destroyRef = inject(DestroyRef);
   authService = inject(AuthService);
 
   isMobile = this.screenSizeService.isMobile;
   whoWeAreUrl = WHO_WE_ARE_URL;
+  delegatePageUrl = computed(() => delegatePageUrl(this.myInfo()?.name ?? ''));
 
   loading = signal(true);
   myInfo = signal<MyInfo | null>(null);
+
+  // Drives the "!" badge next to the "Delegate Bio" label itself.
+  hasBioPendingItem = computed(() =>
+    (this.authService.currentUser()?.pendingItems ?? []).some(
+      (item) => item.fieldId === 'delegate-bio-field',
+    ),
+  );
 
   // Cache-busted so a managed photo replaced via the Picture & Crop sheet
   // actually reloads here too.
@@ -76,12 +116,30 @@ export class MyInfoComponent implements OnInit {
   // keeps the sheet mounted long enough for it to actually play.
   isSheetClosing = signal(false);
 
+  // Delegate Bio inline edit - a plain textarea/save button.
+  editingBio = signal(false);
+  bioDraft = signal('');
+  savingBio = signal(false);
+  // Only present while editingBio() is true.
+  bioTextarea = viewChild<ElementRef<HTMLTextAreaElement>>('bioTextarea');
+
   formatDate = formatDate;
+  rankLabel(rank: string): string {
+    return RANK_LABELS[rank] ?? rank;
+  }
+  trackKey = myInfoEntryTrackKey;
 
   ngOnInit(): void {
     this.themeService.setMainPaneColor(Colors.grey);
     this.loadMyInfo();
     this.handleStepUpRedirectParams();
+
+    // Ensures the flow for handleFocusFieldParam happens on side
+    // pane click of My Info even if already on the My Info Tool.
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      if (this.loading()) return;
+      this.handleFocusFieldParam();
+    });
   }
 
   private loadMyInfo() {
@@ -90,11 +148,75 @@ export class MyInfoComponent implements OnInit {
       next: (myInfo) => {
         this.myInfo.set(myInfo);
         this.loading.set(false);
+        this.handleFocusFieldParam();
       },
       error: () => {
         this.loading.set(false);
       },
     });
+  }
+
+  // The generic notification-badge mechanism's click-through lands here
+  // with ?focusField=<id> - scrolls to that field once the page's data is
+  // ready, then strips the param so a refresh doesn't keep re-scrolling.
+  // The blank-bio pending item's own field additionally opens the bio
+  // editor, rather than just scrolling to a "not set" prompt.
+  private handleFocusFieldParam() {
+    const focusField = this.route.snapshot.queryParamMap.get('focusField');
+    if (!focusField) return;
+
+    const isBlankBioField = focusField === 'delegate-bio-field' && !this.myInfo()?.delegateBio;
+    if (isBlankBioField) {
+      this.startEditingBio();
+    }
+    this.scrollToFieldOnceImagesLoaded(
+      focusField,
+      isBlankBioField ? () => this.bioTextarea()?.nativeElement.focus() : undefined,
+    );
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { focusField: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  // scrollIntoViewSafely's own afterNextRender only waits for Angular to
+  // flush the DOM update - it doesn't account for the profile photo (an
+  // <img> whose own height isn't known until its bytes actually finish
+  // loading) still growing the page underneath the scroll target after
+  // that. Waits for every still-loading <img> on the page to finish first,
+  // so the computed scroll position reflects the page's final layout
+  // rather than a still-shorter in-progress one.
+  private scrollToFieldOnceImagesLoaded(fieldId: string, onScrolled?: () => void) {
+    afterNextRender(
+      () => {
+        const pendingImages = Array.from(document.querySelectorAll('img')).filter(
+          (img) => !img.complete,
+        );
+        const scrollThenFocus = () => {
+          scrollIntoViewSafely(fieldId, this.injector);
+          onScrolled?.();
+        };
+
+        if (!pendingImages.length) {
+          scrollThenFocus();
+          return;
+        }
+
+        Promise.all(
+          pendingImages.map(
+            (img) =>
+              new Promise<void>((resolve) => {
+                img.addEventListener('load', () => resolve(), { once: true });
+                img.addEventListener('error', () => resolve(), { once: true });
+              }),
+          ),
+        ).then(scrollThenFocus);
+      },
+      { injector: this.injector },
+    );
   }
 
   // Re-fetches without toggling `loading` - used while the Picture & Crop
@@ -134,6 +256,34 @@ export class MyInfoComponent implements OnInit {
   // My Info's dob field click-to-grant action.
   beginDobStepUp() {
     this.authService.beginDobStepUp();
+  }
+
+  // Opens the bio textarea, seeded with the current bio.
+  startEditingBio() {
+    this.bioDraft.set(this.myInfo()?.delegateBio ?? '');
+    this.editingBio.set(true);
+  }
+
+  cancelEditingBio() {
+    this.editingBio.set(false);
+  }
+
+  saveBio() {
+    this.savingBio.set(true);
+    this.myInfoApi.updateBio(this.bioDraft()).subscribe({
+      next: (myInfo) => {
+        this.myInfo.set(myInfo);
+        this.savingBio.set(false);
+        this.editingBio.set(false);
+        this.toastService.success('Delegate bio updated.');
+        // Re-checks pendingItems.
+        this.authService.refreshCurrentUser();
+      },
+      error: () => {
+        this.savingBio.set(false);
+        this.toastService.error('Failed to update Delegate bio.');
+      },
+    });
   }
 
   openPictureSheet() {

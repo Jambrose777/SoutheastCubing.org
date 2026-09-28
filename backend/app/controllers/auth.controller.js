@@ -5,6 +5,7 @@ const sessionsDb = require('../database/sessions.database.js');
 const { getCurrentRoles } = require('../helpers/roles.helper.js');
 const devImpersonation = require('../helpers/devImpersonation.helper.js');
 const { resolvePersonPicture } = require('../helpers/personPicture.helper.js');
+const { getPendingItems } = require('../helpers/pendingItems.helper.js');
 
 const logger = require('../utils/logger.util.js');
 
@@ -194,14 +195,17 @@ function getDevImpersonationConfig(req, res) {
 // Returns the currently signed-in user (from req.user, set by
 // session.middleware.js), or 401 if there isn't one. Also resolves their
 // current Admin/Board access (roles.helper.js's shared role-check helper) so
-// the frontend can gate nav links (e.g. Manage Teams) without a second
-// round-trip.
+// the frontend can gate nav links without a second round-trip. As well as
+// any open notification-badge "pending items" (pendingItems.helper.js)
 async function getCurrentUser(req, res) {
   if (!req.user) {
     res.status(401).json({ message: 'Not signed in.' });
     return;
   }
-  const { isAdmin, isBoard } = await getCurrentRoles(req.user.people_id, req.user.sessionId);
+  const [{ isAdmin, isBoard }, pendingItems] = await Promise.all([
+    getCurrentRoles(req.user.people_id, req.user.sessionId),
+    getPendingItems(req.user),
+  ]);
 
   // Only spread in impersonatedRole when it's actually set - never send the
   // key at all (not even as a null value) outside local dev, so a
@@ -216,6 +220,7 @@ async function getCurrentUser(req, res) {
     wcaId: req.user.wca_id,
     roles: { isAdmin, isBoard },
     ...(impersonatedRolePresetKey ? { impersonatedRole: impersonatedRolePresetKey } : {}),
+    pendingItems,
   });
 }
 

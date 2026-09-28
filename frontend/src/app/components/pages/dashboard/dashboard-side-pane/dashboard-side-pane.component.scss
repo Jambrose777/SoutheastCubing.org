@@ -17,6 +17,26 @@
   i {
     margin-right: 16px;
   }
+
+  .item-title-end {
+    display: flex;
+    align-items: center;
+  }
+}
+
+// The generic notification-badge mechanism's "!" indicator.
+.pending-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background-color: color-pallet.$se-dark-red;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
 }
 
 // Sticks to the bottom of the side-pane

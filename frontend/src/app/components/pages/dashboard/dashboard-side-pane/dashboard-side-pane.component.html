@@ -5,10 +5,29 @@
     <div class="list-container" tabindex="0">
       @for (tool of tools(); track tool.routerLink) {
         <div class="item-container clickable" [style.--state-color]="tool.color">
-          <a class="item-row" [routerLink]="tool.routerLink">
+          <a
+            class="item-row"
+            [routerLink]="tool.routerLink"
+            [queryParams]="
+              pendingItemFor()(tool.routerLink)
+                ? { focusField: pendingItemFor()(tool.routerLink)!.fieldId }
+                : null
+            "
+          >
             <div class="item-title">
-              {{ tool.label }}
-              <i class="fa-solid {{ tool.icon }} fa-sm"></i>
+              <span>{{ tool.label }}</span>
+              <span class="item-title-end">
+                @if (pendingItemFor()(tool.routerLink); as pendingItem) {
+                  <span
+                    class="pending-badge"
+                    [matTooltip]="pendingItem.label"
+                    matTooltipPosition="above"
+                    aria-label="{{ pendingItem.label }}"
+                    >!</span
+                  >
+                }
+                <i class="fa-solid {{ tool.icon }} fa-sm"></i>
+              </span>
             </div>
           </a>
         </div>

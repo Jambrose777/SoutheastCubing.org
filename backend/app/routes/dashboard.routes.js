@@ -37,6 +37,22 @@ router.get('/dashboard/my-info', requireAuth, asyncRoute(myInfoController.getMyI
 
 /**
  * @openapi
+ * /dashboard/my-info/bio:
+ *   put:
+ *     summary: Sets the signed-in Delegate's own bio.
+ *     tags: [Dashboard]
+ *     responses:
+ *       200:
+ *         description: The refreshed My Info payload.
+ *       400:
+ *         description: This person is not a Delegate.
+ *       401:
+ *         description: Not signed in.
+ */
+router.put('/dashboard/my-info/bio', requireAuth, asyncRoute(myInfoController.updateBio));
+
+/**
+ * @openapi
  * /dashboard/my-info/photo/sync:
  *   put:
  *     summary: Sets the signed-in user's own sync toggle - enabling re-mirrors from WCA if their avatar has actually changed, disabling freezes the current managed photo in place.
@@ -90,11 +106,7 @@ router.post(
  *       401:
  *         description: Not signed in.
  */
-router.put(
-  '/dashboard/my-info/photo/crop',
-  requireAuth,
-  asyncRoute(photosController.updateCrop),
-);
+router.put('/dashboard/my-info/photo/crop', requireAuth, asyncRoute(photosController.updateCrop));
 
 /**
  * @openapi

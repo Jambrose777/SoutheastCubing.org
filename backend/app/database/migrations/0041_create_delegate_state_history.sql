@@ -14,6 +14,10 @@ CREATE TABLE IF NOT EXISTS delegate_state_history (
   start_date DATE NOT NULL,
   -- Nullable - null for the current/most recent row.
   end_date DATE,
+  -- Nullable - null means seeded by migration or written by the nightly
+  -- sync (a system actor, not a signed-in user).
+  created_by TEXT REFERENCES users (id),
+  updated_by TEXT REFERENCES users (id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

@@ -58,7 +58,7 @@
                   role="button"
                   tabindex="0"
                   aria-label="Date of birth not shared - click to grant access"
-                  matTooltip="Shared with SECI members to help them evaluate volunteer/organizer applications"
+                  matTooltip="Shared with SECI members to help them evaluate volunteer & organizer applications"
                   matTooltipPosition="above"
                 >
                   Not shared - click to grant access
@@ -71,58 +71,170 @@
           </div>
         </div>
 
-        @if (info.memberships.current.length) {
-          <div class="roles-section">
-            <div class="roles-section-title">Current roles</div>
-            <ul class="roles-list">
-              @for (membership of info.memberships.current; track membership.membershipId) {
-                <li>
-                  @if (membership.linksToWhoWeAre) {
-                    <a [routerLink]="whoWeAreUrl">{{ membership.teamName }}</a>
-                  } @else {
-                    <span>{{ membership.teamName }}</span>
-                  }
-                  @if (membership.isLeader) {
-                    <span class="small-text-content"> — Leader</span>
-                  } @else if (membership.specialRole) {
-                    <span class="small-text-content"> — {{ membership.specialRole }}</span>
-                  }
-                  <span class="small-text-content">
-                    (since {{ formatDate(membership.sinceDate) }})
+        <!-- Delegate Bio -->
+        @if (info.delegateBio !== undefined) {
+          <div class="bio-section" id="delegate-bio-field">
+            <div class="bio-header">
+              <span class="field-label">
+                @if (hasBioPendingItem()) {
+                  <span class="pending-badge" aria-label="Pending: add your Delegate bio">!</span>
+                }
+                Delegate bio
+              </span>
+              @if (!editingBio()) {
+                @if (info.delegateBio) {
+                  <button
+                    type="button"
+                    class="btn small icon-only edit-bio-btn"
+                    (click)="startEditingBio()"
+                    matTooltip="Edit Delegate Bio"
+                    matTooltipPosition="above"
+                    aria-label="Edit Delegate Bio"
+                  >
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                } @else {
+                  <span
+                    class="field-value link-text"
+                    (click)="startEditingBio()"
+                    (keydown.enter)="startEditingBio()"
+                    (keydown.space)="$event.preventDefault(); startEditingBio()"
+                    role="button"
+                    tabindex="0"
+                    aria-label="Delegate bio not set - click to add one"
+                  >
+                    Not set - click to add
                   </span>
-                </li>
+                }
               }
-            </ul>
+            </div>
+            @if (editingBio()) {
+              <div class="bio-edit">
+                <p class="small-text-content refresh-hint">
+                  Introduce yourself to the community! Talk about what got you into cubing, your
+                  favorite personal achievements, and what your life looks like outside of cubing.
+                  Keep it factual and avoid specifics that will change over time (e.g. "I've
+                  delegated 10 competitions") — this bio isn't automatically updated, so it can go
+                  stale.
+                </p>
+                <textarea
+                  #bioTextarea
+                  class="bio-textarea"
+                  [ngModel]="bioDraft()"
+                  (ngModelChange)="bioDraft.set($event)"
+                  [disabled]="savingBio()"
+                  rows="5"
+                ></textarea>
+                <div class="bio-edit-actions">
+                  <button
+                    type="button"
+                    class="btn small"
+                    (click)="saveBio()"
+                    [disabled]="savingBio()"
+                  >
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    class="btn small"
+                    (click)="cancelEditingBio()"
+                    [disabled]="savingBio()"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            } @else if (info.delegateBio) {
+              <p class="bio-text">{{ info.delegateBio }}</p>
+            }
           </div>
         }
 
-        @if (info.memberships.past.length) {
-          <div class="roles-section">
-            <div class="roles-section-title">Past roles</div>
-            <ul class="roles-list">
-              @for (
-                entry of info.memberships.past;
-                track entry.type +
-                  (entry.type === 'membership' ? entry.membershipId : entry.leaderId)
-              ) {
-                <li>
-                  @if (entry.linksToWhoWeAre) {
-                    <a [routerLink]="whoWeAreUrl">{{ entry.teamName }}</a>
-                  } @else {
-                    <span>{{ entry.teamName }}</span>
+        <!-- Current & Past Roles -->
+        @if (info.memberships.current.length || info.memberships.past.length) {
+          <div class="roles-box">
+            @if (info.memberships.current.length) {
+              <div class="roles-section">
+                <div class="roles-section-title">Current roles</div>
+                <ul class="roles-list">
+                  @for (entry of info.memberships.current; track trackKey(entry)) {
+                    <li>
+                      @if (entry.type === 'membership') {
+                        @if (entry.linksToWhoWeAre) {
+                          <a class="roles-list-link" [routerLink]="whoWeAreUrl">
+                            {{ entry.teamName }}
+                            @if (entry.isLeader) {
+                              <span> — Leader</span>
+                            } @else if (entry.specialRole) {
+                              <span> — {{ entry.specialRole }}</span>
+                            }
+                            <span> (since {{ formatDate(entry.sinceDate) }})</span>
+                          </a>
+                        } @else {
+                          <span>{{ entry.teamName }}</span>
+                          @if (entry.isLeader) {
+                            <span> — Leader</span>
+                          } @else if (entry.specialRole) {
+                            <span> — {{ entry.specialRole }}</span>
+                          }
+                          <span> (since {{ formatDate(entry.sinceDate) }})</span>
+                        }
+                      } @else if (entry.type === 'delegateRank') {
+                        <a class="roles-list-link" [routerLink]="delegatePageUrl()">
+                          {{ rankLabel(entry.rank) }}
+                          @if (entry.state) {
+                            <span> — {{ entry.state }}</span>
+                          }
+                          <span> (since {{ formatDate(entry.sinceDate) }})</span>
+                        </a>
+                      } @else if (entry.type === 'delegateState') {
+                        <a class="roles-list-link" [routerLink]="delegatePageUrl()">
+                          Delegate State: {{ entry.state }}
+                          <span> (since {{ formatDate(entry.sinceDate) }})</span>
+                        </a>
+                      }
+                    </li>
                   }
-                  @if (entry.type === 'leadershipStint') {
-                    <span class="small-text-content"> — Leader</span>
-                  } @else if (entry.specialRole) {
-                    <span class="small-text-content"> — {{ entry.specialRole }}</span>
+                </ul>
+              </div>
+            }
+
+            @if (info.memberships.past.length) {
+              <div class="roles-section">
+                <div class="roles-section-title">Past roles</div>
+                <ul class="roles-list">
+                  @for (entry of info.memberships.past; track trackKey(entry)) {
+                    <li>
+                      @if (entry.type === 'membership') {
+                        @if (entry.linksToWhoWeAre) {
+                          <a [routerLink]="whoWeAreUrl">{{ entry.teamName }}</a>
+                        } @else {
+                          <span>{{ entry.teamName }}</span>
+                        }
+                        @if (entry.specialRole) {
+                          <span> — {{ entry.specialRole }}</span>
+                        }
+                      } @else if (entry.type === 'leadershipStint') {
+                        @if (entry.linksToWhoWeAre) {
+                          <a [routerLink]="whoWeAreUrl">{{ entry.teamName }}</a>
+                        } @else {
+                          <span>{{ entry.teamName }}</span>
+                        }
+                        <span> — Leader</span>
+                      } @else if (entry.type === 'delegateRank') {
+                        <span>{{ rankLabel(entry.rank) }}</span>
+                      } @else if (entry.type === 'delegateState') {
+                        <span>Delegate State: {{ entry.state }}</span>
+                      }
+                      <span>
+                        ({{ formatDate(entry.startDate) }} -
+                        {{ entry.endDate ? formatDate(entry.endDate) : 'present' }})
+                      </span>
+                    </li>
                   }
-                  <span class="small-text-content">
-                    ({{ formatDate(entry.startDate) }} -
-                    {{ entry.endDate ? formatDate(entry.endDate) : 'present' }})
-                  </span>
-                </li>
-              }
-            </ul>
+                </ul>
+              </div>
+            }
           </div>
         }
       }
