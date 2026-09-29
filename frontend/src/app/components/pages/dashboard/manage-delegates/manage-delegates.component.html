@@ -1,0 +1,385 @@
+<div class="component-container">
+  <div class="main-pane" tabindex="0">
+    <se-header id="header" [title]="'Manage Delegates'" [showNavCluster]="isMobile()"></se-header>
+
+    <div class="manage-delegates-content">
+      @if (loading()) {
+        <se-loading-spinner></se-loading-spinner>
+      } @else {
+        <!-- Toolbar and the table's header row live in one sticky wrapper. -->
+        <div class="sticky-header">
+          <!-- Top Toolbar for Managing Delegates -->
+          <div class="content-toolbar">
+            <div class="content-toolbar-side">
+              @if (viewMode() === 'history') {
+                <div class="group-toggle-label">
+                  <mat-slide-toggle
+                    [checked]="groupByDelegate()"
+                    (change)="toggleGroupByDelegate($event.checked)"
+                    >Group by Delegate</mat-slide-toggle
+                  >
+                </div>
+              }
+            </div>
+
+            <div class="view-mode-toggle">
+              <button
+                type="button"
+                class="toggle-half"
+                [class.active]="viewMode() === 'current'"
+                (click)="toggleViewMode()"
+              >
+                <i class="fa-solid fa-user-tie fa-sm"></i>
+                Current
+              </button>
+              <button
+                type="button"
+                class="toggle-half"
+                [class.active]="viewMode() === 'history'"
+                (click)="toggleViewMode()"
+              >
+                <i class="fa-solid fa-clock-rotate-left fa-sm"></i>
+                Show History
+              </button>
+            </div>
+
+            <div class="content-toolbar-side content-toolbar-actions">
+              @if (isRegionalDelegateOrAdminOrBoard()) {
+                <button type="button" class="btn small" [disabled]="syncing()" (click)="refresh()">
+                  <i class="fa-solid fa-arrows-rotate fa-sm"></i>
+                  {{ syncing() ? 'Refreshing...' : 'Refresh' }}
+                </button>
+              }
+              @if (isRegionalDelegateOrAdmin()) {
+                <button
+                  type="button"
+                  class="btn small"
+                  [class.hidden-btn]="viewMode() !== 'history'"
+                  [attr.aria-hidden]="viewMode() !== 'history'"
+                  [tabindex]="viewMode() !== 'history' ? -1 : 0"
+                  (click)="openAddHistoryRow()"
+                >
+                  <i class="fa-solid fa-plus fa-sm"></i>
+                  Add
+                </button>
+              }
+            </div>
+          </div>
+
+          @if (viewMode() === 'current') {
+            <!-- Same grid-template-columns as .delegate-row below, so the
+              header and body columns always line up exactly - a table's
+              own column-sizing algorithm and a flex row's don't reliably
+              agree on "150px" the same way a shared grid does. -->
+            <div class="delegate-row delegate-row-header">
+              <div class="delegate-avatar-cell"></div>
+              <div class="delegate-name-cell"><b>Name</b></div>
+              <div class="delegate-state-cell"><b>State</b></div>
+              <div class="delegate-rank-cell"><b>Rank</b></div>
+              <div class="delegate-start-date-cell"><b>Start Date</b></div>
+              <div
+                class="delegate-comps-cell"
+                matTooltip="Competitions Delegated"
+                matTooltipPosition="above"
+              >
+                <b>Comps</b>
+              </div>
+            </div>
+          } @else {
+            <div class="history-row history-row-header">
+              <div class="history-avatar-cell"></div>
+              <div class="history-name-cell"><b>Name</b></div>
+              <div
+                class="history-comps-cell"
+                matTooltip="Competitions Delegated"
+                matTooltipPosition="above"
+              >
+                <b>Comps</b>
+              </div>
+              <div class="history-value-cell"><b>Rank / State</b></div>
+              <div class="history-start-date-cell"><b>Start Date</b></div>
+              <div class="history-end-date-cell"><b>End Date</b></div>
+              <div class="history-actions-cell"></div>
+            </div>
+          }
+        </div>
+
+        @if (viewMode() === 'current') {
+          <div class="delegate-table-card">
+            <div class="delegate-list">
+              @for (delegate of currentRows(); track delegate.peopleId) {
+                <div class="delegate-row">
+                  <div class="delegate-avatar-cell">
+                    @if (delegate.pictureUrl) {
+                      <se-avatar
+                        [src]="delegate.pictureUrl"
+                        [size]="28"
+                        [cropX]="delegate.thumbnailCropX"
+                        [cropY]="delegate.thumbnailCropY"
+                        [cropW]="delegate.thumbnailCropW"
+                        [cropH]="delegate.thumbnailCropH"
+                        [alt]="delegate.name"
+                        class="avatar"
+                      ></se-avatar>
+                    }
+                  </div>
+                  <div class="delegate-name-cell">{{ delegate.name }}</div>
+                  <div class="delegate-state-cell">{{ delegate.state ?? '--' }}</div>
+                  <div class="delegate-rank-cell">{{ rankLabel(delegate.rank) }}</div>
+                  <div class="delegate-start-date-cell">
+                    @if (delegate.startDateFromState) {
+                      <span
+                        class="borrowed-start-date"
+                        matTooltip="This is the date they moved to the Southeast."
+                        matTooltipPosition="above"
+                        >{{ formatDate(delegate.startDate) }}</span
+                      >
+                    } @else {
+                      {{ formatDate(delegate.startDate) }}
+                    }
+                  </div>
+                  <div class="delegate-comps-cell">
+                    {{ delegate.competitionsDelegatedCount ?? 0 }}
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        } @else if (groupByDelegate()) {
+          <!-- Grouped: consecutive rows for the same Delegate have their
+            picture/name/comps-delegated cells visually merged (shown once,
+            spanning that Delegate's own rows, via grid-row). -->
+          <div class="delegate-table-card">
+            <div class="history-list">
+              @for (group of historyGroups(); track group.peopleId) {
+                <div class="history-group">
+                  <div
+                    class="history-avatar-cell"
+                    [style.grid-row]="'1 / span ' + group.rows.length"
+                    [style.grid-column]="1"
+                  >
+                    @if (group.pictureUrl) {
+                      <se-avatar
+                        [src]="group.pictureUrl"
+                        [size]="28"
+                        [cropX]="group.thumbnailCropX"
+                        [cropY]="group.thumbnailCropY"
+                        [cropW]="group.thumbnailCropW"
+                        [cropH]="group.thumbnailCropH"
+                        [alt]="group.name"
+                        class="avatar"
+                      ></se-avatar>
+                    }
+                  </div>
+                  <div
+                    class="history-name-cell"
+                    [style.grid-row]="'1 / span ' + group.rows.length"
+                    [style.grid-column]="2"
+                  >
+                    {{ group.name }}
+                  </div>
+                  <div
+                    class="history-comps-cell"
+                    [style.grid-row]="'1 / span ' + group.rows.length"
+                    [style.grid-column]="3"
+                  >
+                    {{ group.competitionsDelegatedCount ?? 0 }}
+                  </div>
+                  @for (row of group.rows; track row.id; let i = $index) {
+                    <div
+                      class="history-value-cell"
+                      [style.grid-row]="i + 1"
+                      [style.grid-column]="4"
+                    >
+                      @if (row.type === 'state') {
+                        <span class="state-pill" [style.--state-color]="stateColor(row.value)">{{
+                          row.value
+                        }}</span>
+                      } @else {
+                        {{ rankLabel(row.value) }}
+                      }
+                    </div>
+                    <div
+                      class="history-start-date-cell"
+                      [style.grid-row]="i + 1"
+                      [style.grid-column]="5"
+                    >
+                      @if (row.isPlaceholderDate) {
+                        <span
+                          class="placeholder-date"
+                          matTooltip="Likely incorrect - 2004-08-01 is WCA's placeholder date for roles predating their start-date tracking, not a real start date"
+                          matTooltipPosition="above"
+                          >{{ formatDate(row.startDate) }}</span
+                        >
+                      } @else {
+                        {{ formatDate(row.startDate) }}
+                      }
+                    </div>
+                    <div
+                      class="history-end-date-cell"
+                      [style.grid-row]="i + 1"
+                      [style.grid-column]="6"
+                    >
+                      {{ row.endDate ? formatDate(row.endDate) : 'present' }}
+                    </div>
+                    <div
+                      class="history-actions-cell"
+                      [style.grid-row]="i + 1"
+                      [style.grid-column]="7"
+                    >
+                      @if (isRegionalDelegateOrAdmin()) {
+                        <button
+                          type="button"
+                          class="btn small icon-only"
+                          (click)="openEditHistoryRow(row)"
+                          matTooltip="Edit"
+                          matTooltipPosition="above"
+                          aria-label="Edit"
+                        >
+                          <i class="fa-solid fa-pen"></i>
+                        </button>
+                      }
+                      @if (isAdmin()) {
+                        <button
+                          type="button"
+                          class="btn small icon-only"
+                          (click)="deleteHistoryRow(row)"
+                          matTooltip="Permanently delete"
+                          matTooltipPosition="above"
+                          aria-label="Permanently delete"
+                        >
+                          <i class="fa-solid fa-trash"></i>
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        } @else {
+          <!-- Ungrouped: one row per rank/state stint. -->
+          <div class="delegate-table-card">
+            <div class="history-list">
+              @for (row of ungroupedHistoryRows(); track row.id) {
+                <div class="history-row">
+                  <div class="history-avatar-cell">
+                    @if (row.pictureUrl) {
+                      <se-avatar
+                        [src]="row.pictureUrl"
+                        [size]="28"
+                        [cropX]="row.thumbnailCropX"
+                        [cropY]="row.thumbnailCropY"
+                        [cropW]="row.thumbnailCropW"
+                        [cropH]="row.thumbnailCropH"
+                        [alt]="row.name"
+                        class="avatar"
+                      ></se-avatar>
+                    }
+                  </div>
+                  <div class="history-name-cell">{{ row.name }}</div>
+                  <div class="history-comps-cell">{{ row.competitionsDelegatedCount ?? 0 }}</div>
+                  <div class="history-value-cell">
+                    @if (row.type === 'state') {
+                      <span class="state-pill" [style.--state-color]="stateColor(row.value)">{{
+                        row.value
+                      }}</span>
+                    } @else {
+                      {{ rankLabel(row.value) }}
+                    }
+                  </div>
+                  <div class="history-start-date-cell">
+                    @if (row.isPlaceholderDate) {
+                      <span
+                        class="placeholder-date"
+                        matTooltip="Likely incorrect - 2004-08-01 is WCA's placeholder date for roles predating their start-date tracking, not a real start date"
+                        matTooltipPosition="above"
+                        >{{ formatDate(row.startDate) }}</span
+                      >
+                    } @else {
+                      {{ formatDate(row.startDate) }}
+                    }
+                  </div>
+                  <div class="history-end-date-cell">
+                    {{ row.endDate ? formatDate(row.endDate) : 'present' }}
+                  </div>
+                  <div class="history-actions-cell">
+                    @if (isRegionalDelegateOrAdmin()) {
+                      <button
+                        type="button"
+                        class="btn small icon-only"
+                        (click)="openEditHistoryRow(row)"
+                        matTooltip="Edit"
+                        matTooltipPosition="above"
+                        aria-label="Edit"
+                      >
+                        <i class="fa-solid fa-pen"></i>
+                      </button>
+                    }
+                    @if (isAdmin()) {
+                      <button
+                        type="button"
+                        class="btn small icon-only"
+                        (click)="deleteHistoryRow(row)"
+                        matTooltip="Permanently delete"
+                        matTooltipPosition="above"
+                        aria-label="Permanently delete"
+                      >
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  @if (!isMobile()) {
+    <se-dashboard-side-pane></se-dashboard-side-pane>
+  }
+</div>
+
+<!-- Sheet Overlay for Add/Edit History Row -->
+@if (activeSheet() === 'delegateHistory') {
+  <div
+    class="sheet-backdrop"
+    (click)="closeSheetIfBackdrop($event, historySheet)"
+    (keydown.escape)="requestClose(historySheet)"
+    role="button"
+    tabindex="0"
+    aria-label="Close"
+  >
+    <div class="sheet-overlay" [class.closing]="isSheetClosing()">
+      <se-add-edit-delegate-history-sheet
+        #historySheet
+        [row]="sheetRow()"
+        (closed)="requestClose(historySheet)"
+        (saved)="onSheetSaved()"
+      ></se-add-edit-delegate-history-sheet>
+    </div>
+  </div>
+}
+
+<!-- Sheet Overlay for Sync Results -->
+@if (activeSheet() === 'syncResults' && syncSummary(); as summary) {
+  <div
+    class="sheet-backdrop"
+    (click)="closeSheetIfBackdrop($event, syncResultsSheet)"
+    (keydown.escape)="requestClose(syncResultsSheet)"
+    role="button"
+    tabindex="0"
+    aria-label="Close"
+  >
+    <div class="sheet-overlay" [class.closing]="isSheetClosing()">
+      <se-sync-results-sheet
+        #syncResultsSheet
+        [summary]="summary"
+        (closed)="requestClose(syncResultsSheet)"
+      ></se-sync-results-sheet>
+    </div>
+  </div>
+}

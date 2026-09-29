@@ -1,11 +1,9 @@
 const teamsDb = require('../database/teams.database.js');
 const teamMembershipsDb = require('../database/teamMemberships.database.js');
 const teamLeadersDb = require('../database/teamLeaders.database.js');
-const peopleDb = require('../database/people.database.js');
-const wcaIntegration = require('../integrations/wca.integration.js');
-const photosService = require('./photos.service.js');
+const { resolvePeopleId } = require('./people.service.js');
 const { httpError } = require('../helpers/httpError.helper.js');
-const { resolvePersonPicture } = require('../helpers/personPicture.helper.js');
+const { withResolvedPicture } = require('../helpers/personPicture.helper.js');
 const {
   ADMIN_TEAM_ID,
   BOARD_TEAM_ID,
@@ -13,9 +11,6 @@ const {
   FIXED_TEAM_IDS,
   OFFICER_TEAM_IDS,
 } = require('../helpers/fixedTeams.helper.js');
-
-// Matches WCA's own WCA ID format (e.g. 2010AMBR01).
-const WCA_ID_FORMAT = /^\d{4}[A-Z]{4}\d{2}$/;
 
 // A team name must contain at least one letter/number - teams.database.js's
 // slugifyTeamName() derives a team's id from its name and needs something
@@ -77,20 +72,6 @@ function sortTeamsForDashboard(teams) {
   });
 }
 
-// Resolves a joined `people` row's picture in place, keeping this response's
-// existing snake_case `picture_url`/`thumbnail_crop_*` fields.
-function withResolvedPicture(row) {
-  const resolved = resolvePersonPicture(row);
-  return {
-    ...row,
-    picture_url: resolved.pictureUrl,
-    thumbnail_crop_x: resolved.thumbnailCropX,
-    thumbnail_crop_y: resolved.thumbnailCropY,
-    thumbnail_crop_w: resolved.thumbnailCropW,
-    thumbnail_crop_h: resolved.thumbnailCropH,
-  };
-}
-
 // Collapses a member's badges into the single display tag the public page shows.
 function publicDisplayTag(member) {
   return member.officerRole ?? (member.is_active_leader ? 'Leader' : null) ?? member.special_role;
@@ -102,9 +83,7 @@ async function listTeamsForPublicPage() {
   const sorted = sortTeamsForDashboard(teams).filter((team) => !team.archived_at && !team.hidden);
 
   // get officer information
-  const officerMemberships = await teamMembershipsDb.getActiveMembershipsForTeams(
-    OFFICER_TEAM_IDS,
-  );
+  const officerMemberships = await teamMembershipsDb.getActiveMembershipsForTeams(OFFICER_TEAM_IDS);
   const officerTeamIdByPeopleId = new Map(
     officerMemberships.map((row) => [row.people_id, row.team_id]),
   );
@@ -124,7 +103,8 @@ async function listTeamsForPublicPage() {
       if (team.id === BOARD_TEAM_ID) {
         members = members.map((member) => ({
           ...member,
-          officerRole: officerTeamNameById.get(officerTeamIdByPeopleId.get(member.people_id)) ?? null,
+          officerRole:
+            officerTeamNameById.get(officerTeamIdByPeopleId.get(member.people_id)) ?? null,
           officerColor: officerColorByPeopleId.get(member.people_id) ?? null,
         }));
         members = sortBoardMembers(members, officerTeamIdByPeopleId);
@@ -161,11 +141,9 @@ async function listTeamsForDashboard() {
   const teams = await teamsDb.listTeams();
   const sorted = sortTeamsForDashboard(teams);
 
-  // Board member -> their current Officer role (if any) - the Officer role is 
+  // Board member -> their current Officer role (if any) - the Officer role is
   // auto-calculated.
-  const officerMemberships = await teamMembershipsDb.getActiveMembershipsForTeams(
-    OFFICER_TEAM_IDS,
-  );
+  const officerMemberships = await teamMembershipsDb.getActiveMembershipsForTeams(OFFICER_TEAM_IDS);
   const officerTeamIdByPeopleId = new Map(
     officerMemberships.map((row) => [row.people_id, row.team_id]),
   );
@@ -195,7 +173,8 @@ async function listTeamsForDashboard() {
       if (team.id === BOARD_TEAM_ID) {
         members = members.map((member) => ({
           ...member,
-          officerRole: officerTeamNameById.get(officerTeamIdByPeopleId.get(member.people_id)) ?? null,
+          officerRole:
+            officerTeamNameById.get(officerTeamIdByPeopleId.get(member.people_id)) ?? null,
           officerColor: officerColorByPeopleId.get(member.people_id) ?? null,
         }));
         members = sortBoardMembers(members, officerTeamIdByPeopleId);
@@ -308,33 +287,6 @@ async function hardDeleteTeam(teamId) {
   await teamsDb.hardDeleteTeam(teamId);
 }
 
-// Resolves `person` (either an existing `{ peopleId }` selection or a
-// `{ wcaId }` "add by WCA ID" fallback) down to a concrete `people.id`. The
-// wcaId branch re-fetches name/picture from WCA itself rather than trusting
-// client-supplied values, so a caller can't persist a name/picture that
-// doesn't actually match that WCA ID.
-async function resolvePeopleId(person) {
-  if (person.peopleId) {
-    const existing = await peopleDb.findPersonById(person.peopleId);
-    if (!existing) throw httpError(404, 'Person not found.');
-    return existing.id;
-  }
-  if (person.wcaId) {
-    if (!WCA_ID_FORMAT.test(person.wcaId)) {
-      throw httpError(400, 'Invalid WCA ID format.');
-    }
-    const wcaPerson = await wcaIntegration.fetchPersonByWcaId(person.wcaId);
-    if (!wcaPerson) throw httpError(404, 'WCA ID not found.');
-    const upserted = await peopleDb.upsertPersonFromWcaIdLookup({
-      wcaId: person.wcaId,
-      name: wcaPerson.name,
-      pictureUrl: wcaPerson.avatar?.thumb_url ?? null,
-    });
-    return upserted.id;
-  }
-  throw httpError(400, 'Must provide either peopleId or wcaId.');
-}
-
 // Asserts that a given color is valid according to the membership color constraint.
 function assertValidColor(color) {
   if (color != null && !teamLeadersDb.MEMBERSHIP_COLORS.includes(color)) {
@@ -348,10 +300,9 @@ async function addMember(teamId, { person, specialRole, color, startDate, endDat
   if (!team) throw httpError(404, 'Team not found.');
   assertValidColor(color);
 
-  const peopleId = await resolvePeopleId(person);
-
-  // First-ever Team/Board membership promotes a person into a managed photo.
-  await photosService.promoteToManagedPhoto(peopleId);
+  // First-ever Team/Board membership promotes a person and adds that they need
+  // a managed photo.
+  const peopleId = await resolvePeopleId(person, true);
 
   // Enforce Board-specific rule that Board membership rows never carry a special role.
   if (teamId === BOARD_TEAM_ID && specialRole) {
@@ -520,32 +471,7 @@ async function hardDeleteLeadershipRow(id) {
   await teamLeadersDb.hardDeleteLeadershipRow(id);
 }
 
-// Backs the Add/Edit Member sheet's search-as-you-type combobox - our own
-// `people`/`users` data only. 
-async function searchPeople(searchTerm) {
-  if (!searchTerm || !searchTerm.trim()) return [];
-  const results = await peopleDb.searchPeople(searchTerm.trim());
-  return results.map(withResolvedPicture);
-}
-
-// Proxies WCA's public GET /api/v0/persons/:wca_id lookup - the "add by WCA
-// ID" fallback for someone not already in `people`. Returns null on a 404
-// (a validly-formatted but unknown WCA ID).
-async function lookupWcaId(wcaId) {
-  if (!WCA_ID_FORMAT.test(wcaId)) {
-    throw httpError(400, 'Invalid WCA ID format.');
-  }
-  const person = await wcaIntegration.fetchPersonByWcaId(wcaId);
-  if (!person) return null;
-  return {
-    wcaId,
-    name: person.name,
-    pictureUrl: person.avatar?.thumb_url ?? null,
-  };
-}
-
 module.exports = {
-  WCA_ID_FORMAT,
   listTeamsForDashboard,
   listTeamsForPublicPage,
   createTeam,
@@ -561,6 +487,4 @@ module.exports = {
   removeLeader,
   updateLeadershipStint,
   hardDeleteLeadershipRow,
-  searchPeople,
-  lookupWcaId,
 };

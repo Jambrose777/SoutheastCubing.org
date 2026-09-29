@@ -22,6 +22,7 @@ export interface CurrentUser {
   roles: {
     isAdmin: boolean;
     isBoard: boolean;
+    isRegionalDelegate: boolean;
   };
   impersonatedRole?: string;
   pendingItems: PendingItem[];

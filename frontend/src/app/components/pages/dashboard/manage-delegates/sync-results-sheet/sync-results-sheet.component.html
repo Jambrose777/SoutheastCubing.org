@@ -1,0 +1,85 @@
+<div class="sheet-header">
+  <button type="button" class="back-btn" (click)="close()" aria-label="Back">
+    <i class="fa-solid fa-arrow-left"></i>
+  </button>
+  <h2>Sync Results</h2>
+</div>
+
+<div class="sheet-body">
+  @if (summary().errors.length) {
+    <div class="result-section">
+      <h3 class="error-heading">Errors</h3>
+      <ul>
+        @for (error of summary().errors; track error) {
+          <li>{{ error }}</li>
+        }
+      </ul>
+    </div>
+  }
+
+  @if (summary().promoted.length) {
+    <div class="result-section">
+      <h3>Promoted</h3>
+      <ul>
+        @for (item of summary().promoted; track item.wcaId) {
+          <li>
+            {{ item.wcaId }} promoted to {{ rankLabel(item.rank) }}, effective
+            {{ formatDate(item.startDate) }}
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  @if (summary().demoted.length) {
+    <div class="result-section">
+      <h3>Demoted</h3>
+      <ul>
+        @for (item of summary().demoted; track item.wcaId) {
+          <li>{{ item.wcaId }} stepped down from {{ rankLabel(item.from) }}</li>
+        }
+      </ul>
+    </div>
+  }
+
+  @if (summary().rankChanged.length) {
+    <div class="result-section">
+      <h3>Rank Changed</h3>
+      <ul>
+        @for (item of summary().rankChanged; track item.wcaId) {
+          <li>{{ item.wcaId }}: {{ rankLabel(item.from) }} &rarr; {{ rankLabel(item.to) }}</li>
+        }
+      </ul>
+    </div>
+  }
+
+  @if (summary().regionalOrSeniorChanged.length) {
+    <div class="result-section">
+      <h3>Regional / Senior Changed</h3>
+      <ul>
+        @for (item of summary().regionalOrSeniorChanged; track item.wcaId) {
+          <li>
+            {{ item.wcaId }}
+            {{ item.opened ? 'became' : 'stepped down as' }}
+            {{ rankLabel(item.rank) }}
+          </li>
+        }
+      </ul>
+    </div>
+  }
+
+  @if (summary().stateChanged.length) {
+    <div class="result-section">
+      <h3>State Changed</h3>
+      <ul>
+        @for (item of summary().stateChanged; track item.wcaId) {
+          <li>{{ item.wcaId }}: {{ item.from ?? '--' }} &rarr; {{ item.to ?? '--' }}</li>
+        }
+      </ul>
+    </div>
+  }
+</div>
+
+<div class="sheet-footer">
+  <button type="button" class="btn" (click)="close()">Close</button>
+</div>

@@ -1,0 +1,21 @@
+@use 'src/styles/color-pallet';
+
+:host {
+  display: contents;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.search-result {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: color-pallet.$se-grey;
+  }
+}

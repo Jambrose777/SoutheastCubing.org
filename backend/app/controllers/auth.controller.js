@@ -202,7 +202,7 @@ async function getCurrentUser(req, res) {
     res.status(401).json({ message: 'Not signed in.' });
     return;
   }
-  const [{ isAdmin, isBoard }, pendingItems] = await Promise.all([
+  const [{ isAdmin, isBoard, isRegionalDelegate }, pendingItems] = await Promise.all([
     getCurrentRoles(req.user.people_id, req.user.sessionId),
     getPendingItems(req.user),
   ]);
@@ -218,7 +218,7 @@ async function getCurrentUser(req, res) {
     name: req.user.name,
     ...resolvePersonPicture(req.user),
     wcaId: req.user.wca_id,
-    roles: { isAdmin, isBoard },
+    roles: { isAdmin, isBoard, isRegionalDelegate },
     ...(impersonatedRolePresetKey ? { impersonatedRole: impersonatedRolePresetKey } : {}),
     pendingItems,
   });

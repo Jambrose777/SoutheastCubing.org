@@ -12,22 +12,57 @@ export class ErrorBannerService {
   private messageSignal = signal<string | null>(null);
   message = this.messageSignal.asReadonly();
 
+  private timeoutId: ReturnType<typeof setTimeout> | null = null;
+  // How much of the auto-dismiss window is left - only meaningful while
+  // paused, so a resume() can pick back up where pause() left off instead of
+  // restarting the full window.
+  private remainingMs = AUTO_DISMISS_MS;
+  private timerStartedAt = 0;
+
   // Shows `message` in the shared banner, auto-dismissing after AUTO_DISMISS_MS.
   // A later call with a different message simply replaces the current one and
   // restarts the timer.
   show(message: string) {
+    this.clearTimer();
     this.messageSignal.set(message);
-    setTimeout(() => {
-      // Only clear if this call's message is still the one showing - an
-      // earlier show()'s timer firing after a newer message replaced it
-      // shouldn't dismiss that newer message early.
-      if (this.messageSignal() === message) {
-        this.messageSignal.set(null);
-      }
-    }, AUTO_DISMISS_MS);
+    this.remainingMs = AUTO_DISMISS_MS;
+    this.startTimer();
+  }
+
+  // Freezes the auto-dismiss countdown.
+  pause() {
+    if (this.timeoutId === null) {
+      return;
+    }
+    this.remainingMs -= Date.now() - this.timerStartedAt;
+    this.clearTimer();
+  }
+
+  // Picks the countdown back up from wherever pause() left it.
+  resume() {
+    if (this.messageSignal() === null || this.timeoutId !== null) {
+      return;
+    }
+    this.startTimer();
   }
 
   dismiss() {
+    this.clearTimer();
     this.messageSignal.set(null);
+  }
+
+  private startTimer() {
+    this.timerStartedAt = Date.now();
+    this.timeoutId = setTimeout(() => {
+      this.timeoutId = null;
+      this.messageSignal.set(null);
+    }, this.remainingMs);
+  }
+
+  private clearTimer() {
+    if (this.timeoutId !== null) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
   }
 }

@@ -1,0 +1,46 @@
+@forward 'src/styles/sheet';
+@use 'src/styles/color-pallet';
+
+// One divided button
+.history-type-toggle {
+  display: flex;
+  align-self: center;
+  border: 1px solid color-pallet.$se-black;
+  border-radius: 4px;
+  overflow: hidden;
+
+  .toggle-half {
+    padding: 4px 14px;
+    font-size: 14px;
+    background-color: color-pallet.$se-grey;
+    border: none;
+    cursor: pointer;
+
+    &:not(:last-child) {
+      border-right: 1px solid color-pallet.$se-black;
+    }
+
+    &.active {
+      background-color: color-pallet.$se-black;
+      color: white;
+    }
+  }
+}
+
+.selected-person {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  cursor: default;
+}
+
+.btn.small {
+  padding: 4px 10px;
+  font-size: 14px;
+}
+
+.open-row-note {
+  color: color-pallet.$se-dark-grey;
+  margin-top: -6px;
+}

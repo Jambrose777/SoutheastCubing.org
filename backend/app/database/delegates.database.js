@@ -62,6 +62,33 @@ async function listAllDelegatesWithPeople() {
   return rows;
 }
 
+// Every rank row (open and closed) across every delegate at once, joined
+// with its person's public-facing fields (name/wca_id/picture+crop).
+async function listAllRankRowsWithPeople() {
+  const { rows } = await db.pool.query(
+    `SELECT drh.*, p.id AS people_id, p.name, p.wca_id, p.picture_url, p.has_managed_photo,
+            p.thumbnail_crop_x, p.thumbnail_crop_y, p.thumbnail_crop_w, p.thumbnail_crop_h,
+            d.competitions_delegated_count
+     FROM delegate_rank_history drh
+     JOIN delegates d ON d.id = drh.delegate_id
+     JOIN people p ON p.id = d.people_id`,
+  );
+  return rows;
+}
+
+// Every state row (open and closed) across every delegate at once.
+async function listAllStateRowsWithPeople() {
+  const { rows } = await db.pool.query(
+    `SELECT dsh.*, p.id AS people_id, p.name, p.wca_id, p.picture_url, p.has_managed_photo,
+            p.thumbnail_crop_x, p.thumbnail_crop_y, p.thumbnail_crop_w, p.thumbnail_crop_h,
+            d.competitions_delegated_count
+     FROM delegate_state_history dsh
+     JOIN delegates d ON d.id = dsh.delegate_id
+     JOIN people p ON p.id = d.people_id`,
+  );
+  return rows;
+}
+
 // Every currently-open rank row across every delegate at once, each tagged
 // with its person's wca_id.
 async function listAllOpenRankRows() {
@@ -76,16 +103,41 @@ async function listAllOpenRankRows() {
 }
 
 // Opens a new rank row - a promotion. `startDate` is a 'YYYY-MM-DD' string.
-async function openRankRow(delegateId, rank, startDate, actorId = null) {
+async function openRankRow(delegateId, rank, startDate, actorId = null, endDate = null) {
   const id = crypto.randomUUID();
   const { rows } = await db.pool.query(
-    `INSERT INTO delegate_rank_history (id, delegate_id, rank, start_date, created_by, updated_by)
-     VALUES ($1, $2, $3, $4, $5, $5)
+    `INSERT INTO delegate_rank_history (id, delegate_id, rank, start_date, end_date, created_by, updated_by)
+     VALUES ($1, $2, $3, $4, $5, $6, $6)
      RETURNING *`,
-    [id, delegateId, rank, startDate, actorId],
+    [id, delegateId, rank, startDate, endDate, actorId],
   );
   logger.debug(`Opened ${rank} rank row (id ${id}) for delegate_id ${delegateId}.`);
   return rows[0];
+}
+
+// Looks up a single rank-history row by id.
+async function findRankRowById(id) {
+  const { rows } = await db.pool.query('SELECT * FROM delegate_rank_history WHERE id = $1', [id]);
+  return rows[0] ?? null;
+}
+
+// Edits a rank-history row's rank/start_date/end_date - a plain UPDATE by id.
+async function updateRankRow(id, { rank, startDate, endDate, actorId = null }) {
+  const { rows } = await db.pool.query(
+    `UPDATE delegate_rank_history
+     SET rank = $2, start_date = $3, end_date = $4, updated_by = $5, updated_at = now()
+     WHERE id = $1
+     RETURNING *`,
+    [id, rank, startDate, endDate, actorId],
+  );
+  logger.debug(`Updated rank row (id ${id}).`);
+  return rows[0] ?? null;
+}
+
+// Permanently deletes a rank-history row, irreversible.
+async function hardDeleteRankRow(id) {
+  await db.pool.query('DELETE FROM delegate_rank_history WHERE id = $1', [id]);
+  logger.debug(`Deleted rank row (id ${id}).`);
 }
 
 // Closes an open rank row - a promotion/demotion. `endDate` is a 'YYYY-MM-DD' string
@@ -118,16 +170,41 @@ async function listAllOpenStateRows() {
 
 // Opens a new SE state row - moving into the Southeast, or moving from one
 // SE state to another. `startDate` is a 'YYYY-MM-DD' string (or a Date).
-async function openStateRow(delegateId, state, startDate, actorId = null) {
+async function openStateRow(delegateId, state, startDate, actorId = null, endDate = null) {
   const id = crypto.randomUUID();
   const { rows } = await db.pool.query(
-    `INSERT INTO delegate_state_history (id, delegate_id, state, start_date, created_by, updated_by)
-     VALUES ($1, $2, $3, $4, $5, $5)
+    `INSERT INTO delegate_state_history (id, delegate_id, state, start_date, end_date, created_by, updated_by)
+     VALUES ($1, $2, $3, $4, $5, $6, $6)
      RETURNING *`,
-    [id, delegateId, state, startDate, actorId],
+    [id, delegateId, state, startDate, endDate, actorId],
   );
   logger.debug(`Opened ${state} state row (id ${id}) for delegate_id ${delegateId}.`);
   return rows[0];
+}
+
+// Looks up a single state-history row by id.
+async function findStateRowById(id) {
+  const { rows } = await db.pool.query('SELECT * FROM delegate_state_history WHERE id = $1', [id]);
+  return rows[0] ?? null;
+}
+
+// Edits a state-history row's state/start_date/end_date.
+async function updateStateRow(id, { state, startDate, endDate, actorId = null }) {
+  const { rows } = await db.pool.query(
+    `UPDATE delegate_state_history
+     SET state = $2, start_date = $3, end_date = $4, updated_by = $5, updated_at = now()
+     WHERE id = $1
+     RETURNING *`,
+    [id, state, startDate, endDate, actorId],
+  );
+  logger.debug(`Updated state row (id ${id}).`);
+  return rows[0] ?? null;
+}
+
+// Permanently deletes a state-history row - Admin-only, irreversible.
+async function hardDeleteStateRow(id) {
+  await db.pool.query('DELETE FROM delegate_state_history WHERE id = $1', [id]);
+  logger.debug(`Deleted state row (id ${id}).`);
 }
 
 // Closes the open SE state row. `endDate` is a 'YYYY-MM-DD' string (or a
@@ -215,12 +292,20 @@ module.exports = {
   upsertDelegate,
   listAllDelegatesWithWcaId,
   listAllDelegatesWithPeople,
+  listAllRankRowsWithPeople,
+  listAllStateRowsWithPeople,
   listAllOpenRankRows,
   openRankRow,
   closeRankRow,
+  findRankRowById,
+  updateRankRow,
+  hardDeleteRankRow,
   listAllOpenStateRows,
   openStateRow,
   closeStateRow,
+  findStateRowById,
+  updateStateRow,
+  hardDeleteStateRow,
   updateCompetitionsDelegatedCount,
   getOpenRanksForPerson,
   listRankRowsForDelegate,

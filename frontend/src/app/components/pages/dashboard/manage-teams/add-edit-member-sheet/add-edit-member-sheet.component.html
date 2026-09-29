@@ -19,56 +19,14 @@
   }
 
   @if (!selectedPerson()) {
-    <!-- Step 1: search-as-you-type combobox, falling back to a WCA-ID lookup
-    once local search is empty and the text looks like a WCA ID. -->
-    <mat-form-field>
-      <mat-label>Search by name, WCA ID, or email</mat-label>
-      <input matInput [formControl]="searchControl" />
-    </mat-form-field>
-
-    @if (searching()) {
-      <div class="small-text-content">Searching...</div>
-    }
-
-    @if (onlyMatchIsAlreadyMember()) {
-      <div class="small-text-content">This person is already a member of this team.</div>
-    }
-
-    @for (result of searchResults(); track result.id) {
-      <div class="search-result" (click)="selectPerson(result)" role="button" tabindex="0">
-        @if (result.picture_url) {
-          <se-avatar
-            [src]="result.picture_url"
-            [size]="32"
-            [cropX]="result.thumbnail_crop_x"
-            [cropY]="result.thumbnail_crop_y"
-            [cropW]="result.thumbnail_crop_w"
-            [cropH]="result.thumbnail_crop_h"
-            [alt]="result.name"
-            class="avatar"
-          ></se-avatar>
-        }
-        <span>{{ result.name }}</span>
-        @if (result.wca_id) {
-          <span class="small-text-content">({{ result.wca_id }})</span>
-        }
-      </div>
-    }
-
-    @if (wcaLookupResult(); as wcaResult) {
-      <div class="search-result" (click)="selectWcaResult(wcaResult)" role="button" tabindex="0">
-        @if (wcaResult.pictureUrl) {
-          <se-avatar
-            [src]="wcaResult.pictureUrl"
-            [size]="32"
-            [alt]="wcaResult.name"
-            class="avatar"
-          ></se-avatar>
-        }
-        <span>{{ wcaResult.name }}</span>
-        <span class="small-text-content">(add by WCA ID {{ wcaResult.wcaId }})</span>
-      </div>
-    }
+    <!-- Step 1: search-as-you-type combobox, falling back to a WCA-ID
+    lookup once local search is empty and the text looks like a WCA ID. -->
+    <se-person-search
+      [excludeResult]="excludeAlreadyMember"
+      [disabled]="!selectedTeam()"
+      excludedMessage="This person is already a member of this team."
+      (selected)="onPersonSelected($event)"
+    ></se-person-search>
   } @else {
     <!-- Step 2: dates, special role, color. -->
     <div class="selected-person">

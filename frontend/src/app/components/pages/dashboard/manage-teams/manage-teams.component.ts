@@ -102,8 +102,6 @@ export class ManageTeamsComponent implements OnInit {
   viewMode = signal<ViewMode>('current');
 
   ngOnInit(): void {
-    // Matches this tool's own entry in dashboard-tools.ts, rather than a
-    // hardcoded color, so the main-pane always matches its side-pane chip.
     const tool = DASHBOARD_TOOLS.find((t) => t.routerLink === '/dashboard/manage-teams');
     this.themeService.setMainPaneColor(tool?.color ?? Colors.grey);
     this.loadTeams();

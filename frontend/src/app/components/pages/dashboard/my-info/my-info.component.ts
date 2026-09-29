@@ -21,6 +21,7 @@ import { ThemeService } from 'src/app/services/theme.service';
 import { AuthService } from 'src/app/services/southeastcubing-api/auth.service';
 import { MyInfoService } from 'src/app/services/southeastcubing-api/my-info.service';
 import { ToastService } from 'src/app/services/toast.service';
+import { ErrorBannerService } from 'src/app/services/error-banner.service';
 import { Colors } from 'src/app/shared/types';
 import { formatDate } from 'src/app/shared/date.util';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
@@ -86,6 +87,7 @@ export class MyInfoComponent implements OnInit {
   private themeService = inject(ThemeService);
   private myInfoApi = inject(MyInfoService);
   private toastService = inject(ToastService);
+  private errorBannerService = inject(ErrorBannerService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private injector = inject(Injector);
@@ -242,9 +244,9 @@ export class MyInfoComponent implements OnInit {
     if (dobGranted) {
       this.toastService.success('Date of birth added.');
     } else if (authError === 'denied') {
-      this.toastService.error('Date of birth request was declined.');
+      this.errorBannerService.show('Date of birth request was declined.');
     } else {
-      this.toastService.error('Something went wrong granting date of birth access.');
+      this.errorBannerService.show('Something went wrong granting date of birth access.');
     }
 
     this.router.navigate([], {
@@ -283,7 +285,7 @@ export class MyInfoComponent implements OnInit {
       },
       error: () => {
         this.savingBio.set(false);
-        this.toastService.error('Failed to update Delegate bio.');
+        this.errorBannerService.show('Failed to update Delegate bio.');
       },
     });
   }

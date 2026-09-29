@@ -7,41 +7,19 @@ import {
   effect,
   signal,
   computed,
-  OnInit,
-  DestroyRef,
+  viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatFormField, MatLabel, MatError, MatHint } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect, MatOption } from '@angular/material/select';
-import { debounceTime, distinctUntilChanged, switchMap, of, catchError, map, filter } from 'rxjs';
 import { ManageTeamsApiService } from 'src/app/services/southeastcubing-api/manage-teams-api.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { toDateInputValue, checkBadDateInput } from 'src/app/shared/date.util';
-import {
-  ManageTeam,
-  PersonSearchResult,
-  TeamMembership,
-  TeamMemberColor,
-  WcaPersonLookupResult,
-} from 'src/app/models/ManageTeam';
-import { WCA_ID_FORMAT } from 'src/app/shared/wcaId.util';
+import { ManageTeam, TeamMembership, TeamMemberColor } from 'src/app/models/ManageTeam';
+import { PersonSearchResult, SelectedPerson } from 'src/app/models/Person';
 import { AvatarComponent } from '../../../../shared/avatar/avatar.component';
-
-// A person selected either from our own search results or from the WCA-ID
-// lookup fallback - not yet a `people` row (and so no crop data) in the
-// latter case.
-interface SelectedPerson {
-  peopleId?: string;
-  wcaId?: string;
-  name: string;
-  pictureUrl: string | null;
-  thumbnailCropX?: number | null;
-  thumbnailCropY?: number | null;
-  thumbnailCropW?: number | null;
-  thumbnailCropH?: number | null;
-}
+import { PersonSearchComponent } from '../../../../shared/person-search/person-search.component';
 
 const COLOR_OPTIONS: { value: TeamMemberColor; label: string }[] = [
   { value: 'black', label: 'Black' },
@@ -59,10 +37,10 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-// Slide-in "Add/Edit Member" sheet. Add mode's first step is a
-// search-as-you-type combobox; once a person is picked, the
-// second step shows their auto-calculated-but-editable dates, special role,
-// and color. Nothing is persisted until Save is clicked.
+// Slide-in "Add/Edit Member" sheet. Add mode's first step is se-person-
+// search's own combobox; once a person is picked, the second step shows
+// their auto-calculated-but-editable dates, special role, and color.
+// Nothing is persisted until Save is clicked.
 @Component({
   selector: 'se-add-edit-member-sheet',
   templateUrl: './add-edit-member-sheet.component.html',
@@ -78,12 +56,12 @@ function today(): string {
     MatSelect,
     MatOption,
     AvatarComponent,
+    PersonSearchComponent,
   ],
 })
-export class AddEditMemberSheetComponent implements OnInit {
+export class AddEditMemberSheetComponent {
   private manageTeamsApi = inject(ManageTeamsApiService);
   private toastService = inject(ToastService);
-  private destroyRef = inject(DestroyRef);
 
   // Preset (and not user-changeable) for the normal per-team-row "Add
   // member" flow. Left null for the top toolbar's own "Add Member" button,
@@ -110,6 +88,9 @@ export class AddEditMemberSheetComponent implements OnInit {
     );
   });
 
+  excludeAlreadyMember = (result: PersonSearchResult): boolean =>
+    this.activeMemberPeopleIds().has(result.id);
+
   // null = add mode.
   membership = input<TeamMembership | null>(null);
   closed = output<void>();
@@ -117,15 +98,9 @@ export class AddEditMemberSheetComponent implements OnInit {
 
   colorOptions = COLOR_OPTIONS;
   saving = false;
-  searching = signal(false);
-  searchResults = signal<PersonSearchResult[]>([]);
-  wcaLookupResult = signal<WcaPersonLookupResult | null>(null);
-  // True when the only local match(es) for the current search were
-  // filtered out as already-active members of this team.
-  onlyMatchIsAlreadyMember = signal(false);
   selectedPerson = signal<SelectedPerson | null>(null);
 
-  searchControl = new FormControl('');
+  personSearch = viewChild(PersonSearchComponent);
   checkBadDateInput = checkBadDateInput;
 
   detailsForm = new FormGroup({
@@ -168,85 +143,10 @@ export class AddEditMemberSheetComponent implements OnInit {
         });
       }
     });
-
-    // Search is unusable until a team is selected (only relevant when
-    // opened without a preset team).
-    effect(() => {
-      if (this.selectedTeam()) {
-        this.searchControl.enable();
-      } else {
-        this.searchControl.disable();
-      }
-    });
   }
 
-  ngOnInit(): void {
-    // Sets up the search-as-you-type behavior for the person search input.
-    this.searchControl.valueChanges
-      .pipe(
-        filter(() => !this.membership()),
-        debounceTime(300),
-        distinctUntilChanged(),
-        switchMap((query) => {
-          const trimmed = (query ?? '').trim();
-          if (trimmed.length < 2) {
-            this.searchResults.set([]);
-            this.wcaLookupResult.set(null);
-            this.onlyMatchIsAlreadyMember.set(false);
-            return of(null);
-          }
-          this.searching.set(true);
-          // WCA's own lookup endpoint (and our WCA_ID_FORMAT, which gates it)
-          // does expect WCA's own uppercase formatting.
-          return this.manageTeamsApi.searchPeople(trimmed).pipe(
-            switchMap((results) => {
-              const upperCased = trimmed.toUpperCase();
-              if (results.length === 0 && WCA_ID_FORMAT.test(upperCased)) {
-                return this.manageTeamsApi.lookupWcaId(upperCased).pipe(
-                  map((wcaResult) => ({ results, wcaResult })),
-                  catchError(() => of({ results, wcaResult: null })),
-                );
-              }
-              return of({ results, wcaResult: null });
-            }),
-          );
-        }),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((data) => {
-        this.searching.set(false);
-        if (!data) return;
-        // Excludes anyone already an active member of this team.
-        const activeIds = this.activeMemberPeopleIds();
-        const filteredResults = data.results.filter((result) => !activeIds.has(result.id));
-        this.searchResults.set(filteredResults);
-        this.wcaLookupResult.set(data.wcaResult);
-        this.onlyMatchIsAlreadyMember.set(
-          data.results.length > 0 && filteredResults.length === 0 && !data.wcaResult,
-        );
-      });
-  }
-
-  selectPerson(result: PersonSearchResult) {
-    this.selectedPerson.set({
-      peopleId: result.id,
-      name: result.name,
-      pictureUrl: result.picture_url,
-      thumbnailCropX: result.thumbnail_crop_x,
-      thumbnailCropY: result.thumbnail_crop_y,
-      thumbnailCropW: result.thumbnail_crop_w,
-      thumbnailCropH: result.thumbnail_crop_h,
-    });
-  }
-
-  // A fresh WCA-ID lookup result never carries crop data - it isn't a
-  // `people` row yet, so selectedPerson's crop fields are left undefined.
-  selectWcaResult(result: WcaPersonLookupResult) {
-    this.selectedPerson.set({
-      wcaId: result.wcaId,
-      name: result.name,
-      pictureUrl: result.pictureUrl,
-    });
+  onPersonSelected(person: SelectedPerson) {
+    this.selectedPerson.set(person);
   }
 
   pickTeam(teamId: string) {
@@ -257,7 +157,7 @@ export class AddEditMemberSheetComponent implements OnInit {
   // search again.
   changePerson() {
     this.selectedPerson.set(null);
-    this.searchControl.setValue('');
+    this.personSearch()?.clear();
   }
 
   // Used by the parent to decide whether closing this sheet needs an "are

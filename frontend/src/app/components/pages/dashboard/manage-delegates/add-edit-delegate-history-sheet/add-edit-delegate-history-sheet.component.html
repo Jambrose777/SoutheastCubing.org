@@ -1,0 +1,115 @@
+<div class="sheet-header">
+  <button type="button" class="back-btn" (click)="close()" aria-label="Back">
+    <i class="fa-solid fa-arrow-left"></i>
+  </button>
+  <h2>{{ isEditMode() ? 'Edit History Row' : 'Add History Row' }}</h2>
+</div>
+
+<div class="sheet-body">
+  @if (!isEditMode()) {
+    <!-- Add mode only - which table the new row goes into. -->
+    <div class="history-type-toggle">
+      <button
+        type="button"
+        class="toggle-half"
+        [class.active]="historyType() === 'rank'"
+        (click)="selectHistoryType('rank')"
+      >
+        Rank
+      </button>
+      <button
+        type="button"
+        class="toggle-half"
+        [class.active]="historyType() === 'state'"
+        (click)="selectHistoryType('state')"
+      >
+        State
+      </button>
+    </div>
+  }
+
+  @if (!selectedPerson()) {
+    <!-- Step 1 (add mode only): search-as-you-type combobox. -->
+    <se-person-search (selected)="onPersonSelected($event)"></se-person-search>
+  } @else {
+    <!-- Step 2: the value (rank or state), start/end dates. -->
+    <div class="selected-person">
+      @if (selectedPerson()?.pictureUrl; as pictureUrl) {
+        <se-avatar
+          [src]="pictureUrl"
+          [size]="32"
+          [cropX]="selectedPerson()!.thumbnailCropX ?? null"
+          [cropY]="selectedPerson()!.thumbnailCropY ?? null"
+          [cropW]="selectedPerson()!.thumbnailCropW ?? null"
+          [cropH]="selectedPerson()!.thumbnailCropH ?? null"
+          [alt]="selectedPerson()!.name"
+          class="avatar"
+        ></se-avatar>
+      }
+      <span>{{ selectedPerson()?.name }}</span>
+      @if (!isEditMode()) {
+        <button type="button" class="btn small" (click)="changePerson()">Change</button>
+      }
+    </div>
+
+    <form [formGroup]="form">
+      <mat-form-field>
+        <mat-label>{{ historyType() === 'rank' ? 'Rank' : 'State' }}</mat-label>
+        <mat-select formControlName="value">
+          @if (historyType() === 'rank') {
+            @for (option of rankOptions; track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          } @else {
+            @for (option of stateOptions; track option) {
+              <mat-option [value]="option">{{ option }}</mat-option>
+            }
+          }
+        </mat-select>
+        @if (form.controls.value.hasError('required')) {
+          <mat-error>{{ historyType() === 'rank' ? 'Rank' : 'State' }} is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Start date</mat-label>
+        <input
+          matInput
+          type="date"
+          formControlName="startDate"
+          (input)="checkBadDateInput($event, form.controls.startDate)"
+          (blur)="checkBadDateInput($event, form.controls.startDate)"
+        />
+        @if (form.controls.startDate.hasError('required')) {
+          <mat-error>Start date is required.</mat-error>
+        }
+        @if (form.controls.startDate.hasError('badDate')) {
+          <mat-error>Enter a valid start date.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>End date</mat-label>
+        <input
+          matInput
+          type="date"
+          formControlName="endDate"
+          (input)="checkBadDateInput($event, form.controls.endDate)"
+          (blur)="checkBadDateInput($event, form.controls.endDate)"
+        />
+        @if (form.controls.endDate.hasError('required')) {
+          <mat-error>End date is required.</mat-error>
+        }
+        @if (form.controls.endDate.hasError('badDate')) {
+          <mat-error>Enter a valid end date.</mat-error>
+        }
+      </mat-form-field>
+    </form>
+  }
+</div>
+
+<div class="sheet-footer">
+  <button type="button" class="btn" [disabled]="saving || !selectedPerson()" (click)="save()">
+    Save
+  </button>
+</div>

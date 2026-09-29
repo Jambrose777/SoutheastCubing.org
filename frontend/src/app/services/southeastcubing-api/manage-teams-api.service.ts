@@ -2,13 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import {
-  ManageTeam,
-  PersonSearchResult,
-  TeamLeaderStint,
-  TeamMembership,
-  WcaPersonLookupResult,
-} from '../../models/ManageTeam';
+import { ManageTeam, TeamLeaderStint, TeamMembership } from '../../models/ManageTeam';
 
 // Backs the Manage Teams dashboard
 @Injectable({
@@ -104,15 +98,5 @@ export class ManageTeamsApiService {
 
   hardDeleteLeadershipRow(leaderId: string): Observable<{ status: string }> {
     return this.http.delete<{ status: string }>(`${this.base}/team-leaders/${leaderId}`);
-  }
-
-  searchPeople(query: string): Observable<PersonSearchResult[]> {
-    return this.http.get<PersonSearchResult[]>(`${this.base}/people/search`, {
-      params: { q: query },
-    });
-  }
-
-  lookupWcaId(wcaId: string): Observable<WcaPersonLookupResult> {
-    return this.http.get<WcaPersonLookupResult>(`${this.base}/people/wca-lookup/${wcaId}`);
   }
 }

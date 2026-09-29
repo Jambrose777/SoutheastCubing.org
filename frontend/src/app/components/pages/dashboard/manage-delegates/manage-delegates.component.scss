@@ -1,0 +1,254 @@
+@use 'src/styles/color-pallet';
+
+.manage-delegates-content {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// Wraps the toolbar and the table's own header row in a single
+// position:sticky element - stacks right below se-header's own
+// sticky position, one z-index lower than the header's own 10001
+// so the header still draws on top of it.
+.sticky-header {
+  position: sticky;
+  top: 90px;
+  z-index: 10000;
+  background-color: var(--main-pane-color);
+}
+
+// Three-column layout - equal-width side columns keep the view-mode toggle
+// truly centered regardless of how wide the actions column on the right
+// ends up, rather than space-between (which centers nothing once the two
+// sides are different widths) - mirrors Manage Teams' own toolbar.
+.content-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.content-toolbar-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.content-toolbar-actions {
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+// Kept in the layout outside history mode, so Refresh
+// doesn't shift position when switching modes.
+.hidden-btn {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.group-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  cursor: pointer;
+
+  // Overrides the prebuilt indigo-pink theme's own accent color.
+  mat-slide-toggle {
+    --mat-slide-toggle-selected-icon-color: #{color-pallet.$se-blue};
+    --mat-slide-toggle-selected-focus-state-layer-color: #{color-pallet.$se-blue};
+    --mat-slide-toggle-selected-handle-color: #{color-pallet.$se-blue};
+    --mat-slide-toggle-selected-hover-state-layer-color: #{color-pallet.$se-blue};
+    --mat-slide-toggle-selected-pressed-state-layer-color: #{color-pallet.$se-blue};
+    --mat-slide-toggle-selected-focus-handle-color: #{color-pallet.$se-blue};
+    --mat-slide-toggle-selected-hover-handle-color: #{color-pallet.$se-blue};
+    --mat-slide-toggle-selected-pressed-handle-color: #{color-pallet.$se-blue};
+    --mat-slide-toggle-selected-focus-track-color: #{color-pallet.$se-blue};
+    --mat-slide-toggle-selected-hover-track-color: #{color-pallet.$se-blue};
+    --mat-slide-toggle-selected-pressed-track-color: #{color-pallet.$se-blue};
+    --mat-slide-toggle-selected-track-color: #{color-pallet.$se-blue};
+  }
+}
+
+// One divided button.
+.view-mode-toggle {
+  display: flex;
+  border: 1px solid color-pallet.$se-black;
+  border-radius: 4px;
+  overflow: hidden;
+
+  .toggle-half {
+    padding: 4px 10px;
+    font-size: 14px;
+    background-color: color-pallet.$se-grey;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    &:not(:last-child) {
+      border-right: 1px solid color-pallet.$se-black;
+    }
+
+    &.active {
+      background-color: color-pallet.$se-black;
+      color: white;
+    }
+  }
+}
+
+// Card for the table to visually be in
+.delegate-table-card {
+  border: 1px solid color-pallet.$se-black;
+  border-top: none;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  padding: 0 16px 12px;
+  margin-top: -12px;
+}
+
+// One column template shared by the header row and every body row below,
+// so they're guaranteed to line up exactly.
+.delegate-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 150px 150px 110px 70px;
+  align-items: center;
+
+  > div {
+    padding: 6px 4px;
+  }
+
+  .delegate-comps-cell {
+    text-align: right;
+  }
+}
+
+// The header row.
+.delegate-row-header {
+  font-size: 14px;
+  border: 1px solid color-pallet.$se-black;
+  border-bottom: 2px solid color-pallet.$se-black;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  padding: 0 16px;
+  background-color: var(--main-pane-color);
+}
+
+.delegate-list {
+  .delegate-row:not(:last-child) {
+    border-bottom: 1px solid color-pallet.$se-grey;
+  }
+
+  .delegate-row:hover {
+    background-color: rgb(0 0 0 / 0.08);
+  }
+}
+
+// One column template shared by the history header row and every
+// ungrouped body row.
+.history-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 70px 160px 100px 100px 76px;
+  align-items: center;
+  font-size: 14px;
+
+  > div {
+    padding: 6px 4px;
+  }
+
+  .history-comps-cell {
+    text-align: right;
+  }
+
+  .history-actions-cell {
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+}
+
+.history-row-header {
+  border: 1px solid color-pallet.$se-black;
+  border-bottom: 2px solid color-pallet.$se-black;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  padding: 0 16px;
+  background-color: var(--main-pane-color);
+}
+
+.history-list {
+  .history-row:not(:last-child) {
+    border-bottom: 1px solid color-pallet.$se-grey;
+  }
+
+  .history-row:hover {
+    background-color: rgb(0 0 0 / 0.08);
+  }
+}
+
+// One Delegate's own group (grouped view).
+.history-group {
+  display: grid;
+  grid-template-columns: 36px 1fr 70px 160px 100px 100px 76px;
+  align-items: center;
+  font-size: 14px;
+  padding: 6px 4px;
+
+  > div {
+    padding: 6px 4px;
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid color-pallet.$se-grey;
+  }
+
+  .history-comps-cell {
+    text-align: right;
+  }
+
+  .history-actions-cell {
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+}
+
+// Shrinks the base .btn.
+.btn.small {
+  padding: 4px 10px;
+  font-size: 14px;
+}
+
+.btn.small.icon-only {
+  padding: 4px 8px;
+}
+
+// A rank/state row's own value column.
+.state-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid color-pallet.$se-black;
+  background-color: var(--state-color);
+  font-size: 12px;
+}
+
+// A Start Date borrowed from the concurrently-open state row rather than
+// the rank row itself gets a dotted underline, with the hover tooltip
+// explaining why - matches My Info's own convention for the same value.
+.borrowed-start-date {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: help;
+}
+
+// A row whose start_date exactly equals WCA's own placeholder date
+// (2004-08-01) - flagged as likely needing a backfill correction.
+.placeholder-date {
+  text-decoration: underline wavy color-pallet.$se-dark-red;
+  text-underline-offset: 3px;
+  cursor: help;
+}

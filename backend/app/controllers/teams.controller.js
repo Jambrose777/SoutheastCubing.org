@@ -168,30 +168,6 @@ async function hardDeleteLeadershipRow(req, res) {
   }
 }
 
-// GET /dashboard/people/search - search-as-you-type combobox backing search.
-async function searchPeople(req, res) {
-  try {
-    const results = await teamsService.searchPeople(req.query.q);
-    res.json(results);
-  } catch (err) {
-    respondWithServiceError(res, err, 'Failed to search people');
-  }
-}
-
-// GET /dashboard/people/wca-lookup/:wcaId - "add by WCA ID" fallback lookup.
-async function lookupWcaId(req, res) {
-  try {
-    const person = await teamsService.lookupWcaId(req.params.wcaId);
-    if (!person) {
-      res.status(404).json({ message: 'WCA ID not found.' });
-      return;
-    }
-    res.json(person);
-  } catch (err) {
-    respondWithServiceError(res, err, 'Failed to look up WCA ID');
-  }
-}
-
 module.exports = {
   listTeams,
   listPublicTeams,
@@ -208,6 +184,4 @@ module.exports = {
   removeLeader,
   updateLeadershipStint,
   hardDeleteLeadershipRow,
-  searchPeople,
-  lookupWcaId,
 };

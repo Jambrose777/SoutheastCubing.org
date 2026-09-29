@@ -1,25 +1,12 @@
 @forward 'src/styles/sheet';
 @use 'src/styles/color-pallet';
 
-.search-result,
 .selected-person {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 8px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: color-pallet.$se-grey;
-  }
-}
-
-.selected-person {
   cursor: default;
-
-  &:hover {
-    background-color: transparent;
-  }
 }
 
 .btn.small {

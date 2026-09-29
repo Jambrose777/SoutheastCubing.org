@@ -1,0 +1,57 @@
+<mat-form-field>
+  <mat-label>Search by name, WCA ID, or email</mat-label>
+  <input matInput [formControl]="searchControl" />
+</mat-form-field>
+
+<!-- Loading Message -->
+@if (searching()) {
+  <div class="small-text-content">Searching...</div>
+}
+
+<!-- When the results returned only consist of excluded results. -->
+@if (onlyMatchExcluded()) {
+  <div class="small-text-content">{{ excludedMessage() }}</div>
+}
+
+<!-- When a completed search found nothing at all - local or WCA. -->
+@if (noResultsFound()) {
+  <div class="small-text-content">No results found.</div>
+}
+
+<!-- Result list from our database. -->
+@for (result of searchResults(); track result.id) {
+  <div class="search-result" (click)="selectResult(result)" role="button" tabindex="0">
+    @if (result.picture_url) {
+      <se-avatar
+        [src]="result.picture_url"
+        [size]="32"
+        [cropX]="result.thumbnail_crop_x"
+        [cropY]="result.thumbnail_crop_y"
+        [cropW]="result.thumbnail_crop_w"
+        [cropH]="result.thumbnail_crop_h"
+        [alt]="result.name"
+        class="avatar"
+      ></se-avatar>
+    }
+    <span>{{ result.name }}</span>
+    @if (result.wca_id) {
+      <span class="small-text-content">({{ result.wca_id }})</span>
+    }
+  </div>
+}
+
+<!-- Result list from WCA. -->
+@if (wcaLookupResult(); as wcaResult) {
+  <div class="search-result" (click)="selectWcaResult(wcaResult)" role="button" tabindex="0">
+    @if (wcaResult.pictureUrl) {
+      <se-avatar
+        [src]="wcaResult.pictureUrl"
+        [size]="32"
+        [alt]="wcaResult.name"
+        class="avatar"
+      ></se-avatar>
+    }
+    <span>{{ wcaResult.name }}</span>
+    <span class="small-text-content">({{ wcaResult.wcaId }})</span>
+  </div>
+}

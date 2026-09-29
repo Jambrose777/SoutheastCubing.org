@@ -30,15 +30,14 @@
   top: 0;
   left: 0;
   width: 100%;
+  box-sizing: border-box;
   z-index: 20000;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 20px;
   padding: 20px;
   background-color: color-pallet.$se-red;
   color: color-pallet.$se-black;
-  text-align: center;
   box-shadow: 0 3px 5px rgb(0 0 0 / 0.4);
   animation: slide-down-fade-in 0.4s ease-out;
 
@@ -46,9 +45,20 @@
     animation: slide-up-fade-out 0.4s ease-in forwards;
   }
 
+  .message {
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: center;
+    white-space: pre-wrap;
+  }
+
+  // Pinned to the right so it stays in the same spot regardless of message
+  // length, instead of sitting inline right after the text.
   .close-icon {
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
+    font-size: 20px;
   }
 }
 

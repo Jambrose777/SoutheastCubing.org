@@ -3,6 +3,7 @@ const express = require('express');
 const teamsController = require('../controllers/teams.controller.js');
 const myInfoController = require('../controllers/myInfo.controller.js');
 const photosController = require('../controllers/photos.controller.js');
+const peopleController = require('../controllers/people.controller.js');
 const delegatesController = require('../controllers/delegates.controller.js');
 const { requireAnyRole, requireAdmin } = require('../middleware/roles.middleware.js');
 const { requireAuth } = require('../middleware/session.middleware.js');
@@ -15,11 +16,18 @@ const { asyncRoute } = require('../helpers/asyncRoute.helper.js');
 // additionally requiring Admin specifically (requireAdmin)
 const router = express.Router();
 
-// Routes that require Board / Admin access
+// Routes that require Board / Admin access.
 const requireBoardOrAdmin = requireAnyRole('isBoard', 'isAdmin');
 
-// Manual Delegate sync is available to Regional Delegate/Admin/Board.
-const requireDelegateSyncAccess = requireAnyRole('isRegionalDelegate', 'isAdmin', 'isBoard');
+// Regional Delegate/Admin/Board access.
+const requireRegionalDelegateOrAdminOrBoard = requireAnyRole(
+  'isRegionalDelegate',
+  'isAdmin',
+  'isBoard',
+);
+
+// Routes that require Regional Delegate/Admin access.
+const requireRegionalDelegateOrAdmin = requireAnyRole('isRegionalDelegate', 'isAdmin');
 
 /**
  * @openapi
@@ -263,8 +271,8 @@ router.delete(
  * @openapi
  * /dashboard/people/search:
  *   get:
- *     summary: Search-as-you-type combobox for the Add/Edit Member sheet - our own people/users data only.
- *     tags: [Teams]
+ *     summary: Search-as-you-type combobox shared by every "add a person, or add by WCA ID" flow (Manage Teams' Add Member sheet, Manage Delegates' Add/Edit History sheet) - our own people/users data only.
+ *     tags: [People]
  *     parameters:
  *       - in: query
  *         name: q
@@ -272,8 +280,8 @@ router.delete(
  */
 router.get(
   '/dashboard/people/search',
-  requireBoardOrAdmin,
-  asyncRoute(teamsController.searchPeople),
+  requireRegionalDelegateOrAdminOrBoard,
+  asyncRoute(peopleController.searchPeople),
 );
 
 /**
@@ -281,15 +289,15 @@ router.get(
  * /dashboard/people/wca-lookup/{wcaId}:
  *   get:
  *     summary: Add-by-WCA-ID fallback - proxies WCA's public GET /api/v0/persons/:wca_id.
- *     tags: [Teams]
+ *     tags: [People]
  *     responses:
  *       404:
  *         description: No WCA account with that WCA ID.
  */
 router.get(
   '/dashboard/people/wca-lookup/:wcaId',
-  requireBoardOrAdmin,
-  asyncRoute(teamsController.lookupWcaId),
+  requireRegionalDelegateOrAdminOrBoard,
+  asyncRoute(peopleController.lookupWcaId),
 );
 
 /**
@@ -310,8 +318,103 @@ router.get(
  */
 router.post(
   '/dashboard/delegates/sync',
-  requireDelegateSyncAccess,
+  requireRegionalDelegateOrAdminOrBoard,
   asyncRoute(delegatesController.syncDelegates),
+);
+
+/**
+ * @openapi
+ * /dashboard/delegates:
+ *   get:
+ *     summary: Manage Delegates dashboard's own full-roster listing (every Delegate's current standing, plus every rank/state history row, current and past).
+ *     tags: [Delegates]
+ *     responses:
+ *       200:
+ *         description: '{ current: [...], history: [...] }'
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not Regional Delegate/Admin/Board.
+ */
+router.get(
+  '/dashboard/delegates',
+  requireRegionalDelegateOrAdminOrBoard,
+  asyncRoute(delegatesController.listForDashboard),
+);
+
+/**
+ * @openapi
+ * /dashboard/delegate-rank-history:
+ *   post:
+ *     summary: Backfills a past rank stint (Regional Delegate/Admin only) - creates the person/delegate row too if needed. End date is required.
+ *     tags: [Delegates]
+ *     responses:
+ *       201:
+ *         description: The newly-created rank history row.
+ *       400:
+ *         description: Missing/invalid field.
+ *       403:
+ *         description: Not Regional Delegate/Admin.
+ */
+router.post(
+  '/dashboard/delegate-rank-history',
+  requireRegionalDelegateOrAdmin,
+  asyncRoute(delegatesController.createRankRow),
+);
+
+/**
+ * @openapi
+ * /dashboard/delegate-rank-history/{id}:
+ *   put:
+ *     summary: Corrects a rank history row's dates (and, once closed, its rank) - Regional Delegate/Admin only. A currently-open row can only have its start date changed.
+ *     tags: [Delegates]
+ *   delete:
+ *     summary: Permanently deletes a rank history row - Admin only, irreversible.
+ *     tags: [Delegates]
+ */
+router.put(
+  '/dashboard/delegate-rank-history/:id',
+  requireRegionalDelegateOrAdmin,
+  asyncRoute(delegatesController.updateRankRow),
+);
+router.delete(
+  '/dashboard/delegate-rank-history/:id',
+  requireAdmin,
+  asyncRoute(delegatesController.hardDeleteRankRow),
+);
+
+/**
+ * @openapi
+ * /dashboard/delegate-state-history:
+ *   post:
+ *     summary: Backfills a past state stint (Regional Delegate/Admin only) - creates the person/delegate row too if needed. End date is required.
+ *     tags: [Delegates]
+ */
+router.post(
+  '/dashboard/delegate-state-history',
+  requireRegionalDelegateOrAdmin,
+  asyncRoute(delegatesController.createStateRow),
+);
+
+/**
+ * @openapi
+ * /dashboard/delegate-state-history/{id}:
+ *   put:
+ *     summary: Corrects a state history row's dates (and, once closed, its state) - Regional Delegate/Admin only. A currently-open row can only have its start date changed.
+ *     tags: [Delegates]
+ *   delete:
+ *     summary: Permanently deletes a state history row - Admin only, irreversible.
+ *     tags: [Delegates]
+ */
+router.put(
+  '/dashboard/delegate-state-history/:id',
+  requireRegionalDelegateOrAdmin,
+  asyncRoute(delegatesController.updateStateRow),
+);
+router.delete(
+  '/dashboard/delegate-state-history/:id',
+  requireAdmin,
+  asyncRoute(delegatesController.hardDeleteStateRow),
 );
 
 module.exports = router;

@@ -1,6 +1,12 @@
 @if (visible() || closing()) {
-  <div class="error-banner" [class.closing]="closing()" role="alert">
-    <span>{{ lastMessage() }}</span>
+  <div
+    class="error-banner"
+    [class.closing]="closing()"
+    role="alert"
+    (mouseenter)="errorBannerService.pause()"
+    (mouseleave)="errorBannerService.resume()"
+  >
+    <span class="message">{{ lastMessage() }}</span>
     <span
       class="close-icon clickable"
       (click)="dismiss()"
