@@ -210,21 +210,6 @@ export class ManageDelegatesComponent implements OnInit {
     const tool = DASHBOARD_TOOLS.find((t) => t.routerLink === '/dashboard/manage-delegates');
     this.themeService.setMainPaneColor(tool?.color ?? Colors.grey);
     this.loadDelegates();
-
-    // TEMP mock - shows what a filled-in sync results sheet looks like.
-    // Remove after viewing.
-    this.syncSummary.set({
-      promoted: [{ wcaId: '2015VERO02', rank: 'delegate', startDate: '2026-09-01' }],
-      demoted: [{ wcaId: '2012SMIT05', from: 'junior' }],
-      rankChanged: [{ wcaId: '2010AMBR01', from: 'trainee', to: 'junior' }],
-      regionalOrSeniorChanged: [{ wcaId: '2011DWYE02', rank: 'senior', opened: true }],
-      stateChanged: [{ wcaId: '2013HULL03', from: 'Georgia', to: 'North Carolina' }],
-      errors: [
-        "Delegate sync failed reconciling wca_id 2015VERO02: Cannot read properties of undefined (reading 'rank')",
-        'Delegate sync failed reconciling wca_id 2010AMBR01: WCA API request timed out after 10000ms',
-      ],
-    });
-    this.activeSheet.set('syncResults');
   }
 
   // Clicking either half of the toggle flips it.
