@@ -2,7 +2,7 @@
 -- tracking spreadsheet. This inserts each Delegate's state stint.
 
 INSERT INTO delegate_state_history (id, delegate_id, state, start_date, end_date)
-SELECT v.id, d.id, v.state, v.start_date, v.end_date
+SELECT v.id, p.id, v.state, v.start_date, v.end_date
 FROM (
   VALUES
   ('5aee1475-55f1-4026-a775-6e986b1551d5', '2010HULL01', 'Georgia', DATE '2017-11-14', NULL::date),
@@ -39,5 +39,4 @@ FROM (
   ('39a4a651-bae9-4e17-b666-729a45bceca6', '2018JOHN03', 'Georgia', DATE '2025-03-05', NULL::date)
 ) AS v (id, wca_id, state, start_date, end_date)
 JOIN people p ON p.wca_id = v.wca_id
-JOIN delegates d ON d.people_id = p.id
 ON CONFLICT (id) DO NOTHING;

@@ -9,7 +9,7 @@
 -- "USA (...)" wrapper down to the bare state name).
 CREATE TABLE IF NOT EXISTS delegate_state_history (
   id TEXT PRIMARY KEY,
-  delegate_id TEXT NOT NULL REFERENCES delegates (id),
+  delegate_id TEXT NOT NULL REFERENCES people (id),
   state TEXT NOT NULL,
   start_date DATE NOT NULL,
   -- Nullable - null for the current/most recent row.

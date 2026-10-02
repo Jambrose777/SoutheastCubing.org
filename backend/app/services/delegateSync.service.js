@@ -210,7 +210,7 @@ async function reconcilePersonalTrack({ delegate, wcaId, personalRole, openPerso
   // opens a new rank
   if (newRank) {
     // start_date comes from WCA's own start_date on the role.
-    await delegatesDb.openRankRow(delegate.id, newRank, personalRole.start_date);
+    await delegatesDb.openRankRow(delegate.people_id, newRank, personalRole.start_date);
   }
 
   // update summary
@@ -266,7 +266,7 @@ async function reconcileLeadershipTrack({ delegate, wcaId, rank, role, openRow, 
     await delegatesDb.closeRankRow(openRow.id, todayIsoDate());
     summary.regionalOrSeniorChanged.push({ wcaId, rank, opened: false });
   } else {
-    await delegatesDb.openRankRow(delegate.id, rank, role.start_date);
+    await delegatesDb.openRankRow(delegate.people_id, rank, role.start_date);
     summary.regionalOrSeniorChanged.push({ wcaId, rank, opened: true });
   }
 }
@@ -281,7 +281,7 @@ async function reconcileState({ delegate, wcaId, openStateRow, newState, summary
     await delegatesDb.closeStateRow(openStateRow.id, todayIsoDate());
   }
   if (newState) {
-    await delegatesDb.openStateRow(delegate.id, newState, todayIsoDate());
+    await delegatesDb.openStateRow(delegate.people_id, newState, todayIsoDate());
   }
   summary.stateChanged.push({ wcaId, from: openStateRow?.state ?? null, to: newState });
 }

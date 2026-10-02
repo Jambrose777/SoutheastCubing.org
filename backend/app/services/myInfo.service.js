@@ -159,8 +159,8 @@ async function getMyInfo(user) {
 
     // Get rank and state data for a Delegate.
     const [rankRows, stateRows] = await Promise.all([
-      delegatesDb.listRankRowsForDelegate(delegate.id),
-      delegatesDb.listStateRowsForDelegate(delegate.id),
+      delegatesDb.listRankRowsForDelegate(delegate.people_id),
+      delegatesDb.listStateRowsForDelegate(delegate.people_id),
     ]);
 
     const openRankRows = rankRows.filter((row) => !row.end_date);

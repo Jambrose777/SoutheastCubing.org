@@ -35,7 +35,7 @@ async function createRankRow({ person, rank, startDate, endDate, actorId }) {
   if (!startDate) throw httpError(400, 'startDate is required.');
   if (!endDate) throw httpError(400, 'endDate is required.');
   const delegate = await resolveDelegate(person, actorId);
-  return delegatesDb.openRankRow(delegate.id, rank, startDate, actorId, endDate);
+  return delegatesDb.openRankRow(delegate.people_id, rank, startDate, actorId, endDate);
 }
 
 // Backfills a past state stint - always closed (endDate required), since
@@ -46,7 +46,7 @@ async function createStateRow({ person, state, startDate, endDate, actorId }) {
   if (!startDate) throw httpError(400, 'startDate is required.');
   if (!endDate) throw httpError(400, 'endDate is required.');
   const delegate = await resolveDelegate(person, actorId);
-  return delegatesDb.openStateRow(delegate.id, state, startDate, actorId, endDate);
+  return delegatesDb.openStateRow(delegate.people_id, state, startDate, actorId, endDate);
 }
 
 // Edits a rank-history row. A currently-open row (end_date IS NULL) can

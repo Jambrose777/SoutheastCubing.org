@@ -2,7 +2,7 @@
 -- tracking spreadsheet. This inserts each Delegate rank stint.
 
 INSERT INTO delegate_rank_history (id, delegate_id, rank, start_date, end_date)
-SELECT v.id, d.id, v.rank, v.start_date, v.end_date
+SELECT v.id, p.id, v.rank, v.start_date, v.end_date
 FROM (
   VALUES
   ('bf8f7fe6-3001-4932-8f6b-661ee6ab243f', '2010HULL01', 'junior', DATE '2017-11-14', DATE '2018-12-20'),
@@ -75,5 +75,4 @@ FROM (
   ('261b0872-fa73-45db-ab06-b5a7037135e6', '2018JOHN03', 'junior', DATE '2022-05-31', NULL::date)
 ) AS v (id, wca_id, rank, start_date, end_date)
 JOIN people p ON p.wca_id = v.wca_id
-JOIN delegates d ON d.people_id = p.id
 ON CONFLICT (id) DO NOTHING;

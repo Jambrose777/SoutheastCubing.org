@@ -31,14 +31,14 @@ async function listDelegatesForPublicPage() {
 
   const delegates = delegateRows
     .map((delegate) => {
-      const openRankRows = openRankRowsByDelegateId.get(delegate.id) ?? [];
+      const openRankRows = openRankRowsByDelegateId.get(delegate.people_id) ?? [];
       const displayRank = highestDisplayRank(openRankRows.map((row) => row.rank));
 
       // temporary-only (or no open rank at all) - not displayed
       if (!displayRank) return null;
 
       const displayRankRow = openRankRows.find((row) => row.rank === displayRank);
-      const openStateRow = openStateRowByDelegateId.get(delegate.id) ?? null;
+      const openStateRow = openStateRowByDelegateId.get(delegate.people_id) ?? null;
 
       // A non-Regional Delegate with no open state row has moved out of
       // the Southeast - they're no longer actually active for our
@@ -116,14 +116,14 @@ async function listDelegatesForDashboard() {
 
   const current = delegateRows
     .map((delegate) => {
-      const allRankRows = rankRowsByDelegateId.get(delegate.id) ?? [];
+      const allRankRows = rankRowsByDelegateId.get(delegate.people_id) ?? [];
       const openRankRows = allRankRows.filter((row) => !row.end_date);
       const displayRank = highestDisplayRank(openRankRows.map((row) => row.rank));
       if (!displayRank) return null; // no open rank at all - not a current Delegate
 
       const displayRankRow = openRankRows.find((row) => row.rank === displayRank);
 
-      const openStateRow = (stateRowsByDelegateId.get(delegate.id) ?? []).find(
+      const openStateRow = (stateRowsByDelegateId.get(delegate.people_id) ?? []).find(
         (row) => !row.end_date,
       );
 

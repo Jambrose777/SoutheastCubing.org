@@ -9,7 +9,7 @@
 -- in any capacity.
 CREATE TABLE IF NOT EXISTS delegate_rank_history (
   id TEXT PRIMARY KEY,
-  delegate_id TEXT NOT NULL REFERENCES delegates (id),
+  delegate_id TEXT NOT NULL REFERENCES people (id),
   rank TEXT NOT NULL CHECK (
     rank IN ('trainee', 'junior', 'delegate', 'senior', 'regional', 'temporary')
   ),

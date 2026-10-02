@@ -105,32 +105,25 @@ function buildUserRow(person, { openRanksByPeopleId, openStateByPeopleId, teamsB
 // `users`/`delegates`, plus each person's own open Delegate rank/state
 // and active team memberships.
 async function listUsers() {
-  const [people, openRankRows, openStateRows, delegateRows, activeMemberships] = await Promise.all([
+  const [people, openRankRows, openStateRows, activeMemberships] = await Promise.all([
     peopleDb.listAllPeopleWithUsersAndDelegate(),
     delegatesDb.listAllOpenRankRows(),
     delegatesDb.listAllOpenStateRows(),
-    delegatesDb.listAllDelegatesWithPeople(),
     teamMembershipsDb.listAllActiveTeamMemberships(),
   ]);
 
-  // The open rank/state rows are only tagged with their own delegate_id,
-  // not people_id - this maps between the two.
-  const peopleIdByDelegateId = new Map(delegateRows.map((row) => [row.id, row.people_id]));
-
+  // `delegate_id` on these rows is already a people_id.
   const openRanksByPeopleId = new Map();
-  for (const [delegateId, rows] of groupBy(openRankRows, 'delegate_id')) {
-    const peopleId = peopleIdByDelegateId.get(delegateId);
-    if (peopleId)
-      openRanksByPeopleId.set(
-        peopleId,
-        rows.map((row) => row.rank),
-      );
+  for (const [peopleId, rows] of groupBy(openRankRows, 'delegate_id')) {
+    openRanksByPeopleId.set(
+      peopleId,
+      rows.map((row) => row.rank),
+    );
   }
 
   const openStateByPeopleId = new Map();
   for (const row of openStateRows) {
-    const peopleId = peopleIdByDelegateId.get(row.delegate_id);
-    if (peopleId) openStateByPeopleId.set(peopleId, row.state);
+    openStateByPeopleId.set(row.delegate_id, row.state);
   }
 
   const teamsByPeopleId = new Map();

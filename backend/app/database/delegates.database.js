@@ -70,8 +70,8 @@ async function listAllRankRowsWithPeople() {
             p.thumbnail_crop_x, p.thumbnail_crop_y, p.thumbnail_crop_w, p.thumbnail_crop_h,
             d.competitions_delegated_count
      FROM delegate_rank_history drh
-     JOIN delegates d ON d.id = drh.delegate_id
-     JOIN people p ON p.id = d.people_id`,
+     JOIN people p ON p.id = drh.delegate_id
+     JOIN delegates d ON d.people_id = p.id`,
   );
   return rows;
 }
@@ -83,8 +83,8 @@ async function listAllStateRowsWithPeople() {
             p.thumbnail_crop_x, p.thumbnail_crop_y, p.thumbnail_crop_w, p.thumbnail_crop_h,
             d.competitions_delegated_count
      FROM delegate_state_history dsh
-     JOIN delegates d ON d.id = dsh.delegate_id
-     JOIN people p ON p.id = d.people_id`,
+     JOIN people p ON p.id = dsh.delegate_id
+     JOIN delegates d ON d.people_id = p.id`,
   );
   return rows;
 }
@@ -95,23 +95,22 @@ async function listAllOpenRankRows() {
   const { rows } = await db.pool.query(
     `SELECT drh.*, p.wca_id
      FROM delegate_rank_history drh
-     JOIN delegates d ON d.id = drh.delegate_id
-     JOIN people p ON p.id = d.people_id
+     JOIN people p ON p.id = drh.delegate_id
      WHERE drh.end_date IS NULL`,
   );
   return rows;
 }
 
 // Opens a new rank row - a promotion. `startDate` is a 'YYYY-MM-DD' string.
-async function openRankRow(delegateId, rank, startDate, actorId = null, endDate = null) {
+async function openRankRow(peopleId, rank, startDate, actorId = null, endDate = null) {
   const id = crypto.randomUUID();
   const { rows } = await db.pool.query(
     `INSERT INTO delegate_rank_history (id, delegate_id, rank, start_date, end_date, created_by, updated_by)
      VALUES ($1, $2, $3, $4, $5, $6, $6)
      RETURNING *`,
-    [id, delegateId, rank, startDate, endDate, actorId],
+    [id, peopleId, rank, startDate, endDate, actorId],
   );
-  logger.debug(`Opened ${rank} rank row (id ${id}) for delegate_id ${delegateId}.`);
+  logger.debug(`Opened ${rank} rank row (id ${id}) for people_id ${peopleId}.`);
   return rows[0];
 }
 
@@ -161,8 +160,7 @@ async function listAllOpenStateRows() {
   const { rows } = await db.pool.query(
     `SELECT dsh.*, p.wca_id
      FROM delegate_state_history dsh
-     JOIN delegates d ON d.id = dsh.delegate_id
-     JOIN people p ON p.id = d.people_id
+     JOIN people p ON p.id = dsh.delegate_id
      WHERE dsh.end_date IS NULL`,
   );
   return rows;
@@ -170,15 +168,15 @@ async function listAllOpenStateRows() {
 
 // Opens a new SE state row - moving into the Southeast, or moving from one
 // SE state to another. `startDate` is a 'YYYY-MM-DD' string (or a Date).
-async function openStateRow(delegateId, state, startDate, actorId = null, endDate = null) {
+async function openStateRow(peopleId, state, startDate, actorId = null, endDate = null) {
   const id = crypto.randomUUID();
   const { rows } = await db.pool.query(
     `INSERT INTO delegate_state_history (id, delegate_id, state, start_date, end_date, created_by, updated_by)
      VALUES ($1, $2, $3, $4, $5, $6, $6)
      RETURNING *`,
-    [id, delegateId, state, startDate, endDate, actorId],
+    [id, peopleId, state, startDate, endDate, actorId],
   );
-  logger.debug(`Opened ${state} state row (id ${id}) for delegate_id ${delegateId}.`);
+  logger.debug(`Opened ${state} state row (id ${id}) for people_id ${peopleId}.`);
   return rows[0];
 }
 
@@ -235,22 +233,22 @@ async function updateCompetitionsDelegatedCount(delegateId, count, actorId = nul
   return rows[0] ?? null;
 }
 
-// Every rank row (open and closed) for one delegate, most-recently-started
+// Every rank row (open and closed) for one person, most-recently-started
 // first.
-async function listRankRowsForDelegate(delegateId) {
+async function listRankRowsForDelegate(peopleId) {
   const { rows } = await db.pool.query(
     'SELECT * FROM delegate_rank_history WHERE delegate_id = $1 ORDER BY start_date DESC',
-    [delegateId],
+    [peopleId],
   );
   return rows;
 }
 
-// Every state row (open and closed) for one delegate, most-recently-started
+// Every state row (open and closed) for one person, most-recently-started
 // first.
-async function listStateRowsForDelegate(delegateId) {
+async function listStateRowsForDelegate(peopleId) {
   const { rows } = await db.pool.query(
     'SELECT * FROM delegate_state_history WHERE delegate_id = $1 ORDER BY start_date DESC',
-    [delegateId],
+    [peopleId],
   );
   return rows;
 }
@@ -277,10 +275,7 @@ async function updateBio(delegateId, bio, actorId = null) {
 // `delegates` row to exist at all up front.
 async function getOpenRanksForPerson(peopleId) {
   const { rows } = await db.pool.query(
-    `SELECT drh.rank
-     FROM delegate_rank_history drh
-     JOIN delegates d ON d.id = drh.delegate_id
-     WHERE d.people_id = $1 AND drh.end_date IS NULL`,
+    'SELECT rank FROM delegate_rank_history WHERE delegate_id = $1 AND end_date IS NULL',
     [peopleId],
   );
   return rows.map((row) => row.rank);
