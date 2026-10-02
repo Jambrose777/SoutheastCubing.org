@@ -1,0 +1,94 @@
+@forward 'src/styles/sheet';
+@use 'src/styles/color-pallet';
+
+.avatar-wrapper {
+  position: relative;
+  display: inline-block;
+  align-self: center;
+}
+
+.avatar {
+  display: block;
+  max-width: 250px;
+  max-height: 250px;
+  border-radius: 10px;
+}
+
+.edit-picture-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  margin: 0;
+  background-color: white;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.3);
+}
+
+.field-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 3px solid color-pallet.$se-black;
+  border-radius: 10px;
+  background-color: color-pallet.$se-orange;
+}
+
+.field-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.field-label {
+  width: 110px;
+  flex-shrink: 0;
+  font-family: 'MontserratBold';
+}
+
+.field-value {
+  word-break: break-word;
+}
+
+// Plain clickable inline text (the "not set"/"not shared" link-to-add cases).
+.link-text {
+  color: color-pallet.$se-dark-blue;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.roles-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 3px solid color-pallet.$se-black;
+  border-radius: 10px;
+  background-color: color-pallet.$se-yellow;
+}
+
+.roles-section-title {
+  font-family: 'MontserratBold';
+}
+
+.roles-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+// A single role badge - links out to whichever tool actually manages that
+// role (Manage Delegates/Manage Teams) rather than being editable here.
+.role-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 1px solid color-pallet.$se-black;
+  border-radius: 12px;
+  background-color: white;
+  color: inherit;
+  text-decoration: none;
+  font-size: 13px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

@@ -1,0 +1,13 @@
+@for (pill of pills(); track pill.columnKey) {
+  <span class="filter-pill">
+    <span class="filter-pill-text">{{ pill.label }}: {{ pill.summary }}</span>
+    <button
+      type="button"
+      class="filter-pill-remove"
+      (click)="remove.emit(pill.columnKey)"
+      [attr.aria-label]="'Remove ' + pill.label + ' filter'"
+    >
+      <i class="fa-solid fa-xmark fa-sm"></i>
+    </button>
+  </span>
+}

@@ -1,0 +1,54 @@
+<div class="column-visibility-dropdown">
+  <!-- Column visibility dropdown button to open the panel -->
+  <button
+    type="button"
+    class="btn small icon-only"
+    (click)="toggleOpen()"
+    aria-haspopup="true"
+    [attr.aria-expanded]="isOpen"
+    matTooltip="Adjust Column Visibility"
+    matTooltipPosition="above"
+    aria-label="Adjust Column Visibility"
+  >
+    <i class="fa-solid fa-table-columns fa-sm"></i>
+  </button>
+
+  @if (isOpen) {
+    <!-- Column visibility panel -->
+    <div
+      class="column-visibility-panel"
+      role="menu"
+      cdkDropList
+      (cdkDropListDropped)="onDrop($event)"
+    >
+      <!-- Regular columns -->
+      @for (column of columns(); track column.key) {
+        <div class="column-option" cdkDrag>
+          <i class="fa-solid fa-grip-vertical drag-handle" cdkDragHandle></i>
+          <label>
+            <input
+              type="checkbox"
+              [checked]="visibleKeys().has(column.key)"
+              (change)="onToggle(column.key, $event)"
+            />
+            {{ column.label }}
+          </label>
+        </div>
+      }
+      <!-- Pinned columns -->
+      @for (column of pinnedColumns(); track column.key) {
+        <div class="column-option column-option-pinned">
+          <span class="drag-handle-placeholder" aria-hidden="true"></span>
+          <label>
+            <input
+              type="checkbox"
+              [checked]="visibleKeys().has(column.key)"
+              (change)="onToggle(column.key, $event)"
+            />
+            {{ column.label }}
+          </label>
+        </div>
+      }
+    </div>
+  }
+</div>

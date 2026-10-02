@@ -1,0 +1,37 @@
+@use 'src/styles/color-pallet';
+
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 10px;
+  border-radius: 14px;
+  border: 1px solid color-pallet.$se-black;
+  background-color: color-pallet.$se-grey;
+  font-size: 13px;
+}
+
+.filter-pill-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  color: color-pallet.$se-dark-grey;
+  outline: none;
+
+  &:focus-visible {
+    outline: 2px solid color-pallet.$se-blue;
+    outline-offset: 1px;
+  }
+
+  &:hover {
+    background-color: rgb(0 0 0 / 0.1);
+    color: color-pallet.$se-black;
+  }
+}

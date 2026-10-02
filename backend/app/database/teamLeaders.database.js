@@ -65,7 +65,7 @@ async function findLeadershipRowById(id) {
 }
 
 // Finds an existing leadership row for the same team/person whose date
-// range overlaps [startDate, endDate] skips the row itself when checking 
+// range overlaps [startDate, endDate] skips the row itself when checking
 // an in-place edit.
 async function findOverlappingLeadershipStint(
   teamId,

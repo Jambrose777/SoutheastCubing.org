@@ -25,7 +25,18 @@ async function lookupWcaId(req, res) {
   }
 }
 
+// GET /dashboard/manage-users - every person's Manage Users row.
+async function listUsers(req, res) {
+  try {
+    const users = await peopleService.listUsers();
+    res.json(users);
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to list users');
+  }
+}
+
 module.exports = {
   searchPeople,
   lookupWcaId,
+  listUsers,
 };

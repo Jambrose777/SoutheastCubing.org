@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from 'src/app/services/southeastcubing-api/auth.service';
 import { HeaderComponent } from '../../../core/header/header.component';
@@ -13,7 +13,7 @@ import { DASHBOARD_TOOLS, hasAnyRole } from '../dashboard-tools';
   templateUrl: './dashboard-side-pane.component.html',
   styleUrls: ['./dashboard-side-pane.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, HeaderComponent, MatTooltipModule],
+  imports: [RouterLink, RouterLinkActive, HeaderComponent, MatTooltipModule],
 })
 export class DashboardSidePaneComponent {
   private authService = inject(AuthService);

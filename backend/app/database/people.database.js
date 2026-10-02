@@ -139,7 +139,16 @@ async function setManagedPhoto(
          updated_at = now()
      WHERE id = $1
      RETURNING *`,
-    [peopleId, pictureKey, wcaPictureSourceUrl ?? null, pictureSyncedWithWca, cropX, cropY, cropW, cropH],
+    [
+      peopleId,
+      pictureKey,
+      wcaPictureSourceUrl ?? null,
+      pictureSyncedWithWca,
+      cropX,
+      cropY,
+      cropW,
+      cropH,
+    ],
   );
   logger.debug(`Set managed photo for people_id ${peopleId}.`);
   return rows[0] ?? null;
@@ -186,8 +195,8 @@ async function findPersonById(peopleId) {
 
 // Backs the Add/Edit Member sheet's search-as-you-type combobox - matches
 // partial name plus exact wca_id/wca_user_id/people.id/users.email, all
-// case-insensitive, capped at `limit` results. Deliberately server-side (not 
-// a fetch-all-and-filter) since users.email is sensitive and shouldn't ship 
+// case-insensitive, capped at `limit` results. Deliberately server-side (not
+// a fetch-all-and-filter) since users.email is sensitive and shouldn't ship
 // to the browser in bulk just to power a search box.
 async function searchPeople(searchTerm, { limit = 10 } = {}) {
   const { rows } = await db.pool.query(
@@ -208,6 +217,21 @@ async function searchPeople(searchTerm, { limit = 10 } = {}) {
   return rows;
 }
 
+// Every `people` row, left-joined with `users` and `delegates`.
+async function listAllPeopleWithUsersAndDelegate() {
+  const { rows } = await db.pool.query(
+    `SELECT p.id, p.wca_id, p.wca_user_id, p.name, p.picture_url, p.has_managed_photo,
+            p.picture_synced_with_wca, p.thumbnail_crop_x, p.thumbnail_crop_y,
+            p.thumbnail_crop_w, p.thumbnail_crop_h, p.updated_at AS people_updated_at,
+            u.id AS user_id, u.email, u.dob, u.updated_at AS users_updated_at,
+            del.id AS delegate_id, del.bio, del.updated_at AS delegate_updated_at
+     FROM people p
+     LEFT JOIN users u ON u.people_id = p.id
+     LEFT JOIN delegates del ON del.people_id = p.id`,
+  );
+  return rows;
+}
+
 module.exports = {
   upsertPersonFromWcaProfile,
   upsertPersonFromWcaIdLookup,
@@ -216,4 +240,5 @@ module.exports = {
   updateThumbnailCrop,
   findPersonById,
   searchPeople,
+  listAllPeopleWithUsersAndDelegate,
 };

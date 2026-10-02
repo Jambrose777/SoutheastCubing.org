@@ -1,0 +1,101 @@
+@use 'src/styles/color-pallet';
+
+.data-table-filter-btn {
+  flex-shrink: 0;
+  padding: 2px 4px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: color-pallet.$se-dark-grey;
+
+  // An active filter's icon is bold/colored.
+  &.active {
+    color: color-pallet.$se-black;
+    font-weight: bold;
+  }
+}
+
+.column-filter-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 220px;
+  max-height: 320px;
+  padding: 8px;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.column-filter-search {
+  padding: 6px 8px;
+  border: 1px solid color-pallet.$se-black;
+  border-radius: 6px;
+  font-size: 14px;
+
+  &:focus {
+    outline: 2px solid color-pallet.$se-blue;
+    outline-offset: -1px;
+  }
+}
+
+.column-filter-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+
+  button {
+    border: none;
+    background: none;
+    padding: 0;
+    color: color-pallet.$se-dark-blue;
+    font-weight: bold;
+    cursor: pointer;
+
+    &:disabled {
+      color: color-pallet.$se-dark-grey;
+      cursor: default;
+    }
+
+    &:not(:disabled):hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.column-filter-options {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: block;
+  }
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: color-pallet.$se-grey;
+    }
+  }
+
+  input[type='checkbox'] {
+    accent-color: color-pallet.$se-blue;
+  }
+}
+
+.column-filter-empty {
+  padding: 4px 6px;
+  color: color-pallet.$se-dark-grey;
+}

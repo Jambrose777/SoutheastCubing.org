@@ -1,0 +1,67 @@
+<div class="bio-header">
+  <span class="field-label">
+    @if (pending()) {
+      <span class="pending-badge" aria-label="Pending: add your Delegate bio">!</span>
+    }
+    Delegate bio
+  </span>
+  @if (!editingBio()) {
+    @if (bio()) {
+      <button
+        type="button"
+        class="btn small icon-only edit-bio-btn"
+        (click)="startEditing()"
+        matTooltip="Edit Delegate Bio"
+        matTooltipPosition="above"
+        aria-label="Edit Delegate Bio"
+      >
+        <i class="fa-solid fa-pen"></i>
+      </button>
+    } @else {
+      <span
+        class="field-value link-text"
+        (click)="startEditing()"
+        (keydown.enter)="startEditing()"
+        (keydown.space)="$event.preventDefault(); startEditing()"
+        role="button"
+        tabindex="0"
+        aria-label="Delegate bio not set - click to add one"
+      >
+        Not set - click to add
+      </span>
+    }
+  }
+</div>
+
+@if (editingBio()) {
+  <div class="bio-edit">
+    <p class="small-text-content refresh-hint">
+      Introduce yourself to the community! Talk about what got you into cubing, your favorite
+      personal achievements, and what your life looks like outside of cubing. Keep it factual and
+      avoid specifics that will change over time (e.g. "I've delegated 10 competitions") — this bio
+      isn't automatically updated, so it can go stale.
+      <br />
+      Markdown is supported.
+    </p>
+    <textarea
+      #bioTextarea
+      class="bio-textarea"
+      [ngModel]="bioDraft()"
+      (ngModelChange)="bioDraft.set($event)"
+      [disabled]="savingBio()"
+      rows="5"
+    ></textarea>
+    <div class="bio-edit-actions">
+      <button type="button" class="btn small" (click)="save()" [disabled]="savingBio()">
+        Save
+      </button>
+      <button type="button" class="btn small" (click)="cancelEditing()" [disabled]="savingBio()">
+        Cancel
+      </button>
+    </div>
+  </div>
+} @else if (bio(); as bioText) {
+  <div class="bio-text">
+    <markdown [data]="bioText"></markdown>
+  </div>
+}

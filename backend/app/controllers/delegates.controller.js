@@ -132,6 +132,21 @@ async function hardDeleteStateRow(req, res) {
   }
 }
 
+// PUT /dashboard/manage-users/:peopleId/bio - Admin/Board sets a Delegate's
+// bio on their behalf.
+async function updateBioForPerson(req, res) {
+  try {
+    const updated = await manageDelegatesService.updateBio(
+      req.params.peopleId,
+      req.body?.bio ?? '',
+      req.user.id,
+    );
+    res.json(updated);
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to update bio');
+  }
+}
+
 module.exports = {
   listPublicDelegates,
   listForDashboard,
@@ -142,4 +157,5 @@ module.exports = {
   createStateRow,
   updateStateRow,
   hardDeleteStateRow,
+  updateBioForPerson,
 };

@@ -39,7 +39,7 @@ async function findValidSessionAndTouch(rawToken) {
   if (msUntilExpiry < SESSION_TTL_MS - REFRESH_THRESHOLD_MS) {
     const newExpiresAt = new Date(Date.now() + SESSION_TTL_MS);
     await db.pool.query('UPDATE sessions SET expires_at = $1 WHERE id = $2', [newExpiresAt, id]);
-    logger.debug('Slid a session\'s expiry forward.');
+    logger.debug("Slid a session's expiry forward.");
   }
 
   return session;

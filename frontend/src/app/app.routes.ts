@@ -114,6 +114,16 @@ export const routes: Routes = [
     title: 'SoutheastCubing - Manage Delegates',
   },
   {
+    path: 'dashboard/manage-users',
+    canActivate: [authGuard, roleGuard('board', 'admin')],
+    data: { requiresAuth: true },
+    loadComponent: () =>
+      import('./components/pages/dashboard/manage-users/manage-users.component').then(
+        (m) => m.ManageUsersComponent,
+      ),
+    title: 'SoutheastCubing - Manage Users',
+  },
+  {
     path: 'involvement',
     loadComponent: loadInvolvement,
     title: 'SoutheastCubing - Get Involved',

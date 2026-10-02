@@ -92,9 +92,9 @@ function loadConfig(env = process.env) {
   }
 
   // Dev role impersonation grants full Admin access to any WCA
-  // account-holder if it's ever live in production. This turns 
+  // account-holder if it's ever live in production. This turns
   // a stray ALLOW_DEV_ROLE_IMPERSONATION=true in a production-configured
-  // deployment into a loud boot-time failure, so a misconfigured 
+  // deployment into a loud boot-time failure, so a misconfigured
   // deploy can't ship at all.
   if (
     result.data.ALLOW_DEV_ROLE_IMPERSONATION === 'true' &&

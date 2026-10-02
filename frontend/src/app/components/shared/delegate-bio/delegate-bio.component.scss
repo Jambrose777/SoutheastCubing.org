@@ -1,0 +1,104 @@
+@use 'src/styles/color-pallet';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+  padding: 16px;
+  border: 3px solid color-pallet.$se-black;
+  border-radius: 10px;
+  background-color: color-pallet.$se-green;
+}
+
+.bio-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  .field-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'MontserratBold';
+    white-space: nowrap;
+  }
+
+  .edit-bio-btn {
+    margin: 0;
+    flex-shrink: 0;
+  }
+}
+
+// Plain clickable inline text (the "not set - click to add" case).
+.link-text {
+  color: color-pallet.$se-dark-blue;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+// The generic notification-badge mechanism's "!" indicator.
+.pending-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: color-pallet.$se-dark-red;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+// Rendered markdown. Strips the rendered markdown's own first/last paragraph
+// margin so it doesn't add extra space inside this box's own padding.
+.bio-text {
+  word-break: break-word;
+
+  ::ng-deep markdown > :first-child {
+    margin-top: 0;
+  }
+
+  ::ng-deep markdown > :last-child {
+    margin-bottom: 0;
+  }
+}
+
+.bio-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.refresh-hint {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.bio-textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 200px;
+  font-family: inherit;
+  font-size: 14px;
+  padding: 8px;
+  border: 1px solid color-pallet.$se-dark-grey;
+  border-radius: 6px;
+  resize: vertical;
+}
+
+.bio-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+
+  .btn {
+    margin: 0;
+  }
+}

@@ -8,7 +8,7 @@ const VALID_RANKS = ['trainee', 'junior', 'delegate', 'senior', 'regional', 'tem
 
 // Resolves `person` ({ peopleId } or { wcaId }) to a delegate row, creating
 // the underlying `people`/`delegates` rows if this person has never been
-// tracked as a Delegate before. First-ever Delegate row promotes a person 
+// tracked as a Delegate before. First-ever Delegate row promotes a person
 // into a managed photo.
 async function resolveDelegate(person, actorId) {
   const peopleId = await peopleService.resolvePeopleId(person, true);
@@ -119,6 +119,13 @@ async function hardDeleteStateRow(id) {
   await delegatesDb.hardDeleteStateRow(id);
 }
 
+// Sets a Delegate's bio on Admin/Board's behalf.
+async function updateBio(peopleId, bio, actorId) {
+  const delegate = await delegatesDb.findDelegateByPeopleId(peopleId);
+  if (!delegate) throw httpError(404, 'This person is not a Delegate.');
+  return delegatesDb.updateBio(delegate.id, bio, actorId);
+}
+
 module.exports = {
   createRankRow,
   createStateRow,
@@ -126,4 +133,5 @@ module.exports = {
   updateStateRow,
   hardDeleteRankRow,
   hardDeleteStateRow,
+  updateBio,
 };

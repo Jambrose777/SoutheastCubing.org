@@ -227,10 +227,8 @@ async function getMyInfo(user) {
   };
 }
 
-// Sets the signed-in user's own Delegate bio - 400 if they aren't a
-// Delegate at all (no delegates row to write to). Returns the refreshed
-// My Info payload, same as getMyInfo, so the frontend can update in one
-// round trip rather than trusting a bespoke mutation response.
+// Sets the signed-in user's own Delegate bio. Returns the refreshed
+// My Info payload.
 async function updateBio(user, bio) {
   const delegate = await delegatesDb.findDelegateByPeopleId(user.people_id);
   if (delegate) {

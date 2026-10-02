@@ -262,6 +262,11 @@ p {
   }
 }
 
+// An icon-only `.btn.small` (no text label).
+.btn.small.icon-only {
+  padding: 4px 8px;
+}
+
 .selected-item-container {
   display: flex;
   flex-direction: column;

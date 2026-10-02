@@ -7,7 +7,7 @@ const { httpError } = require('../helpers/httpError.helper.js');
 
 const logger = require('../utils/logger.util.js');
 
-// Eevery place a managed photo is actually shown expects a square thumbnail. 
+// Eevery place a managed photo is actually shown expects a square thumbnail.
 // Computes a centered best-fit square, the size of the shorter dimension,
 // centered along the longer one. Throws if the buffer isn't a
 // decodable/recognized image - a broken crop should never be silently stored.
@@ -60,11 +60,13 @@ async function promoteToManagedPhoto(peopleId) {
     return person;
   }
   if (!person.wca_id) {
-    logger.warn(`promoteToManagedPhoto called for people_id ${peopleId} with no wca_id - skipping.`);
+    logger.warn(
+      `promoteToManagedPhoto called for people_id ${peopleId} with no wca_id - skipping.`,
+    );
     return person;
   }
 
-  // Fetch person and avatar from WCA. 
+  // Fetch person and avatar from WCA.
   const avatarUrl = await resolveCurrentWcaAvatarUrl(person.wca_id);
   if (!avatarUrl) {
     logger.warn(
@@ -142,7 +144,7 @@ async function resyncOnLoginIfNeeded(peopleId) {
 }
 
 // Replaces a managed photo with a manual upload - marks it no longer
-// WCA-synced, and resets the crop to default the same way a resync does, 
+// WCA-synced, and resets the crop to default the same way a resync does,
 // since the underlying photo changed.
 async function uploadPhoto(peopleId, buffer) {
   const person = await peopleDb.findPersonById(peopleId);

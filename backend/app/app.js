@@ -63,7 +63,7 @@ registerDelegateSyncJob();
 // Public, unauthenticated docs UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Public, unauthenticated - serves local dev's managed photos. Local-dev-only: 
+// Public, unauthenticated - serves local dev's managed photos. Local-dev-only:
 // production reads managed photos from S3 via CloudFront instead, and has no
 // backend/uploads/photos/ directory to serve at all.
 if (config.NODE_ENV !== 'production') {

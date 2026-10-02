@@ -1,0 +1,67 @@
+<div class="component-container">
+  <div class="main-pane" tabindex="0">
+    <se-header id="header" [title]="'Manage Users'" [showNavCluster]="isMobile()"></se-header>
+
+    <div class="manage-users-content">
+      @if (loading()) {
+        <se-loading-spinner></se-loading-spinner>
+      } @else {
+        <se-data-table
+          [rows]="rows()"
+          [columns]="columns()"
+          [trackBy]="trackByPeopleId"
+          [defaultSort]="defaultSort"
+          [actions]="actions"
+          storageKey="table-prefs:manage-users"
+        ></se-data-table>
+      }
+
+      <ng-template #pictureCell let-row>
+        @if (row.pictureUrl) {
+          <se-avatar
+            [src]="row.pictureUrl"
+            [size]="28"
+            [alt]="row.name"
+            [cropX]="row.thumbnailCropX"
+            [cropY]="row.thumbnailCropY"
+            [cropW]="row.thumbnailCropW"
+            [cropH]="row.thumbnailCropH"
+          ></se-avatar>
+        }
+      </ng-template>
+      <ng-template #nameCell let-row>{{ row.name }}</ng-template>
+      <ng-template #wcaIdCell let-row>{{ row.wcaId ?? row.wcaUserId ?? '--' }}</ng-template>
+      <ng-template #seciIdCell let-row>{{ row.seciId }}</ng-template>
+      <ng-template #emailCell let-row>{{ row.email ?? '--' }}</ng-template>
+      <ng-template #dobCell let-row>{{ row.dob ? formatDate(row.dob) : '--' }}</ng-template>
+      <ng-template #delegateCell let-row>{{ delegateCellText(row) }}</ng-template>
+      <ng-template #teamCell let-row>{{ teamCellText(row) }}</ng-template>
+      <ng-template #updatedAtCell let-row>{{
+        row.updatedAt ? formatDate(row.updatedAt) : '--'
+      }}</ng-template>
+    </div>
+  </div>
+
+  @if (!isMobile()) {
+    <se-dashboard-side-pane></se-dashboard-side-pane>
+  }
+</div>
+
+@if (editSheetOpen() && selectedUser(); as user) {
+  <div
+    class="sheet-backdrop"
+    (click)="closeSheetIfBackdrop($event)"
+    (keydown.escape)="requestCloseSheet()"
+    role="button"
+    tabindex="0"
+    aria-label="Close"
+  >
+    <div class="sheet-overlay" [class.closing]="isSheetClosing()">
+      <se-edit-user-sheet
+        [user]="user"
+        (closed)="requestCloseSheet()"
+        (saved)="onUserSaved()"
+      ></se-edit-user-sheet>
+    </div>
+  </div>
+}

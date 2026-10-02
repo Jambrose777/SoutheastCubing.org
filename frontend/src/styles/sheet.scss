@@ -1,5 +1,15 @@
 @use 'src/styles/color-pallet';
 
+// A sheet component's own host element has no sizing/display rules by
+// default; every sheet host that forwards this partial needs this to
+// actually get a working internal scrollbar.
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 // Three equal columns (back button / heading / empty spacer) so the
 // heading is centered in the whole header regardless of the back button's
 // own width.
@@ -31,6 +41,8 @@
   flex-direction: column;
   gap: 12px;
   padding: 16px 20px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding-bottom: 40px;
 

@@ -1,0 +1,117 @@
+<!-- Edit User Sheet Header -->
+<div class="sheet-header">
+  <button type="button" class="back-btn" (click)="close()" aria-label="Back">
+    <i class="fa-solid fa-arrow-left"></i>
+  </button>
+  <h2>{{ user().name }}</h2>
+</div>
+
+<div class="sheet-body">
+  <!-- Profile Picture -->
+  @if (user().pictureUrl; as photoUrl) {
+    <div class="avatar-wrapper">
+      <img [src]="photoUrl" [alt]="user().name" class="avatar" />
+
+      @if (user().hasManagedPhoto) {
+        <button
+          type="button"
+          class="btn small icon-only edit-picture-btn"
+          (click)="openPictureSheet()"
+          matTooltip="Change Picture & Adjust Crop"
+          matTooltipPosition="above"
+          aria-label="Change Picture & Adjust Crop"
+        >
+          <i class="fa-solid fa-pen"></i>
+        </button>
+      }
+    </div>
+  }
+
+  <!-- User Information -->
+  <div class="field-list">
+    <div class="field-row">
+      <span class="field-label">Name</span>
+      <span class="field-value">{{ user().name }}</span>
+    </div>
+    <div class="field-row">
+      <span class="field-label">SECI ID</span>
+      <span class="field-value">{{ user().seciId }}</span>
+    </div>
+    <div class="field-row">
+      <span class="field-label">WCA ID</span>
+      <span class="field-value">{{ user().wcaId ?? 'Not linked' }}</span>
+    </div>
+    <div class="field-row">
+      <span class="field-label">WCA User ID</span>
+      <span class="field-value">{{ user().wcaUserId ?? 'Not linked' }}</span>
+    </div>
+    <div class="field-row">
+      <span class="field-label">Email</span>
+      <span class="field-value">{{ user().email ?? 'Not shared' }}</span>
+    </div>
+    <div class="field-row">
+      <span class="field-label">Date of birth</span>
+      <span class="field-value">{{ user().dob ? formatDate(user().dob!) : 'Not shared' }}</span>
+    </div>
+  </div>
+
+  <!-- Current roles -->
+  @if (user().hasDelegateHistory || user().teams.length) {
+    <div class="roles-box">
+      <div class="roles-section-title">Current roles</div>
+      <div class="roles-list">
+        @if (user().hasDelegateHistory) {
+          <a class="role-badge" routerLink="/dashboard/manage-delegates">
+            {{ user().delegateRank ? rankLabel(user().delegateRank!) : 'Former Delegate' }}
+            @if (user().delegateState) {
+              <span> — {{ user().delegateState }}</span>
+            }
+          </a>
+        }
+        @for (team of user().teams; track team.teamId) {
+          <a class="role-badge" routerLink="/dashboard/manage-teams">
+            {{ team.teamName }}
+            @if (team.isLeader) {
+              <span> — Leader</span>
+            } @else if (team.specialRole) {
+              <span> — {{ team.specialRole }}</span>
+            }
+          </a>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Delegate bio -->
+  @if (user().hasDelegateHistory) {
+    <se-delegate-bio
+      [bio]="user().bio"
+      [updateBio]="updateBio"
+      (saved)="saved.emit()"
+    ></se-delegate-bio>
+  }
+</div>
+
+<!-- Nested sheet: Picture & Crop, layered on top of this one -->
+@if (pictureSheetOpen()) {
+  <div
+    class="sheet-backdrop"
+    (click)="closeNestedSheetIfBackdrop($event, pictureSheet)"
+    (keydown.escape)="requestCloseNestedSheet(pictureSheet)"
+    role="button"
+    tabindex="0"
+    aria-label="Close"
+  >
+    <div class="sheet-overlay" [class.closing]="isSheetClosing()">
+      <se-picture-crop-sheet
+        #pictureSheet
+        [info]="user()"
+        [setSyncEnabled]="setSyncEnabled"
+        [uploadPhoto]="uploadPhoto"
+        [updateCrop]="updateCrop"
+        (closed)="requestCloseNestedSheet(pictureSheet)"
+        (saved)="onPictureSheetSaved()"
+      ></se-picture-crop-sheet>
+    </div>
+  </div>
+}

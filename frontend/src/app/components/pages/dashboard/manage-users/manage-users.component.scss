@@ -1,0 +1,10 @@
+@use 'src/styles/color-pallet';
+
+.manage-users-content {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 12px;
+}

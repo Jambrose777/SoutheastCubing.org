@@ -4,7 +4,11 @@
   @if (tools().length) {
     <div class="list-container" tabindex="0">
       @for (tool of tools(); track tool.routerLink) {
-        <div class="item-container clickable" [style.--state-color]="tool.color">
+        <div
+          class="item-container clickable"
+          [style.--state-color]="tool.color"
+          routerLinkActive="active"
+        >
           <a
             class="item-row"
             [routerLink]="tool.routerLink"

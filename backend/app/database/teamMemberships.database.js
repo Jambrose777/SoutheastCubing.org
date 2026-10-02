@@ -203,6 +203,21 @@ async function hardDeleteMembership(membershipId) {
   logger.debug(`Hard-deleted membership (id ${membershipId}).`);
 }
 
+// Every currently-active team membership across every person at once, joined
+// with the team's own name and active-leader status.
+async function listAllActiveTeamMemberships() {
+  const { rows } = await db.pool.query(
+    `SELECT tm.people_id, tm.team_id, tm.special_role, tm.start_date, t.name AS team_name,
+            (tl.id IS NOT NULL) AS is_active_leader
+     FROM team_memberships tm
+     JOIN teams t ON t.id = tm.team_id
+     LEFT JOIN team_leaders tl ON tl.team_id = tm.team_id AND tl.people_id = tm.people_id AND tl.end_date IS NULL
+     WHERE tm.end_date IS NULL
+     ORDER BY tm.start_date`,
+  );
+  return rows;
+}
+
 module.exports = {
   getActiveTeamIdsForPerson,
   getActiveMembershipsForTeams,
@@ -216,4 +231,5 @@ module.exports = {
   updateMembership,
   removeMember,
   hardDeleteMembership,
+  listAllActiveTeamMemberships,
 };

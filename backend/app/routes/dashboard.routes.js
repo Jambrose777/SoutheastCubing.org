@@ -417,4 +417,93 @@ router.delete(
   asyncRoute(delegatesController.hardDeleteStateRow),
 );
 
+/**
+ * @openapi
+ * /dashboard/manage-users:
+ *   get:
+ *     summary: Manage Users dashboard's own full-roster listing - every person, left-joined with their users/delegates/active team membership rows.
+ *     tags: [People]
+ *     responses:
+ *       200:
+ *         description: Every person's Manage Users row.
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not Board/Admin.
+ */
+router.get('/dashboard/manage-users', requireBoardOrAdmin, asyncRoute(peopleController.listUsers));
+
+/**
+ * @openapi
+ * /dashboard/manage-users/{peopleId}/photo/sync:
+ *   put:
+ *     summary: Admin/Board sets another person's photo sync toggle on their behalf.
+ *     tags: [People]
+ *     responses:
+ *       400:
+ *         description: This person doesn't have a managed photo.
+ *       403:
+ *         description: Not Board/Admin.
+ */
+router.put(
+  '/dashboard/manage-users/:peopleId/photo/sync',
+  requireBoardOrAdmin,
+  asyncRoute(photosController.setSyncEnabledForPerson),
+);
+
+/**
+ * @openapi
+ * /dashboard/manage-users/{peopleId}/photo/upload:
+ *   post:
+ *     summary: Admin/Board replaces another person's managed photo with an uploaded file.
+ *     tags: [People]
+ *     responses:
+ *       400:
+ *         description: No file uploaded, or this person doesn't have a managed photo.
+ *       403:
+ *         description: Not Board/Admin.
+ */
+router.post(
+  '/dashboard/manage-users/:peopleId/photo/upload',
+  requireBoardOrAdmin,
+  photoUploadMiddleware,
+  asyncRoute(photosController.uploadPhotoForPerson),
+);
+
+/**
+ * @openapi
+ * /dashboard/manage-users/{peopleId}/photo/crop:
+ *   put:
+ *     summary: Admin/Board updates another person's managed photo's thumbnail crop.
+ *     tags: [People]
+ *     responses:
+ *       400:
+ *         description: This person doesn't have a managed photo.
+ *       403:
+ *         description: Not Board/Admin.
+ */
+router.put(
+  '/dashboard/manage-users/:peopleId/photo/crop',
+  requireBoardOrAdmin,
+  asyncRoute(photosController.updateCropForPerson),
+);
+
+/**
+ * @openapi
+ * /dashboard/manage-users/{peopleId}/bio:
+ *   put:
+ *     summary: Admin/Board sets a Delegate's bio on their behalf.
+ *     tags: [People]
+ *     responses:
+ *       404:
+ *         description: This person is not a Delegate.
+ *       403:
+ *         description: Not Board/Admin.
+ */
+router.put(
+  '/dashboard/manage-users/:peopleId/bio',
+  requireBoardOrAdmin,
+  asyncRoute(delegatesController.updateBioForPerson),
+);
+
 module.exports = router;

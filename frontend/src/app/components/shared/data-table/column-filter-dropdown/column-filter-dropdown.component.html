@@ -1,0 +1,67 @@
+<!-- Column filter dropdown for the data table -->
+<button
+  type="button"
+  class="data-table-filter-btn"
+  [class.active]="isFiltered()"
+  (click)="toggleOpen()"
+  cdkOverlayOrigin
+  #trigger="cdkOverlayOrigin"
+  aria-haspopup="true"
+  [attr.aria-expanded]="isOpen"
+  [matTooltip]="'Filter by ' + label()"
+  matTooltipPosition="above"
+  [attr.aria-label]="'Filter by ' + label()"
+>
+  <i class="fa-solid fa-filter fa-sm"></i>
+</button>
+
+<!-- Column filter dropdown overlay -->
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="trigger"
+  [cdkConnectedOverlayOpen]="isOpen"
+  [cdkConnectedOverlayPositions]="positions"
+  (overlayOutsideClick)="close()"
+  (detach)="close()"
+>
+  <div class="column-filter-panel" role="menu" [attr.aria-label]="'Filter by ' + label()">
+    <!-- Search input -->
+    @if (showSearch()) {
+      <input
+        type="text"
+        class="column-filter-search"
+        [placeholder]="'Search ' + label().toLowerCase() + ' values'"
+        [attr.aria-label]="'Search ' + label() + ' values'"
+        [value]="searchQuery()"
+        (input)="onSearchInput($event)"
+      />
+    }
+
+    <!-- Filter controls -->
+    <div class="column-filter-actions">
+      <button type="button" (click)="toggleSelectAllVisible()">
+        {{ allVisibleSelected() ? 'Deselect All' : 'Select All' }}
+      </button>
+      <button type="button" [disabled]="!isFiltered()" (click)="reset()">Reset</button>
+    </div>
+
+    <!-- Filter options -->
+    <ul class="column-filter-options">
+      @for (option of visibleOptions(); track option.value) {
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              [checked]="selected().has(option.value)"
+              (change)="toggleOption(option.value, $event)"
+            />
+            {{ option.label }}
+          </label>
+        </li>
+      }
+      @if (visibleOptions().length === 0) {
+        <li class="column-filter-empty">No matching values</li>
+      }
+    </ul>
+  </div>
+</ng-template>

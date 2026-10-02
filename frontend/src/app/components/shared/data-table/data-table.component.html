@@ -1,0 +1,187 @@
+<div class="data-table-toolbar">
+  <div class="data-table-toolbar-start">
+    <!-- Global search input -->
+    <input
+      type="search"
+      class="data-table-search"
+      placeholder="Search"
+      aria-label="Search"
+      [value]="searchTerm()"
+      (input)="onSearchInput($event)"
+    />
+
+    <!-- Active filter pills -->
+    @if (showFilterPills()) {
+      <se-filter-pills
+        [pills]="activeFilterPills()"
+        (remove)="removeColumnFilter($event)"
+      ></se-filter-pills>
+    }
+  </div>
+
+  <!-- Toolbar Action Buttons -->
+  <div class="data-table-toolbar-end">
+    @if (showColumnsButton()) {
+      <se-column-visibility-dropdown
+        [columns]="orderedColumns()"
+        [pinnedColumns]="actionsColumnMeta()"
+        [visibleKeys]="dropdownVisibleKeys()"
+        (visibilityChange)="onColumnVisibilityChange($event)"
+        (orderChange)="onColumnOrderChange($event)"
+      ></se-column-visibility-dropdown>
+    }
+
+    <button
+      type="button"
+      class="btn small icon-only"
+      (click)="resetAll()"
+      matTooltip="Reset filters, sort & columns"
+      matTooltipPosition="above"
+      aria-label="Reset filters, sort & columns"
+    >
+      <i class="fa-solid fa-arrow-rotate-left fa-sm"></i>
+    </button>
+
+    @if (storageKey()) {
+      <button
+        type="button"
+        class="btn small icon-only"
+        (click)="saveToLocalStorage()"
+        matTooltip="Save your filter's configuration"
+        matTooltipPosition="above"
+        aria-label="Save your filter's configuration"
+      >
+        <i class="fa-solid fa-floppy-disk fa-sm"></i>
+      </button>
+    }
+  </div>
+</div>
+
+<div class="data-table" role="table">
+  <div class="data-table-header-wrapper">
+    <!-- Reserves space for the absolutely-positioned Actions header cell -->
+    <div class="data-table-header-clip" [style.margin-right.px]="actionsColumnWidth()">
+      <div
+        class="data-table-header-row"
+        role="row"
+        [style.grid-template-columns]="scrollableGridTemplateColumns()"
+        [style.min-width.px]="scrollableRowMinWidth()"
+        [style.transform]="'translateX(-' + headerScrollLeft() + 'px)'"
+      >
+        @for (column of visibleColumns(); track column.key) {
+          <div class="data-table-header-cell" role="columnheader">
+            <!-- Column label -->
+            <span>{{ column.showLabelInHeader === false ? '' : column.label }}</span>
+
+            <!-- Column filter dropdown -->
+            @if (column.filterable) {
+              <se-column-filter-dropdown
+                [label]="column.label"
+                [options]="columnFilterOptions().get(column.key) ?? []"
+                [selected]="selectedFilterValues(column.key)"
+                [showSearch]="column.filterType !== 'custom-multiselect'"
+                (selectionChange)="onColumnFilterChange(column.key, $event)"
+              ></se-column-filter-dropdown>
+            }
+
+            <!-- Column sort button -->
+            @if (column.sortValue) {
+              <button
+                type="button"
+                class="data-table-sort-btn"
+                [class.active]="sort()?.columnKey === column.key"
+                (click)="toggleSort(column.key)"
+                [attr.aria-label]="'Sort by ' + column.label"
+              >
+                <i
+                  class="fa-solid fa-sm"
+                  [class.fa-arrow-up]="
+                    sort()?.columnKey !== column.key || sort()?.direction === 'asc'
+                  "
+                  [class.fa-arrow-down]="
+                    sort()?.columnKey === column.key && sort()?.direction === 'desc'
+                  "
+                ></i>
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Action Buttons. Rendered as its own absolutely-positioned element, 
+         outside the transform-shifted/clipped header row above -->
+    @if (actions() && actionsColumnVisible()) {
+      <div
+        class="data-table-header-cell data-table-header-actions-cell"
+        role="columnheader"
+        [style.width.px]="actionsColumnWidth()"
+      ></div>
+    }
+  </div>
+
+  <!-- Table body with virtual scroll -->
+  <cdk-virtual-scroll-viewport
+    [itemSize]="rowHeight"
+    class="data-table-viewport"
+    (scroll)="onViewportScroll($event)"
+  >
+    <div
+      *cdkVirtualFor="let row of sortedRows(); trackBy: trackByRow"
+      class="data-table-row"
+      role="row"
+      [style.grid-template-columns]="gridTemplateColumns()"
+      [style.min-width.px]="rowMinWidth()"
+      [style.height.px]="rowHeight"
+    >
+      @for (column of visibleColumns(); track column.key) {
+        <div class="data-table-cell" role="cell">
+          <div class="data-table-cell-content" seTruncationTooltip>
+            <ng-container
+              [ngTemplateOutlet]="column.cellTemplate"
+              [ngTemplateOutletContext]="{ $implicit: row }"
+            ></ng-container>
+          </div>
+        </div>
+      }
+
+      <!-- Actions column for the current row -->
+      @if (actionsColumnVisible() && actions(); as rowActions) {
+        <div class="data-table-cell data-table-actions-cell" role="cell">
+          @for (action of rowActions.inline ?? []; track action.label) {
+            <button
+              type="button"
+              class="btn small icon-only"
+              (click)="action.onClick(row)"
+              [matTooltip]="action.label"
+              matTooltipPosition="above"
+              [attr.aria-label]="action.label"
+            >
+              <i class="fa-solid {{ action.icon }} fa-sm"></i>
+            </button>
+          }
+          @if (rowActions.overflow?.length) {
+            <button
+              type="button"
+              class="btn small icon-only"
+              [matMenuTriggerFor]="rowActionsMenu"
+              matTooltip="More actions"
+              matTooltipPosition="above"
+              aria-label="More actions"
+            >
+              <i class="fa-solid fa-ellipsis fa-sm"></i>
+            </button>
+            <mat-menu #rowActionsMenu="matMenu">
+              @for (action of rowActions.overflow; track action.label) {
+                <button type="button" mat-menu-item (click)="action.onClick(row)">
+                  <i class="fa-solid {{ action.icon }}"></i>
+                  {{ action.label }}
+                </button>
+              }
+            </mat-menu>
+          }
+        </div>
+      }
+    </div>
+  </cdk-virtual-scroll-viewport>
+</div>

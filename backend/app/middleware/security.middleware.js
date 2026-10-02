@@ -12,7 +12,7 @@ function applySecurity(app, config) {
 
   // Scope CORS to an explicit allowlist (prod domain(s) + local dev server) instead of
   // allowing any origin, so unrelated sites can't make cross-origin requests to the API.
-  // `credentials: true` lets the browser attach/read the session cookie on 
+  // `credentials: true` lets the browser attach/read the session cookie on
   // cross-subdomain requests from an allowlisted origin.
   app.use(cors({ origin: config.CORS_ORIGIN.split(','), credentials: true }));
 }

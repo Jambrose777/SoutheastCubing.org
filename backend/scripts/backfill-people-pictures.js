@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 // One-off (re-runnable) script: mirrors a managed photo into local storage
-// for every `people` row with no `picture_url` yet - the gap left by the 
-// migrations, which only ever sets the flag via SQL and never makes an 
+// for every `people` row with no `picture_url` yet - the gap left by the
+// migrations, which only ever sets the flag via SQL and never makes an
 // outbound HTTP call to WCA.
 //
 // Run via `pnpm --filter southeastcubing-org-api run backfill-people-pictures`.
@@ -21,9 +21,7 @@ async function main() {
        AND picture_url IS NULL`,
   );
 
-  logger.info(
-    `Found ${rows.length} managed-photo people row(s) with no stored photo yet.`,
-  );
+  logger.info(`Found ${rows.length} managed-photo people row(s) with no stored photo yet.`);
 
   let succeeded = 0;
   let skipped = 0;
@@ -33,9 +31,7 @@ async function main() {
     try {
       const avatarUrl = await photosService.resolveCurrentWcaAvatarUrl(person.wca_id);
       if (!avatarUrl) {
-        logger.warn(
-          `No WCA avatar found for wca_id ${person.wca_id} (${person.name}) - skipping.`,
-        );
+        logger.warn(`No WCA avatar found for wca_id ${person.wca_id} (${person.name}) - skipping.`);
         skipped += 1;
         continue;
       }

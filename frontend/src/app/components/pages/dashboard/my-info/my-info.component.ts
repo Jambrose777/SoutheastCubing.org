@@ -3,7 +3,6 @@ import {
   Component,
   ChangeDetectionStrategy,
   DestroyRef,
-  ElementRef,
   inject,
   Injector,
   OnInit,
@@ -13,9 +12,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MarkdownComponent } from 'ngx-markdown';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { AuthService } from 'src/app/services/southeastcubing-api/auth.service';
@@ -30,6 +27,7 @@ import { HeaderComponent } from '../../../core/header/header.component';
 import { DashboardSidePaneComponent } from '../dashboard-side-pane/dashboard-side-pane.component';
 import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading-spinner.component';
 import { PictureCropSheetComponent } from '../../../shared/picture-crop-sheet/picture-crop-sheet.component';
+import { DelegateBioComponent } from '../../../shared/delegate-bio/delegate-bio.component';
 import { cacheBustUrl } from 'src/app/shared/cache-bust-url.util';
 import { MyInfo, MyInfoCurrentEntry, MyInfoPastEntry } from 'src/app/models/MyInfo';
 import { RANK_LABELS } from 'src/app/models/Delegate';
@@ -78,8 +76,7 @@ function myInfoEntryTrackKey(entry: MyInfoCurrentEntry | MyInfoPastEntry): strin
     RouterLink,
     MatTooltipModule,
     PictureCropSheetComponent,
-    FormsModule,
-    MarkdownComponent,
+    DelegateBioComponent,
   ],
 })
 export class MyInfoComponent implements OnInit {
@@ -120,12 +117,15 @@ export class MyInfoComponent implements OnInit {
   // keeps the sheet mounted long enough for it to actually play.
   isSheetClosing = signal(false);
 
-  // Delegate Bio inline edit - a plain textarea/save button.
-  editingBio = signal(false);
-  bioDraft = signal('');
-  savingBio = signal(false);
-  // Only present while editingBio() is true.
-  bioTextarea = viewChild<ElementRef<HTMLTextAreaElement>>('bioTextarea');
+  // The Picture & Crop sheet's own generalized mutation inputs.
+  setSyncEnabled = (enabled: boolean) => this.myInfoApi.setSyncEnabled(enabled);
+  uploadPhoto = (file: File) => this.myInfoApi.uploadPhoto(file);
+  updateCrop = (crop: { cropX: number; cropY: number; cropW: number; cropH: number }) =>
+    this.myInfoApi.updateCrop(crop);
+
+  // The Delegate Bio field's own generalized mutation input.
+  updateBio = (bio: string) => this.myInfoApi.updateBio(bio);
+  private delegateBio = viewChild(DelegateBioComponent);
 
   formatDate = formatDate;
   rankLabel(rank: string): string {
@@ -171,11 +171,11 @@ export class MyInfoComponent implements OnInit {
 
     const isBlankBioField = focusField === 'delegate-bio-field' && !this.myInfo()?.delegateBio;
     if (isBlankBioField) {
-      this.startEditingBio();
+      this.delegateBio()?.startEditing();
     }
     this.scrollToFieldOnceImagesLoaded(
       focusField,
-      isBlankBioField ? () => this.bioTextarea()?.nativeElement.focus() : undefined,
+      isBlankBioField ? () => this.delegateBio()?.focusTextarea() : undefined,
     );
 
     this.router.navigate([], {
@@ -262,32 +262,11 @@ export class MyInfoComponent implements OnInit {
     this.authService.beginDobStepUp();
   }
 
-  // Opens the bio textarea, seeded with the current bio.
-  startEditingBio() {
-    this.bioDraft.set(this.myInfo()?.delegateBio ?? '');
-    this.editingBio.set(true);
-  }
-
-  cancelEditingBio() {
-    this.editingBio.set(false);
-  }
-
-  saveBio() {
-    this.savingBio.set(true);
-    this.myInfoApi.updateBio(this.bioDraft()).subscribe({
-      next: (myInfo) => {
-        this.myInfo.set(myInfo);
-        this.savingBio.set(false);
-        this.editingBio.set(false);
-        this.toastService.success('Delegate bio updated.');
-        // Re-checks pendingItems.
-        this.authService.refreshCurrentUser();
-      },
-      error: () => {
-        this.savingBio.set(false);
-        this.errorBannerService.show('Failed to update Delegate bio.');
-      },
-    });
+  // A mutation inside the Delegate Bio field resolved - refetch so the page
+  // reflects the new bio, and re-check pendingItems (a blank bio is one).
+  onBioSaved() {
+    this.refreshMyInfo();
+    this.authService.refreshCurrentUser();
   }
 
   openPictureSheet() {

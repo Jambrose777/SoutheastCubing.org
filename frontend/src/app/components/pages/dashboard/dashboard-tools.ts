@@ -31,6 +31,13 @@ export const DASHBOARD_TOOLS: DashboardTool[] = [
     // No requiresAnyRole - always present for every signed-in user.
   },
   {
+    label: 'Manage Users',
+    routerLink: '/dashboard/manage-users',
+    icon: 'fa-users-gear',
+    color: Colors.blue,
+    requiresAnyRole: ['board', 'admin'],
+  },
+  {
     label: 'Manage Teams',
     routerLink: '/dashboard/manage-teams',
     icon: 'fa-people-group',

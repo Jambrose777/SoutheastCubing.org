@@ -40,4 +40,49 @@ async function updateCrop(req, res) {
   }
 }
 
-module.exports = { setSyncEnabled, uploadPhoto, updateCrop };
+// PUT /dashboard/manage-users/:peopleId/photo/sync - Admin/Board sets another
+// person's sync toggle on their behalf (Manage Users' own edit sheet).
+async function setSyncEnabledForPerson(req, res) {
+  try {
+    await photosService.setSyncEnabled(req.params.peopleId, !!req.body?.enabled);
+    res.json({ status: 'success' });
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to update photo sync');
+  }
+}
+
+// POST /dashboard/manage-users/:peopleId/photo/upload - Admin/Board uploads a
+// photo on another person's behalf.
+async function uploadPhotoForPerson(req, res) {
+  try {
+    if (!req.file) {
+      res.status(400).json({ message: 'No file uploaded.' });
+      return;
+    }
+    await photosService.uploadPhoto(req.params.peopleId, req.file.buffer);
+    res.json({ status: 'success' });
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to upload photo');
+  }
+}
+
+// PUT /dashboard/manage-users/:peopleId/photo/crop - Admin/Board updates
+// another person's managed photo's thumbnail crop.
+async function updateCropForPerson(req, res) {
+  try {
+    const { cropX, cropY, cropW, cropH } = req.body;
+    await photosService.updateThumbnailCrop(req.params.peopleId, { cropX, cropY, cropW, cropH });
+    res.json({ status: 'success' });
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to update thumbnail crop');
+  }
+}
+
+module.exports = {
+  setSyncEnabled,
+  uploadPhoto,
+  updateCrop,
+  setSyncEnabledForPerson,
+  uploadPhotoForPerson,
+  updateCropForPerson,
+};

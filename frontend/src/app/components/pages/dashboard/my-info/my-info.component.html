@@ -30,16 +30,16 @@
 
           <div class="field-list">
             <div class="field-row">
+              <span class="field-label">Name</span>
+              <span class="field-value">{{ info.name }}</span>
+            </div>
+            <div class="field-row">
               <span class="field-label">WCA ID</span>
               <span class="field-value">{{ info.wcaId ?? 'Not linked' }}</span>
             </div>
             <div class="field-row">
               <span class="field-label">WCA User ID</span>
               <span class="field-value">{{ info.wcaUserId ?? 'Not linked' }}</span>
-            </div>
-            <div class="field-row">
-              <span class="field-label">Name</span>
-              <span class="field-value">{{ info.name }}</span>
             </div>
             <div class="field-row">
               <span class="field-label">Email</span>
@@ -73,85 +73,12 @@
 
         <!-- Delegate Bio -->
         @if (info.delegateBio !== undefined) {
-          <div class="bio-section" id="delegate-bio-field">
-            <div class="bio-header">
-              <span class="field-label">
-                @if (hasBioPendingItem()) {
-                  <span class="pending-badge" aria-label="Pending: add your Delegate bio">!</span>
-                }
-                Delegate bio
-              </span>
-              @if (!editingBio()) {
-                @if (info.delegateBio) {
-                  <button
-                    type="button"
-                    class="btn small icon-only edit-bio-btn"
-                    (click)="startEditingBio()"
-                    matTooltip="Edit Delegate Bio"
-                    matTooltipPosition="above"
-                    aria-label="Edit Delegate Bio"
-                  >
-                    <i class="fa-solid fa-pen"></i>
-                  </button>
-                } @else {
-                  <span
-                    class="field-value link-text"
-                    (click)="startEditingBio()"
-                    (keydown.enter)="startEditingBio()"
-                    (keydown.space)="$event.preventDefault(); startEditingBio()"
-                    role="button"
-                    tabindex="0"
-                    aria-label="Delegate bio not set - click to add one"
-                  >
-                    Not set - click to add
-                  </span>
-                }
-              }
-            </div>
-            @if (editingBio()) {
-              <div class="bio-edit">
-                <p class="small-text-content refresh-hint">
-                  Introduce yourself to the community! Talk about what got you into cubing, your
-                  favorite personal achievements, and what your life looks like outside of cubing.
-                  Keep it factual and avoid specifics that will change over time (e.g. "I've
-                  delegated 10 competitions") — this bio isn't automatically updated, so it can go
-                  stale.
-                  <br />
-                  Markdown is supported.
-                </p>
-                <textarea
-                  #bioTextarea
-                  class="bio-textarea"
-                  [ngModel]="bioDraft()"
-                  (ngModelChange)="bioDraft.set($event)"
-                  [disabled]="savingBio()"
-                  rows="5"
-                ></textarea>
-                <div class="bio-edit-actions">
-                  <button
-                    type="button"
-                    class="btn small"
-                    (click)="saveBio()"
-                    [disabled]="savingBio()"
-                  >
-                    Save
-                  </button>
-                  <button
-                    type="button"
-                    class="btn small"
-                    (click)="cancelEditingBio()"
-                    [disabled]="savingBio()"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            } @else if (info.delegateBio) {
-              <div class="bio-text">
-                <markdown [data]="info.delegateBio"></markdown>
-              </div>
-            }
-          </div>
+          <se-delegate-bio
+            [bio]="info.delegateBio"
+            [updateBio]="updateBio"
+            [pending]="hasBioPendingItem()"
+            (saved)="onBioSaved()"
+          ></se-delegate-bio>
         }
 
         <!-- Current & Past Roles -->
@@ -264,6 +191,9 @@
       <se-picture-crop-sheet
         #pictureSheet
         [info]="info"
+        [setSyncEnabled]="setSyncEnabled"
+        [uploadPhoto]="uploadPhoto"
+        [updateCrop]="updateCrop"
         (closed)="requestCloseSheet(pictureSheet)"
         (saved)="onPictureSheetSaved()"
       ></se-picture-crop-sheet>

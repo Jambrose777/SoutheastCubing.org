@@ -10,11 +10,28 @@ import {
   viewChild,
   ElementRef,
 } from '@angular/core';
+import { Observable } from 'rxjs';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MyInfoService } from 'src/app/services/southeastcubing-api/my-info.service';
 import { ToastService } from 'src/app/services/toast.service';
-import { MyInfo } from 'src/app/models/MyInfo';
+
+// The subset of fields this sheet actually needs.
+export interface PictureCropSheetInfo {
+  name: string;
+  pictureUrl: string | null;
+  pictureSyncedWithWca: boolean;
+  thumbnailCropX: number | null;
+  thumbnailCropY: number | null;
+  thumbnailCropW: number | null;
+  thumbnailCropH: number | null;
+}
+
+export interface PictureCrop {
+  cropX: number;
+  cropY: number;
+  cropW: number;
+  cropH: number;
+}
 
 // Minimum crop box size (in the image's own natural pixels) - keeps a
 // resize drag from shrinking the crop down to something unusably tiny.
@@ -44,10 +61,13 @@ interface DragState {
   imports: [MatSlideToggleModule, MatTooltipModule],
 })
 export class PictureCropSheetComponent {
-  private myInfoApi = inject(MyInfoService);
   private toastService = inject(ToastService);
 
-  info = input.required<MyInfo>();
+  info = input.required<PictureCropSheetInfo>();
+  // The three mutations this sheet performs - bound by the parent.
+  setSyncEnabled = input.required<(enabled: boolean) => Observable<void>>();
+  uploadPhoto = input.required<(file: File) => Observable<void>>();
+  updateCrop = input.required<(crop: PictureCrop) => Observable<void>>();
   closed = output<void>();
   saved = output<void>();
 
@@ -133,7 +153,7 @@ export class PictureCropSheetComponent {
 
   onToggleSync(enabled: boolean) {
     this.syncing.set(true);
-    this.myInfoApi.setSyncEnabled(enabled).subscribe({
+    this.setSyncEnabled()(enabled).subscribe({
       next: () => {
         this.syncing.set(false);
         this.toastService.success(enabled ? 'Photo sync enabled.' : 'Photo sync disabled.');
@@ -161,7 +181,7 @@ export class PictureCropSheetComponent {
     }
 
     this.uploading.set(true);
-    this.myInfoApi.uploadPhoto(file).subscribe({
+    this.uploadPhoto()(file).subscribe({
       next: () => {
         this.uploading.set(false);
         this.toastService.success('Photo uploaded.');
@@ -228,24 +248,22 @@ export class PictureCropSheetComponent {
     if (!this.cropDirty()) return;
     const crop = this.draftCrop();
     this.savingCrop.set(true);
-    this.myInfoApi
-      .updateCrop({
-        cropX: Math.round(crop.x),
-        cropY: Math.round(crop.y),
-        cropW: Math.round(crop.size),
-        cropH: Math.round(crop.size),
-      })
-      .subscribe({
-        next: () => {
-          this.savingCrop.set(false);
-          this.toastService.success('Crop updated.');
-          this.saved.emit();
-        },
-        error: (err) => {
-          this.savingCrop.set(false);
-          this.toastService.error(err?.error?.message ?? 'Failed to update crop.');
-        },
-      });
+    this.updateCrop()({
+      cropX: Math.round(crop.x),
+      cropY: Math.round(crop.y),
+      cropW: Math.round(crop.size),
+      cropH: Math.round(crop.size),
+    }).subscribe({
+      next: () => {
+        this.savingCrop.set(false);
+        this.toastService.success('Crop updated.');
+        this.saved.emit();
+      },
+      error: (err) => {
+        this.savingCrop.set(false);
+        this.toastService.error(err?.error?.message ?? 'Failed to update crop.');
+      },
+    });
   }
 
   close() {

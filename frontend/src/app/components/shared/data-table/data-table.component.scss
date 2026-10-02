@@ -1,0 +1,186 @@
+@use 'src/styles/color-pallet';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.data-table {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.data-table-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+
+// Search + its own active-filter pills - wraps together as one group,
+// separate from the columns/reset buttons on the other side.
+.data-table-toolbar-start {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.data-table-toolbar-end {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.data-table-search {
+  min-width: 220px;
+  padding: 6px 10px;
+  border: 1px solid color-pallet.$se-black;
+  border-radius: 6px;
+  font-size: 14px;
+
+  &:focus {
+    outline: 2px solid color-pallet.$se-blue;
+    outline-offset: -1px;
+  }
+}
+
+se-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.data-table {
+  border: 1px solid color-pallet.$se-black;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+// Clips the (transform-shifted) header row to the card's own width.
+.data-table-header-clip {
+  overflow: hidden;
+}
+
+// Positions the header's own Actions cell relative to the header area as a
+// whole, rather than the page.
+.data-table-header-wrapper {
+  position: relative;
+}
+
+// Shared by the header row and every body row - each cell's own width
+// comes from the consumer's column config (`gridTemplateColumns()`).
+.data-table-header-row,
+.data-table-row {
+  display: grid;
+  align-items: center;
+  width: 100%;
+
+  > div {
+    min-width: 0;
+  }
+}
+
+.data-table-cell-content {
+  padding: 6px 12px;
+  white-space: pre-line;
+  overflow-wrap: break-word;
+  line-height: 1.3em;
+  max-height: 2.4em;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+// `border-box` keeps the border-bottom below (added via `:not(:last-child)`)
+// from pushing a row's total rendered height past `rowHeight` too.
+.data-table-row {
+  box-sizing: border-box;
+}
+
+.data-table-header-row {
+  font-size: 14px;
+  border-bottom: 2px solid color-pallet.$se-black;
+  background-color: var(--main-pane-color);
+
+  // A header cell is always a single line (label + its own sort button),
+  // never multi-line content.
+  > div {
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+.data-table-sort-btn {
+  flex-shrink: 0;
+  padding: 2px 4px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: color-pallet.$se-dark-grey;
+
+  // The active sort column's icon is bold/colored, distinguishing it from
+  // every other sortable column's own (inactive) icon.
+  &.active {
+    color: color-pallet.$se-black;
+    font-weight: bold;
+  }
+}
+
+.data-table-viewport {
+  // Fills whatever space `.data-table` (itself stretched by `:host` above).
+  flex: 1;
+  height: auto;
+}
+
+.data-table-row:hover {
+  background-color: rgb(0 0 0 / 0.08);
+}
+
+.data-table-row:not(:last-child) {
+  border-bottom: 1px solid color-pallet.$se-grey;
+}
+
+// The Actions column's body cell - always the rightmost column, stickied so
+// it stays visible on horizontal scroll.
+.data-table-row .data-table-actions-cell {
+  position: sticky;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 6px 12px;
+  background-color: var(--main-pane-color);
+}
+
+// Its own opaque background otherwise blocks the row's own `:hover` tint from
+// showing through too.
+.data-table-row:hover .data-table-actions-cell {
+  background-image: linear-gradient(rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.08));
+}
+
+// The header's own Actions cell - rendered as a separate, absolutely
+// positioned element.
+.data-table-header-actions-cell {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  box-sizing: border-box;
+  font-size: 14px;
+  border-bottom: 2px solid color-pallet.$se-black;
+  background-color: var(--main-pane-color);
+}
