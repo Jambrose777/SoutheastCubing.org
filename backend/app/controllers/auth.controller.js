@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const { config } = require('../config/config.js');
 const authService = require('../services/auth.service.js');
 const sessionsDb = require('../database/sessions.database.js');
+const wcaOauthGrantsDb = require('../database/wcaOauthGrants.database.js');
 const { getCurrentRoles } = require('../helpers/roles.helper.js');
 const devImpersonation = require('../helpers/devImpersonation.helper.js');
 const { resolvePersonPicture } = require('../helpers/personPicture.helper.js');
@@ -19,6 +20,10 @@ const OAUTH_COOKIE_MAX_AGE_MS = 10 * 60 * 1000; // 10 minutes - the OAuth round-
 // Separate state cookie for the dob step-up flow, so it can never be
 // confused with (or clobber) an in-flight plain sign-in round-trip.
 const DOB_STEP_UP_STATE_COOKIE = 'oauth_dob_state';
+
+// Separate state cookie for the manage_competitions step-up flow
+const MANAGE_COMPETITIONS_STATE_COOKIE = 'oauth_manage_competitions_state';
+const MANAGE_COMPETITIONS_RETURN_TO_COOKIE = 'oauth_manage_competitions_return_to';
 
 // Dev-only "login as" preset, The picked preset can't be applied until
 // a real session exists (it's applied to that session's id), so it has
@@ -91,6 +96,28 @@ function beginDobStepUp(req, res) {
   res.redirect(authService.buildAuthorizeUrl({ state, scope: authService.DOB_STEP_UP_SCOPE }));
 }
 
+// Redirects the browser into WCA's own OAuth consent screen requesting the
+// manage_competitions step-up scope. Requires an existing session. `returnTo` 
+// is carried through to the callback.
+function beginManageCompetitionsStepUp(req, res) {
+  if (!authService.isOAuthConfigured()) {
+    res.status(503).json({ message: 'WCA sign-in is not configured.' });
+    return;
+  }
+  if (!req.user) {
+    res.status(401).json({ message: 'Sign-in required.' });
+    return;
+  }
+
+  const returnTo = authService.sanitizeReturnPath(req.query.returnTo);
+  const state = crypto.randomBytes(16).toString('hex');
+  res.cookie(MANAGE_COMPETITIONS_STATE_COOKIE, state, shortLivedCookieOptions());
+  res.cookie(MANAGE_COMPETITIONS_RETURN_TO_COOKIE, returnTo, shortLivedCookieOptions());
+  res.redirect(
+    authService.buildAuthorizeUrl({ state, scope: authService.MANAGE_COMPETITIONS_STEP_UP_SCOPE }),
+  );
+}
+
 // WCA OAuth apps are registered with a single fixed redirect URI, so the dob
 // step-up flow's authorize request comes back to this same /auth/wca/callback.
 // Whichever flow's own state cookie is actually present on the request is the
@@ -130,6 +157,50 @@ async function handleDobStepUpCallback(req, res, cookieState) {
   }
 }
 
+// Completes the manage-competitions step-up flow callback. Redirects back 
+// to whichever tool's own route invoked the step-up.
+async function handleManageCompetitionsStepUpCallback(req, res, cookieState) {
+  const returnTo = authService.sanitizeReturnPath(
+    req.cookies?.[MANAGE_COMPETITIONS_RETURN_TO_COOKIE],
+  );
+  res.clearCookie(MANAGE_COMPETITIONS_RETURN_TO_COOKIE, { path: OAUTH_COOKIE_PATH });
+  const returnUrl = new URL(returnTo, config.FRONTEND_URL);
+
+  if (req.query.error) {
+    logger.info(`Manage_competitions step-up denied on the consent screen: ${req.query.error}`);
+    returnUrl.searchParams.set('authError', 'denied');
+    res.redirect(returnUrl.toString());
+    return;
+  }
+
+  if (!req.user) {
+    logger.warn('Manage_competitions step-up callback reached with no active session.');
+    returnUrl.searchParams.set('authError', 'failed');
+    res.redirect(returnUrl.toString());
+    return;
+  }
+
+  if (!req.query.code || !req.query.state || req.query.state !== cookieState) {
+    logger.warn('Manage_competitions step-up callback missing/mismatched code or state.');
+    returnUrl.searchParams.set('authError', 'failed');
+    res.redirect(returnUrl.toString());
+    return;
+  }
+
+  try {
+    await authService.completeManageCompetitionsStepUp({
+      code: req.query.code,
+      peopleId: req.user.people_id,
+    });
+    returnUrl.searchParams.set('manageCompetitionsGranted', '1');
+    res.redirect(returnUrl.toString());
+  } catch (err) {
+    logger.error('Manage_competitions step-up callback failed to complete: ', err);
+    returnUrl.searchParams.set('authError', 'failed');
+    res.redirect(returnUrl.toString());
+  }
+}
+
 // Handles WCA's redirect back after the consent screen - a deny, a state
 // mismatch, and a genuine success are each routed back to the frontend at
 // `returnTo`, differing only in whether an authError flag is appended.
@@ -140,6 +211,13 @@ async function handleCallback(req, res) {
   if (dobStepUpState) {
     res.clearCookie(DOB_STEP_UP_STATE_COOKIE, { path: OAUTH_COOKIE_PATH });
     await handleDobStepUpCallback(req, res, dobStepUpState);
+    return;
+  }
+
+  const manageCompetitionsStepUpState = req.cookies?.[MANAGE_COMPETITIONS_STATE_COOKIE];
+  if (manageCompetitionsStepUpState) {
+    res.clearCookie(MANAGE_COMPETITIONS_STATE_COOKIE, { path: OAUTH_COOKIE_PATH });
+    await handleManageCompetitionsStepUpCallback(req, res, manageCompetitionsStepUpState);
     return;
   }
 
@@ -202,10 +280,12 @@ async function getCurrentUser(req, res) {
     res.status(401).json({ message: 'Not signed in.' });
     return;
   }
-  const [{ isAdmin, isBoard, isRegionalDelegate }, pendingItems] = await Promise.all([
-    getCurrentRoles(req.user.people_id, req.user.sessionId),
-    getPendingItems(req.user),
-  ]);
+  const [{ isAdmin, isBoard, isRegionalDelegate, isDelegate }, pendingItems, grant] =
+    await Promise.all([
+      getCurrentRoles(req.user.people_id, req.user.sessionId),
+      getPendingItems(req.user),
+      wcaOauthGrantsDb.findByPeopleId(req.user.people_id),
+    ]);
 
   // Only spread in impersonatedRole when it's actually set - never send the
   // key at all (not even as a null value) outside local dev, so a
@@ -218,10 +298,22 @@ async function getCurrentUser(req, res) {
     name: req.user.name,
     ...resolvePersonPicture(req.user),
     wcaId: req.user.wca_id,
-    roles: { isAdmin, isBoard, isRegionalDelegate },
+    roles: { isAdmin, isBoard, isRegionalDelegate, isDelegate },
     ...(impersonatedRolePresetKey ? { impersonatedRole: impersonatedRolePresetKey } : {}),
+    hasManageCompetitionsGrant: !!grant,
     pendingItems,
   });
+}
+
+// Explicit-revoke endpoint - deletes the signed-in user's manage_competitions
+// grant row outright.
+async function revokeManageCompetitionsGrant(req, res) {
+  if (!req.user) {
+    res.status(401).json({ message: 'Sign-in required.' });
+    return;
+  }
+  await authService.revokeManageCompetitionsGrant(req.user.people_id);
+  res.json({ status: 'success' });
 }
 
 // Deletes the session's server-side row outright (immediate revocation),
@@ -240,6 +332,8 @@ module.exports = {
   beginSignIn,
   handleCallback,
   beginDobStepUp,
+  beginManageCompetitionsStepUp,
+  revokeManageCompetitionsGrant,
   getDevImpersonationConfig,
   getCurrentUser,
   signOut,

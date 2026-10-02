@@ -2,7 +2,7 @@
 
 // Applies any pending files under app/database/migrations/ to the dev Aurora DSQL
 // cluster, in filename order, tracking what's already been applied in a
-// schema_migrations table. Run manually (`pnpm --filter backend migrate`) -
+// schema_migrations table. Run manually (`pnpm --filter southeastcubing-org-api migrate`) -
 // never invoked by the running backend, which only ever connects as the
 // non-admin app_dev role (see ../app/database/pool.js).
 //

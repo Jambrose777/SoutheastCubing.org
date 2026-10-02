@@ -98,12 +98,12 @@ bootstrap — it links your IAM user to the non-admin `app_dev` database role th
 backend authenticates as (`backend/scripts/bootstrap-dsql-role.js`):
 
 ```bash
-pnpm --filter backend bootstrap-dsql-role
+pnpm --filter southeastcubing-org-api bootstrap-dsql-role
 ```
 
 ## BE Development server
 
-Run `pnpm --filter backend dev` (or `cd backend && pnpm dev`), equivalent to
+Run `pnpm --filter southeastcubing-org-api dev` (or `cd backend && pnpm dev`), equivalent to
 `node --env-file=.env/.env server.js`.
 
 Once running, interactive Swagger/OpenAPI docs for the backend's endpoints are
@@ -118,7 +118,7 @@ any pending migrations — safe to re-run any time, it only applies files it has
 recorded as already applied (`backend/scripts/migrate.js`):
 
 ```bash
-pnpm --filter backend migrate
+pnpm --filter southeastcubing-org-api migrate
 ```
 
 After applying a new migration, regenerate the read-only schema snapshot
@@ -129,7 +129,7 @@ table. This file is generated and never hand-edited or applied directly
 (`backend/scripts/generate-schema-snapshot.js`):
 
 ```bash
-pnpm --filter backend schema-snapshot
+pnpm --filter southeastcubing-org-api schema-snapshot
 ```
 
 ## BE Deployment

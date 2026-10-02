@@ -22,6 +22,7 @@ const PRESETS = {
     isBoard: false,
     delegateRank: null,
     isRegionalDelegate: false,
+    isDelegate: false,
   },
   admin: {
     teamIds: [],
@@ -29,6 +30,7 @@ const PRESETS = {
     isBoard: false,
     delegateRank: null,
     isRegionalDelegate: false,
+    isDelegate: false,
   },
   board: {
     teamIds: [],
@@ -36,6 +38,7 @@ const PRESETS = {
     isBoard: true,
     delegateRank: null,
     isRegionalDelegate: false,
+    isDelegate: false,
   },
   regionalDelegate: {
     teamIds: [],
@@ -43,6 +46,15 @@ const PRESETS = {
     isBoard: false,
     delegateRank: 'regional',
     isRegionalDelegate: true,
+    isDelegate: true,
+  },
+  delegate: {
+    teamIds: [],
+    isAdmin: false,
+    isBoard: false,
+    delegateRank: 'delegate',
+    isRegionalDelegate: false,
+    isDelegate: true,
   },
 };
 

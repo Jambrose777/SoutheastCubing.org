@@ -1,0 +1,19 @@
+<div class="component-container">
+  <div class="main-pane" tabindex="0">
+    <se-header
+      id="header"
+      [title]="'Competition Planner'"
+      [showNavCluster]="isMobile()"
+    ></se-header>
+
+    <div class="competition-planner-content">
+      <se-manage-competitions-prompt></se-manage-competitions-prompt>
+
+      <div class="empty-state">Competition Planner is coming soon.</div>
+    </div>
+  </div>
+
+  @if (!isMobile()) {
+    <se-dashboard-side-pane></se-dashboard-side-pane>
+  }
+</div>

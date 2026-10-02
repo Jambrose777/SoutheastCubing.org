@@ -31,6 +31,7 @@ import { DelegateBioComponent } from '../../../shared/delegate-bio/delegate-bio.
 import { cacheBustUrl } from 'src/app/shared/cache-bust-url.util';
 import { MyInfo, MyInfoCurrentEntry, MyInfoPastEntry } from 'src/app/models/MyInfo';
 import { RANK_LABELS } from 'src/app/models/Delegate';
+import { DASHBOARD_TOOLS } from '../dashboard-tools';
 
 // A DirtyCheckable sheet component, checked before actually dismissing it.
 interface DirtyCheckable {
@@ -134,7 +135,8 @@ export class MyInfoComponent implements OnInit {
   trackKey = myInfoEntryTrackKey;
 
   ngOnInit(): void {
-    this.themeService.setMainPaneColor(Colors.grey);
+    const tool = DASHBOARD_TOOLS.find((t) => t.routerLink === '/dashboard/my-info');
+    this.themeService.setMainPaneColor(tool?.color ?? Colors.grey);
     this.loadMyInfo();
     this.handleStepUpRedirectParams();
 

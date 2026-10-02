@@ -9,8 +9,8 @@
 // table's original CREATE TABLE) - app/database/migrations/ remains the
 // source of truth for *how* the schema got to this state, this file only
 // documents *what* it looks like now. Generated, never hand-edited or applied
-// directly. Re-run (`pnpm --filter backend schema-snapshot`) after applying
-// a new migration (`pnpm --filter backend migrate`) so it reflects the
+// directly. Re-run (`pnpm --filter southeastcubing-org-api schema-snapshot`) after applying
+// a new migration (`pnpm --filter southeastcubing-org-api migrate`) so it reflects the
 // schema change.
 
 const fs = require('fs');
@@ -34,7 +34,7 @@ const HEADER = `-- GENERATED FILE - do not edit by hand.
 -- Reflects the live schema on the dev DSQL cluster (queried via
 -- information_schema), not merely the migration files that produced it - see
 -- app/database/migrations/ for that history. Regenerate with
--- \`pnpm --filter backend schema-snapshot\` after applying a new migration.
+-- \`pnpm --filter southeastcubing-org-api schema-snapshot\` after applying a new migration.
 `;
 
 async function fetchTableNames(client) {

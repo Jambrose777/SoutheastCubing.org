@@ -1,0 +1,16 @@
+@use 'src/styles/color-pallet';
+
+.competition-planner-content {
+  position: relative;
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 16px;
+}
+
+.empty-state {
+  color: color-pallet.$se-dark-grey;
+  text-align: center;
+}

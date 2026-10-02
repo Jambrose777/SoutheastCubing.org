@@ -3,8 +3,10 @@ const wcaIntegration = require('../integrations/wca.integration.js');
 const peopleDb = require('../database/people.database.js');
 const usersDb = require('../database/users.database.js');
 const sessionsDb = require('../database/sessions.database.js');
+const wcaOauthGrantsDb = require('../database/wcaOauthGrants.database.js');
 const photosService = require('./photos.service.js');
 const { generateSessionToken } = require('../helpers/session.helper.js');
+const { encrypt, decrypt } = require('../helpers/encryption.helper.js');
 
 const logger = require('../utils/logger.util.js');
 
@@ -18,6 +20,9 @@ const SIGN_IN_SCOPE = 'public email';
 // Scope requested by the My Info dob step-up flow - the *union* of the
 // sign-in scope plus dob.
 const DOB_STEP_UP_SCOPE = `${SIGN_IN_SCOPE} dob`;
+
+// Scope requested by the manage_competitions step-up flow.
+const MANAGE_COMPETITIONS_STEP_UP_SCOPE = `${SIGN_IN_SCOPE} manage_competitions`;
 
 // True once every env var the WCA sign-in flow needs is present - callers
 // respond 503 rather than attempting the flow with a partially-configured
@@ -55,7 +60,7 @@ function buildAuthorizeUrl({ state, scope = SIGN_IN_SCOPE }) {
 // Completes the OAuth handshake for a successful (non-denied) callback.
 async function completeSignIn({ code, ipAddress }) {
   // Exchange the authorization code for an access token.
-  const accessToken = await wcaIntegration.exchangeAuthorizationCodeForToken({
+  const { accessToken } = await wcaIntegration.exchangeAuthorizationCodeForToken({
     code,
     clientId: config.WCA_OAUTH_CLIENT_ID,
     clientSecret: config.WCA_OAUTH_CLIENT_SECRET,
@@ -98,7 +103,7 @@ async function completeSignIn({ code, ipAddress }) {
 // signed-in user's own row.
 async function completeDobStepUp({ code, peopleId }) {
   // Create Access Token from WCA.
-  const accessToken = await wcaIntegration.exchangeAuthorizationCodeForToken({
+  const { accessToken } = await wcaIntegration.exchangeAuthorizationCodeForToken({
     code,
     clientId: config.WCA_OAUTH_CLIENT_ID,
     clientSecret: config.WCA_OAUTH_CLIENT_SECRET,
@@ -120,6 +125,70 @@ async function completeDobStepUp({ code, peopleId }) {
   return user;
 }
 
+// Completes the manage_competitions OAuth step-up flow for an already-
+// signed-in Delegate - exchanges the code (requested with
+// MANAGE_COMPETITIONS_STEP_UP_SCOPE) for an access/refresh token pair and
+// persists both (encrypted) against the signed-in person's own grant row.
+async function completeManageCompetitionsStepUp({ code, peopleId }) {
+  const { accessToken, refreshToken, expiresIn } =
+    await wcaIntegration.exchangeAuthorizationCodeForToken({
+      code,
+      clientId: config.WCA_OAUTH_CLIENT_ID,
+      clientSecret: config.WCA_OAUTH_CLIENT_SECRET,
+      redirectUri: config.WCA_OAUTH_REDIRECT_URI,
+    });
+
+  const expiresAt = new Date(Date.now() + expiresIn * 1000);
+  const grant = await wcaOauthGrantsDb.upsertGrant({
+    peopleId,
+    scopes: MANAGE_COMPETITIONS_STEP_UP_SCOPE,
+    accessTokenEncrypted: encrypt(accessToken),
+    refreshTokenEncrypted: encrypt(refreshToken),
+    expiresAt,
+  });
+
+  logger.info(`Completed manage_competitions step-up for people_id ${peopleId}.`);
+  return grant;
+}
+
+// Returns a currently-valid plaintext WCA access token for peopleId's
+// manage_competitions grant, transparently refreshing it first if expired.
+async function getValidAccessTokenForPerson(peopleId) {
+  const grant = await wcaOauthGrantsDb.findByPeopleId(peopleId);
+  if (!grant) {
+    return null;
+  }
+
+  if (new Date(grant.expires_at) > new Date()) {
+    return decrypt(grant.access_token_encrypted);
+  }
+
+  // Token has expired - refresh it and persist whatever WCA returns.
+  const { accessToken, refreshToken, expiresIn } = await wcaIntegration.refreshAccessToken({
+    refreshToken: decrypt(grant.refresh_token_encrypted),
+    clientId: config.WCA_OAUTH_CLIENT_ID,
+    clientSecret: config.WCA_OAUTH_CLIENT_SECRET,
+  });
+
+  const expiresAt = new Date(Date.now() + expiresIn * 1000);
+  await wcaOauthGrantsDb.upsertGrant({
+    peopleId,
+    scopes: grant.scopes,
+    accessTokenEncrypted: encrypt(accessToken),
+    refreshTokenEncrypted: encrypt(refreshToken),
+    expiresAt,
+  });
+
+  logger.info(`Refreshed manage_competitions access token for people_id ${peopleId}.`);
+  return accessToken;
+}
+
+// Explicit-revoke path - deletes peopleId's grant row outright.
+async function revokeManageCompetitionsGrant(peopleId) {
+  await wcaOauthGrantsDb.deleteByPeopleId(peopleId);
+  logger.info(`Revoked manage_competitions grant for people_id ${peopleId}.`);
+}
+
 // Cookie options shared by both setting the cookie (on sign-in) and clearing
 // it (on sign-out), so they can't drift out of sync with each other.
 function sessionCookieOptions() {
@@ -136,10 +205,14 @@ module.exports = {
   SESSION_COOKIE_NAME: 'se_session',
   SESSION_TTL_MS: sessionsDb.SESSION_TTL_MS,
   DOB_STEP_UP_SCOPE,
+  MANAGE_COMPETITIONS_STEP_UP_SCOPE,
   isOAuthConfigured,
   sanitizeReturnPath,
   buildAuthorizeUrl,
   completeSignIn,
   completeDobStepUp,
+  completeManageCompetitionsStepUp,
+  getValidAccessTokenForPerson,
+  revokeManageCompetitionsGrant,
   sessionCookieOptions,
 };

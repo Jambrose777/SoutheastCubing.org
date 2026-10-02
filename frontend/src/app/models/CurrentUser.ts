@@ -23,7 +23,9 @@ export interface CurrentUser {
     isAdmin: boolean;
     isBoard: boolean;
     isRegionalDelegate: boolean;
+    isDelegate: boolean;
   };
   impersonatedRole?: string;
+  hasManageCompetitionsGrant: boolean;
   pendingItems: PendingItem[];
 }

@@ -66,9 +66,7 @@ async function fetchCompetitionRegistrationsCount(competitionId) {
 }
 
 // Exchanges a Doorkeeper authorization code for an access token, using the
-// standard OAuth2 authorization-code grant. The returned token is only ever
-// used once (immediately below, for fetchWcaProfile) and then discarded -
-// nothing from a sign-in grant is persisted or refreshed.
+// standard OAuth2 authorization-code grant. Returns the full token response.
 async function exchangeAuthorizationCodeForToken({ code, clientId, clientSecret, redirectUri }) {
   const url = 'https://www.worldcubeassociation.org/oauth/token';
   const body = new URLSearchParams({
@@ -81,9 +79,39 @@ async function exchangeAuthorizationCodeForToken({ code, clientId, clientSecret,
   try {
     const res = await axios.post(url, body);
     logger.debug('WCA OAuth token exchange succeeded.');
-    return res.data.access_token;
+    return {
+      accessToken: res.data.access_token,
+      refreshToken: res.data.refresh_token,
+      expiresIn: res.data.expires_in,
+    };
   } catch (err) {
     logger.error('WCA OAuth token exchange failed: ', err);
+    throw err;
+  }
+}
+
+// Exchanges a still-valid refresh token for a new access/refresh token pair.
+// WCA's Doorkeeper may issue a new refresh token on refresh - callers must
+// always persist whatever comes back rather than assuming the old one
+// remains valid.
+async function refreshAccessToken({ refreshToken, clientId, clientSecret }) {
+  const url = 'https://www.worldcubeassociation.org/oauth/token';
+  const body = new URLSearchParams({
+    grant_type: 'refresh_token',
+    refresh_token: refreshToken,
+    client_id: clientId,
+    client_secret: clientSecret,
+  });
+  try {
+    const res = await axios.post(url, body);
+    logger.debug('WCA OAuth token refresh succeeded.');
+    return {
+      accessToken: res.data.access_token,
+      refreshToken: res.data.refresh_token,
+      expiresIn: res.data.expires_in,
+    };
+  } catch (err) {
+    logger.error('WCA OAuth token refresh failed: ', err);
     throw err;
   }
 }
@@ -182,6 +210,7 @@ module.exports = {
   fetchCompetitionById,
   fetchCompetitionRegistrationsCount,
   exchangeAuthorizationCodeForToken,
+  refreshAccessToken,
   fetchWcaProfile,
   fetchPersonByWcaId,
   fetchUserRoles,

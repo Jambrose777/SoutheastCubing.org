@@ -57,6 +57,16 @@ export class AuthService {
     window.location.href = `${environment.links.southeastCubingApi}/auth/wca/dob/begin`;
   }
 
+  // The shared manage_competitions grant prompt's "Grant" action - lands
+  // back on whichever tool invoked it (`returnTo`).
+  beginManageCompetitionsStepUp(returnTo: string) {
+    const url = new URL(
+      `${environment.links.southeastCubingApi}/auth/wca/manage-competitions/begin`,
+    );
+    url.searchParams.set('returnTo', returnTo);
+    window.location.href = url.toString();
+  }
+
   // Signs out, then redirects to the homepage only if the current page
   // requires auth - a page that doesn't require auth leaves the user in
   // place, per the sign-out redirect rule.

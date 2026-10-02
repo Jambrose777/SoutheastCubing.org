@@ -38,6 +38,8 @@ const configSchema = z.object({
   WCA_OAUTH_CLIENT_SECRET: z.string().min(1).optional(),
   WCA_OAUTH_REDIRECT_URI: z.string().min(1).optional(),
   FRONTEND_URL: z.string().min(1).optional(),
+  // Missing disables manage_competitions grants step-up flow.
+  TOKEN_ENCRYPTION_KEY: z.string().min(1).optional(),
   // unset leaves the cookie host-only (fine for local dev where frontend/backend
   // share a hostname);
   SESSION_COOKIE_DOMAIN: z.string().min(1).optional(),
@@ -67,6 +69,8 @@ const OPTIONAL_VAR_DESCRIPTIONS = {
   WCA_OAUTH_CLIENT_SECRET: 'WCA sign-in routes will respond 503 until this is set',
   WCA_OAUTH_REDIRECT_URI: 'WCA sign-in routes will respond 503 until this is set',
   FRONTEND_URL: 'WCA sign-in routes will respond 503 until this is set',
+  TOKEN_ENCRYPTION_KEY:
+    'the manage_competitions OAuth step-up flow will respond 503 until this is set',
   SESSION_COOKIE_DOMAIN:
     'the session cookie will be host-only instead of scoped to a parent domain',
   NODE_ENV: 'defaulting to development-level (debug) logging',

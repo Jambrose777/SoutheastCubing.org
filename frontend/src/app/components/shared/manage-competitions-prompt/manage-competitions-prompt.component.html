@@ -1,0 +1,22 @@
+@if (show()) {
+  <div class="manage-competitions-prompt" [class.closing]="closing()" role="status">
+    <span class="message">
+      Grant access to "Manage Competitions". This will let Southeast Cubing see and sync your
+      unannounced competitions and competition waiting lists.
+    </span>
+    <div class="actions">
+      <button type="button" class="btn small" (click)="grant()">Grant Access</button>
+      <span
+        class="close-icon clickable"
+        (click)="dismiss()"
+        (keydown.enter)="dismiss()"
+        (keydown.space)="$event.preventDefault(); dismiss()"
+        role="button"
+        tabindex="0"
+        aria-label="Dismiss"
+      >
+        <i class="fa-solid fa-close"></i>
+      </span>
+    </div>
+  </div>
+}

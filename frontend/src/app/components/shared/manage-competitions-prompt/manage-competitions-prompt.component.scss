@@ -1,0 +1,57 @@
+@use 'src/styles/color-pallet';
+
+// Plays automatically whenever the prompt is inserted into the DOM.
+@keyframes slide-down-fade-in {
+  from {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Plays while .closing is applied.
+@keyframes slide-up-fade-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+}
+
+.manage-competitions-prompt {
+  position: absolute;
+  top: 16px;
+  left: 24px;
+  right: 24px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background-color: color-pallet.$se-yellow;
+  color: color-pallet.$se-black;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.2);
+  animation: slide-down-fade-in 0.2s ease-out;
+
+  &.closing {
+    animation: slide-up-fade-out 0.2s ease-in forwards;
+  }
+
+  .message {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+}

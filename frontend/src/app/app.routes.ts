@@ -114,6 +114,16 @@ export const routes: Routes = [
     title: 'SoutheastCubing - Manage Delegates',
   },
   {
+    path: 'dashboard/competition-planner',
+    canActivate: [authGuard, roleGuard('admin', 'board', 'delegate')],
+    data: { requiresAuth: true },
+    loadComponent: () =>
+      import('./components/pages/dashboard/competition-planner/competition-planner.component').then(
+        (m) => m.CompetitionPlannerComponent,
+      ),
+    title: 'SoutheastCubing - Competition Planner',
+  },
+  {
     path: 'dashboard/manage-users',
     canActivate: [authGuard, roleGuard('board', 'admin')],
     data: { requiresAuth: true },

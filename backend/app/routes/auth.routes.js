@@ -76,6 +76,49 @@ router.get('/auth/wca/dob/begin', requireAuth, asyncRoute(authController.beginDo
 
 /**
  * @openapi
+ * /auth/wca/manage-competitions/begin:
+ *   get:
+ *     summary: Begins the manage_competitions step-up - redirects to WCA's consent screen requesting the union of the sign-in scope plus manage_competitions. Reusable across any tool that needs the scope.
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: query
+ *         name: returnTo
+ *         schema: { type: string }
+ *         description: Same-origin relative path (the invoking tool's own page) to land back on after the step-up.
+ *     responses:
+ *       302:
+ *         description: Redirect to WCA's OAuth authorize screen.
+ *       401:
+ *         description: Not signed in.
+ *       503:
+ *         description: WCA sign-in is not configured.
+ */
+router.get(
+  '/auth/wca/manage-competitions/begin',
+  requireAuth,
+  asyncRoute(authController.beginManageCompetitionsStepUp),
+);
+
+/**
+ * @openapi
+ * /auth/wca/manage-competitions/revoke:
+ *   post:
+ *     summary: Revokes the signed-in user's manage_competitions grant - deletes their wca_oauth_grants row outright.
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Revoked successfully.
+ *       401:
+ *         description: Not signed in.
+ */
+router.post(
+  '/auth/wca/manage-competitions/revoke',
+  requireAuth,
+  asyncRoute(authController.revokeManageCompetitionsGrant),
+);
+
+/**
+ * @openapi
  * /auth/dev-impersonation-config:
  *   get:
  *     summary: Dev-only role-impersonation runtime config - whether the feature is enabled server-side, and which presets it offers. Always reports enabled=false outside local dev.

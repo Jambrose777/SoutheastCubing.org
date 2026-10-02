@@ -2,13 +2,14 @@ import { Colors } from 'src/app/shared/types';
 import { CurrentUser } from 'src/app/models/CurrentUser';
 
 // Role keys a dashboard tool (or route guard) can require access from.
-export type Role = 'admin' | 'board' | 'regionalDelegate';
+export type Role = 'admin' | 'board' | 'regionalDelegate' | 'delegate';
 
 // Maps each Role to the CurrentUser.roles key it corresponds to.
 const ROLE_TO_CURRENT_USER_FLAG: Record<Role, keyof CurrentUser['roles']> = {
   admin: 'isAdmin',
   board: 'isBoard',
   regionalDelegate: 'isRegionalDelegate',
+  delegate: 'isDelegate',
 };
 
 export interface DashboardTool {
@@ -27,8 +28,15 @@ export const DASHBOARD_TOOLS: DashboardTool[] = [
     label: 'My Info',
     routerLink: '/dashboard/my-info',
     icon: 'fa-user',
-    color: Colors.grey,
+    color: Colors.blue,
     // No requiresAnyRole - always present for every signed-in user.
+  },
+  {
+    label: 'Competition Planner',
+    routerLink: '/dashboard/competition-planner',
+    icon: 'fa-calendar-days',
+    color: Colors.grey,
+    requiresAnyRole: ['admin', 'board', 'delegate'],
   },
   {
     label: 'Manage Users',

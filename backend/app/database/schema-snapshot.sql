@@ -2,7 +2,7 @@
 -- Reflects the live schema on the dev DSQL cluster (queried via
 -- information_schema), not merely the migration files that produced it - see
 -- app/database/migrations/ for that history. Regenerate with
--- `pnpm --filter backend schema-snapshot` after applying a new migration.
+-- `pnpm --filter southeastcubing-org-api schema-snapshot` after applying a new migration.
 
 CREATE TABLE competition_events (
   competition_id TEXT NOT NULL REFERENCES competitions (id),
@@ -171,6 +171,17 @@ CREATE TABLE users (
   people_id TEXT NOT NULL REFERENCES people (id),
   email TEXT,
   dob DATE,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
+CREATE TABLE wca_oauth_grants (
+  id TEXT NOT NULL PRIMARY KEY,
+  people_id TEXT NOT NULL REFERENCES people (id),
+  scopes TEXT NOT NULL,
+  access_token_encrypted TEXT NOT NULL,
+  refresh_token_encrypted TEXT NOT NULL,
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );

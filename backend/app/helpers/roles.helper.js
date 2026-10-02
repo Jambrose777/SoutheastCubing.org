@@ -16,6 +16,7 @@ async function getCurrentRoles(peopleId, sessionId) {
       isAdmin: false,
       isBoard: false,
       isRegionalDelegate: false,
+      isDelegate: false,
     };
   }
 
@@ -30,7 +31,8 @@ async function getCurrentRoles(peopleId, sessionId) {
   const openRanks = await delegatesDb.getOpenRanksForPerson(peopleId);
   const delegateRank = highestDisplayRank(openRanks);
   const isRegionalDelegate = delegateRank === 'regional';
-  return { teamIds, delegateRank, isAdmin, isBoard, isRegionalDelegate };
+  const isDelegate = delegateRank !== null;
+  return { teamIds, delegateRank, isAdmin, isBoard, isRegionalDelegate, isDelegate };
 }
 
 // True if `user` (req.user, set by session.middleware.js's attachSession)
