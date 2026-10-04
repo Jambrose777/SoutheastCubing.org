@@ -40,6 +40,20 @@
   }
 }
 
+.events-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: center;
+  gap: 2px;
+  overflow: hidden;
+
+  .cubing-icon {
+    flex-shrink: 0;
+    font-size: 0.85em;
+  }
+}
+
 .location-pill {
   display: inline-block;
   padding: 2px 10px;

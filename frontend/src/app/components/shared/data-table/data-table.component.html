@@ -121,67 +121,71 @@
   </div>
 
   <!-- Table body with virtual scroll -->
-  <cdk-virtual-scroll-viewport
-    [itemSize]="rowHeight"
-    class="data-table-viewport"
-    (scroll)="onViewportScroll($event)"
-  >
-    <div
-      *cdkVirtualFor="let row of sortedRows(); trackBy: trackByRow"
-      class="data-table-row"
-      role="row"
-      [style.grid-template-columns]="gridTemplateColumns()"
-      [style.min-width.px]="rowMinWidth()"
-      [style.height.px]="rowHeight"
+  @if (sortedRows().length === 0) {
+    <div class="data-table-empty">No rows match the current filters/search.</div>
+  } @else {
+    <cdk-virtual-scroll-viewport
+      [itemSize]="rowHeight"
+      class="data-table-viewport"
+      (scroll)="onViewportScroll($event)"
     >
-      @for (column of visibleColumns(); track column.key) {
-        <div class="data-table-cell" role="cell">
-          <div class="data-table-cell-content" seTruncationTooltip>
-            <ng-container
-              [ngTemplateOutlet]="column.cellTemplate"
-              [ngTemplateOutletContext]="{ $implicit: row }"
-            ></ng-container>
+      <div
+        *cdkVirtualFor="let row of sortedRows(); trackBy: trackByRow"
+        class="data-table-row"
+        role="row"
+        [style.grid-template-columns]="gridTemplateColumns()"
+        [style.min-width.px]="rowMinWidth()"
+        [style.height.px]="rowHeight"
+      >
+        @for (column of visibleColumns(); track column.key) {
+          <div class="data-table-cell" role="cell">
+            <div class="data-table-cell-content" seTruncationTooltip>
+              <ng-container
+                [ngTemplateOutlet]="column.cellTemplate"
+                [ngTemplateOutletContext]="{ $implicit: row }"
+              ></ng-container>
+            </div>
           </div>
-        </div>
-      }
+        }
 
-      <!-- Actions column for the current row -->
-      @if (actionsColumnVisible() && actions(); as rowActions) {
-        <div class="data-table-cell data-table-actions-cell" role="cell">
-          @for (action of rowActions.inline ?? []; track action.label) {
-            <button
-              type="button"
-              class="btn small icon-only"
-              (click)="action.onClick(row)"
-              [matTooltip]="action.label"
-              matTooltipPosition="above"
-              [attr.aria-label]="action.label"
-            >
-              <i class="fa-solid {{ action.icon }} fa-sm"></i>
-            </button>
-          }
-          @if (rowActions.overflow?.length) {
-            <button
-              type="button"
-              class="btn small icon-only"
-              [matMenuTriggerFor]="rowActionsMenu"
-              matTooltip="More actions"
-              matTooltipPosition="above"
-              aria-label="More actions"
-            >
-              <i class="fa-solid fa-ellipsis fa-sm"></i>
-            </button>
-            <mat-menu #rowActionsMenu="matMenu">
-              @for (action of rowActions.overflow; track action.label) {
-                <button type="button" mat-menu-item (click)="action.onClick(row)">
-                  <i class="fa-solid {{ action.icon }}"></i>
-                  {{ action.label }}
-                </button>
-              }
-            </mat-menu>
-          }
-        </div>
-      }
-    </div>
-  </cdk-virtual-scroll-viewport>
+        <!-- Actions column for the current row -->
+        @if (actionsColumnVisible() && actions(); as rowActions) {
+          <div class="data-table-cell data-table-actions-cell" role="cell">
+            @for (action of rowActions.inline ?? []; track action.label) {
+              <button
+                type="button"
+                class="btn small icon-only"
+                (click)="action.onClick(row)"
+                [matTooltip]="action.label"
+                matTooltipPosition="above"
+                [attr.aria-label]="action.label"
+              >
+                <i class="fa-solid {{ action.icon }} fa-sm"></i>
+              </button>
+            }
+            @if (rowActions.overflow?.length) {
+              <button
+                type="button"
+                class="btn small icon-only"
+                [matMenuTriggerFor]="rowActionsMenu"
+                matTooltip="More actions"
+                matTooltipPosition="above"
+                aria-label="More actions"
+              >
+                <i class="fa-solid fa-ellipsis fa-sm"></i>
+              </button>
+              <mat-menu #rowActionsMenu="matMenu">
+                @for (action of rowActions.overflow; track action.label) {
+                  <button type="button" mat-menu-item (click)="action.onClick(row)">
+                    <i class="fa-solid {{ action.icon }}"></i>
+                    {{ action.label }}
+                  </button>
+                }
+              </mat-menu>
+            }
+          </div>
+        }
+      </div>
+    </cdk-virtual-scroll-viewport>
+  }
 </div>

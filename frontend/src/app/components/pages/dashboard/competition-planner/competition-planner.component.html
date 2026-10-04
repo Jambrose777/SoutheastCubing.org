@@ -21,7 +21,9 @@
         ></se-data-table>
       }
 
-      <ng-template #dateCell let-row>{{ dateRangeText(row.start_date, row.end_date) }}</ng-template>
+      <ng-template #dateCell let-row>{{
+        row.full_date ?? dateRangeText(row.start_date, row.end_date)
+      }}</ng-template>
       <ng-template #nameCell let-row>
         @if (row.wca_competition_id) {
           <a
@@ -78,6 +80,18 @@
       </ng-template>
       <ng-template #statusCell let-row>
         <span class="status-badge" [class]="row.status">{{ statusLabel(row) }}</span>
+      </ng-template>
+      <ng-template #eventsCell let-row>
+        <div class="events-list">
+          @for (event of row.event_ids; track event) {
+            <span
+              [ngClass]="'cubing-icon event-' + event"
+              [matTooltip]="EventNames[event]"
+              matTooltipPosition="above"
+              [attr.aria-label]="EventNames[event]"
+            ></span>
+          }
+        </div>
       </ng-template>
       <ng-template #registrationsCell let-row>{{ registrationsText(row) }}</ng-template>
       <ng-template #registrationPeriodCell let-row>

@@ -35,6 +35,7 @@ export interface PlannerCompetition {
   registration_close: string;
   competitor_limit: number;
   accepted_registrations: number | null;
+  event_ids: string[];
   delegates: PlannerPerson[];
   organizers: PlannerPerson[];
 }

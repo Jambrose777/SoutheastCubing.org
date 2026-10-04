@@ -15,11 +15,13 @@ import { AuthService } from 'src/app/services/southeastcubing-api/auth.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { ErrorBannerService } from 'src/app/services/error-banner.service';
 import { CompetitionPlannerApiService } from 'src/app/services/southeastcubing-api/competition-planner-api.service';
-import { Colors, StateColors } from 'src/app/shared/types';
+import { Colors, EventNames, StateColors } from 'src/app/shared/types';
 import { formatDate, dateRangeText } from 'src/app/shared/date.util';
 import { PlannerCompetition, PlannerCompetitionStatus } from 'src/app/models/PlannerCompetition';
 import { environment } from 'src/environments/environment';
 import * as moment from 'moment';
+import { NgClass } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { StripYearPipe } from 'src/app/pipes/stripYear.pipe';
 import { HeaderComponent } from '../../../core/header/header.component';
 import { DashboardSidePaneComponent } from '../dashboard-side-pane/dashboard-side-pane.component';
@@ -74,6 +76,8 @@ function registrationPeriodColor(row: PlannerCompetition): Colors {
     LoadingSpinnerComponent,
     DataTableComponent,
     StripYearPipe,
+    NgClass,
+    MatTooltipModule,
   ],
 })
 export class CompetitionPlannerComponent implements OnInit {
@@ -91,6 +95,7 @@ export class CompetitionPlannerComponent implements OnInit {
   formatDate = formatDate;
   dateRangeText = dateRangeText;
   StateColors = StateColors;
+  EventNames = EventNames;
 
   loading = signal(true);
   rows = signal<PlannerCompetition[]>([]);
@@ -107,6 +112,8 @@ export class CompetitionPlannerComponent implements OnInit {
     viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('delegatesCell');
   private organizersCell =
     viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('organizersCell');
+  private eventsCell =
+    viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('eventsCell');
   private registrationsCell =
     viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('registrationsCell');
   private statusCell =
@@ -122,7 +129,7 @@ export class CompetitionPlannerComponent implements OnInit {
       filterable: false,
       visibleByDefault: true,
       sortValue: (row) => row.start_date,
-      searchValue: (row) => dateRangeText(row.start_date, row.end_date),
+      searchValue: (row) => row.full_date ?? dateRangeText(row.start_date, row.end_date),
       cellTemplate: this.dateCell(),
     },
     {
@@ -188,6 +195,17 @@ export class CompetitionPlannerComponent implements OnInit {
       sortValue: (row) => row.status,
       searchValue: (row) => this.statusLabel(row),
       cellTemplate: this.statusCell(),
+    },
+    {
+      key: 'events',
+      label: 'Events',
+      width: '165px',
+      filterable: true,
+      filterType: 'multiselect',
+      filterValue: (row) => row.event_ids,
+      visibleByDefault: true,
+      searchValue: (row) => row.event_ids.map((event) => EventNames[event]).join(', '),
+      cellTemplate: this.eventsCell(),
     },
     {
       key: 'registrations',
