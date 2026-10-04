@@ -137,7 +137,12 @@ async function upsertCompetitionsBatch(batch) {
     });
 
     const updateSet = COLUMNS.filter((col) => col !== 'id')
-      .map((col) => `${col} = EXCLUDED.${col}`)
+      .map((col) =>
+        // A re-synced 0 should never  clobber a previously-stored real count.
+        col === 'accepted_registrations'
+          ? `${col} = CASE WHEN EXCLUDED.${col} = 0 THEN competitions.${col} ELSE EXCLUDED.${col} END`
+          : `${col} = EXCLUDED.${col}`,
+      )
       .join(', ');
 
     await client.query(

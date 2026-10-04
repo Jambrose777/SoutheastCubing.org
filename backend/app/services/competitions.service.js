@@ -465,11 +465,9 @@ async function formatCompetitionData(comps, competitionsWithVolunteerApp) {
 
 // gets registration data & returns how many registered competitors there are for a competition.
 function getRegistrationsFromWCA(competition) {
-  // check if registration is open
-  if (
-    moment.utc(competition.registration_close).isBefore(moment.now()) ||
-    moment.utc(competition.registration_open).isAfter(moment.now())
-  ) {
+  // Before registration opens there can't be any registrants yet - skip the
+  // call rather than hitting WCA for a guaranteed 0.
+  if (moment.utc(competition.registration_open).isAfter(moment.now())) {
     return Promise.resolve(0);
   } else {
     // fetch registrations from WCA
