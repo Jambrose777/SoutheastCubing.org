@@ -178,7 +178,7 @@
           >
             <a
               class="item-row"
-              [routerLink]="buildDetailUrl('/competitions', competition.id)"
+              [routerLink]="buildDetailUrl('/competitions', competition.wca_competition_id)"
               (click)="onCompetitionRowClick($event, competition)"
               (mouseover)="competitionHover(competition)"
               (mouseout)="competitionHover()"

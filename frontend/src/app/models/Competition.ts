@@ -3,6 +3,7 @@ import { RegistrationStatus } from '../shared/types';
 export interface Competition {
   url: string;
   id: string;
+  wca_competition_id: string;
   name: string;
   website: string;
   city: string;

@@ -4,10 +4,23 @@
 -- app/database/migrations/ for that history. Regenerate with
 -- `pnpm --filter southeastcubing-org-api schema-snapshot` after applying a new migration.
 
+CREATE TABLE competition_delegates (
+  id TEXT NOT NULL PRIMARY KEY,
+  competition_id TEXT NOT NULL REFERENCES competitions (id),
+  people_id TEXT NOT NULL REFERENCES people (id),
+  is_lead BOOLEAN NOT NULL DEFAULT false
+);
+
 CREATE TABLE competition_events (
   competition_id TEXT NOT NULL REFERENCES competitions (id),
   event_id TEXT NOT NULL,
   PRIMARY KEY (competition_id, event_id)
+);
+
+CREATE TABLE competition_organizers (
+  id TEXT NOT NULL PRIMARY KEY,
+  competition_id TEXT NOT NULL REFERENCES competitions (id),
+  people_id TEXT NOT NULL REFERENCES people (id)
 );
 
 CREATE TABLE competition_patterns_for_discord_pings (
@@ -37,8 +50,9 @@ CREATE TABLE competitions (
   is_in_volunteer_application BOOLEAN NOT NULL DEFAULT false,
   accepted_registrations INTEGER,
   full_date TEXT,
-  is_manual_competition BOOLEAN NOT NULL DEFAULT false,
-  announced_on_discord_at TIMESTAMP WITH TIME ZONE
+  announced_on_discord_at TIMESTAMP WITH TIME ZONE,
+  wca_competition_id TEXT,
+  is_announced BOOLEAN DEFAULT false
 );
 
 CREATE TABLE competitions_meta (

@@ -5,6 +5,7 @@ const myInfoController = require('../controllers/myInfo.controller.js');
 const photosController = require('../controllers/photos.controller.js');
 const peopleController = require('../controllers/people.controller.js');
 const delegatesController = require('../controllers/delegates.controller.js');
+const competitionsController = require('../controllers/competitions.controller.js');
 const { requireAnyRole, requireAdmin } = require('../middleware/roles.middleware.js');
 const { requireAuth } = require('../middleware/session.middleware.js');
 const { photoUploadMiddleware } = require('../middleware/photoUpload.middleware.js');
@@ -28,6 +29,9 @@ const requireRegionalDelegateOrAdminOrBoard = requireAnyRole(
 
 // Routes that require Regional Delegate/Admin access.
 const requireRegionalDelegateOrAdmin = requireAnyRole('isRegionalDelegate', 'isAdmin');
+
+// Routes that require Admin, Board, or any Delegate rank.
+const requireDelegateOrAdminOrBoard = requireAnyRole('isDelegate', 'isAdmin', 'isBoard');
 
 /**
  * @openapi
@@ -504,6 +508,26 @@ router.put(
   '/dashboard/manage-users/:peopleId/bio',
   requireBoardOrAdmin,
   asyncRoute(delegatesController.updateBioForPerson),
+);
+
+/**
+ * @openapi
+ * /dashboard/competition-planner/competitions:
+ *   get:
+ *     summary: Every upcoming competition regardless of status (Potential/Planning/Announced) for the Competition Planner tool.
+ *     tags: [Competitions]
+ *     responses:
+ *       200:
+ *         description: Upcoming competitions, each with its derived status, event ids, delegates, and organizers.
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not Admin/Board/Delegate.
+ */
+router.get(
+  '/dashboard/competition-planner/competitions',
+  requireDelegateOrAdminOrBoard,
+  asyncRoute(competitionsController.getPlannerCompetitions),
 );
 
 module.exports = router;

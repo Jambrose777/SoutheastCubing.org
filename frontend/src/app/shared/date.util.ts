@@ -13,6 +13,13 @@ export function formatDate(date: string): string {
   return moment.utc(date).format('MM-DD-YYYY');
 }
 
+// Formats a start/end date pair as a single date if they match, otherwise a range.
+export function dateRangeText(startDate: string, endDate: string): string {
+  const start = formatDate(startDate);
+  const end = formatDate(endDate);
+  return start === end ? start : `${start} -\n${end}`;
+}
+
 // A native <input type="date"> reports an empty string for BOTH "left
 // blank on purpose" and "typed something the browser couldn't parse as a
 // complete date" (e.g. "30" in the month segment) - there's no way to tell

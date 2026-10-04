@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, input, signal, computed } from '@angular/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Renders a person's picture as a fixed-size square, honoring their
 // thumbnail crop (thumbnailCropX/Y/W/H) when one is present.
@@ -7,6 +8,7 @@ import { Component, ChangeDetectionStrategy, input, signal, computed } from '@an
   templateUrl: './avatar.component.html',
   styleUrls: ['./avatar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [MatTooltipModule],
 })
 export class AvatarComponent {
   src = input.required<string>();
@@ -14,6 +16,10 @@ export class AvatarComponent {
   // Square size in px - both the host box's and (in cover-fallback mode)
   // the image's own rendered width/height.
   size = input<number>(40);
+
+  // Shows `alt()` as an above-positioned tooltip on hover - off by default
+  // since most consumers already show the name elsewhere alongside the avatar.
+  showTooltip = input<boolean>(false);
 
   cropX = input<number | null>(null);
   cropY = input<number | null>(null);

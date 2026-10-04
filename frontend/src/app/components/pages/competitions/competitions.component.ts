@@ -169,7 +169,9 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
           this.filteredCompetitions.set(res);
           this.filterCompetitions();
           if (this.competitionId()) {
-            const foundCompetition = res.find((comp) => comp.id === this.competitionId());
+            const foundCompetition = res.find(
+              (comp) => comp.wca_competition_id === this.competitionId(),
+            );
             if (foundCompetition) {
               this.selectCompetition(foundCompetition);
             } else {
@@ -282,7 +284,7 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
     }
     this.location.replaceState(
       '/competitions' +
-        (selectedCompetition ? '/' + selectedCompetition.id : '') +
+        (selectedCompetition ? '/' + selectedCompetition.wca_competition_id : '') +
         (queryParams.length > 0 ? '?' + queryParams.join('&') : ''),
     );
   }

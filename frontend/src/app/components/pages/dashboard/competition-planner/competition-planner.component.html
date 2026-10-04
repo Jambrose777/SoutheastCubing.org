@@ -9,7 +9,82 @@
     <div class="competition-planner-content">
       <se-manage-competitions-prompt></se-manage-competitions-prompt>
 
-      <div class="empty-state">Competition Planner is coming soon.</div>
+      @if (loading()) {
+        <se-loading-spinner></se-loading-spinner>
+      } @else {
+        <se-data-table
+          [rows]="rows()"
+          [columns]="columns()"
+          [trackBy]="trackById"
+          [defaultSort]="defaultSort"
+          storageKey="table-prefs:competition-planner"
+        ></se-data-table>
+      }
+
+      <ng-template #dateCell let-row>{{ dateRangeText(row.start_date, row.end_date) }}</ng-template>
+      <ng-template #nameCell let-row>
+        @if (row.wca_competition_id) {
+          <a
+            [href]="environment.links.wcaCompetition + row.wca_competition_id"
+            target="_blank"
+            rel="noopener noreferrer"
+            >{{ row.name | stripYear }}</a
+          >
+        } @else {
+          {{ row.name | stripYear }}
+        }
+      </ng-template>
+      <ng-template #locationCell let-row>
+        <span class="location-pill" [style.background]="StateColors[row.state ?? '??']">{{
+          row.city
+        }}</span>
+      </ng-template>
+      <ng-template #delegatesCell let-row>
+        <div class="avatar-list">
+          @for (delegate of row.delegates; track delegate.peopleId) {
+            @if (delegate.pictureUrl) {
+              <se-avatar
+                [src]="delegate.pictureUrl"
+                [size]="28"
+                [alt]="delegate.name"
+                [showTooltip]="true"
+                [class.lead]="delegate.isLead"
+                [cropX]="delegate.thumbnailCropX"
+                [cropY]="delegate.thumbnailCropY"
+                [cropW]="delegate.thumbnailCropW"
+                [cropH]="delegate.thumbnailCropH"
+              ></se-avatar>
+            }
+          }
+        </div>
+      </ng-template>
+      <ng-template #organizersCell let-row>
+        <div class="avatar-list">
+          @for (organizer of visibleOrganizers(row); track organizer.peopleId) {
+            @if (organizer.pictureUrl) {
+              <se-avatar
+                [src]="organizer.pictureUrl"
+                [size]="28"
+                [alt]="organizer.name"
+                [showTooltip]="true"
+                [cropX]="organizer.thumbnailCropX"
+                [cropY]="organizer.thumbnailCropY"
+                [cropW]="organizer.thumbnailCropW"
+                [cropH]="organizer.thumbnailCropH"
+              ></se-avatar>
+            }
+          }
+        </div>
+      </ng-template>
+      <ng-template #statusCell let-row>
+        <span class="status-badge" [class]="row.status">{{ statusLabel(row) }}</span>
+      </ng-template>
+      <ng-template #registrationsCell let-row>{{ registrationsText(row) }}</ng-template>
+      <ng-template #registrationPeriodCell let-row>
+        <span class="registration-period-pill" [style.background]="registrationPeriodColor(row)">
+          {{ formatDate(row.registration_open) }} - {{ formatDate(row.registration_close) }}
+        </span>
+      </ng-template>
     </div>
   </div>
 

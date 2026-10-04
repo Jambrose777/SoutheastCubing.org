@@ -7,10 +7,193 @@ const googleForm = require('../integrations/googleForm.integration.js');
 const contentful = require('../integrations/contentful.integration.js');
 const discord = require('../integrations/discord.integration.js');
 const competitionsDb = require('../database/competitions.database.js');
+const competitionEventsDb = require('../database/competitionEvents.database.js');
+const competitionDelegatesDb = require('../database/competitionDelegates.database.js');
+const competitionOrganizersDb = require('../database/competitionOrganizers.database.js');
+const peopleDb = require('../database/people.database.js');
 const discordPingPatternsDb = require('../database/discordPingPatterns.database.js');
 const majorChampionships = require('./majorChampionships.service.js');
 const { getFullCompetitionDate } = require('../helpers/competitionDates.helper.js');
 const { SOUTHEAST_STATES } = require('../helpers/southeastStates.helper.js');
+const { chunk } = require('../helpers/chunk.helper.js');
+const { groupBy } = require('../helpers/groupBy.helper.js');
+const { withResolvedPicture } = require('../helpers/personPicture.helper.js');
+
+// Max rows upserted per statement, to keep each one well under DSQL's
+// 3,000-row transaction cap as the retained history keeps growing.
+const UPSERT_CHUNK_SIZE = 500;
+
+// In-process cache of the last getAnnouncedUpcomingCompetitions() result.
+// Cleared by invalidateCache() whenever a write changes the store, so repeat
+// requests between refreshes don't all re-query the database.
+let competitionsCache = null;
+
+function invalidateCache() {
+  competitionsCache = null;
+}
+
+// Merges each comp's event ids with its data.
+async function withEventIds(comps) {
+  const eventIdsByCompetition = await competitionEventsDb.getEventIdsByCompetition(
+    comps.map((comp) => comp.id),
+  );
+  return comps.map((comp) => ({
+    ...comp,
+    event_ids: eventIdsByCompetition.get(comp.id) ?? [],
+  }));
+}
+
+// Public page's announced-only upcoming list, cached since it's hit on every
+// page load.
+async function getAnnouncedUpcomingCompetitions() {
+  if (competitionsCache) {
+    logger.debug('Served upcoming competitions from cache.');
+    return competitionsCache;
+  }
+
+  const comps = await withEventIds(await competitionsDb.getAnnouncedUpcomingCompetitions());
+  competitionsCache = comps;
+  logger.debug(`Fetched ${comps.length} upcoming competition(s) from the competitions table.`);
+  return competitionsCache;
+}
+
+// Derives a competition's Competition Planner status from its raw
+// wca_competition_id/is_announced fields.
+function derivePlannerStatus(comp) {
+  if (!comp.wca_competition_id) return 'potential';
+  return comp.is_announced ? 'announced' : 'planning';
+}
+
+// Competition Planner's full (every status) upcoming list - never cached.
+async function getAllUpcomingCompetitionsForPlanner() {
+  const comps = await withEventIds(await competitionsDb.getAllUpcomingCompetitionsForPlanner());
+  const competitionIds = comps.map((comp) => comp.id);
+
+  const delegateRowsByCompetition = groupBy(
+    await competitionDelegatesDb.listForCompetitions(competitionIds),
+    'competition_id',
+  );
+  const organizerRowsByCompetition = groupBy(
+    await competitionOrganizersDb.listForCompetitions(competitionIds),
+    'competition_id',
+  );
+
+  const toPerson = (row) => {
+    const resolved = withResolvedPicture(row);
+    return {
+      peopleId: resolved.people_id,
+      name: resolved.name,
+      wcaId: resolved.wca_id,
+      pictureUrl: resolved.picture_url,
+      thumbnailCropX: resolved.thumbnail_crop_x,
+      thumbnailCropY: resolved.thumbnail_crop_y,
+      thumbnailCropW: resolved.thumbnail_crop_w,
+      thumbnailCropH: resolved.thumbnail_crop_h,
+      isLead: resolved.is_lead,
+    };
+  };
+
+  return comps.map((comp) => ({
+    ...comp,
+    status: derivePlannerStatus(comp),
+    delegates: (delegateRowsByCompetition.get(comp.id) ?? []).map(toPerson),
+    organizers: (organizerRowsByCompetition.get(comp.id) ?? []).map(toPerson),
+  }));
+}
+
+// Resolves a WCA Person sub-resource into a `people` row id.
+async function resolvePersonId(wcaPerson) {
+  const person = await peopleDb.findOrCreatePersonFromWcaProfile({
+    wcaId: wcaPerson.wca_id ?? null,
+    wcaUserId: String(wcaPerson.id),
+    name: wcaPerson.name,
+    pictureUrl: wcaPerson.avatar?.thumb_url ?? null,
+  });
+  return person.id;
+}
+
+// Syncs one competition's delegates/organizers from the already-fetched WCA
+// data. WCA's API exposes no lead-delegate signal, `existingIsLeadByPeopleId` 
+// carries forward any manual pick for a delegate who's still on the competition.
+async function syncDelegatesAndOrganizers({ id, delegates, organizers, existingIsLeadByPeopleId }) {
+  const delegatePeopleIds = await Promise.all((delegates ?? []).map(resolvePersonId));
+  const organizerPeopleIds = await Promise.all((organizers ?? []).map(resolvePersonId));
+
+  await competitionDelegatesDb.replaceDelegatesForCompetition(
+    id,
+    delegatePeopleIds.map((peopleId) => ({
+      peopleId,
+      isLead: existingIsLeadByPeopleId.get(peopleId) ?? false,
+    })),
+  );
+  await competitionOrganizersDb.replaceOrganizersForCompetition(id, organizerPeopleIds);
+}
+
+// Upserts `comps` in chunks under DSQL's row cap, returning the ids newly
+// inserted across every chunk. If the table was empty before this call, every 
+// newly-inserted id is immediately stamped as already-announced, so a 
+// first-time-populated store doesn't post its entire backlog to Discord.
+async function upsertCompetitions(comps) {
+  if (!comps.length) return [];
+
+  try {
+    const wasEmpty = (await competitionsDb.getCompetitionsCount()) === 0;
+
+    let insertedIds = [];
+    let allBatchWithIds = [];
+    for (const batch of chunk(comps, UPSERT_CHUNK_SIZE)) {
+      const result = await competitionsDb.upsertCompetitionsBatch(batch);
+      insertedIds = insertedIds.concat(result.insertedIds);
+      allBatchWithIds = allBatchWithIds.concat(result.batchWithIds);
+    }
+
+    await competitionEventsDb.replaceEventIds(
+      allBatchWithIds.map(({ id, comp }) => ({ id, event_ids: comp.event_ids })),
+    );
+
+    // Delegate/organizer sync - Existing delegates (for carrying forward any 
+    // manual lead pick) are fetched.
+    const linkedBatchWithIds = allBatchWithIds.filter(({ comp }) => comp.wca_competition_id);
+    const existingDelegateRowsByCompetition = groupBy(
+      await competitionDelegatesDb.listForCompetitions(linkedBatchWithIds.map(({ id }) => id)),
+      'competition_id',
+    );
+    for (const { id, comp } of linkedBatchWithIds) {
+      const existingIsLeadByPeopleId = new Map(
+        (existingDelegateRowsByCompetition.get(id) ?? []).map((row) => [
+          row.people_id,
+          row.is_lead,
+        ]),
+      );
+      await syncDelegatesAndOrganizers({
+        id,
+        delegates: comp.delegates,
+        organizers: comp.organizers,
+        existingIsLeadByPeopleId,
+      });
+    }
+
+    invalidateCache();
+
+    if (wasEmpty) {
+      if (insertedIds.length) {
+        await competitionsDb.markAnnounced(insertedIds);
+      }
+      logger.debug(
+        `Upserted ${comps.length} competitions in the competitions table (first-time population).`,
+      );
+      return [];
+    }
+
+    logger.debug(
+      `Upserted ${comps.length} competitions in the competitions table (${insertedIds.length} newly inserted).`,
+    );
+    return insertedIds;
+  } catch (err) {
+    logger.error(`Failed to upsert ${comps.length} competitions in the competitions table: `, err);
+    throw err;
+  }
+}
 
 // Refetches competitions from WCA if the stored data is stale.
 async function fetchCompetitions() {
@@ -29,23 +212,26 @@ async function fetchCompetitions() {
 }
 
 // Posts every competition in `competitions` to Discord (chunked/rate-limit-safe
-// - see discord.js's postToDiscordInChunks). A competition whose id matches any
-// stored pattern gets an @everyone ping instead of its state's
+// - see discord.js's postToDiscordInChunks). A competition whose wca_competition_id
+// matches any stored pattern gets an @everyone ping instead of its state's
 // role ping. Only ids whose post succeeds are marked announced - anything
 // still failing after discord.js's retries is left unannounced so it's
 // retried on the next refresh.
 async function postCompetitionsToDiscord(competitions) {
   const patterns = await discordPingPatternsDb.getPatterns();
-  const usesEveryonePing = (competitionId) =>
+  const usesEveryonePing = (wcaCompetitionId) =>
     patterns.some((pattern) =>
-      discordPingPatternsDb.matchesIdPattern(competitionId, pattern.id_pattern),
+      discordPingPatternsDb.matchesIdPattern(wcaCompetitionId, pattern.id_pattern),
     );
 
   return discord.postToDiscordInChunks(sortForDiscordPosting(competitions), {
     postFn: (competition) =>
-      discord.postCompetitionInDiscord(competition, {
-        pingOverride: usesEveryonePing(competition.id) ? 'everyone' : undefined,
-      }),
+      discord.postCompetitionInDiscord(
+        { ...competition, id: competition.wca_competition_id },
+        {
+          pingOverride: usesEveryonePing(competition.wca_competition_id) ? 'everyone' : undefined,
+        },
+      ),
     markAnnouncedFn: (ids) => competitionsDb.markAnnounced(ids),
     getId: (competition) => competition.id,
   });
@@ -151,7 +337,6 @@ async function refreshCompetitionsFromWCA() {
         longitude_degrees: contentfulComp.fields.longitudeDegrees,
         country_iso2: contentfulComp.fields.countryIso2,
         competitor_limit: contentfulComp.fields.competitorLimit,
-        is_manual_competition: true, // indicates it is from contentful
       };
     }),
   );
@@ -199,9 +384,11 @@ async function refreshCompetitionsFromWCA() {
     // Upsert into the database. upsertCompetitions handles the cold-start
     // case internally (stamping a first-time population as already
     // announced).
-    await competitionsDb.upsertCompetitions(comps);
+    await upsertCompetitions(comps);
 
-    const unannouncedCompetitions = await competitionsDb.getUnannouncedCompetitions();
+    const unannouncedCompetitions = await withEventIds(
+      await competitionsDb.getUnannouncedCompetitions(),
+    );
     if (unannouncedCompetitions.length) {
       discordPostFailures = discordPostFailures.concat(
         await postCompetitionsToDiscord(unannouncedCompetitions),
@@ -214,6 +401,7 @@ async function refreshCompetitionsFromWCA() {
     // This keeps update-competitions' rate limit and fetchCompetitions'
     // staleness check retrying instead of going stale on bad data.
     await competitionsDb.setLastChecked(moment());
+    invalidateCache();
   } else {
     logger.warn('There are no competitions!');
   }
@@ -246,7 +434,7 @@ async function formatCompetitionData(comps, competitionsWithVolunteerApp) {
       // Create extra fields for competititon data & strip out unnecessary data
       .map(async (competition) => ({
         url: competition.url,
-        id: competition.id,
+        wca_competition_id: competition.id,
         name: competition.name,
         website: competition.website,
         city: competition.city,
@@ -261,13 +449,16 @@ async function formatCompetitionData(comps, competitionsWithVolunteerApp) {
         end_date: competition.end_date,
         competitor_limit: competition.competitor_limit,
         event_ids: competition.event_ids,
+        delegates: competition.delegates,
+        organizers: competition.organizers,
         venue: getCompetitionVenueName(competition.venue),
         venue_url: getCompetitionVenueUrl(competition.venue),
         state: getStateFromCity(competition.city),
         is_in_volunteer_application: competitionsWithVolunteerApp.includes(competition.name),
         accepted_registrations: await getRegistrationsFromWCA(competition),
         full_date: getFullCompetitionDate(competition.start_date, competition.end_date),
-        is_manual_competition: competition.is_manual_competition || false,
+        // Every competition reaching this point came from WCA's own public list.
+        is_announced: true,
       })),
   );
 }
@@ -349,4 +540,6 @@ function isInSEState(comp) {
 module.exports = {
   fetchCompetitions,
   refreshCompetitionsFromWCA,
+  getAnnouncedUpcomingCompetitions,
+  getAllUpcomingCompetitionsForPlanner,
 };

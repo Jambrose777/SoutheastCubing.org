@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const moment = require('moment');
 const db = require('./pool.js');
 
@@ -28,36 +29,17 @@ const COLUMNS = [
   'is_in_volunteer_application',
   'accepted_registrations',
   'full_date',
-  'is_manual_competition',
+  'wca_competition_id',
+  'is_announced',
 ];
-
-// Max rows upserted per statement, to keep each one well under DSQL's
-// 3,000-row transaction cap as the retained history keeps growing.
-const UPSERT_CHUNK_SIZE = 500;
-
-// Competitions typically carry at most ~20 WCA event ids each. Chunking
-// competition ids into groups of this size before replacing their
-// competition_events rows keeps each DELETE/INSERT comfortably under DSQL's
-// row cap even though a single competitions batch (UPSERT_CHUNK_SIZE) can be
-// much larger.
-const EVENT_ID_CHUNK_SIZE = 100;
-
-// In-process cache of the last getUpcomingCompetitions() result. Cleared by
-// invalidateCache() whenever a write changes the store, so repeat requests
-// between refreshes don't all re-query the database.
-let competitionsCache = null;
-
-function invalidateCache() {
-  competitionsCache = null;
-}
 
 // Maps a formatted WCA competition object (see competitions.js's
 // formatCompetitionData()) to a `competitions` row value tuple, in COLUMNS
-// order. Event ids are stored separately in competition_events (see
+// order. Event ids are stored separately in competition_events (see 
 // upsertCompetitions), so they're not part of this row.
-function toRow(comp) {
+function toRow(id, comp) {
   return [
-    comp.id,
+    id,
     comp.url,
     comp.name,
     comp.website,
@@ -78,7 +60,8 @@ function toRow(comp) {
     comp.is_in_volunteer_application ?? false,
     comp.accepted_registrations ?? null,
     comp.full_date,
-    comp.is_manual_competition ?? false,
+    comp.wca_competition_id ?? null,
+    comp.is_announced ?? false,
   ];
 }
 
@@ -108,164 +91,67 @@ function fromRow(row, eventIds) {
     is_in_volunteer_application: row.is_in_volunteer_application,
     accepted_registrations: row.accepted_registrations,
     full_date: row.full_date,
-    is_manual_competition: row.is_manual_competition,
+    wca_competition_id: row.wca_competition_id,
+    is_announced: row.is_announced,
   };
 }
 
-// Splits `items` into chunks of at most `size`.
-function chunk(items, size) {
-  const chunks = [];
-  for (let i = 0; i < items.length; i += size) {
-    chunks.push(items.slice(i, i + size));
-  }
-  return chunks;
+// Total row count in the competitions table - detectss first-time-population case.
+async function getCompetitionsCount() {
+  const { rows } = await db.pool.query('SELECT COUNT(*) FROM competitions');
+  return Number(rows[0].count);
 }
 
-// Fetches event ids for the given competition ids via `queryable`, grouped
-// by competition.
-async function getEventIdsByCompetition(queryable, competitionIds) {
-  const eventIdsByCompetition = new Map();
-  if (!competitionIds.length) return eventIdsByCompetition;
+// Upserts one batch of `comps` (each with a `wca_competition_id`) in a single
+// transaction, returning `{ insertedIds, batchWithIds }` - `insertedIds` is the
+// subset of surrogate ids newly inserted in this batch `batchWithIds` pairs 
+// every comp in the batch (new or updated) with its surrogate id,
+// `wca_competition_id` isn't a unique column - looks up any existing row per 
+// `wca_competition_id` first and reuses its surrogate id, generating a fresh 
+// one only when none exists yet, then upserts by that id.
+async function upsertCompetitionsBatch(batch) {
+  if (!batch.length) return { insertedIds: [], batchWithIds: [] };
 
-  const { rows } = await queryable.query(
-    'SELECT competition_id, event_id FROM competition_events WHERE competition_id = ANY($1)',
-    [competitionIds],
-  );
-  rows.forEach((row) => {
-    if (!eventIdsByCompetition.has(row.competition_id)) {
-      eventIdsByCompetition.set(row.competition_id, []);
-    }
-    eventIdsByCompetition.get(row.competition_id).push(row.event_id);
-  });
-  return eventIdsByCompetition;
-}
+  return db.withRetry(async (client) => {
+    const { rows: existingRows } = await client.query(
+      'SELECT id, wca_competition_id FROM competitions WHERE wca_competition_id = ANY($1)',
+      [batch.map((comp) => comp.wca_competition_id)],
+    );
+    const existingIdByWcaId = new Map(existingRows.map((row) => [row.wca_competition_id, row.id]));
 
-// Replaces the competition_events rows for competitions whose incoming
-// event_ids actually differ from what's stored, skipping the rest - most
-// competitions' events don't change between refreshes. `comps` is
-// chunked internally to keep each DELETE/INSERT under DSQL's row cap even
-// when called with a much larger competitions batch.
-async function replaceEventIds(client, comps) {
-  for (const eventBatch of chunk(comps, EVENT_ID_CHUNK_SIZE)) {
-    const competitionIds = eventBatch.map((comp) => comp.id);
-    const existingEventIdsByCompetition = await getEventIdsByCompetition(client, competitionIds);
-
-    // Compare as sorted arrays since WCA's event id order isn't meaningful -
-    // only competitions with an actual difference need their rows replaced.
-    const changedComps = eventBatch.filter((comp) => {
-      const incoming = [...(comp.event_ids ?? [])].sort();
-      const existing = [...(existingEventIdsByCompetition.get(comp.id) ?? [])].sort();
-      return incoming.length !== existing.length || incoming.some((id, i) => id !== existing[i]);
+    const insertedIds = [];
+    const batchWithIds = batch.map((comp) => {
+      const existingId = existingIdByWcaId.get(comp.wca_competition_id);
+      const id = existingId ?? crypto.randomUUID();
+      if (!existingId) insertedIds.push(id);
+      return { id, comp };
     });
-    if (!changedComps.length) continue;
-
-    const changedIds = changedComps.map((comp) => comp.id);
-    await client.query('DELETE FROM competition_events WHERE competition_id = ANY($1)', [
-      changedIds,
-    ]);
 
     const valueGroups = [];
     const params = [];
-    let paramIdx = 1;
-    changedComps.forEach((comp) => {
-      (comp.event_ids ?? []).forEach((eventId) => {
-        valueGroups.push(`($${paramIdx}, $${paramIdx + 1})`);
-        params.push(comp.id, eventId);
-        paramIdx += 2;
-      });
+    batchWithIds.forEach(({ id, comp }, i) => {
+      const row = toRow(id, comp);
+      const placeholders = row.map((_, colIdx) => `$${i * COLUMNS.length + colIdx + 1}`);
+      valueGroups.push(`(${placeholders.join(', ')})`);
+      params.push(...row);
     });
 
-    if (valueGroups.length) {
-      await client.query(
-        `INSERT INTO competition_events (competition_id, event_id) VALUES ${valueGroups.join(', ')}`,
-        params,
-      );
-    }
-  }
-}
+    const updateSet = COLUMNS.filter((col) => col !== 'id')
+      .map((col) => `${col} = EXCLUDED.${col}`)
+      .join(', ');
 
-// Upserts `comps` (keyed on id) and returns the subset of ids that were
-// newly inserted rather than updates to an existing row - callers use this
-// to decide which competitions still need to be announced on Discord. New
-// competitions get inserted, existing ones get all their columns refreshed
-// to the latest WCA data, in one statement. If the table was empty before
-// this call, every inserted row is stamped as already-announced instead, so a
-// first-time-populated store doesn't post its entire backlog to Discord.
-async function upsertCompetitions(comps) {
-  if (!comps.length) return [];
-
-  try {
-    const { rows: countRows } = await db.pool.query('SELECT COUNT(*) FROM competitions');
-    const wasEmpty = Number(countRows[0].count) === 0;
-
-    const insertedIds = [];
-    for (const batch of chunk(comps, UPSERT_CHUNK_SIZE)) {
-      await db.withRetry(async (client) => {
-        // Classify which of this batch's ids are new before upserting, since
-        // the upsert itself doesn't distinguish inserts from updates.
-        const { rows: existingRows } = await client.query(
-          'SELECT id FROM competitions WHERE id = ANY($1)',
-          [batch.map((comp) => comp.id)],
-        );
-        const existingIds = new Set(existingRows.map((row) => row.id));
-        batch.forEach((comp) => {
-          if (!existingIds.has(comp.id)) insertedIds.push(comp.id);
-        });
-
-        const valueGroups = [];
-        const params = [];
-        batch.forEach((comp, i) => {
-          const row = toRow(comp);
-          const placeholders = row.map((_, colIdx) => `$${i * COLUMNS.length + colIdx + 1}`);
-          valueGroups.push(`(${placeholders.join(', ')})`);
-          params.push(...row);
-        });
-
-        const updateSet = COLUMNS.filter((col) => col !== 'id')
-          .map((col) => `${col} = EXCLUDED.${col}`)
-          .join(', ');
-
-        await client.query(
-          `INSERT INTO competitions (${COLUMNS.join(', ')})
-           VALUES ${valueGroups.join(', ')}
-           ON CONFLICT (id) DO UPDATE SET ${updateSet}`,
-          params,
-        );
-
-        await replaceEventIds(client, batch);
-      });
-    }
-
-    invalidateCache();
-
-    // One-time bootstrap: if the store was empty before this call, every id in
-    // insertedIds is actually the entire existing WCA competition history, not
-    // a genuinely new competition - so they're stamped as already-announced
-    // immediately and none are returned, instead of letting the caller post
-    // the whole backlog to Discord as if it were new.
-    if (wasEmpty) {
-      if (insertedIds.length) {
-        await db.withRetry(async (client) => {
-          await client.query(
-            'UPDATE competitions SET announced_on_discord_at = now() WHERE id = ANY($1) AND announced_on_discord_at IS NULL',
-            [insertedIds],
-          );
-        });
-      }
-      logger.debug(
-        `Upserted ${comps.length} competitions in the competitions table (first-time population).`,
-      );
-      return [];
-    }
+    await client.query(
+      `INSERT INTO competitions (${COLUMNS.join(', ')})
+       VALUES ${valueGroups.join(', ')}
+       ON CONFLICT (id) DO UPDATE SET ${updateSet}`,
+      params,
+    );
 
     logger.debug(
-      `Upserted ${comps.length} competitions in the competitions table (${insertedIds.length} newly inserted).`,
+      `Upserted ${batch.length} competition(s) in the competitions table (${insertedIds.length} newly inserted).`,
     );
-    return insertedIds;
-  } catch (err) {
-    logger.error(`Failed to upsert ${comps.length} competitions in the competitions table: `, err);
-    throw err;
-  }
+    return { insertedIds, batchWithIds };
+  });
 }
 
 // Marks the given competition ids as announced, so they're never re-posted
@@ -279,7 +165,6 @@ async function markAnnounced(ids) {
         [ids],
       );
     });
-    invalidateCache();
     logger.debug(`Marked ${ids.length} competition(s) as announced in the competitions table.`);
   } catch (err) {
     logger.error(
@@ -290,30 +175,34 @@ async function markAnnounced(ids) {
   }
 }
 
-// Returns every competition ending on or after yesterday, ordered by start
-// date, ties broken by name.
-async function getUpcomingCompetitions() {
-  if (competitionsCache) {
-    logger.debug('Served upcoming competitions from cache.');
-    return competitionsCache;
+// Returns every announced competition ending on or after yesterday, ordered
+// by start date, ties broken by name.
+async function getAnnouncedUpcomingCompetitions() {
+  try {
+    const { rows } = await db.pool.query(
+      'SELECT * FROM competitions WHERE end_date >= $1 AND is_announced IS TRUE ORDER BY start_date ASC, name ASC',
+      [moment().add(-1, 'day').format('YYYY-MM-DD')],
+    );
+    return rows.map((row) => fromRow(row, []));
+  } catch (err) {
+    logger.error('Failed to fetch upcoming competitions from the competitions table: ', err);
+    throw err;
   }
+}
 
+// Returns every upcoming competition regardless of status for the Competition
+// Planner tool. Given a 1 day grace period so competitions don't disappear
+// from the list due to timezones.
+async function getAllUpcomingCompetitionsForPlanner() {
   try {
     const { rows } = await db.pool.query(
       'SELECT * FROM competitions WHERE end_date >= $1 ORDER BY start_date ASC, name ASC',
       [moment().add(-1, 'day').format('YYYY-MM-DD')],
     );
-    const eventIdsByCompetition = await getEventIdsByCompetition(
-      db.pool,
-      rows.map((row) => row.id),
-    );
-    competitionsCache = rows.map((row) => fromRow(row, eventIdsByCompetition.get(row.id) ?? []));
-    logger.debug(
-      `Fetched ${competitionsCache.length} upcoming competition(s) from the competitions table.`,
-    );
-    return competitionsCache;
+    const comps = rows.map((row) => fromRow(row, []));
+    return comps;
   } catch (err) {
-    logger.error('Failed to fetch upcoming competitions from the competitions table: ', err);
+    logger.error('Failed to fetch upcoming competitions for the Competition Planner: ', err);
     throw err;
   }
 }
@@ -324,12 +213,7 @@ async function getUnannouncedCompetitions() {
     const { rows } = await db.pool.query(
       'SELECT * FROM competitions WHERE announced_on_discord_at IS NULL',
     );
-    const eventIdsByCompetition = await getEventIdsByCompetition(
-      db.pool,
-      rows.map((row) => row.id),
-    );
-    logger.debug(`Fetched ${rows.length} unannounced competition(s) from the competitions table.`);
-    return rows.map((row) => fromRow(row, eventIdsByCompetition.get(row.id) ?? []));
+    return rows.map((row) => fromRow(row, []));
   } catch (err) {
     logger.error('Failed to fetch unannounced competitions from the competitions table: ', err);
     throw err;
@@ -360,7 +244,6 @@ async function setLastChecked(checkedAt) {
         checkedAt.toDate(),
       ]);
     });
-    invalidateCache();
     logger.debug(`Set last_checked in the competitions_meta table to ${checkedAt.toISOString()}.`);
   } catch (err) {
     logger.error('Failed to set last_checked in the competitions_meta table: ', err);
@@ -369,9 +252,11 @@ async function setLastChecked(checkedAt) {
 }
 
 module.exports = {
-  upsertCompetitions,
+  getCompetitionsCount,
+  upsertCompetitionsBatch,
   markAnnounced,
-  getUpcomingCompetitions,
+  getAnnouncedUpcomingCompetitions,
+  getAllUpcomingCompetitionsForPlanner,
   getUnannouncedCompetitions,
   getLastChecked,
   setLastChecked,

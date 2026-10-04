@@ -15,6 +15,42 @@ async function findPersonByWcaIdentifiers(queryable, { wcaId, wcaUserId }) {
   return rows[0] ?? null;
 }
 
+// Finds an existing `people` row by wca_id/wca_user_id, or creates a new one
+// from a WCA Person sub-resource - never updates an existing row's name/
+// picture.
+async function findOrCreatePersonFromWcaProfile({ wcaId, wcaUserId, name, pictureUrl }) {
+  const attempt = async () =>
+    db.withRetry(async (client) => {
+      const existing = await findPersonByWcaIdentifiers(client, { wcaId, wcaUserId });
+      if (existing) {
+        return existing;
+      }
+
+      const id = crypto.randomUUID();
+      const { rows } = await client.query(
+        `INSERT INTO people (id, wca_id, wca_user_id, name, picture_url, wca_picture_source_url)
+         VALUES ($1, $2, $3, $4, $5, $5)
+         RETURNING *`,
+        [id, wcaId ?? null, wcaUserId, name, pictureUrl ?? null],
+      );
+      logger.debug(`Created a new people row (id ${id}) from a WCA competition delegate/organizer.`);
+      return rows[0];
+    });
+
+  try {
+    return await attempt();
+  } catch (err) {
+    // Two concurrent inserts for a brand-new wca_user_id can both miss the
+    // SELECT above and then race the INSERT - a unique_violation here means
+    // the other one won, so retrying once now finds their row instead of failing the request.
+    if (err.code === '23505') {
+      logger.warn('people find-or-create hit a concurrent-insert race, retrying once.');
+      return attempt();
+    }
+    throw err;
+  }
+}
+
 // Upserts a `people` row from a WCA OAuth profile (GET /api/v0/me) - creates
 // a new row the first time this wca_user_id is seen, or claims/updates an
 // existing row. `picture_url` (and wca_picture_source_url) is left untouched
@@ -233,6 +269,7 @@ async function listAllPeopleWithUsersAndDelegate() {
 }
 
 module.exports = {
+  findOrCreatePersonFromWcaProfile,
   upsertPersonFromWcaProfile,
   upsertPersonFromWcaIdLookup,
   setManagedPhoto,

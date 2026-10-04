@@ -2,6 +2,7 @@ const axios = require('axios');
 const moment = require('moment-timezone');
 const { neutralizeMentions } = require('../helpers/sanitize.helper.js');
 const { config } = require('../config/config.js');
+const { chunk } = require('../helpers/chunk.helper.js');
 
 const logger = require('../utils/logger.util.js');
 
@@ -44,15 +45,6 @@ const MAX_RATE_LIMIT_RETRIES = 2;
 // per 2 seconds per webhook).
 const DISCORD_CHUNK_SIZE = 5;
 const DISCORD_CHUNK_DELAY_MS = 2000;
-
-// Splits `items` into chunks of at most `size`.
-function chunk(items, size) {
-  const chunks = [];
-  for (let i = 0; i < items.length; i += size) {
-    chunks.push(items.slice(i, i + size));
-  }
-  return chunks;
-}
 
 // Post message on Discord using SoutheastCubing API Webhook. `pingOverride:
 // 'everyone'` pings @everyone instead of the competition's state role - used

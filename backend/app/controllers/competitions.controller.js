@@ -3,7 +3,11 @@ const moment = require('moment');
 const logger = require('../utils/logger.util.js');
 
 const competitionsDb = require('../database/competitions.database.js');
-const { refreshCompetitionsFromWCA } = require('../services/competitions.service.js');
+const {
+  refreshCompetitionsFromWCA,
+  getAnnouncedUpcomingCompetitions,
+  getAllUpcomingCompetitionsForPlanner,
+} = require('../services/competitions.service.js');
 
 // Gets upcoming competitions from the database.
 async function getCompetitions(req, res) {
@@ -22,15 +26,13 @@ async function getCompetitions(req, res) {
     }
   }
 
-  let comps;
   try {
-    comps = await competitionsDb.getUpcomingCompetitions();
+    const comps = await getAnnouncedUpcomingCompetitions();
+    res.status(200).json(comps);
   } catch {
     res.status(503).json({ message: 'Competition data is temporarily unavailable.' });
     return;
   }
-
-  res.status(200).json(comps);
 }
 
 // updates competitions with a fresh pull from wca.
@@ -65,4 +67,17 @@ async function updateCompetitions(req, res) {
   }
 }
 
-module.exports = { getCompetitions, updateCompetitions };
+// Gets every upcoming competition regardless of status for the Competition Planner tool.
+async function getPlannerCompetitions(req, res) {
+  try {
+    const comps = await getAllUpcomingCompetitionsForPlanner();
+    res.status(200).json(comps);
+  } catch (err) {
+    logger.error('Failed to fetch competitions for the Competition Planner: ', err);
+    res.status(503).json({ message: 'Competition data is temporarily unavailable.' });
+    return;
+  }
+
+}
+
+module.exports = { getCompetitions, updateCompetitions, getPlannerCompetitions };

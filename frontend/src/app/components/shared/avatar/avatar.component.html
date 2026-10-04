@@ -1,4 +1,11 @@
-<div class="avatar-box" [style.width.px]="size()" [style.height.px]="size()">
+<div
+  class="avatar-box"
+  [style.width.px]="size()"
+  [style.height.px]="size()"
+  [matTooltip]="showTooltip() ? alt() : ''"
+  [matTooltipDisabled]="!showTooltip()"
+  matTooltipPosition="above"
+>
   @if (hasCrop()) {
     <img
       #croppedImg

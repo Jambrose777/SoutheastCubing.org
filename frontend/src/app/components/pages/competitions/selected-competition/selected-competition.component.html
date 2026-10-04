@@ -3,7 +3,7 @@
     <!-- Competition Name w/ WCA Logo & Link to competition on WCA -->
     @if (!isMobile()) {
       <a
-        [href]="environment.links.wcaCompetition + competition.id"
+        [href]="environment.links.wcaCompetition + competition.wca_competition_id"
         target="_blank"
         rel="noopener noreferrer"
         matTooltip="{{ competition.name }} on the WCA website"
@@ -28,7 +28,7 @@
       <!-- Link to WCA -->
       @if (isMobile()) {
         <a
-          [href]="environment.links.wcaCompetition + competition.id"
+          [href]="environment.links.wcaCompetition + competition.wca_competition_id"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -164,7 +164,9 @@
           <div>
             <a
               class="btn"
-              [href]="environment.links.wcaCompetition + competition.id + '/register'"
+              [href]="
+                environment.links.wcaCompetition + competition.wca_competition_id + '/register'
+              "
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -196,7 +198,7 @@
         <div>
           <a
             class="btn"
-            [href]="environment.links.wcaContact + competition.id"
+            [href]="environment.links.wcaContact + competition.wca_competition_id"
             target="_blank"
             rel="noopener noreferrer"
           >
