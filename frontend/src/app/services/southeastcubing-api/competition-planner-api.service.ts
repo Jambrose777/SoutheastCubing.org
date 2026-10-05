@@ -2,7 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { PlannerCompetition, PlannerCompetitionSaveRequest } from '../../models/PlannerCompetition';
+import {
+  PlannerCompetition,
+  PlannerCompetitionSaveRequest,
+  PlannerWcaCompetitionOption,
+  PlannerWcaLinkRequest,
+} from '../../models/PlannerCompetition';
 
 // Backs the Competition Planner dashboard.
 @Injectable({
@@ -15,6 +20,29 @@ export class CompetitionPlannerApiService {
   // Every upcoming competition regardless of status, for the planner's list view.
   getCompetitions(): Observable<PlannerCompetition[]> {
     return this.http.get<PlannerCompetition[]>(`${this.base}/competitions`);
+  }
+
+  // WCA competitions eligible for an automatic banner, excluding permanent dismissals.
+  getUnannouncedCompetitionBanners(): Observable<PlannerWcaCompetitionOption[]> {
+    return this.http.get<PlannerWcaCompetitionOption[]>(`${this.base}/unannounced-competitions`);
+  }
+
+  // WCA competitions eligible for the standalone link sheet, including dismissed banners.
+  getWcaLinkOptions(): Observable<PlannerWcaCompetitionOption[]> {
+    return this.http.get<PlannerWcaCompetitionOption[]>(`${this.base}/wca-link-options`);
+  }
+
+  // Permanently hides one WCA competition's automatic banner for this user.
+  dismissUnannouncedCompetition(wcaCompetitionId: string): Observable<{ status: string }> {
+    return this.http.post<{ status: string }>(
+      `${this.base}/unannounced-competitions/${encodeURIComponent(wcaCompetitionId)}/dismiss`,
+      {},
+    );
+  }
+
+  // Links a WCA competition to a Potential Planner row or creates a linked row.
+  linkWcaCompetition(body: PlannerWcaLinkRequest): Observable<PlannerCompetition> {
+    return this.http.post<PlannerCompetition>(`${this.base}/competitions/link-wca`, body);
   }
 
   // Creates a new Planner competition (always Potential) - open to any

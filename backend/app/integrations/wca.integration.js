@@ -2,6 +2,8 @@ const axios = require('axios');
 
 const logger = require('../utils/logger.util.js');
 
+const WCA_MANAGED_COMPETITIONS_UNAUTHORIZED_CODE = 'WCA_MANAGED_COMPETITIONS_UNAUTHORIZED';
+
 // Number of competitions requested per page from the WCA competitions list
 // endpoint - exported so callers can detect a short (final) page.
 const US_COMPETITIONS_PAGE_SIZE = 1000;
@@ -32,14 +34,50 @@ async function fetchUSCompetitionsPage({ page, startDate }) {
   }
 }
 
+// Fetches one page of competitions managed by the authenticated WCA user.
+async function fetchManagedCompetitionsPage({ page, startDate, accessToken }) {
+  const params = new URLSearchParams({
+    country_iso2: 'US',
+    managed_by_me: 'true',
+    per_page: String(US_COMPETITIONS_PAGE_SIZE),
+    page: String(page),
+    start: startDate,
+  });
+  const url = `https://www.worldcubeassociation.org/api/v0/competitions?${params.toString()}`;
+  try {
+    const res = await axios.get(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!Array.isArray(res.data)) {
+      throw new Error('Unexpected WCA managed competitions response shape');
+    }
+
+    logger.debug(`WCA managed competitions page fetch succeeded (${res.data.length} results).`);
+    return res.data;
+  } catch (err) {
+    logger.error(`WCA managed competitions page fetch failed: ${url} - `, err);
+    if (err.response?.status === 401) {
+      err.wcaAuthorizationFailure = WCA_MANAGED_COMPETITIONS_UNAUTHORIZED_CODE;
+    }
+    throw err;
+  }
+}
+
 // Looks up a single competition directly by id. Set `suppressNotFoundLogging`
 // when a 404 is an expected, routine outcome for the caller (e.g. probing for
 // a not-yet-announced future competition) - logs at debug instead of error in
 // that case
-async function fetchCompetitionById(competitionId, { suppressNotFoundLogging = false } = {}) {
+async function fetchCompetitionById(
+  competitionId,
+  { suppressNotFoundLogging = false, accessToken } = {},
+) {
   const url = `https://www.worldcubeassociation.org/api/v0/competitions/${competitionId}`;
   try {
-    const res = await axios.get(url);
+    const res = await axios.get(
+      url,
+      accessToken ? { headers: { Authorization: `Bearer ${accessToken}` } } : undefined,
+    );
     logger.debug(`WCA competition lookup succeeded: ${url}`);
     return res.data;
   } catch (err) {
@@ -206,7 +244,9 @@ async function fetchAvatarImage(avatarUrl) {
 
 module.exports = {
   US_COMPETITIONS_PAGE_SIZE,
+  WCA_MANAGED_COMPETITIONS_UNAUTHORIZED_CODE,
   fetchUSCompetitionsPage,
+  fetchManagedCompetitionsPage,
   fetchCompetitionById,
   fetchCompetitionRegistrationsCount,
   exchangeAuthorizationCodeForToken,

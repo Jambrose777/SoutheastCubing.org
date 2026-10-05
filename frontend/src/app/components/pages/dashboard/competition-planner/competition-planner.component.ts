@@ -31,6 +31,8 @@ import { DataTableComponent, DataTableSort } from '../../../shared/data-table/da
 import { DataTableActions, DataTableColumn } from '../../../shared/data-table/data-table.types';
 import { AddEditCompetitionSheetComponent } from './add-edit-competition-sheet/add-edit-competition-sheet.component';
 import { ViewCompetitionSheetComponent } from './view-competition-sheet/view-competition-sheet.component';
+import { UnannouncedCompetitionBannersComponent } from './unannounced-competition-banners/unannounced-competition-banners.component';
+import { WcaLinkCompetitionSheetComponent } from './wca-link-competition-sheet/wca-link-competition-sheet.component';
 import { DASHBOARD_TOOLS } from '../dashboard-tools';
 import {
   getRegistrationStatus,
@@ -123,6 +125,8 @@ function registrationStatusColor(row: PlannerCompetition): Colors {
     MatTooltipModule,
     AddEditCompetitionSheetComponent,
     ViewCompetitionSheetComponent,
+    UnannouncedCompetitionBannersComponent,
+    WcaLinkCompetitionSheetComponent,
   ],
 })
 export class CompetitionPlannerComponent implements OnInit {
@@ -144,6 +148,11 @@ export class CompetitionPlannerComponent implements OnInit {
 
   loading = signal(true);
   rows = signal<PlannerCompetition[]>([]);
+  potentialRows = computed(() =>
+    this.rows()
+      .filter((row) => row.status === 'potential')
+      .sort((left, right) => left.start_date.localeCompare(right.start_date)),
+  );
   statusLabel = (row: PlannerCompetition) => STATUS_LABELS[row.status];
   registrationsText = registrationsText;
   visibleOrganizers = visibleOrganizers;
@@ -300,7 +309,8 @@ export class CompetitionPlannerComponent implements OnInit {
   // sheets. null means no sheet is open.
   viewingCompetition = signal<PlannerCompetition | null>(null);
   editingCompetition = signal<PlannerCompetition | null>(null);
-  activeSheet = signal<'add-edit' | 'view' | null>(null);
+  linkingWcaCompetition = signal<PlannerCompetition | null>(null);
+  activeSheet = signal<'add-edit' | 'view' | 'wca-link' | null>(null);
   isSheetClosing = signal(false);
 
   // True for Admin/Board/Regional Delegate, or a Delegate already assigned to
@@ -326,6 +336,12 @@ export class CompetitionPlannerComponent implements OnInit {
         visible: (row) => this.canEdit(row),
       },
       {
+        icon: 'fa-link',
+        label: 'Link to WCA',
+        onClick: (row) => this.openWcaLinkSheet(row),
+        visible: (row) => row.status === 'potential',
+      },
+      {
         icon: 'fa-trash',
         label: 'Delete',
         onClick: (row) => this.deleteCompetition(row),
@@ -347,6 +363,12 @@ export class CompetitionPlannerComponent implements OnInit {
   openEditCompetition(row: PlannerCompetition): void {
     this.editingCompetition.set(row);
     this.activeSheet.set('add-edit');
+  }
+
+  // Opens the standalone WCA-link sheet for an unlinked Planner row.
+  openWcaLinkSheet(row: PlannerCompetition): void {
+    this.linkingWcaCompetition.set(row);
+    this.activeSheet.set('wca-link');
   }
 
   closeSheet(): void {
@@ -377,6 +399,12 @@ export class CompetitionPlannerComponent implements OnInit {
   }
 
   onSheetSaved(): void {
+    this.closeSheet();
+    this.loadCompetitions();
+  }
+
+  // Closes the link sheet and reloads WCA-sourced Planner fields.
+  onWcaLinkSaved(): void {
     this.closeSheet();
     this.loadCompetitions();
   }
@@ -412,6 +440,11 @@ export class CompetitionPlannerComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  // Reloads the canonical Planner rows after the child completes a WCA link.
+  onPlannerCompetitionLinked(): void {
+    this.loadCompetitions();
   }
 
   // The manage_competitions step-up callback lands back here with

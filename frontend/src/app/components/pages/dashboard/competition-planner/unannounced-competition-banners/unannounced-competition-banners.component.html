@@ -1,0 +1,103 @@
+<div
+  class="unannounced-banners-list"
+  [class.has-visible-competitions]="visibleCompetitions().length > 0"
+  [class.has-multiple-visible-competitions]="visibleCompetitions().length > 1"
+>
+  @for (competition of visibleCompetitions(); track competition.wca_competition_id) {
+    <!-- Each Banner -->
+    <section
+      class="unannounced-banner"
+      [class.is-closing]="closingWcaIds().has(competition.wca_competition_id)"
+      (animationend)="onBannerAnimationEnd($event, competition)"
+      aria-label="Unannounced WCA competition"
+    >
+      <!-- Detected Competition Details -->
+      <div class="banner-copy">
+        <span class="banner-source"
+          ><i class="fa-solid fa-link" aria-hidden="true"></i> Managed on WCA</span
+        >
+        <h2>{{ competition.name }}</h2>
+        <p>
+          {{ competition.city }} <span aria-hidden="true">·</span>
+          {{ formatDate(competition.start_date) }}
+        </p>
+      </div>
+
+      @if (isSelectingPlannerCompetition(competition)) {
+        <!-- Potential Competition Selection -->
+        <div class="banner-link-existing">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Potential competition</mat-label>
+            <mat-select
+              placeholder="Choose a competition"
+              [disabled]="pendingActions().has(competition.wca_competition_id)"
+              (selectionChange)="selectPlannerCompetition(competition, $event.value)"
+            >
+              @for (row of potentialRows(); track row.id) {
+                <mat-option [value]="row.id">
+                  {{ row.name }} · {{ row.start_date }} · {{ row.city }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <button
+            type="button"
+            class="btn small"
+            title="Cancel linking"
+            aria-label="Cancel linking"
+            [disabled]="pendingActions().has(competition.wca_competition_id)"
+            (click)="cancelPlannerCompetitionLink(competition)"
+          >
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+      } @else {
+        <!-- Action Buttons for Detected competition. -->
+        <div class="banner-actions">
+          <button
+            type="button"
+            class="btn small"
+            title="Create new Competition in Planner"
+            aria-label="Create new Competition in Planner"
+            [disabled]="pendingActions().has(competition.wca_competition_id)"
+            (click)="linkCompetition(competition)"
+          >
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            Create New
+          </button>
+          <button
+            type="button"
+            class="btn small"
+            [disabled]="pendingActions().has(competition.wca_competition_id)"
+            (click)="beginPlannerCompetitionLink(competition)"
+          >
+            <i class="fa-solid fa-link" aria-hidden="true"></i>
+            Link
+          </button>
+          <button
+            type="button"
+            class="btn small"
+            title="Link later"
+            aria-label="Link later"
+            [disabled]="pendingActions().has(competition.wca_competition_id)"
+            (click)="linkLater(competition)"
+          >
+            <i class="fa-regular fa-clock" aria-hidden="true"></i>
+            Link Later
+          </button>
+          <button
+            type="button"
+            class="btn small"
+            title="Never link"
+            aria-label="Never link"
+            [disabled]="pendingActions().has(competition.wca_competition_id)"
+            (click)="neverLink(competition)"
+          >
+            <i class="fa-regular fa-circle-xmark" aria-hidden="true"></i>
+            Never Link
+          </button>
+        </div>
+      }
+    </section>
+  }
+</div>

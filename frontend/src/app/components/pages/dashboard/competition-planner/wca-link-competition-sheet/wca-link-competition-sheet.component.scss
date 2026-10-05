@@ -1,0 +1,12 @@
+@forward 'src/styles/sheet';
+
+.sheet-body {
+  h3 {
+    margin: 0;
+  }
+}
+
+.sheet-loading {
+  flex: 0 0 auto;
+  align-self: center;
+}

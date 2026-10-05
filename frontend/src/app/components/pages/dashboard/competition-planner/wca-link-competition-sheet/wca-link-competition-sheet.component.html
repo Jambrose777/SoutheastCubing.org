@@ -1,0 +1,50 @@
+<!-- Sheet Header -->
+<div class="sheet-header">
+  <button type="button" class="back-btn" (click)="close()" aria-label="Back">
+    <i class="fa-solid fa-arrow-left"></i>
+  </button>
+  <h2>Link to WCA</h2>
+</div>
+
+<div class="sheet-body">
+  @if (loading()) {
+    <div class="sheet-loading">
+      <se-loading-spinner></se-loading-spinner>
+    </div>
+  } @else {
+    <h3>{{ competition().name }}</h3>
+    <span>Sync with</span>
+
+    @if (options().length) {
+      <!-- Link Selector -->
+      <mat-form-field appearance="outline">
+        <mat-label>WCA competition</mat-label>
+        <mat-select
+          [value]="selectedWcaCompetitionId()"
+          (selectionChange)="selectedWcaCompetitionId.set($event.value)"
+        >
+          @for (option of options(); track option.wca_competition_id) {
+            <mat-option [value]="option.wca_competition_id">
+              {{ option.name }} · {{ option.start_date }} · {{ option.city }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    } @else {
+      <p>No eligible unlinked WCA competitions are available.</p>
+    }
+  }
+</div>
+
+<!-- Save Button Footer -->
+<div class="sheet-footer">
+  <button type="button" class="btn" [disabled]="saving()" (click)="close()">Cancel</button>
+  <button
+    type="button"
+    class="btn"
+    [disabled]="loading() || saving() || !selectedWcaCompetitionId()"
+    (click)="save()"
+  >
+    Save
+  </button>
+</div>

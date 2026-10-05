@@ -76,3 +76,18 @@ export interface PlannerCompetitionSaveRequest {
   equipmentPeopleIds?: (string | null)[];
   eventIds?: string[];
 }
+
+// An eligible WCA competition that the signed-in user manages and has not linked in Planner.
+export interface PlannerWcaCompetitionOption {
+  wca_competition_id: string;
+  name: string;
+  city: string;
+  state: string;
+  start_date: string;
+}
+
+// Body for POST /dashboard/competition-planner/competitions/link-wca.
+export interface PlannerWcaLinkRequest {
+  wcaCompetitionId: string;
+  plannerCompetitionId?: string;
+}

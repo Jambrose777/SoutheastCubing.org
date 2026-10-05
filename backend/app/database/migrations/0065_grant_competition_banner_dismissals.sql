@@ -1,0 +1,1 @@
+GRANT SELECT, INSERT ON competition_banner_dismissals TO app_dev;

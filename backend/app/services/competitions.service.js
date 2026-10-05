@@ -7,7 +7,9 @@ const wca = require('../integrations/wca.integration.js');
 const googleForm = require('../integrations/googleForm.integration.js');
 const contentful = require('../integrations/contentful.integration.js');
 const discord = require('../integrations/discord.integration.js');
+const authService = require('./auth.service.js');
 const competitionsDb = require('../database/competitions.database.js');
+const competitionBannerDismissalsDb = require('../database/competitionBannerDismissals.database.js');
 const competitionEventsDb = require('../database/competitionEvents.database.js');
 const competitionDelegatesDb = require('../database/competitionDelegates.database.js');
 const competitionOrganizersDb = require('../database/competitionOrganizers.database.js');
@@ -27,6 +29,7 @@ const { VALID_EVENT_IDS } = require('../helpers/wcaEvents.helper.js');
 // Max rows upserted per statement, to keep each one well under DSQL's
 // 3,000-row transaction cap as the retained history keeps growing.
 const UPSERT_CHUNK_SIZE = 500;
+const MANAGED_COMPETITIONS_MAX_PAGES = 20;
 
 // In-process cache of the last getAnnouncedUpcomingCompetitions() result.
 // Cleared by invalidateCache() whenever a write changes the store, so repeat
@@ -188,6 +191,98 @@ function assertStartDateFarEnoughOut(startDate) {
   if (moment(startDate).isBefore(moment().add(MIN_START_DATE_LEAD_DAYS, 'days'), 'day')) {
     throw httpError(400, `Start date must be at least ${MIN_START_DATE_LEAD_DAYS} days out.`);
   }
+}
+
+// True for a managed WCA competition in a tracked state with enough lead time.
+function isEligibleManagedCompetition(comp) {
+  const startDate = moment(comp.start_date, 'YYYY-MM-DD', true);
+  return (
+    !!comp.id &&
+    startDate.isValid() &&
+    !startDate.isBefore(moment().add(MIN_START_DATE_LEAD_DAYS, 'days'), 'day') &&
+    isInSEState(comp)
+  );
+}
+
+// Reads every page of the current Delegate's managed US competitions.
+async function fetchManagedWcaCompetitions(accessToken, peopleId) {
+  const startDate = moment().add(MIN_START_DATE_LEAD_DAYS, 'days').format('YYYY-MM-DD');
+  let competitions = [];
+
+  for (let page = 1; page <= MANAGED_COMPETITIONS_MAX_PAGES; page++) {
+    let pageData;
+    try {
+      pageData = await wca.fetchManagedCompetitionsPage({ page, startDate, accessToken });
+    } catch (err) {
+      if (err.wcaAuthorizationFailure === wca.WCA_MANAGED_COMPETITIONS_UNAUTHORIZED_CODE) {
+        await authService.invalidateManageCompetitionsGrant(
+          peopleId,
+          'managed_competitions_401',
+        );
+        throw authService.createManageCompetitionsReauthRequiredError();
+      }
+      throw err;
+    }
+    competitions = competitions.concat(pageData);
+
+    if (pageData.length < wca.US_COMPETITIONS_PAGE_SIZE) break;
+    if (page === MANAGED_COMPETITIONS_MAX_PAGES) {
+      logger.warn(
+        `Hit the WCA managed competitions pagination cap of ${MANAGED_COMPETITIONS_MAX_PAGES} pages - some competitions may be missing.`,
+      );
+    }
+  }
+
+  return competitions.filter(isEligibleManagedCompetition);
+}
+
+// Lists eligible managed competitions that are not already linked in Planner.
+async function getEligibleUnlinkedManagedCompetitions(accessToken, peopleId) {
+  const [managedCompetitions, plannerCompetitions] = await Promise.all([
+    fetchManagedWcaCompetitions(accessToken, peopleId),
+    competitionsDb.getAllUpcomingCompetitionsForPlanner(),
+  ]);
+  const linkedWcaIds = new Set(
+    plannerCompetitions
+      .map((comp) => comp.wca_competition_id)
+      .filter(Boolean)
+      .map(String),
+  );
+
+  return managedCompetitions
+    .filter((comp) => !linkedWcaIds.has(String(comp.id)))
+    .map((comp) => ({
+      wca_competition_id: String(comp.id),
+      name: comp.name,
+      city: comp.city,
+      state: getTrackedSEState(comp.city),
+      start_date: comp.start_date,
+    }));
+}
+
+// Supplies auto-detected banners; standalone link choices intentionally keep dismissed ids.
+async function getUnannouncedCompetitionBanners(peopleId) {
+  const accessToken = await authService.getValidAccessTokenForPerson(peopleId);
+  if (!accessToken) return [];
+
+  const [competitions, dismissedIds] = await Promise.all([
+    getEligibleUnlinkedManagedCompetitions(accessToken, peopleId),
+    competitionBannerDismissalsDb.listDismissedWcaCompetitionIds(peopleId),
+  ]);
+  const dismissedIdSet = new Set(dismissedIds.map(String));
+  return competitions.filter((comp) => !dismissedIdSet.has(comp.wca_competition_id));
+}
+
+// Supplies every eligible unlinked managed competition for the standalone sheet.
+async function getUnannouncedCompetitionLinkOptions(peopleId) {
+  const accessToken = await authService.getValidAccessTokenForPerson(peopleId);
+  if (!accessToken) return [];
+  return getEligibleUnlinkedManagedCompetitions(accessToken, peopleId);
+}
+
+// Permanently hides one WCA competition banner for this Delegate.
+async function dismissUnannouncedCompetition(peopleId, wcaCompetitionId) {
+  await competitionBannerDismissalsDb.createDismissal(peopleId, wcaCompetitionId);
 }
 
 // Creates a brand-new Planner competition.
@@ -361,6 +456,71 @@ async function syncDelegatesAndOrganizers({ id, delegates, organizers, existingI
     })),
   );
   await competitionOrganizersDb.replaceOrganizersForCompetition(id, organizerPeopleIds);
+}
+
+// Links an eligible managed WCA competition to an existing Potential row or creates a new row.
+async function linkManagedCompetitionToPlanner({ peopleId, wcaCompetitionId, plannerCompetitionId }) {
+  const accessToken = await authService.getValidAccessTokenForPerson(peopleId);
+  if (!accessToken) {
+    throw httpError(403, 'WCA manage_competitions access is required to link a competition.');
+  }
+
+  const eligibleCompetitions = await getEligibleUnlinkedManagedCompetitions(accessToken);
+  if (!eligibleCompetitions.some((comp) => comp.wca_competition_id === String(wcaCompetitionId))) {
+    throw httpError(400, 'This WCA competition is not available to link.');
+  }
+
+  let existingIsLeadByPeopleId = new Map();
+  if (plannerCompetitionId) {
+    const plannerCompetition = await competitionsDb.getCompetitionById(plannerCompetitionId);
+    if (!plannerCompetition) throw httpError(404, 'Competition not found.');
+    if (derivePlannerStatus(plannerCompetition) !== 'potential') {
+      throw httpError(400, 'Only a Potential competition can be linked to WCA.');
+    }
+
+    const existingDelegateRows = await competitionDelegatesDb.listForCompetitions([
+      plannerCompetitionId,
+    ]);
+    existingIsLeadByPeopleId = new Map(
+      existingDelegateRows.map((row) => [row.people_id, row.is_lead]),
+    );
+  }
+
+  // Fetch and validate the selected WCA record before the first Planner write.
+  const wcaCompetition = await wca.fetchCompetitionById(String(wcaCompetitionId), { accessToken });
+  if (!isEligibleManagedCompetition(wcaCompetition)) {
+    throw httpError(400, 'This WCA competition is no longer eligible to link.');
+  }
+  const [formattedCompetition] = await formatCompetitionData([wcaCompetition], []);
+  if (!formattedCompetition) {
+    throw httpError(400, 'This WCA competition could not be prepared for Planner.');
+  }
+  formattedCompetition.is_announced = false;
+
+  let competitionId = plannerCompetitionId;
+  if (competitionId) {
+    const linked = await competitionsDb.linkPlannerCompetitionToWca(
+      competitionId,
+      formattedCompetition,
+    );
+    if (!linked) {
+      throw httpError(409, 'This Potential competition has already been linked.');
+    }
+  } else {
+    competitionId = await competitionsDb.createPlannerCompetitionLinkedToWca(formattedCompetition);
+  }
+
+  await competitionEventsDb.replaceEventIds([
+    { id: competitionId, event_ids: formattedCompetition.event_ids ?? [] },
+  ]);
+  await syncDelegatesAndOrganizers({
+    id: competitionId,
+    delegates: formattedCompetition.delegates,
+    organizers: formattedCompetition.organizers,
+    existingIsLeadByPeopleId,
+  });
+
+  return competitionId;
 }
 
 // Upserts `comps` in chunks under DSQL's row cap, returning the ids newly
@@ -774,6 +934,10 @@ module.exports = {
   refreshCompetitionsFromWCA,
   getAnnouncedUpcomingCompetitions,
   getAllUpcomingCompetitionsForPlanner,
+  getUnannouncedCompetitionBanners,
+  getUnannouncedCompetitionLinkOptions,
+  dismissUnannouncedCompetition,
+  linkManagedCompetitionToPlanner,
   createCompetition,
   updateCompetition,
   deleteCompetition,

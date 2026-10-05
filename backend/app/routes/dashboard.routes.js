@@ -550,6 +550,92 @@ router.get(
 
 /**
  * @openapi
+ * /dashboard/competition-planner/unannounced-competitions:
+ *   get:
+ *     summary: Lists the signed-in user's eligible managed WCA competitions that are not linked in Planner or permanently dismissed.
+ *     tags: [Competitions]
+ *     responses:
+ *       200:
+ *         description: Eligible WCA competitions for Planner banners.
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not Admin/Board/Delegate.
+ */
+router.get(
+  '/dashboard/competition-planner/unannounced-competitions',
+  requireDelegateOrAdminOrBoard,
+  asyncRoute(competitionsController.getPlannerUnannouncedCompetitionBanners),
+);
+
+/**
+ * @openapi
+ * /dashboard/competition-planner/wca-link-options:
+ *   get:
+ *     summary: Lists the signed-in user's eligible managed WCA competitions available for standalone linking.
+ *     tags: [Competitions]
+ *     responses:
+ *       200:
+ *         description: Eligible WCA competition link options.
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not Admin/Board/Delegate.
+ */
+router.get(
+  '/dashboard/competition-planner/wca-link-options',
+  requireDelegateOrAdminOrBoard,
+  asyncRoute(competitionsController.getPlannerWcaLinkOptions),
+);
+
+/**
+ * @openapi
+ * /dashboard/competition-planner/unannounced-competitions/{wcaCompetitionId}/dismiss:
+ *   post:
+ *     summary: Permanently dismisses a WCA competition banner for the signed-in user.
+ *     tags: [Competitions]
+ *     responses:
+ *       200:
+ *         description: Dismissed.
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not Admin/Board/Delegate.
+ */
+router.post(
+  '/dashboard/competition-planner/unannounced-competitions/:wcaCompetitionId/dismiss',
+  requireDelegateOrAdminOrBoard,
+  asyncRoute(competitionsController.dismissPlannerUnannouncedCompetition),
+);
+
+/**
+ * @openapi
+ * /dashboard/competition-planner/competitions/link-wca:
+ *   post:
+ *     summary: Links a managed WCA competition to an existing Potential row or creates a linked Planner row.
+ *     tags: [Competitions]
+ *     responses:
+ *       200:
+ *         description: The linked Planner competition.
+ *       400:
+ *         description: The WCA competition or target Planner row is not eligible to link.
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not Admin/Board/Delegate or manage_competitions access is missing.
+ *       404:
+ *         description: Planner competition not found.
+ *       409:
+ *         description: Planner competition has already been linked.
+ */
+router.post(
+  '/dashboard/competition-planner/competitions/link-wca',
+  requireDelegateOrAdminOrBoard,
+  asyncRoute(competitionsController.linkPlannerCompetitionToWca),
+);
+
+/**
+ * @openapi
  * /dashboard/competition-planner/competitions:
  *   post:
  *     summary: Creates a new Planner competition (always Potential) - open to any Admin/Board/Delegate, since creating one makes them its lead Delegate.

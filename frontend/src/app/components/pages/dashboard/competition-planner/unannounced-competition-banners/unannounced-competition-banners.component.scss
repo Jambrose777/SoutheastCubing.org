@@ -1,0 +1,171 @@
+@use 'src/styles/color-pallet';
+
+.unannounced-banners-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.unannounced-banners-list.has-multiple-visible-competitions {
+  max-height: 178px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+  scrollbar-gutter: stable;
+}
+
+.unannounced-banners-list.has-visible-competitions {
+  margin-bottom: 10px;
+}
+
+.unannounced-banner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  border: 1px solid color-pallet.$se-grey;
+  background: color-pallet.$se-green;
+  animation: banner-enter 280ms ease-out both;
+}
+
+@keyframes banner-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes banner-exit {
+  from {
+    max-height: var(--banner-close-height, 220px);
+    opacity: 1;
+    padding-block: 12px;
+    border-block-width: 1px;
+    transform: translateY(0);
+  }
+
+  to {
+    max-height: 0;
+    opacity: 0;
+    padding-block: 0;
+    border-block-width: 0;
+    transform: translateY(-12px);
+  }
+}
+
+.unannounced-banner.is-closing {
+  --banner-close-height: 220px;
+  overflow: hidden;
+  animation: banner-exit 280ms ease-in both;
+  pointer-events: none;
+}
+
+.banner-copy {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 3px;
+  min-width: 0;
+
+  .banner-source {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: color-pallet.$se-black;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  p {
+    margin: 0;
+    color: color-pallet.$se-black;
+    font-size: 0.9rem;
+  }
+}
+
+.banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.banner-link-existing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+
+  mat-form-field {
+    flex: 1;
+    min-width: min(300px, 50vw);
+    background-color: white;
+    border-radius: 4px;
+
+    ::ng-deep .mdc-floating-label {
+      padding-inline: 4px;
+      background-color: white;
+    }
+  }
+}
+
+.banner-actions .btn {
+  margin: 0;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .unannounced-banner {
+    animation: none;
+  }
+
+  .unannounced-banner.is-closing {
+    animation: banner-exit 1ms linear both;
+  }
+}
+
+@media (max-width: 700px) {
+  .unannounced-banners-list.has-multiple-visible-competitions {
+    max-height: 600px;
+  }
+
+  .unannounced-banner {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 10px;
+  }
+
+  .unannounced-banner.is-closing {
+    --banner-close-height: 400px;
+  }
+
+  .banner-actions {
+    justify-content: flex-start;
+  }
+
+  .banner-link-existing {
+    align-items: center;
+  }
+
+  .banner-link-existing mat-form-field {
+    flex: 1;
+    min-width: 0;
+  }
+}

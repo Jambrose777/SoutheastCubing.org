@@ -8,6 +8,10 @@
 
     <div class="competition-planner-content">
       <se-manage-competitions-prompt></se-manage-competitions-prompt>
+      <se-unannounced-competition-banners
+        [potentialRows]="potentialRows()"
+        (competitionLinked)="onPlannerCompetitionLinked()"
+      ></se-unannounced-competition-banners>
 
       @if (loading()) {
         <se-loading-spinner></se-loading-spinner>
@@ -174,6 +178,25 @@
         [competition]="viewingCompetition()!"
         (closed)="closeSheet()"
       ></se-view-competition-sheet>
+    </div>
+  </div>
+}
+
+@if (activeSheet() === 'wca-link') {
+  <div
+    class="sheet-backdrop"
+    (click)="closeViewSheetIfBackdrop($event)"
+    (keydown.escape)="closeSheet()"
+    role="button"
+    tabindex="0"
+    aria-label="Close"
+  >
+    <div class="sheet-overlay" [class.closing]="isSheetClosing()">
+      <se-wca-link-competition-sheet
+        [competition]="linkingWcaCompetition()!"
+        (closed)="closeSheet()"
+        (saved)="onWcaLinkSaved()"
+      ></se-wca-link-competition-sheet>
     </div>
   </div>
 }

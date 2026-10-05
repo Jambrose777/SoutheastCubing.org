@@ -307,6 +307,66 @@ async function createPlannerCompetition({
   logger.debug(`Created a new Planner competition row (id ${id}).`);
 }
 
+// Creates a new Planner row directly from an unannounced WCA competition.
+async function createPlannerCompetitionLinkedToWca(comp) {
+  const id = crypto.randomUUID();
+  const row = toRow(id, { ...comp, is_announced: false });
+  try {
+    await db.withRetry(async (client) => {
+      const placeholders = row.map((_, index) => `$${index + 1}`);
+      await client.query(
+        `INSERT INTO competitions (${COLUMNS.join(', ')})
+         VALUES (${placeholders.join(', ')})`,
+        row,
+      );
+    });
+    logger.debug(
+      `Created a WCA-linked competition row (id ${id}, WCA competition ${comp.wca_competition_id}) in the competitions table.`,
+    );
+    return id;
+  } catch (error) {
+    logger.error(
+      `Failed to create a WCA-linked competition row for WCA competition ${comp.wca_competition_id}: `,
+      error,
+    );
+    throw error;
+  }
+}
+
+// Links a WCA competition to an existing Potential row, preserving its Planner id.
+async function linkPlannerCompetitionToWca(id, comp) {
+  const row = toRow(id, { ...comp, is_announced: false });
+  const columnsToUpdate = COLUMNS.slice(1);
+  const updateSet = columnsToUpdate
+    .map((column, index) => `${column} = $${index + 1}`)
+    .join(', ');
+  const params = [...row.slice(1), id];
+
+  try {
+    const { rows } = await db.withRetry(async (client) =>
+      client.query(
+        `UPDATE competitions
+         SET ${updateSet}
+         WHERE id = $${params.length} AND wca_competition_id IS NULL
+         RETURNING id`,
+        params,
+      ),
+    );
+    if (rows.length) {
+      logger.debug(
+        `Linked WCA competition ${comp.wca_competition_id} to competition row ${id} in the competitions table.`,
+      );
+    }
+    return rows.length > 0;
+  } catch (error) {
+    logger.error(
+      `Failed to link WCA competition ${comp.wca_competition_id} to competition row ${id}: `,
+      error,
+    );
+    throw error;
+  }
+}
+
 // Updates a Planner-created competition's own hand-entered fields - only
 // ever called while still Potential, since these become WCA-synced (and
 // read-only) once linked.
@@ -381,6 +441,8 @@ module.exports = {
   setLastChecked,
   getCompetitionById,
   createPlannerCompetition,
+  createPlannerCompetitionLinkedToWca,
+  linkPlannerCompetitionToWca,
   updatePlannerCompetitionFields,
   deletePlannerCompetition,
 };

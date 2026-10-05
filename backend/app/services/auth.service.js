@@ -7,6 +7,7 @@ const wcaOauthGrantsDb = require('../database/wcaOauthGrants.database.js');
 const photosService = require('./photos.service.js');
 const { generateSessionToken } = require('../helpers/session.helper.js');
 const { encrypt, decrypt } = require('../helpers/encryption.helper.js');
+const { httpError } = require('../helpers/httpError.helper.js');
 
 const logger = require('../utils/logger.util.js');
 
@@ -23,6 +24,15 @@ const DOB_STEP_UP_SCOPE = `${SIGN_IN_SCOPE} dob`;
 
 // Scope requested by the manage_competitions step-up flow.
 const MANAGE_COMPETITIONS_STEP_UP_SCOPE = `${SIGN_IN_SCOPE} manage_competitions`;
+const MANAGE_COMPETITIONS_REAUTH_REQUIRED_CODE = 'MANAGE_COMPETITIONS_REAUTH_REQUIRED';
+
+function createManageCompetitionsReauthRequiredError() {
+  return httpError(
+    409,
+    'WCA Manage Competitions access must be granted again.',
+    MANAGE_COMPETITIONS_REAUTH_REQUIRED_CODE,
+  );
+}
 
 // True once every env var the WCA sign-in flow needs is present - callers
 // respond 503 rather than attempting the flow with a partially-configured
@@ -164,11 +174,22 @@ async function getValidAccessTokenForPerson(peopleId) {
   }
 
   // Token has expired - refresh it and persist whatever WCA returns.
-  const { accessToken, refreshToken, expiresIn } = await wcaIntegration.refreshAccessToken({
-    refreshToken: decrypt(grant.refresh_token_encrypted),
-    clientId: config.WCA_OAUTH_CLIENT_ID,
-    clientSecret: config.WCA_OAUTH_CLIENT_SECRET,
-  });
+  let refreshedToken;
+  try {
+    refreshedToken = await wcaIntegration.refreshAccessToken({
+      refreshToken: decrypt(grant.refresh_token_encrypted),
+      clientId: config.WCA_OAUTH_CLIENT_ID,
+      clientSecret: config.WCA_OAUTH_CLIENT_SECRET,
+    });
+  } catch (err) {
+    if (err.response?.data?.error === 'invalid_grant') {
+      await invalidateManageCompetitionsGrant(peopleId, 'refresh_invalid_grant');
+      throw createManageCompetitionsReauthRequiredError();
+    }
+    throw err;
+  }
+
+  const { accessToken, refreshToken, expiresIn } = refreshedToken;
 
   const expiresAt = new Date(Date.now() + expiresIn * 1000);
   await wcaOauthGrantsDb.upsertGrant({
@@ -181,6 +202,13 @@ async function getValidAccessTokenForPerson(peopleId) {
 
   logger.info(`Refreshed manage_competitions access token for people_id ${peopleId}.`);
   return accessToken;
+}
+
+async function invalidateManageCompetitionsGrant(peopleId, reason) {
+  await wcaOauthGrantsDb.deleteByPeopleId(peopleId);
+  logger.info(
+    `Invalidated manage_competitions grant for people_id ${peopleId}; reason=${reason}.`,
+  );
 }
 
 // Explicit-revoke path - deletes peopleId's grant row outright.
@@ -213,6 +241,8 @@ module.exports = {
   completeDobStepUp,
   completeManageCompetitionsStepUp,
   getValidAccessTokenForPerson,
+  invalidateManageCompetitionsGrant,
+  createManageCompetitionsReauthRequiredError,
   revokeManageCompetitionsGrant,
   sessionCookieOptions,
 };

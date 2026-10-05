@@ -4,6 +4,12 @@
 -- app/database/migrations/ for that history. Regenerate with
 -- `pnpm --filter southeastcubing-org-api schema-snapshot` after applying a new migration.
 
+CREATE TABLE competition_banner_dismissals (
+  id TEXT NOT NULL PRIMARY KEY,
+  people_id TEXT NOT NULL REFERENCES people (id),
+  wca_competition_id TEXT NOT NULL
+);
+
 CREATE TABLE competition_delegates (
   id TEXT NOT NULL PRIMARY KEY,
   competition_id TEXT NOT NULL REFERENCES competitions (id),

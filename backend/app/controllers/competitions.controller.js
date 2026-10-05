@@ -7,6 +7,10 @@ const {
   refreshCompetitionsFromWCA,
   getAnnouncedUpcomingCompetitions,
   getAllUpcomingCompetitionsForPlanner,
+  getUnannouncedCompetitionBanners,
+  getUnannouncedCompetitionLinkOptions,
+  dismissUnannouncedCompetition,
+  linkManagedCompetitionToPlanner,
   createCompetition,
   updateCompetition,
   deleteCompetition,
@@ -83,6 +87,51 @@ async function getPlannerCompetitions(req, res) {
   }
 }
 
+// Lists managed, unlinked WCA competitions eligible for automatic banners.
+async function getPlannerUnannouncedCompetitionBanners(req, res) {
+  try {
+    const competitions = await getUnannouncedCompetitionBanners(req.user.people_id);
+    res.status(200).json(competitions);
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to fetch unannounced competition banners');
+  }
+}
+
+// Lists managed, unlinked WCA competitions for the standalone link sheet.
+async function getPlannerWcaLinkOptions(req, res) {
+  try {
+    const competitions = await getUnannouncedCompetitionLinkOptions(req.user.people_id);
+    res.status(200).json(competitions);
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to fetch WCA competition link options');
+  }
+}
+
+// Permanently dismisses one WCA competition banner for the signed-in person.
+async function dismissPlannerUnannouncedCompetition(req, res) {
+  try {
+    await dismissUnannouncedCompetition(req.user.people_id, req.params.wcaCompetitionId);
+    res.json({ status: 'success' });
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to dismiss unannounced competition');
+  }
+}
+
+// Links a WCA competition to a Potential row, or creates a linked Planner row.
+async function linkPlannerCompetitionToWca(req, res) {
+  try {
+    const competitionId = await linkManagedCompetitionToPlanner({
+      peopleId: req.user.people_id,
+      wcaCompetitionId: req.body?.wcaCompetitionId,
+      plannerCompetitionId: req.body?.plannerCompetitionId,
+    });
+    const competitions = await getAllUpcomingCompetitionsForPlanner();
+    res.status(200).json(competitions.find((competition) => competition.id === competitionId));
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to link WCA competition');
+  }
+}
+
 // POST /dashboard/competition-planner/competitions - creates a new Planner competition.
 async function createPlannerCompetition(req, res) {
   try {
@@ -120,6 +169,10 @@ module.exports = {
   getCompetitions,
   updateCompetitions,
   getPlannerCompetitions,
+  getPlannerUnannouncedCompetitionBanners,
+  getPlannerWcaLinkOptions,
+  dismissPlannerUnannouncedCompetition,
+  linkPlannerCompetitionToWca,
   createPlannerCompetition,
   updatePlannerCompetition,
   deletePlannerCompetition,
