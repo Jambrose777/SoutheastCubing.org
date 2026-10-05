@@ -1,0 +1,10 @@
+@if (address()) {
+  <iframe
+    class="map-iframe"
+    loading="lazy"
+    allowfullscreen
+    referrerpolicy="no-referrer-when-downgrade"
+    [src]="googleMapUrl() | safeUrl"
+    title="Competition location on Google Maps"
+  ></iframe>
+}

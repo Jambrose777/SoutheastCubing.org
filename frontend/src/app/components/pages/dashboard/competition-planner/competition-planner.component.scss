@@ -7,12 +7,28 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  gap: 16px;
 }
 
 .empty-state {
   color: color-pallet.$se-dark-grey;
   text-align: center;
+}
+
+.content-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.content-toolbar-side {
+  flex: 1;
+  display: flex;
+}
+
+.content-toolbar-actions {
+  justify-content: flex-end;
+  gap: 6px;
 }
 
 .avatar-list {
@@ -24,6 +40,8 @@
   overflow-y: hidden;
   scrollbar-width: none; // Firefox
   -ms-overflow-style: none; // IE/legacy Edge
+  padding: 3px;
+  margin: -3px;
 
   &::-webkit-scrollbar {
     display: none; // Chrome/Safari
@@ -35,8 +53,8 @@
 
   se-avatar.lead {
     outline: 2px solid color-pallet.$se-dark-blue;
-    outline-offset: 1px;
-    border-radius: 50%;
+    // outline-offset: 1px;
+    border-radius: 10px;
   }
 }
 

@@ -50,6 +50,10 @@ export class PersonSearchComponent implements OnInit {
   searching = signal(false);
   searchResults = signal<PersonSearchResult[]>([]);
   wcaLookupResult = signal<WcaPersonLookupResult | null>(null);
+  // True while the search input itself has focus - the results dropdown
+  // only ever shows while focused, re-showing on refocus without needing a
+  // fresh search.
+  isFocused = signal(false);
   // True when the only local match(es) for the current search were
   // filtered out by `excludeResult`.
   onlyMatchExcluded = signal(false);
@@ -67,6 +71,18 @@ export class PersonSearchComponent implements OnInit {
       this.searchResults().length === 0 &&
       !this.wcaLookupResult() &&
       !this.onlyMatchExcluded(),
+  );
+
+  // Only shown while the input is focused - prevents the dropdown lingering
+  // over the rest of the sheet once the user clicks elsewhere.
+  showDropdown = computed(
+    () =>
+      this.isFocused() &&
+      (this.searching() ||
+        this.onlyMatchExcluded() ||
+        this.noResultsFound() ||
+        this.searchResults().length > 0 ||
+        !!this.wcaLookupResult()),
   );
 
   constructor() {
@@ -135,6 +151,7 @@ export class PersonSearchComponent implements OnInit {
       thumbnailCropW: result.thumbnail_crop_w,
       thumbnailCropH: result.thumbnail_crop_h,
     });
+    this.clear();
   }
 
   // A fresh WCA-ID lookup result never carries crop data - it isn't a
@@ -145,6 +162,7 @@ export class PersonSearchComponent implements OnInit {
       name: result.name,
       pictureUrl: result.pictureUrl,
     });
+    this.clear();
   }
 
   // Lets the host reset this combobox after a "Change" action.
@@ -154,5 +172,13 @@ export class PersonSearchComponent implements OnInit {
     this.wcaLookupResult.set(null);
     this.onlyMatchExcluded.set(false);
     this.hasSearched.set(false);
+  }
+
+  onFocus() {
+    this.isFocused.set(true);
+  }
+
+  onBlur() {
+    this.isFocused.set(false);
   }
 }

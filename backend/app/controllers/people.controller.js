@@ -25,6 +25,18 @@ async function lookupWcaId(req, res) {
   }
 }
 
+// POST /dashboard/people/resolve - resolves a { peopleId } or { wcaId }
+// selection into a display-ready person, used by multi-select comboboxes
+// that need the resolved person immediately.
+async function resolvePerson(req, res) {
+  try {
+    const person = await peopleService.resolvePerson(req.body ?? {});
+    res.json(person);
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to resolve person');
+  }
+}
+
 // GET /dashboard/manage-users - every person's Manage Users row.
 async function listUsers(req, res) {
   try {
@@ -38,5 +50,6 @@ async function listUsers(req, res) {
 module.exports = {
   searchPeople,
   lookupWcaId,
+  resolvePerson,
   listUsers,
 };

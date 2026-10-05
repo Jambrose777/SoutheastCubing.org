@@ -1,0 +1,61 @@
+@forward 'src/styles/sheet';
+
+.linked-competition-name {
+  margin: 0;
+}
+
+.date-row {
+  display: flex;
+  gap: 12px;
+
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+.person-list-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  h3 {
+    margin: 0;
+  }
+}
+
+.person-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.person-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  span {
+    flex: 1;
+  }
+
+  .btn.small.icon-only {
+    margin: 0;
+  }
+}
+
+.events-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  h3 {
+    margin: 0;
+  }
+}
+
+.venue-toggle {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

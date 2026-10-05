@@ -93,16 +93,7 @@
       <!-- Location On Google Map View Bubble -->
       @if (!isMobile()) {
         <div class="detail-container map-container">
-          <iframe
-            width="270"
-            height="320"
-            class="map-iframe"
-            loading="lazy"
-            allowfullscreen
-            referrerpolicy="no-referrer-when-downgrade"
-            [src]="googleMapUrl() | safeUrl"
-          >
-          </iframe>
+          <se-google-map [address]="competition.venue_address"></se-google-map>
         </div>
       }
 

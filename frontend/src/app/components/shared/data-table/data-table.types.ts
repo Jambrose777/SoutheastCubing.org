@@ -60,6 +60,10 @@ export interface DataTableAction<T> {
   icon: string;
   label: string;
   onClick: (row: T) => void;
+  // Omit to always show this action; when provided, the action is hidden
+  // for a given row (e.g. an Edit item only shown to someone with edit
+  // access to that specific row) rather than just disabled.
+  visible?: (row: T) => boolean;
 }
 
 // The table's own Actions column config.

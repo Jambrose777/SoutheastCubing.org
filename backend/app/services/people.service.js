@@ -44,6 +44,25 @@ async function resolvePeopleId(person, promoteManagedPhoto = false) {
   return peopleId;
 }
 
+// Resolves a `{ peopleId }` or `{ wcaId }` selection down to a display-ready
+// person - used by multi-select comboboxes (e.g. the Competition Planner's
+// Delegates/Organizers) that need the resolved person's fields immediately
+// rather than deferring resolution to a later save.
+async function resolvePerson(person) {
+  const peopleId = await resolvePeopleId(person, false);
+  const resolved = withResolvedPicture(await peopleDb.findPersonById(peopleId));
+  return {
+    peopleId: resolved.id,
+    name: resolved.name,
+    wcaId: resolved.wca_id,
+    pictureUrl: resolved.picture_url,
+    thumbnailCropX: resolved.thumbnail_crop_x,
+    thumbnailCropY: resolved.thumbnail_crop_y,
+    thumbnailCropW: resolved.thumbnail_crop_w,
+    thumbnailCropH: resolved.thumbnail_crop_h,
+  };
+}
+
 // Backs the Add/Edit Member sheet's search-as-you-type combobox - our own
 // `people`/`users` data only.
 async function searchPeople(searchTerm) {
@@ -147,6 +166,7 @@ async function listUsers() {
 module.exports = {
   WCA_ID_FORMAT,
   resolvePeopleId,
+  resolvePerson,
   searchPeople,
   lookupWcaId,
   listUsers,

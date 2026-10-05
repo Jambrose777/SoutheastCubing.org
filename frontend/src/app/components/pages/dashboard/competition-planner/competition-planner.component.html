@@ -12,18 +12,26 @@
       @if (loading()) {
         <se-loading-spinner></se-loading-spinner>
       } @else {
+        <div class="content-toolbar">
+          <div class="content-toolbar-side"></div>
+          <div class="content-toolbar-side content-toolbar-actions">
+            <button type="button" class="btn small" (click)="openAddCompetition()">
+              <i class="fa-solid fa-plus fa-sm"></i>
+              Add Competition
+            </button>
+          </div>
+        </div>
+
         <se-data-table
           [rows]="rows()"
           [columns]="columns()"
+          [actions]="rowActions()"
           [trackBy]="trackById"
           [defaultSort]="defaultSort"
           storageKey="table-prefs:competition-planner"
         ></se-data-table>
       }
 
-      <ng-template #dateCell let-row>{{
-        row.full_date ?? dateRangeText(row.start_date, row.end_date)
-      }}</ng-template>
       <ng-template #nameCell let-row>
         @if (row.wca_competition_id) {
           <a
@@ -36,6 +44,9 @@
           {{ row.name | stripYear }}
         }
       </ng-template>
+      <ng-template #dateCell let-row>{{
+        row.full_date ?? dateRangeText(row.start_date, row.end_date)
+      }}</ng-template>
       <ng-template #locationCell let-row>
         <span class="location-pill" [style.background]="StateColors[row.state ?? '??']">{{
           row.city
@@ -95,9 +106,29 @@
       </ng-template>
       <ng-template #registrationsCell let-row>{{ registrationsText(row) }}</ng-template>
       <ng-template #registrationPeriodCell let-row>
-        <span class="registration-period-pill" [style.background]="registrationPeriodColor(row)">
-          {{ formatDate(row.registration_open) }} - {{ formatDate(row.registration_close) }}
-        </span>
+        @if (hasRegistrationPeriod(row)) {
+          <span class="registration-period-pill" [style.background]="registrationPeriodColor(row)">
+            {{ formatDate(row.registration_open) }} - {{ formatDate(row.registration_close) }}
+          </span>
+        } @else {
+          --
+        }
+      </ng-template>
+      <ng-template #registrationStatusCell let-row>
+        @if (registrationStatusText(row) !== '--') {
+          <span
+            class="registration-period-pill"
+            [style.background]="registrationStatusColor(row)"
+            [matTooltip]="
+              formatDate(row.registration_open) + ' - ' + formatDate(row.registration_close)
+            "
+            matTooltipPosition="above"
+          >
+            {{ registrationStatusText(row) }}
+          </span>
+        } @else {
+          --
+        }
       </ng-template>
     </div>
   </div>
@@ -106,3 +137,43 @@
     <se-dashboard-side-pane></se-dashboard-side-pane>
   }
 </div>
+
+<!-- Sheet Overlay for Add/Edit Competition -->
+@if (activeSheet() === 'add-edit') {
+  <div
+    class="sheet-backdrop"
+    (click)="closeSheetIfBackdrop($event, competitionSheet)"
+    (keydown.escape)="requestCloseSheet(competitionSheet)"
+    role="button"
+    tabindex="0"
+    aria-label="Close"
+  >
+    <div class="sheet-overlay" [class.closing]="isSheetClosing()">
+      <se-add-edit-competition-sheet
+        #competitionSheet
+        [competition]="editingCompetition()"
+        (closed)="requestCloseSheet(competitionSheet)"
+        (saved)="onSheetSaved()"
+      ></se-add-edit-competition-sheet>
+    </div>
+  </div>
+}
+
+@if (activeSheet() === 'view') {
+  <div
+    class="sheet-backdrop"
+    (click)="closeViewSheetIfBackdrop($event)"
+    (keydown.escape)="closeSheet()"
+    role="button"
+    tabindex="0"
+    aria-label="Close"
+  >
+    <div class="sheet-overlay" [class.closing]="isSheetClosing()">
+      <se-view-competition-sheet
+        #viewCompetitionSheet
+        [competition]="viewingCompetition()!"
+        (closed)="closeSheet()"
+      ></se-view-competition-sheet>
+    </div>
+  </div>
+}

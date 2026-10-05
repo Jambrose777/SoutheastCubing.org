@@ -4,7 +4,7 @@ const db = require('./pool.js');
 const logger = require('../utils/logger.util.js');
 
 // Every competition_organizers row for the given competition ids, joined with
-// each person's display fields.
+// each person's display fields - alphabetical by name.
 async function listForCompetitions(competitionIds) {
   if (!competitionIds.length) return [];
   const { rows } = await db.pool.query(
@@ -13,7 +13,8 @@ async function listForCompetitions(competitionIds) {
             p.thumbnail_crop_h
      FROM competition_organizers co
      JOIN people p ON p.id = co.people_id
-     WHERE co.competition_id = ANY($1)`,
+     WHERE co.competition_id = ANY($1)
+     ORDER BY p.name`,
     [competitionIds],
   );
   return rows;

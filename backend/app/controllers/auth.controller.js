@@ -298,6 +298,7 @@ async function getCurrentUser(req, res) {
     name: req.user.name,
     ...resolvePersonPicture(req.user),
     wcaId: req.user.wca_id,
+    peopleId: req.user.people_id,
     roles: { isAdmin, isBoard, isRegionalDelegate, isDelegate },
     ...(impersonatedRolePresetKey ? { impersonatedRole: impersonatedRolePresetKey } : {}),
     hasManageCompetitionsGrant: !!grant,

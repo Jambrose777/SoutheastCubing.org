@@ -1,0 +1,260 @@
+<!-- Sheet Header -->
+<div class="sheet-header">
+  <button type="button" class="back-btn" (click)="closed.emit()" aria-label="Back">
+    <i class="fa-solid fa-arrow-left"></i>
+  </button>
+  <h2>View Competition</h2>
+</div>
+
+<div class="sheet-body">
+  <div class="competition-heading">
+    <!-- Competition Name -->
+    <div class="competition-title">
+      <h3>{{ competition().name }}</h3>
+      @if (competition().wca_competition_id) {
+        <span class="wca-id">{{ competition().wca_competition_id }}</span>
+      }
+    </div>
+
+    <!-- Status -->
+    <span class="status-badge" [class]="competition().status">{{ competition().status }}</span>
+  </div>
+
+  <!-- General Details -->
+  <section class="detail-section">
+    <h3>Details</h3>
+    <dl class="detail-grid">
+      <div>
+        <dt>Date(s)</dt>
+        <dd>
+          {{
+            competition().full_date ??
+              dateRangeText(competition().start_date, competition().end_date).replace('\n', ' - ')
+          }}
+        </dd>
+      </div>
+      <div>
+        <dt>Location</dt>
+        <dd>
+          <span class="location-pill" [style.background]="StateColors[competition().state ?? '??']">
+            {{ competition().city }}
+          </span>
+        </dd>
+      </div>
+      <div>
+        <dt>Registration period</dt>
+        <dd>
+          @if (hasRegistrationPeriod()) {
+            <span class="registration-period-text">
+              {{ registrationPeriodText() }}
+            </span>
+          } @else {
+            --
+          }
+        </dd>
+      </div>
+      <div>
+        <dt>Registration status</dt>
+        <dd>
+          @if (hasRegistrationPeriod()) {
+            <span class="registration-status-pill" [style.background]="registrationStatusColor()">
+              {{ registrationStatusLabel() }}
+            </span>
+          } @else {
+            --
+          }
+        </dd>
+      </div>
+      <div>
+        <dt>Competitor limit</dt>
+        <dd>{{ competition().competitor_limit ?? '--' }}</dd>
+      </div>
+      <div>
+        <dt>Accepted registrations</dt>
+        <dd>{{ competition().accepted_registrations ?? '--' }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- Links -->
+  <section class="detail-section">
+    <h3>Links</h3>
+    <div class="links-list">
+      @if (competition().url) {
+        <a
+          class="btn small link-button"
+          [href]="competition().url"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img src="assets/wca_logo.svg" alt="" width="20" height="20" />
+          WCA
+        </a>
+      }
+      @if (hasExternalWebsite()) {
+        <a
+          class="btn small link-button"
+          [href]="competition().website"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          External Website
+        </a>
+      }
+      @if (!competition().url && !hasExternalWebsite()) {
+        <span>--</span>
+      }
+    </div>
+  </section>
+
+  <!-- Events -->
+  <section class="detail-section">
+    <h3>Events</h3>
+    @if (competition().event_ids.length) {
+      <div class="events-list">
+        @for (event of competition().event_ids; track event) {
+          <span
+            [ngClass]="'cubing-icon event-' + event"
+            [matTooltip]="EventNames[event]"
+            matTooltipPosition="above"
+            [attr.aria-label]="EventNames[event]"
+          ></span>
+        }
+      </div>
+    } @else {
+      <p>--</p>
+    }
+  </section>
+
+  <!-- Venue -->
+  <section class="detail-section">
+    <h3>Venue</h3>
+    <dl class="detail-grid">
+      <div>
+        <dt>Venue</dt>
+        <dd>{{ competition().venue ?? '--' }}</dd>
+      </div>
+      <div>
+        <dt>Venue details</dt>
+        <dd>{{ competition().venue_details ?? '--' }}</dd>
+      </div>
+      <div>
+        <dt>Address</dt>
+        <dd>{{ competition().venue_address ?? '--' }}</dd>
+      </div>
+      <div>
+        <dt>Venue URL</dt>
+        <dd>
+          @if (competition().venue_url) {
+            <a [href]="competition().venue_url" target="_blank" rel="noopener noreferrer"
+              >Open venue page</a
+            >
+          } @else {
+            --
+          }
+        </dd>
+      </div>
+      <div>
+        <dt>Latitude</dt>
+        <dd>{{ competition().latitude_degrees ?? '--' }}</dd>
+      </div>
+      <div>
+        <dt>Longitude</dt>
+        <dd>{{ competition().longitude_degrees ?? '--' }}</dd>
+      </div>
+    </dl>
+
+    <!-- Map -->
+    @if (competition().venue_address) {
+      <div class="venue-map">
+        <se-google-map [address]="competition().venue_address"></se-google-map>
+      </div>
+    } @else {
+      <p>--</p>
+    }
+  </section>
+
+  <!-- Delegates -->
+  <section class="detail-section">
+    <h3>Delegates</h3>
+    @if (competition().delegates.length) {
+      <div class="person-list">
+        @for (delegate of competition().delegates; track delegate.peopleId) {
+          <div class="person-row">
+            @if (delegate.pictureUrl) {
+              <se-avatar
+                [src]="delegate.pictureUrl"
+                [size]="32"
+                [alt]="delegate.name"
+                [cropX]="delegate.thumbnailCropX"
+                [cropY]="delegate.thumbnailCropY"
+                [cropW]="delegate.thumbnailCropW"
+                [cropH]="delegate.thumbnailCropH"
+              ></se-avatar>
+            }
+            <span>{{ delegate.name }}</span>
+            @if (delegate.isLead) {
+              <span class="lead-label">Lead</span>
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <p>--</p>
+    }
+  </section>
+
+  <!-- Organizers -->
+  <section class="detail-section">
+    <h3>Organizers</h3>
+    @if (competition().organizers.length) {
+      <div class="person-list">
+        @for (organizer of competition().organizers; track organizer.peopleId) {
+          <div class="person-row">
+            @if (organizer.pictureUrl) {
+              <se-avatar
+                [src]="organizer.pictureUrl"
+                [size]="32"
+                [alt]="organizer.name"
+                [cropX]="organizer.thumbnailCropX"
+                [cropY]="organizer.thumbnailCropY"
+                [cropW]="organizer.thumbnailCropW"
+                [cropH]="organizer.thumbnailCropH"
+              ></se-avatar>
+            }
+            <span>{{ organizer.name }}</span>
+          </div>
+        }
+      </div>
+    } @else {
+      <p>--</p>
+    }
+  </section>
+
+  <!-- Equipment Holders -->
+  <section class="detail-section">
+    <h3>Equipment Holders</h3>
+    @if (competition().equipmentHolders.length) {
+      <div class="person-list">
+        @for (holder of competition().equipmentHolders; track holder.peopleId ?? $index) {
+          <div class="person-row">
+            @if (holder.peopleId !== null && holder.pictureUrl) {
+              <se-avatar
+                [src]="holder.pictureUrl"
+                [size]="32"
+                [alt]="holder.name"
+                [cropX]="holder.thumbnailCropX"
+                [cropY]="holder.thumbnailCropY"
+                [cropW]="holder.thumbnailCropW"
+                [cropH]="holder.thumbnailCropH"
+              ></se-avatar>
+            }
+            <span>{{ holder.peopleId === null ? 'Other' : holder.name }}</span>
+          </div>
+        }
+      </div>
+    } @else {
+      <p>--</p>
+    }
+  </section>
+</div>

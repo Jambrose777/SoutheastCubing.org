@@ -6,7 +6,7 @@ const photosController = require('../controllers/photos.controller.js');
 const peopleController = require('../controllers/people.controller.js');
 const delegatesController = require('../controllers/delegates.controller.js');
 const competitionsController = require('../controllers/competitions.controller.js');
-const { requireAnyRole, requireAdmin } = require('../middleware/roles.middleware.js');
+const { requireAnyRole, requireAdmin, requireCompetitionEditAccess } = require('../middleware/roles.middleware.js');
 const { requireAuth } = require('../middleware/session.middleware.js');
 const { photoUploadMiddleware } = require('../middleware/photoUpload.middleware.js');
 const { asyncRoute } = require('../helpers/asyncRoute.helper.js');
@@ -306,6 +306,24 @@ router.get(
 
 /**
  * @openapi
+ * /dashboard/people/resolve:
+ *   post:
+ *     summary: Resolves a { peopleId } or { wcaId } selection into a display-ready person - used by multi-select comboboxes (e.g. Competition Planner's Delegates/Organizers) that need the resolved person immediately.
+ *     tags: [People]
+ *     responses:
+ *       400:
+ *         description: Invalid WCA ID format, or neither peopleId nor wcaId given.
+ *       404:
+ *         description: Person/WCA ID not found.
+ */
+router.post(
+  '/dashboard/people/resolve',
+  requireDelegateOrAdminOrBoard,
+  asyncRoute(peopleController.resolvePerson),
+);
+
+/**
+ * @openapi
  * /dashboard/delegates/sync:
  *   post:
  *     summary: Manually triggers the same nightly WCA Delegate roster sync, on demand.
@@ -528,6 +546,73 @@ router.get(
   '/dashboard/competition-planner/competitions',
   requireDelegateOrAdminOrBoard,
   asyncRoute(competitionsController.getPlannerCompetitions),
+);
+
+/**
+ * @openapi
+ * /dashboard/competition-planner/competitions:
+ *   post:
+ *     summary: Creates a new Planner competition (always Potential) - open to any Admin/Board/Delegate, since creating one makes them its lead Delegate.
+ *     tags: [Competitions]
+ *     responses:
+ *       201:
+ *         description: The newly-created competition.
+ *       400:
+ *         description: Missing/invalid fields.
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not Admin/Board/Delegate.
+ */
+router.post(
+  '/dashboard/competition-planner/competitions',
+  requireDelegateOrAdminOrBoard,
+  asyncRoute(competitionsController.createPlannerCompetition),
+);
+
+/**
+ * @openapi
+ * /dashboard/competition-planner/competitions/{competitionId}:
+ *   put:
+ *     summary: Edits a Planner competition - Admin/Board/Regional Delegate, or a Delegate already assigned to it, regardless of announced status.
+ *     tags: [Competitions]
+ *     responses:
+ *       200:
+ *         description: The updated competition.
+ *       400:
+ *         description: Missing/invalid fields.
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not authorized to edit this competition.
+ *       404:
+ *         description: Competition not found.
+ *   delete:
+ *     summary: Deletes a Planner competition - same access as editing it, and only while Potential/Planning (never once Announced).
+ *     tags: [Competitions]
+ *     responses:
+ *       200:
+ *         description: Deleted.
+ *       400:
+ *         description: This competition is Announced and can never be deleted.
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not authorized to edit this competition.
+ *       404:
+ *         description: Competition not found.
+ */
+router.put(
+  '/dashboard/competition-planner/competitions/:competitionId',
+  requireDelegateOrAdminOrBoard,
+  requireCompetitionEditAccess,
+  asyncRoute(competitionsController.updatePlannerCompetition),
+);
+router.delete(
+  '/dashboard/competition-planner/competitions/:competitionId',
+  requireDelegateOrAdminOrBoard,
+  requireCompetitionEditAccess,
+  asyncRoute(competitionsController.deletePlannerCompetition),
 );
 
 module.exports = router;

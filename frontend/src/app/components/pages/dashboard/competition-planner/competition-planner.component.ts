@@ -19,7 +19,6 @@ import { Colors, EventNames, StateColors } from 'src/app/shared/types';
 import { formatDate, dateRangeText } from 'src/app/shared/date.util';
 import { PlannerCompetition, PlannerCompetitionStatus } from 'src/app/models/PlannerCompetition';
 import { environment } from 'src/environments/environment';
-import * as moment from 'moment';
 import { NgClass } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { StripYearPipe } from 'src/app/pipes/stripYear.pipe';
@@ -29,8 +28,15 @@ import { ManageCompetitionsPromptComponent } from '../../../shared/manage-compet
 import { AvatarComponent } from '../../../shared/avatar/avatar.component';
 import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading-spinner.component';
 import { DataTableComponent, DataTableSort } from '../../../shared/data-table/data-table.component';
-import { DataTableColumn } from '../../../shared/data-table/data-table.types';
+import { DataTableActions, DataTableColumn } from '../../../shared/data-table/data-table.types';
+import { AddEditCompetitionSheetComponent } from './add-edit-competition-sheet/add-edit-competition-sheet.component';
+import { ViewCompetitionSheetComponent } from './view-competition-sheet/view-competition-sheet.component';
 import { DASHBOARD_TOOLS } from '../dashboard-tools';
+import {
+  getRegistrationStatus,
+  getRegistrationStatusColor,
+  getRegistrationStatusLabel,
+} from 'src/app/shared/registrationStatus.util';
 
 // Display label for each derived Competition Planner status.
 const STATUS_LABELS: Record<PlannerCompetitionStatus, string> = {
@@ -41,6 +47,7 @@ const STATUS_LABELS: Record<PlannerCompetitionStatus, string> = {
 
 // The # registrations/competitor limit column's own display text.
 function registrationsText(row: PlannerCompetition): string {
+  if (row.competitor_limit == null) return '--';
   return `${row.accepted_registrations ?? 0} / ${row.competitor_limit}`;
 }
 
@@ -56,9 +63,45 @@ function visibleOrganizers(row: PlannerCompetition) {
 // The Registration Period column's own color - blue before it opens, green
 // while open, red once closed.
 function registrationPeriodColor(row: PlannerCompetition): Colors {
-  if (moment.utc(row.registration_open).isAfter(moment.now())) return Colors.blue;
-  if (moment.utc(row.registration_close).isBefore(moment.now())) return Colors.red;
-  return Colors.green;
+  const status = getRegistrationStatus(
+    row.registration_open,
+    row.registration_close,
+    row.accepted_registrations,
+    row.competitor_limit,
+  );
+  return status ? getRegistrationStatusColor(status) : Colors.grey;
+}
+
+// Potential competitions have no registration dates yet.
+function hasRegistrationPeriod(row: PlannerCompetition): boolean {
+  return (
+    getRegistrationStatus(
+      row.registration_open,
+      row.registration_close,
+      row.accepted_registrations,
+      row.competitor_limit,
+    ) !== null
+  );
+}
+
+function registrationStatusText(row: PlannerCompetition): string {
+  const status = getRegistrationStatus(
+    row.registration_open,
+    row.registration_close,
+    row.accepted_registrations,
+    row.competitor_limit,
+  );
+  return status ? getRegistrationStatusLabel(status) : '--';
+}
+
+function registrationStatusColor(row: PlannerCompetition): Colors {
+  const status = getRegistrationStatus(
+    row.registration_open,
+    row.registration_close,
+    row.accepted_registrations,
+    row.competitor_limit,
+  );
+  return status ? getRegistrationStatusColor(status) : Colors.grey;
 }
 
 // Competition Planner for Delegates to see and plan upcoming competitions
@@ -78,6 +121,8 @@ function registrationPeriodColor(row: PlannerCompetition): Colors {
     StripYearPipe,
     NgClass,
     MatTooltipModule,
+    AddEditCompetitionSheetComponent,
+    ViewCompetitionSheetComponent,
   ],
 })
 export class CompetitionPlannerComponent implements OnInit {
@@ -103,6 +148,9 @@ export class CompetitionPlannerComponent implements OnInit {
   registrationsText = registrationsText;
   visibleOrganizers = visibleOrganizers;
   registrationPeriodColor = registrationPeriodColor;
+  hasRegistrationPeriod = hasRegistrationPeriod;
+  registrationStatusText = registrationStatusText;
+  registrationStatusColor = registrationStatusColor;
 
   private dateCell = viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('dateCell');
   private nameCell = viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('nameCell');
@@ -120,18 +168,10 @@ export class CompetitionPlannerComponent implements OnInit {
     viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('statusCell');
   private registrationPeriodCell =
     viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('registrationPeriodCell');
+  private registrationStatusCell =
+    viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('registrationStatusCell');
 
   columns = computed<DataTableColumn<PlannerCompetition>[]>(() => [
-    {
-      key: 'date',
-      label: 'Date(s)',
-      width: '130px',
-      filterable: false,
-      visibleByDefault: true,
-      sortValue: (row) => row.start_date,
-      searchValue: (row) => row.full_date ?? dateRangeText(row.start_date, row.end_date),
-      cellTemplate: this.dateCell(),
-    },
     {
       key: 'name',
       label: 'Name',
@@ -141,6 +181,16 @@ export class CompetitionPlannerComponent implements OnInit {
       sortValue: (row) => row.name,
       searchValue: (row) => row.name,
       cellTemplate: this.nameCell(),
+    },
+    {
+      key: 'date',
+      label: 'Date(s)',
+      width: '130px',
+      filterable: false,
+      visibleByDefault: true,
+      sortValue: (row) => row.start_date,
+      searchValue: (row) => row.full_date ?? dateRangeText(row.start_date, row.end_date),
+      cellTemplate: this.dateCell(),
     },
     {
       key: 'location',
@@ -218,11 +268,23 @@ export class CompetitionPlannerComponent implements OnInit {
       cellTemplate: this.registrationsCell(),
     },
     {
+      key: 'registrationStatus',
+      label: 'Reg. Status',
+      width: '130px',
+      filterable: true,
+      filterType: 'multiselect',
+      filterValue: (row) => [registrationStatusText(row)],
+      visibleByDefault: true,
+      sortValue: (row) => registrationStatusText(row),
+      searchValue: (row) => registrationStatusText(row),
+      cellTemplate: this.registrationStatusCell(),
+    },
+    {
       key: 'registrationPeriod',
       label: 'Registration Period',
       width: '132px',
       filterable: false,
-      visibleByDefault: true,
+      visibleByDefault: false,
       sortValue: (row) => row.registration_open,
       searchValue: (row) =>
         `${formatDate(row.registration_open)} -\n${formatDate(row.registration_close)}`,
@@ -233,6 +295,103 @@ export class CompetitionPlannerComponent implements OnInit {
   defaultSort: DataTableSort = { columnKey: 'date', direction: 'asc' };
 
   trackById = (row: PlannerCompetition) => row.id;
+
+  // The sheet being shown, if any - consumed by the View/Add-Edit Competition
+  // sheets. null means no sheet is open.
+  viewingCompetition = signal<PlannerCompetition | null>(null);
+  editingCompetition = signal<PlannerCompetition | null>(null);
+  activeSheet = signal<'add-edit' | 'view' | null>(null);
+  isSheetClosing = signal(false);
+
+  // True for Admin/Board/Regional Delegate, or a Delegate already assigned to
+  // this specific competition.
+  canEdit = (row: PlannerCompetition): boolean => {
+    const user = this.authService.currentUser();
+    if (!user) return false;
+    if (user.roles.isAdmin || user.roles.isBoard || user.roles.isRegionalDelegate) return true;
+    return row.delegates.some((delegate) => delegate.peopleId === user.peopleId);
+  };
+
+  rowActions = computed<DataTableActions<PlannerCompetition>>(() => ({
+    overflow: [
+      {
+        icon: 'fa-eye',
+        label: 'View',
+        onClick: (row) => this.openViewCompetition(row),
+      },
+      {
+        icon: 'fa-pen',
+        label: 'Edit',
+        onClick: (row) => this.openEditCompetition(row),
+        visible: (row) => this.canEdit(row),
+      },
+      {
+        icon: 'fa-trash',
+        label: 'Delete',
+        onClick: (row) => this.deleteCompetition(row),
+        visible: (row) => this.canEdit(row) && row.status !== 'announced',
+      },
+    ],
+  }));
+
+  openAddCompetition(): void {
+    this.editingCompetition.set(null);
+    this.activeSheet.set('add-edit');
+  }
+
+  openViewCompetition(row: PlannerCompetition): void {
+    this.viewingCompetition.set(row);
+    this.activeSheet.set('view');
+  }
+
+  openEditCompetition(row: PlannerCompetition): void {
+    this.editingCompetition.set(row);
+    this.activeSheet.set('add-edit');
+  }
+
+  closeSheet(): void {
+    this.isSheetClosing.set(true);
+    setTimeout(() => {
+      this.activeSheet.set(null);
+      this.isSheetClosing.set(false);
+    }, 200);
+  }
+
+  requestCloseSheet(sheet: { isDirty(): boolean }): void {
+    if (sheet.isDirty() && !confirm('You have unsaved changes. Discard them?')) {
+      return;
+    }
+    this.closeSheet();
+  }
+
+  closeSheetIfBackdrop(event: MouseEvent, sheet: { isDirty(): boolean }): void {
+    if (event.target === event.currentTarget) {
+      this.requestCloseSheet(sheet);
+    }
+  }
+
+  closeViewSheetIfBackdrop(event: MouseEvent): void {
+    if (event.target === event.currentTarget) {
+      this.closeSheet();
+    }
+  }
+
+  onSheetSaved(): void {
+    this.closeSheet();
+    this.loadCompetitions();
+  }
+
+  deleteCompetition(row: PlannerCompetition): void {
+    if (!confirm(`Permanently delete "${row.name}"? This can't be undone.`)) {
+      return;
+    }
+    this.competitionPlannerApi.deleteCompetition(row.id).subscribe({
+      next: () => {
+        this.toastService.success('Competition deleted.');
+        this.loadCompetitions();
+      },
+    });
+  }
 
   ngOnInit() {
     const tool = DASHBOARD_TOOLS.find((t) => t.routerLink === '/dashboard/competition-planner');

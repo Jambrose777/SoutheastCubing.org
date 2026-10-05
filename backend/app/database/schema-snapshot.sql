@@ -11,6 +11,12 @@ CREATE TABLE competition_delegates (
   is_lead BOOLEAN NOT NULL DEFAULT false
 );
 
+CREATE TABLE competition_equipment_holders (
+  id TEXT NOT NULL PRIMARY KEY,
+  competition_id TEXT NOT NULL REFERENCES competitions (id),
+  people_id TEXT REFERENCES people (id)
+);
+
 CREATE TABLE competition_events (
   competition_id TEXT NOT NULL REFERENCES competitions (id),
   event_id TEXT NOT NULL,

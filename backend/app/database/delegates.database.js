@@ -281,6 +281,16 @@ async function getOpenRanksForPerson(peopleId) {
   return rows.map((row) => row.rank);
 }
 
+// Returns the subset of `peopleIds` currently holding an open Delegate rank.
+async function findOpenDelegatePeopleIds(peopleIds) {
+  if (!peopleIds.length) return [];
+  const { rows } = await db.pool.query(
+    'SELECT DISTINCT delegate_id FROM delegate_rank_history WHERE delegate_id = ANY($1) AND end_date IS NULL',
+    [peopleIds],
+  );
+  return rows.map((row) => row.delegate_id);
+}
+
 module.exports = {
   findDelegateByPeopleId,
   findDelegateByWcaId,
@@ -290,6 +300,7 @@ module.exports = {
   listAllRankRowsWithPeople,
   listAllStateRowsWithPeople,
   listAllOpenRankRows,
+  findOpenDelegatePeopleIds,
   openRankRow,
   closeRankRow,
   findRankRowById,

@@ -4,7 +4,7 @@ const db = require('./pool.js');
 const logger = require('../utils/logger.util.js');
 
 // Every competition_delegates row for the given competition ids, joined with
-// each person's display fields
+// each person's display fields - lead Delegate first, then alphabetical.
 async function listForCompetitions(competitionIds) {
   if (!competitionIds.length) return [];
   const { rows } = await db.pool.query(
@@ -13,7 +13,8 @@ async function listForCompetitions(competitionIds) {
             p.thumbnail_crop_h
      FROM competition_delegates cd
      JOIN people p ON p.id = cd.people_id
-     WHERE cd.competition_id = ANY($1)`,
+     WHERE cd.competition_id = ANY($1)
+     ORDER BY cd.is_lead DESC, p.name`,
     [competitionIds],
   );
   return rows;
@@ -67,4 +68,32 @@ async function replaceDelegatesForCompetition(competitionId, delegates) {
   });
 }
 
-module.exports = { listForCompetitions, replaceDelegatesForCompetition };
+// True if `peopleId` already has a competition_delegates row for `competitionId`.
+async function isDelegateOnCompetition(peopleId, competitionId) {
+  const { rows } = await db.pool.query(
+    'SELECT 1 FROM competition_delegates WHERE people_id = $1 AND competition_id = $2 LIMIT 1',
+    [peopleId, competitionId],
+  );
+  return rows.length > 0;
+}
+
+// Flags exactly one existing competition_delegates row as lead - used once a
+// competition is linked. The unconditional WHERE competition_id (no
+// people_id filter) means every row for this competition is touched in one
+// statement, clearing the old lead at the same time the new one is set.
+async function setLead(competitionId, peopleId) {
+  await db.withRetry(async (client) => {
+    await client.query(
+      'UPDATE competition_delegates SET is_lead = (people_id = $2) WHERE competition_id = $1',
+      [competitionId, peopleId],
+    );
+  });
+  logger.debug(`Set lead Delegate for competition_id ${competitionId} to people_id ${peopleId}.`);
+}
+
+module.exports = {
+  listForCompetitions,
+  replaceDelegatesForCompetition,
+  isDelegateOnCompetition,
+  setLead,
+};

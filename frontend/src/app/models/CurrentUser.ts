@@ -19,6 +19,7 @@ export interface CurrentUser {
   thumbnailCropW: number | null;
   thumbnailCropH: number | null;
   wcaId: string | null;
+  peopleId: string;
   roles: {
     isAdmin: boolean;
     isBoard: boolean;

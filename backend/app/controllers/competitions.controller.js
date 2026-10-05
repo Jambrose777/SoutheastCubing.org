@@ -7,7 +7,11 @@ const {
   refreshCompetitionsFromWCA,
   getAnnouncedUpcomingCompetitions,
   getAllUpcomingCompetitionsForPlanner,
+  createCompetition,
+  updateCompetition,
+  deleteCompetition,
 } = require('../services/competitions.service.js');
+const { respondWithServiceError } = require('../helpers/httpError.helper.js');
 
 // Gets upcoming competitions from the database.
 async function getCompetitions(req, res) {
@@ -77,7 +81,46 @@ async function getPlannerCompetitions(req, res) {
     res.status(503).json({ message: 'Competition data is temporarily unavailable.' });
     return;
   }
-
 }
 
-module.exports = { getCompetitions, updateCompetitions, getPlannerCompetitions };
+// POST /dashboard/competition-planner/competitions - creates a new Planner competition.
+async function createPlannerCompetition(req, res) {
+  try {
+    const id = await createCompetition(req.body ?? {});
+    const comps = await getAllUpcomingCompetitionsForPlanner();
+    res.status(201).json(comps.find((comp) => comp.id === id));
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to create competition');
+  }
+}
+
+// PUT /dashboard/competition-planner/competitions/:competitionId - edits a Planner competition.
+async function updatePlannerCompetition(req, res) {
+  try {
+    await updateCompetition(req.params.competitionId, req.body ?? {});
+    const comps = await getAllUpcomingCompetitionsForPlanner();
+    res.json(comps.find((comp) => comp.id === req.params.competitionId));
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to update competition');
+  }
+}
+
+// DELETE /dashboard/competition-planner/competitions/:competitionId - deletes a Planner
+// competition (Potential/Planning only).
+async function deletePlannerCompetition(req, res) {
+  try {
+    await deleteCompetition(req.params.competitionId);
+    res.json({ status: 'success' });
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to delete competition');
+  }
+}
+
+module.exports = {
+  getCompetitions,
+  updateCompetitions,
+  getPlannerCompetitions,
+  createPlannerCompetition,
+  updatePlannerCompetition,
+  deletePlannerCompetition,
+};

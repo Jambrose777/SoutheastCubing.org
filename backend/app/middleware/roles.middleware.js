@@ -1,4 +1,5 @@
 const { hasAnyRole } = require('../helpers/roles.helper.js');
+const competitionDelegatesDb = require('../database/competitionDelegates.database.js');
 
 const logger = require('../utils/logger.util.js');
 
@@ -29,4 +30,36 @@ function requireAnyRole(...roles) {
 // Stricter gate for hard-delete actions.
 const requireAdmin = requireAnyRole('isAdmin');
 
-module.exports = { requireAnyRole, requireAdmin };
+// Competition Planner's edit-access rule for a single competition (route
+// param :competitionId) - Admin/Board/Regional Delegate via the usual role
+// derivation, or a Delegate already assigned to this specific competition
+// (per competition_delegates).
+async function requireCompetitionEditAccess(req, res, next) {
+  if (!req.user) {
+    res.status(401).json({ message: 'Sign-in required.' });
+    return;
+  }
+  try {
+    if (await hasAnyRole(req.user, ['isAdmin', 'isBoard', 'isRegionalDelegate'])) {
+      next();
+      return;
+    }
+    const isAssignedDelegate = await competitionDelegatesDb.isDelegateOnCompetition(
+      req.user.people_id,
+      req.params.competitionId,
+    );
+    if (!isAssignedDelegate) {
+      logger.debug(
+        `Denied competition edit access (people_id ${req.user.people_id}) for competition_id ${req.params.competitionId}.`,
+      );
+      res.status(403).json({ message: 'Insufficient access.' });
+      return;
+    }
+    next();
+  } catch (err) {
+    logger.error('Failed to resolve competition edit access: ', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+module.exports = { requireAnyRole, requireAdmin, requireCompetitionEditAccess };

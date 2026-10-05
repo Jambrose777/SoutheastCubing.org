@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const moment = require('moment');
 
 const logger = require('../utils/logger.util.js');
@@ -10,7 +11,9 @@ const competitionsDb = require('../database/competitions.database.js');
 const competitionEventsDb = require('../database/competitionEvents.database.js');
 const competitionDelegatesDb = require('../database/competitionDelegates.database.js');
 const competitionOrganizersDb = require('../database/competitionOrganizers.database.js');
+const competitionEquipmentHoldersDb = require('../database/competitionEquipmentHolders.database.js');
 const peopleDb = require('../database/people.database.js');
+const delegatesDb = require('../database/delegates.database.js');
 const discordPingPatternsDb = require('../database/discordPingPatterns.database.js');
 const majorChampionships = require('./majorChampionships.service.js');
 const { getFullCompetitionDate } = require('../helpers/competitionDates.helper.js');
@@ -18,6 +21,8 @@ const { SOUTHEAST_STATES } = require('../helpers/southeastStates.helper.js');
 const { chunk } = require('../helpers/chunk.helper.js');
 const { groupBy } = require('../helpers/groupBy.helper.js');
 const { withResolvedPicture } = require('../helpers/personPicture.helper.js');
+const { httpError } = require('../helpers/httpError.helper.js');
+const { VALID_EVENT_IDS } = require('../helpers/wcaEvents.helper.js');
 
 // Max rows upserted per statement, to keep each one well under DSQL's
 // 3,000-row transaction cap as the retained history keeps growing.
@@ -77,6 +82,10 @@ async function getAllUpcomingCompetitionsForPlanner() {
     await competitionOrganizersDb.listForCompetitions(competitionIds),
     'competition_id',
   );
+  const equipmentRowsByCompetition = groupBy(
+    await competitionEquipmentHoldersDb.listForCompetitions(competitionIds),
+    'competition_id',
+  );
 
   const toPerson = (row) => {
     const resolved = withResolvedPicture(row);
@@ -93,12 +102,237 @@ async function getAllUpcomingCompetitionsForPlanner() {
     };
   };
 
+  // An equipment holder's people_id is null for the plain "Other" option,
+  // which never resolves to a person.
+  const toEquipmentHolder = (row) =>
+    row.people_id === null ? { peopleId: null } : toPerson(row);
+
   return comps.map((comp) => ({
     ...comp,
     status: derivePlannerStatus(comp),
     delegates: (delegateRowsByCompetition.get(comp.id) ?? []).map(toPerson),
     organizers: (organizerRowsByCompetition.get(comp.id) ?? []).map(toPerson),
+    equipmentHolders: (equipmentRowsByCompetition.get(comp.id) ?? []).map(toEquipmentHolder),
   }));
+}
+
+// Appends the end date's year to a hand-entered name that has no 4-digit
+// year in it already.
+function withYearInName(name, endDate) {
+  if (/\d{4}/.test(name)) return name;
+  return `${name.trim()} ${moment(endDate).format('YYYY')}`;
+}
+
+// Throws if any id in `peopleIds` doesn't exist as a `people` row.
+async function assertPeopleExist(peopleIds, label) {
+  if (!peopleIds.length) return;
+  const existingIds = await peopleDb.findExistingIds(peopleIds);
+  const missing = peopleIds.filter((id) => !existingIds.includes(id));
+  if (missing.length) {
+    throw httpError(400, `${label} includes unknown person id(s): ${missing.join(', ')}`);
+  }
+}
+
+// Equipment holders are drawn from the Delegate roster generally (plus the
+// plain "Other" option, a null entry).
+async function assertEquipmentHoldersAreDelegates(equipmentPeopleIds) {
+  const peopleIds = equipmentPeopleIds.filter((peopleId) => peopleId !== null);
+  if (!peopleIds.length) return;
+  const openDelegatePeopleIds = await delegatesDb.findOpenDelegatePeopleIds(peopleIds);
+  const invalid = peopleIds.some((peopleId) => !openDelegatePeopleIds.includes(peopleId));
+  if (invalid) {
+    throw httpError(400, 'Equipment holders must be current Delegates.');
+  }
+}
+
+// Throws if any id in `eventIds` isn't a real WCA event id.
+function assertValidEventIds(eventIds) {
+  const invalid = eventIds.filter((eventId) => !VALID_EVENT_IDS.includes(eventId));
+  if (invalid.length) {
+    throw httpError(400, `Invalid event id(s): ${invalid.join(', ')}`);
+  }
+}
+
+// WCA competitions need at least this many days' notice - a hand-entered
+// Planner start date earlier than that isn't a realistic competition date.
+const MIN_START_DATE_LEAD_DAYS = 28;
+
+// Parse only real calendar dates in the Planner API's YYYY-MM-DD format.
+function parsePlannerDate(value, fieldName) {
+  const parsed = typeof value === 'string' ? moment.utc(value, 'YYYY-MM-DD', true) : null;
+  if (!parsed?.isValid()) {
+    throw httpError(400, `${fieldName} must be a valid date in YYYY-MM-DD format.`);
+  }
+  return parsed;
+}
+
+// Validate the date pair before deriving dates or persisting competition fields.
+function assertValidPlannerDates(startDate, endDate) {
+  const start = parsePlannerDate(startDate, 'Start date');
+  const end = parsePlannerDate(endDate, 'End date');
+  if (end.isBefore(start, 'day')) {
+    throw httpError(400, 'End date must be on or after start date.');
+  }
+}
+
+// The database column is INTEGER; omitted and null limits both mean unlimited.
+function assertValidCompetitorLimit(competitorLimit) {
+  if (competitorLimit == null) return;
+  if (!Number.isInteger(competitorLimit) || competitorLimit < 0) {
+    throw httpError(400, 'Competitor limit must be a non-negative integer.');
+  }
+}
+
+// Throws if `startDate` is less than MIN_START_DATE_LEAD_DAYS out from today.
+function assertStartDateFarEnoughOut(startDate) {
+  if (moment(startDate).isBefore(moment().add(MIN_START_DATE_LEAD_DAYS, 'days'), 'day')) {
+    throw httpError(400, `Start date must be at least ${MIN_START_DATE_LEAD_DAYS} days out.`);
+  }
+}
+
+// Creates a brand-new Planner competition.
+async function createCompetition(input) {
+  const { name, city, state, startDate, endDate, leadPeopleId } = input;
+  if (!name || !city || !state || !startDate || !endDate || !leadPeopleId) {
+    throw httpError(400, 'name, city, state, start date, end date, and lead Delegate are required.');
+  }
+  assertValidPlannerDates(startDate, endDate);
+  assertStartDateFarEnoughOut(startDate);
+  assertValidCompetitorLimit(input.competitorLimit);
+
+  const delegatePeopleIds = input.delegatePeopleIds ?? [];
+  const organizerPeopleIds = input.organizerPeopleIds ?? [];
+  const equipmentPeopleIds = input.equipmentPeopleIds ?? [];
+  const eventIds = input.eventIds ?? [];
+  if (!delegatePeopleIds.includes(leadPeopleId)) {
+    throw httpError(400, "Lead Delegate must already be one of this competition's Delegates.");
+  }
+  await assertPeopleExist(delegatePeopleIds, 'Delegates');
+  await assertPeopleExist(organizerPeopleIds, 'Organizers');
+  await assertEquipmentHoldersAreDelegates(equipmentPeopleIds);
+  assertValidEventIds(eventIds);
+
+  const id = crypto.randomUUID();
+  await competitionsDb.createPlannerCompetition({
+    id,
+    name: withYearInName(name, endDate),
+    city: `${city}, ${state}`,
+    state,
+    venueAddress: input.venueAddress,
+    venueDetails: input.venueDetails,
+    venue: input.venue,
+    venueUrl: input.venueUrl,
+    latitudeDegrees: input.latitudeDegrees,
+    longitudeDegrees: input.longitudeDegrees,
+    startDate,
+    endDate,
+    fullDate: getFullCompetitionDate(startDate, endDate),
+    competitorLimit: input.competitorLimit,
+  });
+
+  await competitionDelegatesDb.replaceDelegatesForCompetition(
+    id,
+    delegatePeopleIds.map((peopleId) => ({
+      peopleId,
+      isLead: peopleId === leadPeopleId,
+    })),
+  );
+  await competitionOrganizersDb.replaceOrganizersForCompetition(id, organizerPeopleIds);
+  await competitionEquipmentHoldersDb.replaceEquipmentHoldersForCompetition(id, equipmentPeopleIds);
+  await competitionEventsDb.replaceEventIds([{ id, event_ids: eventIds }]);
+
+  logger.debug(`Created Planner competition "${name}" (id ${id}), led by people_id ${leadPeopleId}.`);
+  return id;
+}
+
+
+// Updates an existing Planner competition, enforcing the status-gated
+// editability rules: hand-entered fields and Delegates/Organizers are only
+// writable while still Potential (unsynced).
+async function updateCompetition(id, input) {
+  const comp = await competitionsDb.getCompetitionById(id);
+  if (!comp) throw httpError(404, 'Competition not found.');
+  const status = derivePlannerStatus(comp);
+
+  if (!input.leadPeopleId) {
+    throw httpError(400, 'Lead Delegate is required.');
+  }
+
+  const equipmentPeopleIds = input.equipmentPeopleIds ?? [];
+  await assertEquipmentHoldersAreDelegates(equipmentPeopleIds);
+
+  if (status === 'potential') {
+    const { name, city, state, startDate, endDate } = input;
+    if (!name || !city || !state || !startDate || !endDate) {
+      throw httpError(400, 'name, city, state, start date, and end date are required.');
+    }
+    assertValidPlannerDates(startDate, endDate);
+    assertStartDateFarEnoughOut(startDate);
+    assertValidCompetitorLimit(input.competitorLimit);
+
+    const delegatePeopleIds = input.delegatePeopleIds ?? [];
+    const organizerPeopleIds = input.organizerPeopleIds ?? [];
+    const eventIds = input.eventIds ?? [];
+    if (!delegatePeopleIds.includes(input.leadPeopleId)) {
+      throw httpError(400, "Lead Delegate must already be one of this competition's Delegates.");
+    }
+    await assertPeopleExist(delegatePeopleIds, 'Delegates');
+    await assertPeopleExist(organizerPeopleIds, 'Organizers');
+    assertValidEventIds(eventIds);
+
+    const fullDate = getFullCompetitionDate(input.startDate, input.endDate);
+    await competitionsDb.updatePlannerCompetitionFields(id, {
+      name: withYearInName(input.name, input.endDate),
+      city: `${input.city}, ${input.state}`,
+      state: input.state,
+      venueAddress: input.venueAddress,
+      venueDetails: input.venueDetails,
+      venue: input.venue,
+      venueUrl: input.venueUrl,
+      latitudeDegrees: input.latitudeDegrees,
+      longitudeDegrees: input.longitudeDegrees,
+      startDate: input.startDate,
+      endDate: input.endDate,
+      fullDate,
+      competitorLimit: input.competitorLimit,
+    });
+    await competitionOrganizersDb.replaceOrganizersForCompetition(id, organizerPeopleIds);
+    await competitionDelegatesDb.replaceDelegatesForCompetition(
+      id,
+      delegatePeopleIds.map((peopleId) => ({
+        peopleId,
+        isLead: peopleId === input.leadPeopleId,
+      })),
+    );
+    await competitionEventsDb.replaceEventIds([{ id, event_ids: eventIds }]);
+  } else {
+    // Once linked, membership is sync-owned and only the lead flag changes
+    // here (setLead), never which rows exist.
+    const currentDelegatePeopleIds = (await competitionDelegatesDb.listForCompetitions([id])).map(
+      (row) => row.people_id,
+    );
+    if (!currentDelegatePeopleIds.includes(input.leadPeopleId)) {
+      throw httpError(400, "Lead Delegate must already be one of this competition's Delegates.");
+    }
+    await competitionDelegatesDb.setLead(id, input.leadPeopleId);
+  }
+
+  // Equipment stays editable regardless of status - Planner-owned, never synced.
+  await competitionEquipmentHoldersDb.replaceEquipmentHoldersForCompetition(id, equipmentPeopleIds);
+
+  logger.debug(`Updated Planner competition (id ${id}, status ${status}).`);
+}
+
+// Deletes a Planner competition - never allowed once Announced.
+async function deleteCompetition(id) {
+  const comp = await competitionsDb.getCompetitionById(id);
+  if (!comp) throw httpError(404, 'Competition not found.');
+  if (derivePlannerStatus(comp) === 'announced') {
+    throw httpError(400, 'An announced competition can never be deleted.');
+  }
+
+  await competitionsDb.deletePlannerCompetition(id);
+  logger.debug(`Deleted Planner competition (id ${id}).`);
 }
 
 // Resolves a WCA Person sub-resource into a `people` row id.
@@ -540,4 +774,7 @@ module.exports = {
   refreshCompetitionsFromWCA,
   getAnnouncedUpcomingCompetitions,
   getAllUpcomingCompetitionsForPlanner,
+  createCompetition,
+  updateCompetition,
+  deleteCompetition,
 };

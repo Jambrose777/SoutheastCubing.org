@@ -17,13 +17,20 @@ export class EventListComponent {
   selectedEvents = input<string[]>();
   selectEventEmitter = output<string>();
 
+  // Whether an empty selection has every icon shown active (black),
+  // or every / icon starts dimmed.
+  emptyMeansAllSelected = input(true);
+
   // Precomputed colors for each event based on the selected events.
   eventColors = computed<Record<string, string>>(() => {
     const selected = this.selectedEvents();
+    const noneSelected = !selected?.length;
     return Object.fromEntries(
       this.Events.map((event) => [
         event,
-        !selected?.length || selected.includes(event) ? Colors.black : Colors.darkGrey,
+        (noneSelected ? this.emptyMeansAllSelected() : selected!.includes(event))
+          ? Colors.black
+          : Colors.darkGrey,
       ]),
     );
   });

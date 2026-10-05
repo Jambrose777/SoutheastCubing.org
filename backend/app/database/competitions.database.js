@@ -256,6 +256,120 @@ async function setLastChecked(checkedAt) {
   }
 }
 
+// Fetches a single competition row by id, or null if it doesn't exist.
+async function getCompetitionById(id) {
+  const { rows } = await db.pool.query('SELECT * FROM competitions WHERE id = $1', [id]);
+  return rows[0] ? fromRow(rows[0], []) : null;
+}
+
+// Inserts a brand-new Planner-created competition row with every field a
+// Delegate can supply by hand.
+async function createPlannerCompetition({
+  id,
+  name,
+  city,
+  state,
+  venueAddress,
+  venueDetails,
+  venue,
+  venueUrl,
+  latitudeDegrees,
+  longitudeDegrees,
+  startDate,
+  endDate,
+  fullDate,
+  competitorLimit,
+}) {
+  await db.pool.query(
+    `INSERT INTO competitions (
+       id, name, city, state, venue_address, venue_details, venue, venue_url,
+       latitude_degrees, longitude_degrees, start_date, end_date, full_date,
+       competitor_limit, is_announced
+     )
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, false)`,
+    [
+      id,
+      name,
+      city,
+      state,
+      venueAddress ?? null,
+      venueDetails ?? null,
+      venue ?? null,
+      venueUrl ?? null,
+      latitudeDegrees ?? null,
+      longitudeDegrees ?? null,
+      startDate,
+      endDate,
+      fullDate,
+      competitorLimit ?? null,
+    ],
+  );
+  logger.debug(`Created a new Planner competition row (id ${id}).`);
+}
+
+// Updates a Planner-created competition's own hand-entered fields - only
+// ever called while still Potential, since these become WCA-synced (and
+// read-only) once linked.
+async function updatePlannerCompetitionFields(
+  id,
+  {
+    name,
+    city,
+    state,
+    venueAddress,
+    venueDetails,
+    venue,
+    venueUrl,
+    latitudeDegrees,
+    longitudeDegrees,
+    startDate,
+    endDate,
+    fullDate,
+    competitorLimit,
+  },
+) {
+  await db.pool.query(
+    `UPDATE competitions
+     SET name = $1, city = $2, state = $3, venue_address = $4, venue_details = $5,
+         venue = $6, venue_url = $7, latitude_degrees = $8, longitude_degrees = $9,
+         start_date = $10, end_date = $11, full_date = $12, competitor_limit = $13
+     WHERE id = $14`,
+    [
+      name,
+      city,
+      state,
+      venueAddress ?? null,
+      venueDetails ?? null,
+      venue ?? null,
+      venueUrl ?? null,
+      latitudeDegrees ?? null,
+      longitudeDegrees ?? null,
+      startDate,
+      endDate,
+      fullDate,
+      competitorLimit ?? null,
+      id,
+    ],
+  );
+  logger.debug(`Updated Planner competition fields for competition_id ${id}.`);
+}
+
+
+// Deletes a Planner-created competition row and its join-table rows - only
+// ever called for a still-Potential/Planning competition.
+async function deletePlannerCompetition(id) {
+  await db.withRetry(async (client) => {
+    await client.query('DELETE FROM competition_delegates WHERE competition_id = $1', [id]);
+    await client.query('DELETE FROM competition_organizers WHERE competition_id = $1', [id]);
+    await client.query('DELETE FROM competition_equipment_holders WHERE competition_id = $1', [
+      id,
+    ]);
+    await client.query('DELETE FROM competition_events WHERE competition_id = $1', [id]);
+    await client.query('DELETE FROM competitions WHERE id = $1', [id]);
+  });
+  logger.debug(`Deleted Planner competition (id ${id}).`);
+}
+
 module.exports = {
   getCompetitionsCount,
   upsertCompetitionsBatch,
@@ -265,4 +379,8 @@ module.exports = {
   getUnannouncedCompetitions,
   getLastChecked,
   setLastChecked,
+  getCompetitionById,
+  createPlannerCompetition,
+  updatePlannerCompetitionFields,
+  deletePlannerCompetition,
 };

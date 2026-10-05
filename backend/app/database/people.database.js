@@ -229,6 +229,14 @@ async function findPersonById(peopleId) {
   return rows[0] ?? null;
 }
 
+// Returns the subset of `peopleIds` that actually exist as `people` rows -
+// used to validate an incoming id list.
+async function findExistingIds(peopleIds) {
+  if (!peopleIds.length) return [];
+  const { rows } = await db.pool.query('SELECT id FROM people WHERE id = ANY($1)', [peopleIds]);
+  return rows.map((row) => row.id);
+}
+
 // Backs the Add/Edit Member sheet's search-as-you-type combobox - matches
 // partial name plus exact wca_id/wca_user_id/people.id/users.email, all
 // case-insensitive, capped at `limit` results. Deliberately server-side (not
@@ -276,6 +284,7 @@ module.exports = {
   setPictureSyncedWithWca,
   updateThumbnailCrop,
   findPersonById,
+  findExistingIds,
   searchPeople,
   listAllPeopleWithUsersAndDelegate,
 };

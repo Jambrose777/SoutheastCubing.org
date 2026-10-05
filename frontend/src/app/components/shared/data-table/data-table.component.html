@@ -152,16 +152,18 @@
         @if (actionsColumnVisible() && actions(); as rowActions) {
           <div class="data-table-cell data-table-actions-cell" role="cell">
             @for (action of rowActions.inline ?? []; track action.label) {
-              <button
-                type="button"
-                class="btn small icon-only"
-                (click)="action.onClick(row)"
-                [matTooltip]="action.label"
-                matTooltipPosition="above"
-                [attr.aria-label]="action.label"
-              >
-                <i class="fa-solid {{ action.icon }} fa-sm"></i>
-              </button>
+              @if (!action.visible || action.visible(row)) {
+                <button
+                  type="button"
+                  class="btn small icon-only"
+                  (click)="action.onClick(row)"
+                  [matTooltip]="action.label"
+                  matTooltipPosition="above"
+                  [attr.aria-label]="action.label"
+                >
+                  <i class="fa-solid {{ action.icon }} fa-sm"></i>
+                </button>
+              }
             }
             @if (rowActions.overflow?.length) {
               <button
@@ -176,10 +178,12 @@
               </button>
               <mat-menu #rowActionsMenu="matMenu">
                 @for (action of rowActions.overflow; track action.label) {
-                  <button type="button" mat-menu-item (click)="action.onClick(row)">
-                    <i class="fa-solid {{ action.icon }}"></i>
-                    {{ action.label }}
-                  </button>
+                  @if (!action.visible || action.visible(row)) {
+                    <button type="button" mat-menu-item (click)="action.onClick(row)">
+                      <i class="fa-solid {{ action.icon }}"></i>
+                      {{ action.label }}
+                    </button>
+                  }
                 }
               </mat-menu>
             }
