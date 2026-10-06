@@ -20,7 +20,7 @@ import { MyInfoService } from 'src/app/services/southeastcubing-api/my-info.serv
 import { ToastService } from 'src/app/services/toast.service';
 import { ErrorBannerService } from 'src/app/services/error-banner.service';
 import { Colors } from 'src/app/shared/types';
-import { formatDate } from 'src/app/shared/date.util';
+import { formatLongDate, formatLongDateRange } from 'src/app/shared/date.util';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
 import { scrollIntoViewSafely } from 'src/app/shared/scroll-into-view-safely';
 import { HeaderComponent } from '../../../core/header/header.component';
@@ -128,7 +128,8 @@ export class MyInfoComponent implements OnInit {
   updateBio = (bio: string) => this.myInfoApi.updateBio(bio);
   private delegateBio = viewChild(DelegateBioComponent);
 
-  formatDate = formatDate;
+  formatLongDate = formatLongDate;
+  formatLongDateRange = formatLongDateRange;
   rankLabel(rank: string): string {
     return RANK_LABELS[rank] ?? rank;
   }

@@ -194,18 +194,17 @@
                 </div>
                 <div class="member-dates-cell">
                   <div class="member-date-range">
-                    {{ formatDate(memberDateRange(team, member).start) }} -
                     {{
-                      memberDateRange(team, member).end
-                        ? formatDate(memberDateRange(team, member).end!)
-                        : 'present'
+                      formatLongDateRange(
+                        memberDateRange(team, member).start,
+                        memberDateRange(team, member).end
+                      )
                     }}
                   </div>
                   @if (viewMode() === 'history' && team.kind === 'ordinary') {
                     @for (stint of stintsForMember(team, member); track stint.id) {
                       <div class="leader-stint-date">
-                        Leader: {{ formatDate(stint.start_date) }} -
-                        {{ stint.end_date ? formatDate(stint.end_date) : 'present' }}
+                        Leader: {{ formatLongDateRange(stint.start_date, stint.end_date) }}
                       </div>
                     }
                   }
@@ -227,6 +226,12 @@
                         <i class="fa-solid fa-pen"></i>
                         Edit
                       </button>
+                      @if (team.kind === 'ordinary' && stintsForMember(team, member).length > 0) {
+                        <button mat-menu-item (click)="openEditLeadership(team, member)">
+                          <i class="fa-solid fa-pen"></i>
+                          Edit Leadership
+                        </button>
+                      }
                       @if (!member.end_date) {
                         @if (team.kind === 'ordinary') {
                           @if (member.is_active_leader) {
@@ -250,12 +255,6 @@
                         <button mat-menu-item (click)="hardDeleteMembership(member)">
                           <i class="fa-solid fa-trash"></i>
                           Delete
-                        </button>
-                      }
-                      @if (team.kind === 'ordinary' && stintsForMember(team, member).length > 0) {
-                        <button mat-menu-item (click)="openEditLeadership(team, member)">
-                          <i class="fa-solid fa-pen"></i>
-                          Edit Leadership
                         </button>
                       }
                     </mat-menu>

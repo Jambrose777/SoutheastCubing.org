@@ -48,7 +48,7 @@
             <div class="field-row">
               <span class="field-label">Date of birth</span>
               @if (info.dob) {
-                <span class="field-value">{{ formatDate(info.dob) }}</span>
+                <span class="field-value">{{ formatLongDate(info.dob) }}</span>
               } @else {
                 <span
                   class="field-value link-text"
@@ -99,7 +99,7 @@
                             } @else if (entry.specialRole) {
                               <span> — {{ entry.specialRole }}</span>
                             }
-                            <span> (since {{ formatDate(entry.sinceDate) }})</span>
+                            <span> (since {{ formatLongDate(entry.sinceDate) }})</span>
                           </a>
                         } @else {
                           <span>{{ entry.teamName }}</span>
@@ -108,7 +108,7 @@
                           } @else if (entry.specialRole) {
                             <span> — {{ entry.specialRole }}</span>
                           }
-                          <span> (since {{ formatDate(entry.sinceDate) }})</span>
+                          <span> (since {{ formatLongDate(entry.sinceDate) }})</span>
                         }
                       } @else if (entry.type === 'delegateRank') {
                         <a class="roles-list-link" [routerLink]="delegatePageUrl()">
@@ -116,12 +116,12 @@
                           @if (entry.state) {
                             <span> — {{ entry.state }}</span>
                           }
-                          <span> (since {{ formatDate(entry.sinceDate) }})</span>
+                          <span> (since {{ formatLongDate(entry.sinceDate) }})</span>
                         </a>
                       } @else if (entry.type === 'delegateState') {
                         <a class="roles-list-link" [routerLink]="delegatePageUrl()">
                           Delegate State: {{ entry.state }}
-                          <span> (since {{ formatDate(entry.sinceDate) }})</span>
+                          <span> (since {{ formatLongDate(entry.sinceDate) }})</span>
                         </a>
                       }
                     </li>
@@ -157,10 +157,7 @@
                       } @else if (entry.type === 'delegateState') {
                         <span>Delegate State: {{ entry.state }}</span>
                       }
-                      <span>
-                        ({{ formatDate(entry.startDate) }} -
-                        {{ entry.endDate ? formatDate(entry.endDate) : 'present' }})
-                      </span>
+                      <span> ({{ formatLongDateRange(entry.startDate, entry.endDate) }}) </span>
                     </li>
                   }
                 </ul>

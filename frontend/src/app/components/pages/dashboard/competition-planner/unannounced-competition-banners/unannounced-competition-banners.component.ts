@@ -20,7 +20,7 @@ import {
   PlannerWcaCompetitionOption,
   PlannerWcaLinkRequest,
 } from 'src/app/models/PlannerCompetition';
-import { formatDate } from 'src/app/shared/date.util';
+import { formatLongDate } from 'src/app/shared/date.util';
 
 // Renders and manages the Competition Planner's WCA detection banners.
 @Component({
@@ -39,7 +39,7 @@ export class UnannouncedCompetitionBannersComponent implements OnInit {
   private toastService = inject(ToastService);
   private competitionPlannerApi = inject(CompetitionPlannerApiService);
 
-  formatDate = formatDate;
+  formatLongDate = formatLongDate;
   competitions = signal<PlannerWcaCompetitionOption[]>([]);
   linkLaterWcaIds = signal<Set<string>>(new Set());
   linkingWcaIds = signal<Set<string>>(new Set());
@@ -53,6 +53,11 @@ export class UnannouncedCompetitionBannersComponent implements OnInit {
   );
 
   ngOnInit(): void {
+    this.loadCompetitions();
+  }
+
+  // Refreshes banner eligibility after a Planner row is linked to WCA.
+  refresh(): void {
     this.loadCompetitions();
   }
 

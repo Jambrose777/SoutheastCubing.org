@@ -29,7 +29,7 @@
         <dd>
           {{
             competition().full_date ??
-              dateRangeText(competition().start_date, competition().end_date).replace('\n', ' - ')
+              formatLongDateRange(competition().start_date, competition().end_date)
           }}
         </dd>
       </div>

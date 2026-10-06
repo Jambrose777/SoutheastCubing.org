@@ -28,7 +28,7 @@ import {
   TeamMembership,
   TeamMemberColor,
 } from 'src/app/models/ManageTeam';
-import { formatDate } from 'src/app/shared/date.util';
+import { formatLongDateRange } from 'src/app/shared/date.util';
 
 type ActiveSheet = 'team' | 'member' | 'leadershipStint' | null;
 type ViewMode = 'current' | 'history';
@@ -151,8 +151,8 @@ export class ManageTeamsComponent implements OnInit {
     return { start: member.start_date, end: member.end_date };
   }
 
-  // Formats a date column as MM/DD/YYYY
-  formatDate = formatDate;
+  // Formats a date column as a readable date range.
+  formatLongDateRange = formatLongDateRange;
 
   // The color to display for a member's Leader/special-role badge (or the
   // plain swatch, if neither is present) - a Board member's officer color

@@ -15,7 +15,7 @@ import { ManageDelegatesApiService } from 'src/app/services/southeastcubing-api/
 import { ToastService } from 'src/app/services/toast.service';
 import { ErrorBannerService } from 'src/app/services/error-banner.service';
 import { Colors, StateColors } from 'src/app/shared/types';
-import { formatDate } from 'src/app/shared/date.util';
+import { formatLongDate } from 'src/app/shared/date.util';
 import { RANK_LABELS } from 'src/app/models/Delegate';
 import { HeaderComponent } from '../../../core/header/header.component';
 import { DashboardSidePaneComponent } from '../dashboard-side-pane/dashboard-side-pane.component';
@@ -203,8 +203,8 @@ export class ManageDelegatesComponent implements OnInit {
     return StateColors[state] ?? Colors.grey;
   }
 
-  // Formats a date column as MM-DD-YYYY.
-  formatDate = formatDate;
+  // Formats a date column as "MMM D, YYYY".
+  formatLongDate = formatLongDate;
 
   ngOnInit(): void {
     const tool = DASHBOARD_TOOLS.find((t) => t.routerLink === '/dashboard/manage-delegates');

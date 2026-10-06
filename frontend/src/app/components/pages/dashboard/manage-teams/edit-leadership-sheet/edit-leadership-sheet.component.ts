@@ -15,7 +15,7 @@ import { MatSelect, MatOption } from '@angular/material/select';
 import { AuthService } from 'src/app/services/southeastcubing-api/auth.service';
 import { ManageTeamsApiService } from 'src/app/services/southeastcubing-api/manage-teams-api.service';
 import { ToastService } from 'src/app/services/toast.service';
-import { toDateInputValue, formatDate, checkBadDateInput } from 'src/app/shared/date.util';
+import { toDateInputValue, formatLongDateRange, checkBadDateInput } from 'src/app/shared/date.util';
 import { TeamLeaderStint } from 'src/app/models/ManageTeam';
 
 // Slide-in "Edit Leadership" sheet - corrects the start/end date of, or
@@ -55,7 +55,7 @@ export class EditLeadershipSheetComponent {
     () => this.stints().find((stint) => stint.id === this.selectedStintId()) ?? this.stints()[0],
   );
 
-  formatDate = formatDate;
+  formatLongDateRange = formatLongDateRange;
   checkBadDateInput = checkBadDateInput;
   saving = false;
 

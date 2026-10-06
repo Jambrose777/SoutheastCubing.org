@@ -132,10 +132,10 @@
                         class="borrowed-start-date"
                         matTooltip="This is the date they moved to the Southeast."
                         matTooltipPosition="above"
-                        >{{ formatDate(delegate.startDate) }}</span
+                        >{{ formatLongDate(delegate.startDate) }}</span
                       >
                     } @else {
-                      {{ formatDate(delegate.startDate) }}
+                      {{ formatLongDate(delegate.startDate) }}
                     }
                   </div>
                   <div class="delegate-comps-cell">
@@ -209,10 +209,10 @@
                           class="placeholder-date"
                           matTooltip="Likely incorrect - 2004-08-01 is WCA's placeholder date for roles predating their start-date tracking, not a real start date"
                           matTooltipPosition="above"
-                          >{{ formatDate(row.startDate) }}</span
+                          >{{ formatLongDate(row.startDate) }}</span
                         >
                       } @else {
-                        {{ formatDate(row.startDate) }}
+                        {{ formatLongDate(row.startDate) }}
                       }
                     </div>
                     <div
@@ -220,7 +220,7 @@
                       [style.grid-row]="i + 1"
                       [style.grid-column]="6"
                     >
-                      {{ row.endDate ? formatDate(row.endDate) : 'present' }}
+                      {{ row.endDate ? formatLongDate(row.endDate) : 'present' }}
                     </div>
                     <div
                       class="history-actions-cell"
@@ -294,14 +294,14 @@
                         class="placeholder-date"
                         matTooltip="Likely incorrect - 2004-08-01 is WCA's placeholder date for roles predating their start-date tracking, not a real start date"
                         matTooltipPosition="above"
-                        >{{ formatDate(row.startDate) }}</span
+                        >{{ formatLongDate(row.startDate) }}</span
                       >
                     } @else {
-                      {{ formatDate(row.startDate) }}
+                      {{ formatLongDate(row.startDate) }}
                     }
                   </div>
                   <div class="history-end-date-cell">
-                    {{ row.endDate ? formatDate(row.endDate) : 'present' }}
+                    {{ row.endDate ? formatLongDate(row.endDate) : 'present' }}
                   </div>
                   <div class="history-actions-cell">
                     @if (isRegionalDelegateOrAdmin()) {

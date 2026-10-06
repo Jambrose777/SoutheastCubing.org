@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, input, output, signal } fro
 import { RouterLink } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ManageUsersApiService } from 'src/app/services/southeastcubing-api/manage-users-api.service';
-import { formatDate } from 'src/app/shared/date.util';
+import { formatLongDate } from 'src/app/shared/date.util';
 import { RANK_LABELS } from 'src/app/models/Delegate';
 import { ManageUser } from 'src/app/models/ManageUser';
 import { PictureCropSheetComponent } from '../../../../shared/picture-crop-sheet/picture-crop-sheet.component';
@@ -30,7 +30,7 @@ export class EditUserSheetComponent {
   // A mutation (bio save, or a Picture & Crop sheet save) resolved.
   saved = output<void>();
 
-  formatDate = formatDate;
+  formatLongDate = formatLongDate;
   rankLabel(rank: string): string {
     return RANK_LABELS[rank] ?? rank;
   }

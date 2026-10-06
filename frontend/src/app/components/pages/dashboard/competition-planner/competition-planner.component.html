@@ -49,7 +49,7 @@
         }
       </ng-template>
       <ng-template #dateCell let-row>{{
-        row.full_date ?? dateRangeText(row.start_date, row.end_date)
+        row.full_date ?? formatLongDateRange(row.start_date, row.end_date)
       }}</ng-template>
       <ng-template #locationCell let-row>
         <span class="location-pill" [style.background]="StateColors[row.state ?? '??']">{{
@@ -111,8 +111,11 @@
       <ng-template #registrationsCell let-row>{{ registrationsText(row) }}</ng-template>
       <ng-template #registrationPeriodCell let-row>
         @if (hasRegistrationPeriod(row)) {
-          <span class="registration-period-pill" [style.background]="registrationPeriodColor(row)">
-            {{ formatDate(row.registration_open) }} - {{ formatDate(row.registration_close) }}
+          <span
+            class="registration-period-pill registration-period-range"
+            [style.background]="registrationPeriodColor(row)"
+          >
+            {{ formatLongDateRange(row.registration_open, row.registration_close) }}
           </span>
         } @else {
           --
@@ -123,9 +126,7 @@
           <span
             class="registration-period-pill"
             [style.background]="registrationStatusColor(row)"
-            [matTooltip]="
-              formatDate(row.registration_open) + ' - ' + formatDate(row.registration_close)
-            "
+            [matTooltip]="formatLongDateRange(row.registration_open, row.registration_close)"
             matTooltipPosition="above"
           >
             {{ registrationStatusText(row) }}

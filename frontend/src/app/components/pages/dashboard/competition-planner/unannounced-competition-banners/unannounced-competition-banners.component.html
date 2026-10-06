@@ -19,7 +19,7 @@
         <h2>{{ competition.name }}</h2>
         <p>
           {{ competition.city }} <span aria-hidden="true">·</span>
-          {{ formatDate(competition.start_date) }}
+          {{ formatLongDate(competition.start_date) }}
         </p>
       </div>
 
@@ -35,7 +35,7 @@
             >
               @for (row of potentialRows(); track row.id) {
                 <mat-option [value]="row.id">
-                  {{ row.name }} · {{ row.start_date }} · {{ row.city }}
+                  {{ row.name }} · {{ formatLongDate(row.start_date) }} · {{ row.city }}
                 </mat-option>
               }
             </mat-select>

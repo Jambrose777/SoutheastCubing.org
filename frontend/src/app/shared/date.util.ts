@@ -8,16 +8,34 @@ export function toDateInputValue(date: string | null): string | null {
   return date ? moment.utc(date).format('YYYY-MM-DD') : null;
 }
 
-// Formats a backend date column for human-readable display, as MM/DD/YYYY.
-export function formatDate(date: string): string {
-  return moment.utc(date).format('MM-DD-YYYY');
+// Formats a date for human-readable display as "MMM D, YYYY".
+export function formatLongDate(date: string): string {
+  return moment.utc(date).format('MMM D, YYYY');
 }
 
-// Formats a start/end date pair as a single date if they match, otherwise a range.
-export function dateRangeText(startDate: string, endDate: string): string {
-  const start = formatDate(startDate);
-  const end = formatDate(endDate);
-  return start === end ? start : `${start} -\n${end}`;
+// Formats a timestamp in the user's local timezone.
+export function formatLongDateTime(date: string): string {
+  return moment.utc(date).local().format('MMM D, YYYY h:mm A');
+}
+
+// Formats a competition date range using compact month/year-aware grouping.
+export function formatLongDateRange(startDate: string, endDate: string | null): string {
+  const start = moment.utc(startDate);
+  if (endDate === null) {
+    return `${formatLongDate(startDate)} - present`;
+  }
+
+  const end = moment.utc(endDate);
+  if (start.isSame(end, 'day')) {
+    return formatLongDate(startDate);
+  }
+  if (start.isSame(end, 'year')) {
+    if (start.isSame(end, 'month')) {
+      return `${start.format('MMM D')} - ${end.format('D, YYYY')}`;
+    }
+    return `${start.format('MMM D')} - ${end.format('MMM D, YYYY')}`;
+  }
+  return `${formatLongDate(startDate)} - ${formatLongDate(endDate)}`;
 }
 
 // A native <input type="date"> reports an empty string for BOTH "left

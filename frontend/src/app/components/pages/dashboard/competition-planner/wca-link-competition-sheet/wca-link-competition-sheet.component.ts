@@ -13,6 +13,7 @@ import { ErrorBannerService } from 'src/app/services/error-banner.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { CompetitionPlannerApiService } from 'src/app/services/southeastcubing-api/competition-planner-api.service';
 import { PlannerCompetition, PlannerWcaCompetitionOption } from 'src/app/models/PlannerCompetition';
+import { formatLongDate } from 'src/app/shared/date.util';
 import { LoadingSpinnerComponent } from '../../../../shared/loading-spinner/loading-spinner.component';
 
 // Links a Potential Planner row to a WCA competition selected by the Delegate.
@@ -36,6 +37,7 @@ export class WcaLinkCompetitionSheetComponent implements OnInit {
   selectedWcaCompetitionId = signal('');
   loading = signal(true);
   saving = signal(false);
+  formatLongDate = formatLongDate;
 
   ngOnInit(): void {
     this.loadOptions();

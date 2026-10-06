@@ -24,7 +24,7 @@
         @for (item of summary().promoted; track item.wcaId) {
           <li>
             {{ item.wcaId }} promoted to {{ rankLabel(item.rank) }}, effective
-            {{ formatDate(item.startDate) }}
+            {{ formatLongDate(item.startDate) }}
           </li>
         }
       </ul>

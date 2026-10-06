@@ -12,8 +12,7 @@
       <mat-select [value]="selectedStint().id" (selectionChange)="selectStint($event.value)">
         @for (stint of stints(); track stint.id) {
           <mat-option [value]="stint.id">
-            {{ formatDate(stint.start_date) }} -
-            {{ stint.end_date ? formatDate(stint.end_date) : 'present' }}
+            {{ formatLongDateRange(stint.start_date, stint.end_date) }}
           </mat-option>
         }
       </mat-select>

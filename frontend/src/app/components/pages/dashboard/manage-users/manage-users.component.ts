@@ -12,7 +12,7 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { ManageUsersApiService } from 'src/app/services/southeastcubing-api/manage-users-api.service';
 import { Colors } from 'src/app/shared/types';
-import { formatDate } from 'src/app/shared/date.util';
+import { formatLongDate, formatLongDateTime } from 'src/app/shared/date.util';
 import { ManageUser } from 'src/app/models/ManageUser';
 import { RANK_LABELS } from 'src/app/models/Delegate';
 import { HeaderComponent } from '../../../core/header/header.component';
@@ -79,7 +79,8 @@ export class ManageUsersComponent implements OnInit {
 
   loading = signal(true);
   rows = signal<ManageUser[]>([]);
-  formatDate = formatDate;
+  formatLongDate = formatLongDate;
+  formatLongDateTime = formatLongDateTime;
   delegateCellText = delegateCellText;
   teamCellText = teamCellText;
 
@@ -151,7 +152,7 @@ export class ManageUsersComponent implements OnInit {
       filterable: false,
       visibleByDefault: false,
       sortValue: (row) => row.dob ?? '',
-      searchValue: (row) => (row.dob ? formatDate(row.dob) : ''),
+      searchValue: (row) => (row.dob ? formatLongDate(row.dob) : ''),
       cellTemplate: this.dobCell(),
     },
     {
@@ -186,14 +187,12 @@ export class ManageUsersComponent implements OnInit {
     {
       key: 'updatedAt',
       label: 'Updated',
-      width: '120px',
+      width: '200px',
       filterable: false,
       visibleByDefault: true,
-      // Sorts chronologically off the raw ISO timestamp, but a user
-      // searching types the displayed MM-DD-YYYY format, not the ISO
-      // string - the whole reason sortValue/searchValue can diverge.
+      // Sorts by the raw timestamp while searches match the displayed UTC date/time.
       sortValue: (row) => row.updatedAt ?? '',
-      searchValue: (row) => (row.updatedAt ? formatDate(row.updatedAt) : ''),
+      searchValue: (row) => (row.updatedAt ? formatLongDateTime(row.updatedAt) : ''),
       cellTemplate: this.updatedAtCell(),
     },
   ]);

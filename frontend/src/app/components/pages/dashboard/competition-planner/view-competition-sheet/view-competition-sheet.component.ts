@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { NgClass } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PlannerCompetition } from 'src/app/models/PlannerCompetition';
-import { dateRangeText, formatDate } from 'src/app/shared/date.util';
+import { formatLongDateRange } from 'src/app/shared/date.util';
 import { Colors, EventNames, StateColors } from 'src/app/shared/types';
 import { AvatarComponent } from '../../../../shared/avatar/avatar.component';
 import { GoogleMapComponent } from '../../../../shared/google-map/google-map.component';
@@ -25,17 +25,12 @@ export class ViewCompetitionSheetComponent {
   closed = output<void>();
   EventNames = EventNames;
   StateColors = StateColors;
-
-  dateRangeText = dateRangeText;
-
-  displayDate(date: string | null | undefined): string {
-    return date ? formatDate(date) : '--';
-  }
+  formatLongDateRange = formatLongDateRange;
 
   registrationPeriodText(): string {
     const competition = this.competition();
     if (!competition.registration_open || !competition.registration_close) return '--';
-    return `${formatDate(competition.registration_open)} -\n${formatDate(competition.registration_close)}`;
+    return formatLongDateRange(competition.registration_open, competition.registration_close);
   }
 
   hasRegistrationPeriod(): boolean {

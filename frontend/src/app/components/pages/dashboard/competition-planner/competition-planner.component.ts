@@ -16,7 +16,7 @@ import { ToastService } from 'src/app/services/toast.service';
 import { ErrorBannerService } from 'src/app/services/error-banner.service';
 import { CompetitionPlannerApiService } from 'src/app/services/southeastcubing-api/competition-planner-api.service';
 import { Colors, EventNames, StateColors } from 'src/app/shared/types';
-import { formatDate, dateRangeText } from 'src/app/shared/date.util';
+import { formatLongDateRange } from 'src/app/shared/date.util';
 import { PlannerCompetition, PlannerCompetitionStatus } from 'src/app/models/PlannerCompetition';
 import { environment } from 'src/environments/environment';
 import { NgClass } from '@angular/common';
@@ -141,8 +141,7 @@ export class CompetitionPlannerComponent implements OnInit {
 
   isMobile = this.screenSizeService.isMobile;
   environment = environment;
-  formatDate = formatDate;
-  dateRangeText = dateRangeText;
+  formatLongDateRange = formatLongDateRange;
   StateColors = StateColors;
   EventNames = EventNames;
 
@@ -198,7 +197,7 @@ export class CompetitionPlannerComponent implements OnInit {
       filterable: false,
       visibleByDefault: true,
       sortValue: (row) => row.start_date,
-      searchValue: (row) => row.full_date ?? dateRangeText(row.start_date, row.end_date),
+      searchValue: (row) => row.full_date ?? formatLongDateRange(row.start_date, row.end_date),
       cellTemplate: this.dateCell(),
     },
     {
@@ -291,12 +290,11 @@ export class CompetitionPlannerComponent implements OnInit {
     {
       key: 'registrationPeriod',
       label: 'Registration Period',
-      width: '132px',
+      width: '140px',
       filterable: false,
       visibleByDefault: false,
       sortValue: (row) => row.registration_open,
-      searchValue: (row) =>
-        `${formatDate(row.registration_open)} -\n${formatDate(row.registration_close)}`,
+      searchValue: (row) => formatLongDateRange(row.registration_open, row.registration_close),
       cellTemplate: this.registrationPeriodCell(),
     },
   ]);
@@ -312,6 +310,7 @@ export class CompetitionPlannerComponent implements OnInit {
   linkingWcaCompetition = signal<PlannerCompetition | null>(null);
   activeSheet = signal<'add-edit' | 'view' | 'wca-link' | null>(null);
   isSheetClosing = signal(false);
+  private unannouncedCompetitionBanners = viewChild(UnannouncedCompetitionBannersComponent);
 
   // True for Admin/Board/Regional Delegate, or a Delegate already assigned to
   // this specific competition.
@@ -407,6 +406,7 @@ export class CompetitionPlannerComponent implements OnInit {
   onWcaLinkSaved(): void {
     this.closeSheet();
     this.loadCompetitions();
+    this.unannouncedCompetitionBanners()?.refresh();
   }
 
   deleteCompetition(row: PlannerCompetition): void {

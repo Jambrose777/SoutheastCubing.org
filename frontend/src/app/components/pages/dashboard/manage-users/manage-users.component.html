@@ -33,11 +33,11 @@
       <ng-template #wcaIdCell let-row>{{ row.wcaId ?? row.wcaUserId ?? '--' }}</ng-template>
       <ng-template #seciIdCell let-row>{{ row.seciId }}</ng-template>
       <ng-template #emailCell let-row>{{ row.email ?? '--' }}</ng-template>
-      <ng-template #dobCell let-row>{{ row.dob ? formatDate(row.dob) : '--' }}</ng-template>
+      <ng-template #dobCell let-row>{{ row.dob ? formatLongDate(row.dob) : '--' }}</ng-template>
       <ng-template #delegateCell let-row>{{ delegateCellText(row) }}</ng-template>
       <ng-template #teamCell let-row>{{ teamCellText(row) }}</ng-template>
       <ng-template #updatedAtCell let-row>{{
-        row.updatedAt ? formatDate(row.updatedAt) : '--'
+        row.updatedAt ? formatLongDateTime(row.updatedAt) : '--'
       }}</ng-template>
     </div>
   </div>
