@@ -64,7 +64,9 @@ CREATE TABLE competitions (
   full_date TEXT,
   announced_on_discord_at TIMESTAMP WITH TIME ZONE,
   wca_competition_id TEXT,
-  is_announced BOOLEAN DEFAULT false
+  is_announced BOOLEAN DEFAULT false,
+  waiting_list_count INTEGER,
+  waiting_list_count_updated_at TIMESTAMP WITH TIME ZONE
 );
 
 CREATE TABLE competitions_meta (

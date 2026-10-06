@@ -63,13 +63,20 @@ export class CompetitionRefreshControlComponent implements OnDestroy {
       next: (response) => {
         this.bulkRefreshInProgress.set(false);
         this.setLastBulkRefreshAt(response.meta.lastBulkRefreshAt);
+        const warnings: string[] = [];
+        if (response.privateDataRefreshFailed) {
+          warnings.push(
+            'Private or unannounced WCA data could not be refreshed. Public competitions were refreshed; check your WCA connection and try again.',
+          );
+        }
         if (response.discordPostFailures.length) {
           const failedNames = response.discordPostFailures
             .map((competition) => competition.name)
             .join(', ');
-          this.toastService.error(
-            `Refreshed competitions, but Discord posting failed for: ${failedNames}.`,
-          );
+          warnings.push(`Discord posting failed for: ${failedNames}.`);
+        }
+        if (warnings.length) {
+          this.toastService.error(`Competitions refreshed with issues. ${warnings.join(' ')}`);
         } else {
           this.toastService.success('Competitions refreshed.');
         }

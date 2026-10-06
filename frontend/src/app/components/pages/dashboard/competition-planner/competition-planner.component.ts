@@ -16,7 +16,7 @@ import { ToastService } from 'src/app/services/toast.service';
 import { ErrorBannerService } from 'src/app/services/error-banner.service';
 import { CompetitionPlannerApiService } from 'src/app/services/southeastcubing-api/competition-planner-api.service';
 import { Colors, EventNames, StateColors } from 'src/app/shared/types';
-import { formatLongDateRange } from 'src/app/shared/date.util';
+import { formatLongDateRange, formatLongDateTime } from 'src/app/shared/date.util';
 import { PlannerCompetition, PlannerCompetitionStatus } from 'src/app/models/PlannerCompetition';
 import { environment } from 'src/environments/environment';
 import { NgClass } from '@angular/common';
@@ -52,6 +52,28 @@ const STATUS_LABELS: Record<PlannerCompetitionStatus, string> = {
 function registrationsText(row: PlannerCompetition): string {
   if (row.competitor_limit == null) return '--';
   return `${row.accepted_registrations ?? 0} / ${row.competitor_limit}`;
+}
+
+// Shows a nonzero waiting-list count once a finite competitor limit is reached.
+function showWaitingList(row: PlannerCompetition): boolean {
+  const waitingListCount = row.waiting_list_count;
+  if (waitingListCount == null || waitingListCount <= 0) return false;
+  if (row.competitor_limit == null) return true;
+  return (row.accepted_registrations ?? 0) + waitingListCount >= row.competitor_limit;
+}
+
+// Formats the waiting-list count's last successful admin-fetch date.
+function waitingListTooltip(row: PlannerCompetition): string {
+  const updatedAt = row.waiting_list_count_updated_at;
+  return `Waiting List updated at:\n${updatedAt ? formatLongDateTime(updatedAt) : 'Unknown'}`;
+}
+
+// Treats missing or invalid timestamps as stale, as well as values older than 24 hours.
+function isWaitingListStale(row: PlannerCompetition): boolean {
+  const updatedAt = row.waiting_list_count_updated_at;
+  if (!updatedAt) return true;
+  const updatedAtMs = Date.parse(updatedAt);
+  return !Number.isFinite(updatedAtMs) || Date.now() - updatedAtMs > 24 * 60 * 60 * 1000; // 24 hours
 }
 
 // Name of the org's own WCA account, synced onto nearly every competition as
@@ -158,6 +180,9 @@ export class CompetitionPlannerComponent implements OnInit {
   );
   statusLabel = (row: PlannerCompetition) => STATUS_LABELS[row.status];
   registrationsText = registrationsText;
+  showWaitingList = showWaitingList;
+  waitingListTooltip = waitingListTooltip;
+  isWaitingListStale = isWaitingListStale;
   visibleOrganizers = visibleOrganizers;
   registrationPeriodColor = registrationPeriodColor;
   hasRegistrationPeriod = hasRegistrationPeriod;

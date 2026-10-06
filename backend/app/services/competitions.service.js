@@ -24,7 +24,6 @@ const { chunk } = require('../helpers/chunk.helper.js');
 const { groupBy } = require('../helpers/groupBy.helper.js');
 const { withResolvedPicture } = require('../helpers/personPicture.helper.js');
 const { httpError } = require('../helpers/httpError.helper.js');
-const rolesHelper = require('../helpers/roles.helper.js');
 const { VALID_EVENT_IDS } = require('../helpers/wcaEvents.helper.js');
 
 // Max rows upserted per statement, to keep each one well under DSQL's
@@ -487,7 +486,7 @@ async function linkManagedCompetitionToPlanner({ peopleId, wcaCompetitionId, pla
     throw httpError(403, 'WCA manage_competitions access is required to link a competition.');
   }
 
-  const eligibleCompetitions = await getEligibleUnlinkedManagedCompetitions(accessToken);
+  const eligibleCompetitions = await getEligibleUnlinkedManagedCompetitions(accessToken, peopleId);
   if (!eligibleCompetitions.some((comp) => comp.wca_competition_id === String(wcaCompetitionId))) {
     throw httpError(400, 'This WCA competition is not available to link.');
   }
@@ -513,7 +512,14 @@ async function linkManagedCompetitionToPlanner({ peopleId, wcaCompetitionId, pla
   if (!isEligibleManagedCompetition(wcaCompetition)) {
     throw httpError(400, 'This WCA competition is no longer eligible to link.');
   }
-  const [formattedCompetition] = await formatCompetitionData([wcaCompetition], []);
+
+  // Fetch registration data to add to the competition.
+  const competitionsToFormat = filterCompetitionsToTrackedSEStates([wcaCompetition]);
+  const registrationDataByWcaId = await fetchRegistrationDataByWcaId(competitionsToFormat, {
+    accessToken,
+    adminCompetitionIds: new Set([String(wcaCompetition.id)]),
+  });
+  const [formattedCompetition] = formatCompetitionData(competitionsToFormat, [], registrationDataByWcaId);
   if (!formattedCompetition) {
     throw httpError(400, 'This WCA competition could not be prepared for Planner.');
   }
@@ -708,24 +714,32 @@ async function refreshCompetitionFromWCA(competitionId, actor = {}) {
     throw httpError(404, 'WCA-linked competition not found.');
   }
 
-  const { peopleId, sessionId } = actor;
+  const { peopleId } = actor;
+  const [isAssignedDelegate, isAssignedOrganizer] = peopleId
+    ? await Promise.all([
+        competitionDelegatesDb.isDelegateOnCompetition(peopleId, plannerCompetition.id),
+        competitionOrganizersDb.isOrganizerOnCompetition(peopleId, plannerCompetition.id),
+      ])
+    : [false, false];
+  const isAssignedManager = isAssignedDelegate || isAssignedOrganizer;
   let accessToken;
 
-  // Unannounced competitions require token access.
+  // Unannounced competitions can only be refreshed by an assigned manager.
   if (!plannerCompetition.is_announced) {
-    const isAssignedDelegate =
-      peopleId &&
-      (await competitionDelegatesDb.isDelegateOnCompetition(peopleId, plannerCompetition.id));
-    const isAdmin = peopleId
-      ? (await rolesHelper.getCurrentRoles(peopleId, sessionId)).isAdmin
-      : false;
-    if (!isAssignedDelegate && !isAdmin) {
-      throw httpError(403, 'Only an Admin or a Delegate assigned to this competition can refresh it.');
+    if (!isAssignedManager) {
+      throw httpError(403, 'Only an assigned Delegate or Organizer can refresh this competition.');
     }
 
     accessToken = await authService.getValidAccessTokenForPerson(peopleId);
     if (!accessToken) {
       throw httpError(403, 'WCA manage_competitions access is required to refresh this competition.');
+    }
+  } else if (isAssignedManager && peopleId) {
+    try {
+      accessToken = await authService.getValidAccessTokenForPerson(peopleId);
+    } catch {
+      // Public competition and registration data can still refresh without the private token.
+      accessToken = null;
     }
   }
 
@@ -734,7 +748,12 @@ async function refreshCompetitionFromWCA(competitionId, actor = {}) {
     accessToken ? { accessToken } : undefined,
   );
 
-  const [competition] = await formatCompetitionData([wcaCompetition], []);
+  const competitionsToFormat = filterCompetitionsToTrackedSEStates([wcaCompetition]);
+  const registrationDataByWcaId = await fetchRegistrationDataByWcaId(competitionsToFormat, {
+    accessToken,
+    adminCompetitionIds: isAssignedManager ? new Set([String(wcaCompetition.id)]) : new Set(),
+  });
+  const [competition] = formatCompetitionData(competitionsToFormat, [], registrationDataByWcaId);
   if (!competition) {
     throw httpError(400, 'Competition is no longer in a tracked state.');
   }
@@ -779,43 +798,56 @@ async function refreshCompetitionsFromWCA(actor) {
     wcaCompetitions.map((competition) => String(competition.id)),
   );
 
-  // Get managed competitions for a person that aren't accounted for in publicWcaCompetitionIds.
+  // Get managed competitions and registration-admin access for assigned organizers/delegates.
   let managedOnlyCompetitions = [];
   const peopleId = actor?.peopleId;
+  let accessToken;
+  let privateDataRefreshFailed = false;
+  let adminRegistrationCompetitionIds = new Set();
   if (peopleId) {
     const plannerCompetitions = await competitionsDb.getAllUpcomingCompetitionsForPlanner();
-    // Filter to unannounced linked competitions.
-    const unannouncedPlannerCompetitions = plannerCompetitions.filter(
-      (competition) => !competition.is_announced && competition.wca_competition_id,
+    const plannerCompetitionIds = plannerCompetitions.map((competition) => competition.id);
+    const [delegateRows, organizerRows] = await Promise.all([
+      competitionDelegatesDb.listForCompetitions(plannerCompetitionIds),
+      competitionOrganizersDb.listForCompetitions(plannerCompetitionIds),
+    ]);
+    const assignedPlannerCompetitionIds = new Set(
+      [...delegateRows, ...organizerRows]
+        .filter((row) => String(row.people_id) === String(peopleId))
+        .map((row) => String(row.competition_id)),
     );
-
-    // Admin bypass, so that Southeast Cubing can sync despite not being a Delegate.
-    const { isAdmin } = await rolesHelper.getCurrentRoles(peopleId, actor.sessionId);
-    let delegatedCompetitionIds = new Set();
-    if (!isAdmin) {
-      // Filter to only competitions the person calling is a delegate of.
-      const delegateRows = await competitionDelegatesDb.listForCompetitions(
-        unannouncedPlannerCompetitions.map((competition) => competition.id),
-      );
-      delegatedCompetitionIds = new Set(
-        delegateRows
-          .filter((row) => String(row.people_id) === String(peopleId))
-          .map((row) => String(row.competition_id)),
-      );
-    }
-
-    // Convert UUID competition id to WCA competition id.
-    const managedPlannerCompetitionIds = new Set(
-      unannouncedPlannerCompetitions
+    const assignedPlannerCompetitions = plannerCompetitions.filter((competition) =>
+      assignedPlannerCompetitionIds.has(String(competition.id)),
+    );
+    adminRegistrationCompetitionIds = new Set(
+      assignedPlannerCompetitions
         .filter(
-          (competition) => isAdmin || delegatedCompetitionIds.has(String(competition.id)),
+          (competition) =>
+            competition.wca_competition_id &&
+            !moment.utc(competition.registration_open).isAfter(moment.now()),
         )
         .map((competition) => String(competition.wca_competition_id)),
     );
 
-    if (managedPlannerCompetitionIds.size) {
-      const accessToken = await authService.getValidAccessTokenForPerson(peopleId);
-      if (accessToken) {
+    // Only fetch unannounced WCA competitions assigned to this caller.
+    const managedPlannerCompetitionIds = new Set(
+      assignedPlannerCompetitions
+        .filter((competition) => !competition.is_announced && competition.wca_competition_id)
+        .map((competition) => String(competition.wca_competition_id)),
+    );
+
+    // Fetch Access Token
+    if (adminRegistrationCompetitionIds.size || managedPlannerCompetitionIds.size) {
+      try {
+        accessToken = await authService.getValidAccessTokenForPerson(peopleId);
+      } catch {
+        privateDataRefreshFailed = true;
+      }
+      if (!accessToken) privateDataRefreshFailed = true;
+    }
+
+    if (managedPlannerCompetitionIds.size && accessToken) {
+      try {
         const managedCompetitions = await fetchManagedWcaCompetitions(accessToken, peopleId, {
           startDate: moment().subtract(1, 'day').format('YYYY-MM-DD'),
           isEligible: (competition) =>
@@ -826,6 +858,8 @@ async function refreshCompetitionsFromWCA(actor) {
             managedPlannerCompetitionIds.has(String(competition.id)) &&
             !publicWcaCompetitionIds.has(String(competition.id)),
         );
+      } catch {
+        privateDataRefreshFailed = true;
       }
     }
   }
@@ -913,10 +947,21 @@ async function refreshCompetitionsFromWCA(actor) {
     seHostedPatternMatchIds,
   );
 
-  // format competition data
-  let comps = await formatCompetitionData(
+  // Fetch registration data before formatting the WCA competition records.
+  const competitionsToFormat = filterCompetitionsToTrackedSEStates(
     wcaCompetitions.concat(contentfulCompetitions),
+  );
+  const registrationDataByWcaId = await fetchRegistrationDataByWcaId(competitionsToFormat, {
+    accessToken,
+    adminCompetitionIds: adminRegistrationCompetitionIds,
+  });
+  privateDataRefreshFailed ||= [...registrationDataByWcaId.values()].some(
+    (registrationData) => registrationData.adminRegistrationFetchFailed,
+  );
+  const comps = formatCompetitionData(
+    competitionsToFormat,
     competitionsWithVolunteerApp,
+    registrationDataByWcaId,
   );
 
   // overwrite is_announced of the private managed only competitions
@@ -958,7 +1003,7 @@ async function refreshCompetitionsFromWCA(actor) {
     logger.warn('There are no competitions!');
   }
 
-  return { competitions: comps, discordPostFailures };
+  return { competitions: comps, discordPostFailures, privateDataRefreshFailed };
 }
 
 // Applies the editorial fields configured for a WCA competition in Contentful.
@@ -980,27 +1025,19 @@ function applyContentfulCompetitionOverrides(wcaCompetition, contentfulCompetiti
 // Filters `comps` down to competitions in the tracked SE states and maps
 // each one to the trimmed/enriched object shape used by the database layer
 // and frontend
-async function formatCompetitionData(comps, competitionsWithVolunteerApp) {
-  return await Promise.all(
-    comps
-      // Filter to only SE comp Dates.
-      .filter((comp) => {
-        // Guard for a missing city first - a competition without one can't
-        // match any SE state.
-        if (!comp.city) {
-          logger.warn(
-            `Skipping competition ${comp.id || '(no id)'} "${comp.name || '(no name)'}" - missing city.`,
-          );
-          return false;
-        }
-        return isInSEState(comp);
-      })
+function formatCompetitionData(
+  comps,
+  competitionsWithVolunteerApp,
+  registrationDataByWcaId,
+) {
+  return comps
+    // Sort by date.
+    .sort((a, b) => (moment(a.start_date).isBefore(b.start_date) ? -1 : 1))
 
-      //  Sort by date
-      .sort((a, b) => (moment(a.start_date).isBefore(b.start_date) ? -1 : 1))
-
-      // Create extra fields for competititon data & strip out unnecessary data
-      .map(async (competition) => ({
+    // Create extra fields for competition data and strip out unnecessary data.
+    .map((competition) => {
+      const registrationData = registrationDataByWcaId.get(String(competition.id));
+      return {
         url: competition.url,
         wca_competition_id: competition.id,
         name: competition.name,
@@ -1023,28 +1060,83 @@ async function formatCompetitionData(comps, competitionsWithVolunteerApp) {
         venue_url: getCompetitionVenueUrl(competition.venue),
         state: getStateFromCity(competition.city),
         is_in_volunteer_application: competitionsWithVolunteerApp.includes(competition.name),
-        accepted_registrations: await getRegistrationsFromWCA(competition),
+        accepted_registrations: registrationData?.acceptedRegistrations ?? 0,
+        waiting_list_count: registrationData?.waitingListCount ?? null,
+        waiting_list_count_updated_at: registrationData?.waitingListCountUpdatedAt ?? null,
         full_date: getFullCompetitionDate(competition.start_date, competition.end_date),
         // WCA's announced_at timestamp determines whether this is public yet.
         is_announced: Boolean(competition.announced_at),
-      })),
-  );
+      };
+    });
 }
 
-// gets registration data & returns how many registered competitors there are for a competition.
-function getRegistrationsFromWCA(competition) {
+// Keeps only competitions whose city belongs to a tracked Southeast state.
+function filterCompetitionsToTrackedSEStates(competitions) {
+  return competitions.filter(isInSEState);
+}
+
+// Fetches registration counts, using the admin endpoint only when the caller has an assigned token.
+async function getRegistrationsFromWCA(competition, accessToken) {
   // Before registration opens there can't be any registrants yet - skip the
   // call rather than hitting WCA for a guaranteed 0.
   if (moment.utc(competition.registration_open).isAfter(moment.now())) {
-    return Promise.resolve(0);
-  } else {
-    // fetch registrations from WCA
-    return wca.fetchCompetitionRegistrationsCount(competition.id).catch(() => {
-      // Don't let one competition's failed lookup break the whole fetch cycle -
-      // treat it as having 0 registrations rather than propagating undefined.
-      return 0;
-    });
+    return {
+      acceptedRegistrations: 0,
+      waitingListCount: null,
+      waitingListCountUpdatedAt: null,
+    };
   }
+
+  let adminRegistrationFetchFailed = false;
+  if (accessToken) {
+    try {
+      const registrations = await wca.fetchCompetitionAdminRegistrations(
+        String(competition.id),
+        accessToken,
+      );
+      return {
+        acceptedRegistrations: registrations.filter(
+          (registration) => registration?.competing?.registration_status === 'accepted',
+        ).length,
+        waitingListCount: registrations.filter(
+          (registration) => registration?.competing?.registration_status === 'waiting_list',
+        ).length,
+        waitingListCountUpdatedAt: new Date(),
+      };
+    } catch {
+      // The integration logs the admin failure; continue with the public accepted count
+      // as a fallback.
+      adminRegistrationFetchFailed = true;
+    }
+  }
+
+  let acceptedRegistrations = 0;
+  try {
+    acceptedRegistrations = await wca.fetchCompetitionRegistrationsCount(competition.id);
+  } catch {
+    // The integration logs the public failure; preserve the refresh flow with a zero result.
+  }
+  return {
+    acceptedRegistrations,
+    waitingListCount: null,
+    waitingListCountUpdatedAt: null,
+    adminRegistrationFetchFailed,
+  };
+}
+
+// Fetches counts at the call site so competition formatting remains API-independent.
+async function fetchRegistrationDataByWcaId(
+  competitions,
+  { accessToken, adminCompetitionIds = new Set() } = {},
+) {
+  const entries = await Promise.all(
+    competitions.map(async (competition) => {
+      const competitionId = String(competition.id);
+      const token = adminCompetitionIds.has(competitionId) ? accessToken : undefined;
+      return [competitionId, await getRegistrationsFromWCA(competition, token)];
+    }),
+  );
+  return new Map(entries);
 }
 
 // Fetches a single competition's information

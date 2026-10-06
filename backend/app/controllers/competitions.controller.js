@@ -55,14 +55,16 @@ async function getPlannerCompetitions(req, res) {
 // Refreshes upcoming WCA competitions for the signed-in Planner user.
 async function refreshPlannerCompetitions(req, res) {
   try {
-    const { competitions, discordPostFailures } = await runCoordinatedCompetitionRefresh({
-      peopleId: req.user.people_id,
-      sessionId: req.user.sessionId,
-    });
+    const { competitions, discordPostFailures, privateDataRefreshFailed } =
+      await runCoordinatedCompetitionRefresh({
+        peopleId: req.user.people_id,
+        sessionId: req.user.sessionId,
+      });
     const lastBulkRefreshAt = await competitionsDb.getLastBulkRefreshAt();
     res.status(200).json({
       competitions,
       discordPostFailures: discordPostFailures.map((comp) => ({ id: comp.id, name: comp.name })),
+      privateDataRefreshFailed,
       meta: { lastBulkRefreshAt },
     });
   } catch (err) {

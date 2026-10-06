@@ -113,7 +113,21 @@
           }
         </div>
       </ng-template>
-      <ng-template #registrationsCell let-row>{{ registrationsText(row) }}</ng-template>
+      <ng-template #registrationsCell let-row>
+        {{ registrationsText(row) }}
+        @if (showWaitingList(row)) {
+          <br />
+          <span
+            class="waiting-list-count"
+            [class.stale]="isWaitingListStale(row)"
+            [matTooltip]="waitingListTooltip(row)"
+            matTooltipClass="waiting-list-tooltip"
+            matTooltipPosition="above"
+          >
+            WL - {{ row.waiting_list_count }}
+          </span>
+        }
+      </ng-template>
       <ng-template #registrationPeriodCell let-row>
         @if (hasRegistrationPeriod(row)) {
           <span

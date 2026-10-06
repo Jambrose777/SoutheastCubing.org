@@ -20,6 +20,15 @@ async function listForCompetitions(competitionIds) {
   return rows;
 }
 
+// True if `peopleId` already has a competition_organizers row for `competitionId`.
+async function isOrganizerOnCompetition(peopleId, competitionId) {
+  const { rows } = await db.pool.query(
+    'SELECT 1 FROM competition_organizers WHERE people_id = $1 AND competition_id = $2 LIMIT 1',
+    [peopleId, competitionId],
+  );
+  return rows.length > 0;
+}
+
 // Replaces every competition_organizers row for `competitionId` with
 // `peopleIds` in one transaction - skipped entirely if the incoming set 
 // is identical to what's already stored.
@@ -67,4 +76,4 @@ async function replaceOrganizersForCompetition(competitionId, peopleIds) {
   });
 }
 
-module.exports = { listForCompetitions, replaceOrganizersForCompetition };
+module.exports = { listForCompetitions, isOrganizerOnCompetition, replaceOrganizersForCompetition };

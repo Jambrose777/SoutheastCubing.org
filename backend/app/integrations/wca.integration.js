@@ -103,6 +103,26 @@ async function fetchCompetitionRegistrationsCount(competitionId) {
   }
 }
 
+// Fetches the admin registration rows for a competition using its authorized WCA token.
+async function fetchCompetitionAdminRegistrations(competitionId, accessToken) {
+  const url = `https://www.worldcubeassociation.org/api/v1/competitions/${competitionId}/registrations/admin`;
+  try {
+    const res = await axios.get(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!Array.isArray(res.data)) {
+      throw new Error('Unexpected WCA admin registrations response shape');
+    }
+
+    logger.debug(`WCA admin registrations fetch succeeded (${res.data.length} results): ${url}`);
+    return res.data;
+  } catch (err) {
+    logger.error(`WCA admin registrations fetch failed: ${url} - `, err);
+    throw err;
+  }
+}
+
 // Exchanges a Doorkeeper authorization code for an access token, using the
 // standard OAuth2 authorization-code grant. Returns the full token response.
 async function exchangeAuthorizationCodeForToken({ code, clientId, clientSecret, redirectUri }) {
@@ -249,6 +269,7 @@ module.exports = {
   fetchManagedCompetitionsPage,
   fetchCompetitionById,
   fetchCompetitionRegistrationsCount,
+  fetchCompetitionAdminRegistrations,
   exchangeAuthorizationCodeForToken,
   refreshAccessToken,
   fetchWcaProfile,

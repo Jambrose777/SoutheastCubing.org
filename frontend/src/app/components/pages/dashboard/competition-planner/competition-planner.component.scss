@@ -1,5 +1,15 @@
 @use 'src/styles/color-pallet';
 
+::ng-deep .waiting-list-tooltip {
+  max-width: 420px !important;
+}
+
+::ng-deep .waiting-list-tooltip .mat-mdc-tooltip-surface {
+  max-width: 420px !important;
+  white-space: pre-line !important;
+  overflow-wrap: normal;
+}
+
 .competition-planner-content {
   position: relative;
   padding: 16px 24px;
@@ -102,6 +112,10 @@
   overflow-wrap: anywhere;
   line-height: 1.1;
   white-space: normal;
+}
+
+.waiting-list-count.stale {
+  color: color-pallet.$se-dark-grey;
 }
 
 .status-badge {

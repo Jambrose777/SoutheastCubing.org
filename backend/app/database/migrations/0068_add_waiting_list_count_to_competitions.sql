@@ -1,0 +1,1 @@
+ALTER TABLE competitions ADD COLUMN waiting_list_count INTEGER;

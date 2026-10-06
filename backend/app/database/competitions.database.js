@@ -31,6 +31,8 @@ const COLUMNS = [
   'state',
   'is_in_volunteer_application',
   'accepted_registrations',
+  'waiting_list_count',
+  'waiting_list_count_updated_at',
   'full_date',
   'wca_competition_id',
   'is_announced',
@@ -62,6 +64,8 @@ function toRow(id, comp) {
     comp.state,
     comp.is_in_volunteer_application ?? false,
     comp.accepted_registrations ?? null,
+    comp.waiting_list_count ?? null,
+    comp.waiting_list_count_updated_at ?? null,
     comp.full_date,
     comp.wca_competition_id ?? null,
     comp.is_announced ?? false,
@@ -93,6 +97,8 @@ function fromRow(row, eventIds) {
     state: row.state,
     is_in_volunteer_application: row.is_in_volunteer_application,
     accepted_registrations: row.accepted_registrations,
+    waiting_list_count: row.waiting_list_count,
+    waiting_list_count_updated_at: row.waiting_list_count_updated_at,
     full_date: row.full_date,
     wca_competition_id: row.wca_competition_id,
     is_announced: row.is_announced,
@@ -140,12 +146,15 @@ async function upsertCompetitionsBatch(batch) {
     });
 
     const updateSet = COLUMNS.filter((col) => col !== 'id')
-      .map((col) =>
-        // A re-synced 0 should never  clobber a previously-stored real count.
-        col === 'accepted_registrations'
-          ? `${col} = CASE WHEN EXCLUDED.${col} = 0 THEN competitions.${col} ELSE EXCLUDED.${col} END`
-          : `${col} = EXCLUDED.${col}`,
-      )
+      .map((col) => {
+        if (col === 'accepted_registrations') {
+          return `${col} = CASE WHEN EXCLUDED.${col} = 0 AND competitions.${col} > 0 THEN competitions.${col} ELSE EXCLUDED.${col} END`;
+        }
+        if (col === 'waiting_list_count' || col === 'waiting_list_count_updated_at') {
+          return `${col} = COALESCE(EXCLUDED.${col}, competitions.${col})`;
+        }
+        return `${col} = EXCLUDED.${col}`;
+      })
       .join(', ');
 
     await client.query(

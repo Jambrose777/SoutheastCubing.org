@@ -49,6 +49,8 @@ export interface PlannerCompetition {
   registration_close: string;
   competitor_limit: number | null;
   accepted_registrations: number | null;
+  waiting_list_count: number | null;
+  waiting_list_count_updated_at: string | null;
   event_ids: string[];
   delegates: PlannerPerson[];
   organizers: PlannerPerson[];
@@ -67,6 +69,7 @@ export interface PlannerCompetitionsResponse {
 export interface PlannerBulkRefreshResponse {
   competitions: unknown[];
   discordPostFailures: { id: string; name: string }[];
+  privateDataRefreshFailed: boolean;
   meta: PlannerRefreshMeta;
 }
 
