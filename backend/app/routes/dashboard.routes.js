@@ -550,6 +550,50 @@ router.get(
 
 /**
  * @openapi
+ * /dashboard/competition-planner/competitions/refresh:
+ *   post:
+ *     summary: Refresh upcoming competition data from WCA.
+ *     tags: [Competitions]
+ *     responses:
+ *       200:
+ *         description: Competitions refreshed, with the last successful refresh timestamp.
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not Admin/Board/Delegate or required WCA access is missing.
+ *       409:
+ *         description: Another bulk refresh is running or the global cooldown is active.
+ */
+router.post(
+  '/dashboard/competition-planner/competitions/refresh',
+  requireDelegateOrAdminOrBoard,
+  asyncRoute(competitionsController.refreshPlannerCompetitions),
+);
+
+/**
+ * @openapi
+ * /dashboard/competition-planner/competitions/{competitionId}/refresh:
+ *   post:
+ *     summary: Refresh one WCA-linked Planner competition.
+ *     tags: [Competitions]
+ *     responses:
+ *       200:
+ *         description: The refreshed Planner competition.
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not authorized to refresh this competition or WCA access is missing.
+ *       404:
+ *         description: WCA-linked competition not found.
+ */
+router.post(
+  '/dashboard/competition-planner/competitions/:competitionId/refresh',
+  requireDelegateOrAdminOrBoard,
+  asyncRoute(competitionsController.refreshPlannerCompetition),
+);
+
+/**
+ * @openapi
  * /dashboard/competition-planner/unannounced-competitions:
  *   get:
  *     summary: Lists the signed-in user's eligible managed WCA competitions that are not linked in Planner or permanently dismissed.

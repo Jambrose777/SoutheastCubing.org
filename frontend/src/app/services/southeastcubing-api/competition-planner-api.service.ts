@@ -4,6 +4,9 @@ import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
   PlannerCompetition,
+  PlannerBulkRefreshResponse,
+  PlannerCompetitionRefreshResponse,
+  PlannerCompetitionsResponse,
   PlannerCompetitionSaveRequest,
   PlannerWcaCompetitionOption,
   PlannerWcaLinkRequest,
@@ -18,8 +21,21 @@ export class CompetitionPlannerApiService {
   private base = `${environment.links.southeastCubingApi}/dashboard/competition-planner`;
 
   // Every upcoming competition regardless of status, for the planner's list view.
-  getCompetitions(): Observable<PlannerCompetition[]> {
-    return this.http.get<PlannerCompetition[]>(`${this.base}/competitions`);
+  getCompetitions(): Observable<PlannerCompetitionsResponse> {
+    return this.http.get<PlannerCompetitionsResponse>(`${this.base}/competitions`);
+  }
+
+  // Refreshes upcoming competitions, subject to the global cooldown and single-flight guard.
+  refreshCompetitions(): Observable<PlannerBulkRefreshResponse> {
+    return this.http.post<PlannerBulkRefreshResponse>(`${this.base}/competitions/refresh`, null);
+  }
+
+  // Refreshes one WCA-linked Planner row.
+  refreshCompetition(competitionId: string): Observable<PlannerCompetitionRefreshResponse> {
+    return this.http.post<PlannerCompetitionRefreshResponse>(
+      `${this.base}/competitions/${encodeURIComponent(competitionId)}/refresh`,
+      null,
+    );
   }
 
   // WCA competitions eligible for an automatic banner, excluding permanent dismissals.

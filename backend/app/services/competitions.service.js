@@ -24,20 +24,30 @@ const { chunk } = require('../helpers/chunk.helper.js');
 const { groupBy } = require('../helpers/groupBy.helper.js');
 const { withResolvedPicture } = require('../helpers/personPicture.helper.js');
 const { httpError } = require('../helpers/httpError.helper.js');
+const rolesHelper = require('../helpers/roles.helper.js');
 const { VALID_EVENT_IDS } = require('../helpers/wcaEvents.helper.js');
 
 // Max rows upserted per statement, to keep each one well under DSQL's
 // 3,000-row transaction cap as the retained history keeps growing.
 const UPSERT_CHUNK_SIZE = 500;
 const MANAGED_COMPETITIONS_MAX_PAGES = 20;
+const BULK_REFRESH_COOLDOWN_MINUTES = 5;
 
 // In-process cache of the last getAnnouncedUpcomingCompetitions() result.
 // Cleared by invalidateCache() whenever a write changes the store, so repeat
 // requests between refreshes don't all re-query the database.
 let competitionsCache = null;
+const competitionsCacheInstanceId = crypto.randomUUID();
+let competitionsCacheRevision = 0;
 
 function invalidateCache() {
   competitionsCache = null;
+  competitionsCacheRevision++;
+}
+
+// Provides a cheap validator for the public competition list without reading its data.
+function getAnnouncedUpcomingCompetitionsRevision() {
+  return `${competitionsCacheInstanceId}-${competitionsCacheRevision}`;
 }
 
 // Merges each comp's event ids with its data.
@@ -204,9 +214,21 @@ function isEligibleManagedCompetition(comp) {
   );
 }
 
+// Matches the Planner's upcoming window, including its one-day timezone grace period.
+function isUpcomingCompetition(comp) {
+  const endDate = moment(comp.end_date, 'YYYY-MM-DD', true);
+  return endDate.isValid() && !endDate.isBefore(moment().subtract(1, 'day'), 'day');
+}
+
 // Reads every page of the current Delegate's managed US competitions.
-async function fetchManagedWcaCompetitions(accessToken, peopleId) {
-  const startDate = moment().add(MIN_START_DATE_LEAD_DAYS, 'days').format('YYYY-MM-DD');
+async function fetchManagedWcaCompetitions(
+  accessToken,
+  peopleId,
+  {
+    startDate = moment().add(MIN_START_DATE_LEAD_DAYS, 'days').format('YYYY-MM-DD'),
+    isEligible = isEligibleManagedCompetition,
+  } = {},
+) {
   let competitions = [];
 
   for (let page = 1; page <= MANAGED_COMPETITIONS_MAX_PAGES; page++) {
@@ -233,7 +255,7 @@ async function fetchManagedWcaCompetitions(accessToken, peopleId) {
     }
   }
 
-  return competitions.filter(isEligibleManagedCompetition);
+  return competitions.filter(isEligible);
 }
 
 // Lists eligible managed competitions that are not already linked in Planner.
@@ -524,9 +546,8 @@ async function linkManagedCompetitionToPlanner({ peopleId, wcaCompetitionId, pla
 }
 
 // Upserts `comps` in chunks under DSQL's row cap, returning the ids newly
-// inserted across every chunk. If the table was empty before this call, every 
-// newly-inserted id is immediately stamped as already-announced, so a 
-// first-time-populated store doesn't post its entire backlog to Discord.
+// inserted across every chunk. On first-time population, public competitions
+// are stamped as posted to avoid a Discord backlog; unannounced rows stay pending.
 async function upsertCompetitions(comps) {
   if (!comps.length) return [];
 
@@ -570,8 +591,12 @@ async function upsertCompetitions(comps) {
     invalidateCache();
 
     if (wasEmpty) {
-      if (insertedIds.length) {
-        await competitionsDb.markAnnounced(insertedIds);
+      const insertedIdSet = new Set(insertedIds);
+      const announcedInsertedIds = allBatchWithIds
+        .filter(({ id, comp }) => insertedIdSet.has(id) && comp.is_announced)
+        .map(({ id }) => id);
+      if (announcedInsertedIds.length) {
+        await competitionsDb.markAnnounced(announcedInsertedIds);
       }
       logger.debug(
         `Upserted ${comps.length} competitions in the competitions table (first-time population).`,
@@ -591,14 +616,14 @@ async function upsertCompetitions(comps) {
 
 // Refetches competitions from WCA if the stored data is stale.
 async function fetchCompetitions() {
-  const lastChecked = await competitionsDb.getLastChecked();
+  const lastBulkRefreshAt = await competitionsDb.getLastBulkRefreshAt();
 
   if (
-    !lastChecked ||
-    lastChecked.isBefore(moment().set('hour', 0).set('minute', 0).set('second', 0))
+    !lastBulkRefreshAt ||
+    lastBulkRefreshAt.isBefore(moment().set('hour', 0).set('minute', 0).set('second', 0))
   ) {
     logger.info('Stored competitions data is stale - fetching from WCA.');
-    await refreshCompetitionsFromWCA();
+    await runCoordinatedCompetitionRefresh();
     logger.info('Successfully fetched competitions from WCA.');
   } else {
     logger.info('Stored competitions data is already fresh - skipping fetch.');
@@ -648,8 +673,81 @@ function sortForDiscordPosting(competitions) {
   });
 }
 
-// gets full competition list from WCA
-async function refreshCompetitionsFromWCA() {
+// Claims the global refresh slot and records only successful full refreshes.
+async function runCoordinatedCompetitionRefresh(actor) {
+  const cooldownCutoff = moment().subtract(BULK_REFRESH_COOLDOWN_MINUTES, 'minutes');
+  const refreshState = await competitionsDb.tryStartBulkRefresh(cooldownCutoff.toDate());
+
+  if (!refreshState.started) {
+    const reason = refreshState.isRunning
+      ? 'A competition refresh is already in progress.'
+      : 'Competitions were refreshed less than 5 minutes ago.';
+    const error = httpError(409, reason);
+    error.refreshState = refreshState;
+    throw error;
+  }
+
+  try {
+    const result = await refreshCompetitionsFromWCA(actor);
+    if (result.competitions.length) {
+      await competitionsDb.completeBulkRefresh(moment(), refreshState.bulkRefreshStartedAt);
+    } else {
+      await competitionsDb.releaseBulkRefresh(refreshState.bulkRefreshStartedAt);
+    }
+    return result;
+  } catch (err) {
+    await competitionsDb.releaseBulkRefresh(refreshState.bulkRefreshStartedAt);
+    throw err;
+  }
+}
+
+// Refreshes one existing Planner row without taking the global bulk-refresh slot.
+async function refreshCompetitionFromWCA(competitionId, actor = {}) {
+  const plannerCompetition = await competitionsDb.getCompetitionById(competitionId);
+  if (!plannerCompetition || !plannerCompetition.wca_competition_id) {
+    throw httpError(404, 'WCA-linked competition not found.');
+  }
+
+  const { peopleId, sessionId } = actor;
+  let accessToken;
+
+  // Unannounced competitions require token access.
+  if (!plannerCompetition.is_announced) {
+    const isAssignedDelegate =
+      peopleId &&
+      (await competitionDelegatesDb.isDelegateOnCompetition(peopleId, plannerCompetition.id));
+    const isAdmin = peopleId
+      ? (await rolesHelper.getCurrentRoles(peopleId, sessionId)).isAdmin
+      : false;
+    if (!isAssignedDelegate && !isAdmin) {
+      throw httpError(403, 'Only an Admin or a Delegate assigned to this competition can refresh it.');
+    }
+
+    accessToken = await authService.getValidAccessTokenForPerson(peopleId);
+    if (!accessToken) {
+      throw httpError(403, 'WCA manage_competitions access is required to refresh this competition.');
+    }
+  }
+
+  const wcaCompetition = await wca.fetchCompetitionById(
+    String(plannerCompetition.wca_competition_id),
+    accessToken ? { accessToken } : undefined,
+  );
+
+  const [competition] = await formatCompetitionData([wcaCompetition], []);
+  if (!competition) {
+    throw httpError(400, 'Competition is no longer in a tracked state.');
+  }
+
+  competition.is_announced = Boolean(wcaCompetition.announced_at);
+  competition.is_in_volunteer_application = plannerCompetition.is_in_volunteer_application;
+  await upsertCompetitions([competition]);
+
+  return { ...competition, id: plannerCompetition.id };
+}
+
+// Fetches and persists the full competition list from WCA and supporting sources.
+async function refreshCompetitionsFromWCA(actor) {
   // WCA paginates at per_page results; loop through successive pages
   // (stopping once a page returns fewer than per_page results, the
   // standard "last page" signal) so a true count over 1000 doesn't
@@ -676,6 +774,66 @@ async function refreshCompetitionsFromWCA() {
       );
     }
   }
+
+  const publicWcaCompetitionIds = new Set(
+    wcaCompetitions.map((competition) => String(competition.id)),
+  );
+
+  // Get managed competitions for a person that aren't accounted for in publicWcaCompetitionIds.
+  let managedOnlyCompetitions = [];
+  const peopleId = actor?.peopleId;
+  if (peopleId) {
+    const plannerCompetitions = await competitionsDb.getAllUpcomingCompetitionsForPlanner();
+    // Filter to unannounced linked competitions.
+    const unannouncedPlannerCompetitions = plannerCompetitions.filter(
+      (competition) => !competition.is_announced && competition.wca_competition_id,
+    );
+
+    // Admin bypass, so that Southeast Cubing can sync despite not being a Delegate.
+    const { isAdmin } = await rolesHelper.getCurrentRoles(peopleId, actor.sessionId);
+    let delegatedCompetitionIds = new Set();
+    if (!isAdmin) {
+      // Filter to only competitions the person calling is a delegate of.
+      const delegateRows = await competitionDelegatesDb.listForCompetitions(
+        unannouncedPlannerCompetitions.map((competition) => competition.id),
+      );
+      delegatedCompetitionIds = new Set(
+        delegateRows
+          .filter((row) => String(row.people_id) === String(peopleId))
+          .map((row) => String(row.competition_id)),
+      );
+    }
+
+    // Convert UUID competition id to WCA competition id.
+    const managedPlannerCompetitionIds = new Set(
+      unannouncedPlannerCompetitions
+        .filter(
+          (competition) => isAdmin || delegatedCompetitionIds.has(String(competition.id)),
+        )
+        .map((competition) => String(competition.wca_competition_id)),
+    );
+
+    if (managedPlannerCompetitionIds.size) {
+      const accessToken = await authService.getValidAccessTokenForPerson(peopleId);
+      if (accessToken) {
+        const managedCompetitions = await fetchManagedWcaCompetitions(accessToken, peopleId, {
+          startDate: moment().subtract(1, 'day').format('YYYY-MM-DD'),
+          isEligible: (competition) =>
+            isUpcomingCompetition(competition) && isInSEState(competition),
+        });
+        managedOnlyCompetitions = managedCompetitions.filter(
+          (competition) =>
+            managedPlannerCompetitionIds.has(String(competition.id)) &&
+            !publicWcaCompetitionIds.has(String(competition.id)),
+        );
+      }
+    }
+  }
+
+  const managedOnlyCompetitionIds = new Set(
+    managedOnlyCompetitions.map((competition) => String(competition.id)),
+  );
+  wcaCompetitions = wcaCompetitions.concat(managedOnlyCompetitions);
 
   // fetch manual competitions from Contentful. Isolated in its own
   // try/catch so a Contentful outage doesn't block the WCA-only data from
@@ -721,24 +879,14 @@ async function refreshCompetitionsFromWCA() {
         `Merged manual competition "${contentfulComp.fields.name}" (${contentfulComp.fields.id}) from Contentful.`,
       );
 
-      return {
-        ...wcaCompetition,
-        name: contentfulComp.fields.name,
-        city: contentfulComp.fields.city,
-        venue_address: contentfulComp.fields.venueAddress,
-        venue_details: contentfulComp.fields.venueDetails,
-        latitude_degrees: contentfulComp.fields.latitudeDegrees,
-        longitude_degrees: contentfulComp.fields.longitudeDegrees,
-        country_iso2: contentfulComp.fields.countryIso2,
-        competitor_limit: contentfulComp.fields.competitorLimit,
-      };
+      return applyContentfulCompetitionOverrides(wcaCompetition, contentfulComp);
     }),
   );
 
   // Filter out competitions whose WCA lookup failed, then past competitions
   contentfulCompetitions = contentfulCompetitions
     .filter((comp) => comp)
-    .filter((comp) => moment(comp.end_date).isAfter(moment().add(-1, 'day')));
+    .filter(isUpcomingCompetition);
 
   // fetch competitions with a volunteer application
   let competitionsWithVolunteerApp = await googleForm.getCompetitionsInVolunteerForm();
@@ -771,6 +919,13 @@ async function refreshCompetitionsFromWCA() {
     competitionsWithVolunteerApp,
   );
 
+  // overwrite is_announced of the private managed only competitions
+  for (const comp of comps) {
+    if (managedOnlyCompetitionIds.has(String(comp.wca_competition_id))) {
+      comp.is_announced = false;
+    }
+  }
+
   let discordPostFailures = [...majorChampionshipDiscordFailures];
   if (comps && comps.length) {
     logger.debug(`Formatted ${comps.length} competitions for the public list.`);
@@ -780,12 +935,16 @@ async function refreshCompetitionsFromWCA() {
     // announced).
     await upsertCompetitions(comps);
 
-    const unannouncedCompetitions = await withEventIds(
-      await competitionsDb.getUnannouncedCompetitions(),
+    // Post pending competitions on Discord.
+    const competitionsPendingDiscordAnnouncement = await withEventIds(
+      (await competitionsDb.getCompetitionsPendingDiscordAnnouncement()).filter(
+        (competition) =>
+          !managedOnlyCompetitionIds.has(String(competition.wca_competition_id)),
+      ),
     );
-    if (unannouncedCompetitions.length) {
+    if (competitionsPendingDiscordAnnouncement.length) {
       discordPostFailures = discordPostFailures.concat(
-        await postCompetitionsToDiscord(unannouncedCompetitions),
+        await postCompetitionsToDiscord(competitionsPendingDiscordAnnouncement),
       );
     }
 
@@ -794,13 +953,28 @@ async function refreshCompetitionsFromWCA() {
     // so it's treated as an unconfirmed check rather than a successful one.
     // This keeps update-competitions' rate limit and fetchCompetitions'
     // staleness check retrying instead of going stale on bad data.
-    await competitionsDb.setLastChecked(moment());
     invalidateCache();
   } else {
     logger.warn('There are no competitions!');
   }
 
   return { competitions: comps, discordPostFailures };
+}
+
+// Applies the editorial fields configured for a WCA competition in Contentful.
+function applyContentfulCompetitionOverrides(wcaCompetition, contentfulCompetition) {
+  const fields = contentfulCompetition.fields;
+  return {
+    ...wcaCompetition,
+    name: fields.name,
+    city: fields.city,
+    venue_address: fields.venueAddress,
+    venue_details: fields.venueDetails,
+    latitude_degrees: fields.latitudeDegrees,
+    longitude_degrees: fields.longitudeDegrees,
+    country_iso2: fields.countryIso2,
+    competitor_limit: fields.competitorLimit,
+  };
 }
 
 // Filters `comps` down to competitions in the tracked SE states and maps
@@ -851,8 +1025,8 @@ async function formatCompetitionData(comps, competitionsWithVolunteerApp) {
         is_in_volunteer_application: competitionsWithVolunteerApp.includes(competition.name),
         accepted_registrations: await getRegistrationsFromWCA(competition),
         full_date: getFullCompetitionDate(competition.start_date, competition.end_date),
-        // Every competition reaching this point came from WCA's own public list.
-        is_announced: true,
+        // WCA's announced_at timestamp determines whether this is public yet.
+        is_announced: Boolean(competition.announced_at),
       })),
   );
 }
@@ -931,8 +1105,10 @@ function isInSEState(comp) {
 
 module.exports = {
   fetchCompetitions,
-  refreshCompetitionsFromWCA,
+  runCoordinatedCompetitionRefresh,
+  refreshCompetitionFromWCA,
   getAnnouncedUpcomingCompetitions,
+  getAnnouncedUpcomingCompetitionsRevision,
   getAllUpcomingCompetitionsForPlanner,
   getUnannouncedCompetitionBanners,
   getUnannouncedCompetitionLinkOptions,

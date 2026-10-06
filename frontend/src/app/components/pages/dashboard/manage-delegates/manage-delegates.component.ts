@@ -126,8 +126,7 @@ export class ManageDelegatesComponent implements OnInit {
   // History mode's own "Group by Delegate" toggle - defaults on.
   groupByDelegate = signal(true);
 
-  // Manual "Refresh" sync button's own state, mirroring
-  // update-competitions' own button pattern.
+  // Manual "Refresh" sync button's own state.
   syncing = signal(false);
 
   activeSheet = signal<ActiveSheet>(null);

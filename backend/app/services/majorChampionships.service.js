@@ -80,6 +80,7 @@ async function fetchSupplementalMajorChampionships(alreadyFetchedIds, patterns) 
 // major_championship_announcements/posted to Discord.
 function detectMajorChampionships(wcaCompetitions, patterns) {
   return wcaCompetitions
+    .filter((comp) => Boolean(comp.announced_at))
     .filter((comp) =>
       patterns.some((pattern) =>
         discordPingPatternsDb.matchesIdPattern(comp.id, pattern.id_pattern),
@@ -128,7 +129,10 @@ async function refreshMajorChampionships(wcaCompetitions, patterns, excludedIds 
   await majorChampionshipsDb.upsertMajorChampionships(detected);
 
   // post any unannounced major championships to Discord with an @everyone ping
-  const unannounced = await majorChampionshipsDb.getUnannounced();
+  const publiclyAnnouncedIds = new Set(detected.map((comp) => comp.id));
+  const unannounced = (await majorChampionshipsDb.getUnannounced()).filter((competition) =>
+    publiclyAnnouncedIds.has(competition.id),
+  );
   if (!unannounced.length) return [];
 
   logger.info(`Posting ${unannounced.length} unannounced major championship(s) to Discord.`);

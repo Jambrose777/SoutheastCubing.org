@@ -43,14 +43,6 @@ export const routes: Routes = [
     title: 'SoutheastCubing - Competitions',
   },
   {
-    path: 'update-competitions',
-    loadComponent: () =>
-      import('./components/pages/update-competitions/update-competitions.component').then(
-        (m) => m.UpdateCompetitionsComponent,
-      ),
-    title: 'SoutheastCubing - Update Competitions',
-  },
-  {
     path: 'clubs',
     loadComponent: loadClubs,
     title: 'SoutheastCubing - Clubs',

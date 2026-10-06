@@ -4,7 +4,7 @@ const logger = require('../utils/logger.util.js');
 
 const {
   fetchCompetitions,
-  refreshCompetitionsFromWCA,
+  runCoordinatedCompetitionRefresh,
 } = require('../services/competitions.service.js');
 
 // Fetches competitions once immediately on boot (if the stored data is
@@ -14,14 +14,24 @@ const {
 // controller/service file.
 function registerCompetitionsRefreshJob() {
   fetchCompetitions().catch((e) => {
+    if (e.status === 409) {
+      logger.info(`Skipping startup competition refresh: ${e.message}`);
+      return;
+    }
     logger.error('Error on fetching competitions on startup: ', e);
   });
 
   schedule.scheduleJob('0 0 * * *', () => {
     logger.info('Fetching competitions on scheduled update.');
-    refreshCompetitionsFromWCA()
+    runCoordinatedCompetitionRefresh()
       .then(() => logger.info('Successfully fetched competitions on scheduled update.'))
-      .catch((e) => logger.error('Error on fetching competitions on scheduled update: ', e));
+      .catch((e) => {
+        if (e.status === 409) {
+          logger.info(`Skipping scheduled competition refresh: ${e.message}`);
+          return;
+        }
+        logger.error('Error on fetching competitions on scheduled update: ', e);
+      });
   });
 }
 

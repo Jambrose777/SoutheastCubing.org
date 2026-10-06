@@ -33,6 +33,7 @@ import { AddEditCompetitionSheetComponent } from './add-edit-competition-sheet/a
 import { ViewCompetitionSheetComponent } from './view-competition-sheet/view-competition-sheet.component';
 import { UnannouncedCompetitionBannersComponent } from './unannounced-competition-banners/unannounced-competition-banners.component';
 import { WcaLinkCompetitionSheetComponent } from './wca-link-competition-sheet/wca-link-competition-sheet.component';
+import { CompetitionRefreshControlComponent } from './competition-refresh-control/competition-refresh-control.component';
 import { DASHBOARD_TOOLS } from '../dashboard-tools';
 import {
   getRegistrationStatus,
@@ -127,6 +128,7 @@ function registrationStatusColor(row: PlannerCompetition): Colors {
     ViewCompetitionSheetComponent,
     UnannouncedCompetitionBannersComponent,
     WcaLinkCompetitionSheetComponent,
+    CompetitionRefreshControlComponent,
   ],
 })
 export class CompetitionPlannerComponent implements OnInit {
@@ -147,6 +149,8 @@ export class CompetitionPlannerComponent implements OnInit {
 
   loading = signal(true);
   rows = signal<PlannerCompetition[]>([]);
+  lastBulkRefreshAt = signal<string | null>(null);
+  refreshingCompetitionIds = signal<Set<string>>(new Set());
   potentialRows = computed(() =>
     this.rows()
       .filter((row) => row.status === 'potential')
@@ -321,6 +325,17 @@ export class CompetitionPlannerComponent implements OnInit {
     return row.delegates.some((delegate) => delegate.peopleId === user.peopleId);
   };
 
+  // Refresh is public-data-only for announced rows; planning rows need Admin or assignment.
+  canRefreshCompetition = (row: PlannerCompetition): boolean => {
+    if (!row.wca_competition_id) return false;
+    if (row.is_announced) return true;
+    const user = this.authService.currentUser();
+    return (
+      !!user &&
+      (user.roles.isAdmin || row.delegates.some((delegate) => delegate.peopleId === user.peopleId))
+    );
+  };
+
   rowActions = computed<DataTableActions<PlannerCompetition>>(() => ({
     overflow: [
       {
@@ -333,6 +348,13 @@ export class CompetitionPlannerComponent implements OnInit {
         label: 'Edit',
         onClick: (row) => this.openEditCompetition(row),
         visible: (row) => this.canEdit(row),
+      },
+      {
+        icon: 'fa-arrows-rotate',
+        label: 'Refresh WCA data',
+        onClick: (row) => this.refreshCompetition(row),
+        visible: (row) =>
+          this.canRefreshCompetition(row) && !this.refreshingCompetitionIds().has(row.id),
       },
       {
         icon: 'fa-link',
@@ -421,6 +443,32 @@ export class CompetitionPlannerComponent implements OnInit {
     });
   }
 
+  // Refreshes a single competition.
+  private refreshCompetition(row: PlannerCompetition): void {
+    if (!this.canRefreshCompetition(row) || this.refreshingCompetitionIds().has(row.id)) return;
+    this.refreshingCompetitionIds.update((ids) => new Set(ids).add(row.id));
+
+    this.competitionPlannerApi.refreshCompetition(row.id).subscribe({
+      next: () => {
+        this.refreshingCompetitionIds.update((ids) => {
+          const updated = new Set(ids);
+          updated.delete(row.id);
+          return updated;
+        });
+        this.toastService.success('Competition refreshed.');
+        this.loadCompetitions();
+      },
+      error: (err) => {
+        this.refreshingCompetitionIds.update((ids) => {
+          const updated = new Set(ids);
+          updated.delete(row.id);
+          return updated;
+        });
+        this.errorBannerService.show(err?.error?.message ?? 'Failed to refresh competition.');
+      },
+    });
+  }
+
   ngOnInit() {
     const tool = DASHBOARD_TOOLS.find((t) => t.routerLink === '/dashboard/competition-planner');
     this.themeService.setMainPaneColor(tool?.color ?? Colors.grey);
@@ -432,14 +480,19 @@ export class CompetitionPlannerComponent implements OnInit {
   private loadCompetitions(): void {
     this.loading.set(true);
     this.competitionPlannerApi.getCompetitions().subscribe({
-      next: (competitions) => {
-        this.rows.set(competitions);
+      next: (response) => {
+        this.rows.set(response.competitions);
+        this.lastBulkRefreshAt.set(response.meta.lastBulkRefreshAt);
         this.loading.set(false);
       },
       error: () => {
         this.loading.set(false);
       },
     });
+  }
+
+  onBulkRefreshCompleted(): void {
+    this.loadCompetitions();
   }
 
   // Reloads the canonical Planner rows after the child completes a WCA link.

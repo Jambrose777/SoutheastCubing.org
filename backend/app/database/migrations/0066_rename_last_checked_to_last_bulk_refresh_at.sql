@@ -1,0 +1,1 @@
+ALTER TABLE competitions_meta RENAME COLUMN last_checked TO last_bulk_refresh_at;

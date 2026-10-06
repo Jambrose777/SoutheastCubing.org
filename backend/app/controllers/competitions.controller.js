@@ -1,11 +1,11 @@
-const moment = require('moment');
-
 const logger = require('../utils/logger.util.js');
 
 const competitionsDb = require('../database/competitions.database.js');
 const {
-  refreshCompetitionsFromWCA,
+  runCoordinatedCompetitionRefresh,
+  refreshCompetitionFromWCA,
   getAnnouncedUpcomingCompetitions,
+  getAnnouncedUpcomingCompetitionsRevision,
   getAllUpcomingCompetitionsForPlanner,
   getUnannouncedCompetitionBanners,
   getUnannouncedCompetitionLinkOptions,
@@ -19,19 +19,13 @@ const { respondWithServiceError } = require('../helpers/httpError.helper.js');
 
 // Gets upcoming competitions from the database.
 async function getCompetitions(req, res) {
-  const lastChecked = await competitionsDb.getLastChecked();
+  const etag = `W/"${getAnnouncedUpcomingCompetitionsRevision()}"`;
   res.set('Cache-Control', 'no-cache');
+  res.set('ETag', etag);
 
-  if (lastChecked) {
-    // Weak ETag derived from lastChecked rather than the response body, so
-    // it represents freshness of the underlying data, not a byte-for-byte
-    // match of the response body.
-    const etag = `W/"${lastChecked.valueOf()}"`;
-    res.set('ETag', etag);
-    if (req.headers['if-none-match'] === etag) {
-      res.status(304).end();
-      return;
-    }
+  if (req.headers['if-none-match'] === etag) {
+    res.status(304).end();
+    return;
   }
 
   try {
@@ -43,47 +37,60 @@ async function getCompetitions(req, res) {
   }
 }
 
-// updates competitions with a fresh pull from wca.
-async function updateCompetitions(req, res) {
-  const lastChecked = await competitionsDb.getLastChecked();
-
-  // deny request if updated within the last hour
-  if (lastChecked && lastChecked.isAfter(moment().add(-1, 'hour'))) {
-    logger.info('attempted update-competitions within 1 hour of a refresh.');
-    res.status(400).json({
-      message:
-        'Cannot update multiple times within an hour. Last update was: ' +
-        lastChecked.format('YYYY-MM-DD HH:mm:ss'),
-    });
-  } else {
-    // pull competitions from WCA
-    logger.info('Fetching competitions from wca on update-competitions request.');
-    try {
-      const { competitions, discordPostFailures } = await refreshCompetitionsFromWCA();
-      logger.info('Successfully Fetched competitions from wca on update-competitions request.');
-
-      res.send({
-        competitions,
-        discordPostFailures: discordPostFailures.map((comp) => ({ id: comp.id, name: comp.name })),
-      });
-    } catch (err) {
-      logger.error('Failed to fetch competitions from wca on update-competitions request: ', err);
-      if (!res.headersSent) {
-        res.status(500).json({ message: 'Failed to fetch competitions from WCA.' });
-      }
-    }
-  }
-}
-
 // Gets every upcoming competition regardless of status for the Competition Planner tool.
 async function getPlannerCompetitions(req, res) {
   try {
-    const comps = await getAllUpcomingCompetitionsForPlanner();
-    res.status(200).json(comps);
+    const [competitions, lastBulkRefreshAt] = await Promise.all([
+      getAllUpcomingCompetitionsForPlanner(),
+      competitionsDb.getLastBulkRefreshAt(),
+    ]);
+    res.status(200).json({ competitions, meta: { lastBulkRefreshAt } });
   } catch (err) {
     logger.error('Failed to fetch competitions for the Competition Planner: ', err);
     res.status(503).json({ message: 'Competition data is temporarily unavailable.' });
     return;
+  }
+}
+
+// Refreshes upcoming WCA competitions for the signed-in Planner user.
+async function refreshPlannerCompetitions(req, res) {
+  try {
+    const { competitions, discordPostFailures } = await runCoordinatedCompetitionRefresh({
+      peopleId: req.user.people_id,
+      sessionId: req.user.sessionId,
+    });
+    const lastBulkRefreshAt = await competitionsDb.getLastBulkRefreshAt();
+    res.status(200).json({
+      competitions,
+      discordPostFailures: discordPostFailures.map((comp) => ({ id: comp.id, name: comp.name })),
+      meta: { lastBulkRefreshAt },
+    });
+  } catch (err) {
+    if (err.status === 409) {
+      res.status(409).json({
+        message: err.message,
+        meta: { lastBulkRefreshAt: err.refreshState?.lastBulkRefreshAt ?? null },
+      });
+      return;
+    }
+    res.status(err.status && err.status < 500 ? err.status : 500).json({
+      message: err.status && err.status < 500 ? err.message : 'Failed to refresh competitions.',
+    });
+  }
+}
+
+// Refreshes one WCA-linked Planner competition without using the bulk cooldown.
+async function refreshPlannerCompetition(req, res) {
+  try {
+    const competition = await refreshCompetitionFromWCA(req.params.competitionId, {
+      peopleId: req.user.people_id,
+      sessionId: req.user.sessionId,
+    });
+    res.status(200).json(competition);
+  } catch (err) {
+    res.status(err.status && err.status < 500 ? err.status : 500).json({
+      message: err.status && err.status < 500 ? err.message : 'Failed to refresh competition.',
+    });
   }
 }
 
@@ -167,8 +174,9 @@ async function deletePlannerCompetition(req, res) {
 
 module.exports = {
   getCompetitions,
-  updateCompetitions,
   getPlannerCompetitions,
+  refreshPlannerCompetitions,
+  refreshPlannerCompetition,
   getPlannerUnannouncedCompetitionBanners,
   getPlannerWcaLinkOptions,
   dismissPlannerUnannouncedCompetition,

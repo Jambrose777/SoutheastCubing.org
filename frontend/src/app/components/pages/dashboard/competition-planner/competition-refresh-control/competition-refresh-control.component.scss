@@ -1,0 +1,8 @@
+.refresh-tooltip-anchor {
+  display: inline-flex;
+}
+
+::ng-deep .competition-refresh-tooltip .mdc-tooltip__surface {
+  max-width: 320px !important;
+  white-space: pre-line !important;
+}

@@ -1,0 +1,21 @@
+<span
+  class="refresh-tooltip-anchor"
+  [matTooltip]="bulkRefreshTooltip()"
+  matTooltipPosition="above"
+  matTooltipClass="competition-refresh-tooltip"
+>
+  <button
+    type="button"
+    class="btn small"
+    [disabled]="bulkRefreshDisabled()"
+    (click)="refreshAllCompetitions()"
+  >
+    @if (bulkRefreshInProgress()) {
+      <i class="fa-solid fa-spinner fa-spin fa-sm"></i>
+      Refreshing...
+    } @else {
+      <i class="fa-solid fa-arrows-rotate fa-sm"></i>
+      Refresh
+    }
+  </button>
+</span>

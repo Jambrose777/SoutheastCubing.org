@@ -55,6 +55,32 @@ export interface PlannerCompetition {
   equipmentHolders: PlannerEquipmentHolder[];
 }
 
+export interface PlannerRefreshMeta {
+  lastBulkRefreshAt: string | null;
+}
+
+export interface PlannerCompetitionsResponse {
+  competitions: PlannerCompetition[];
+  meta: PlannerRefreshMeta;
+}
+
+export interface PlannerBulkRefreshResponse {
+  competitions: unknown[];
+  discordPostFailures: { id: string; name: string }[];
+  meta: PlannerRefreshMeta;
+}
+
+export interface PlannerBulkRefreshConflictResponse {
+  message: string;
+  meta: PlannerRefreshMeta;
+}
+
+export interface PlannerCompetitionRefreshResponse {
+  id: string;
+  wca_competition_id: string;
+  is_announced: boolean;
+}
+
 // Body for POST/PUT /dashboard/competition-planner/competitions(/:competitionId)
 // - the Add/Edit Competition sheet's save payload, shared by create and edit mode.
 export interface PlannerCompetitionSaveRequest {

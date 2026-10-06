@@ -4,6 +4,9 @@ const db = require('./pool.js');
 
 const logger = require('../utils/logger.util.js');
 
+// Treat older refresh claims as abandoned so a crashed process cannot block future refreshes.
+const BULK_REFRESH_LOCK_TIMEOUT_MINUTES = 10;
+
 // Columns of the `competitions` table, in the order used when building the
 // multi-row upsert below - keep this in sync with the competitions table in
 // schema-snapshot.sql
@@ -212,46 +215,136 @@ async function getAllUpcomingCompetitionsForPlanner() {
   }
 }
 
-// Returns every competition that hasn't been announced on Discord yet.
-async function getUnannouncedCompetitions() {
+// Returns every competition still pending announcement on Discord.
+async function getCompetitionsPendingDiscordAnnouncement() {
   try {
     const { rows } = await db.pool.query(
-      'SELECT * FROM competitions WHERE announced_on_discord_at IS NULL',
+      'SELECT * FROM competitions WHERE announced_on_discord_at IS NULL AND is_announced IS TRUE',
     );
     return rows.map((row) => fromRow(row, []));
   } catch (err) {
-    logger.error('Failed to fetch unannounced competitions from the competitions table: ', err);
-    throw err;
-  }
-}
-
-// Reads when competitions were last refreshed from WCA - used to rate-limit
-// POST /update-competitions and to decide whether a boot-time refresh is
-// needed.
-async function getLastChecked() {
-  try {
-    const { rows } = await db.pool.query('SELECT last_checked FROM competitions_meta WHERE id = 1');
-    logger.debug(
-      `Fetched last_checked from the competitions_meta table: ${rows[0]?.last_checked ?? 'never'}.`,
+    logger.error(
+      'Failed to fetch competitions pending Discord announcement from the competitions table: ',
+      err,
     );
-    return rows[0]?.last_checked ? moment(rows[0].last_checked) : null;
-  } catch (err) {
-    logger.error('Failed to fetch last_checked from the competitions_meta table: ', err);
     throw err;
   }
 }
 
-// Records that competitions were just refreshed from WCA.
-async function setLastChecked(checkedAt) {
+// Reads when competitions were last refreshed from WCA.
+async function getLastBulkRefreshAt() {
+  try {
+    const { rows } = await db.pool.query(
+      'SELECT last_bulk_refresh_at FROM competitions_meta WHERE id = 1',
+    );
+    return rows[0]?.last_bulk_refresh_at ? moment(rows[0].last_bulk_refresh_at) : null;
+  } catch (err) {
+    logger.error('Failed to fetch last_bulk_refresh_at from the competitions_meta table: ', err);
+    throw err;
+  }
+}
+
+// Reads the last successful full refresh and whether one is running.
+async function getBulkRefreshState() {
+  try {
+    const { rows } = await db.pool.query(
+      'SELECT last_bulk_refresh_at, bulk_refresh_started_at FROM competitions_meta WHERE id = 1',
+    );
+    const row = rows[0];
+    const lockCutoff = moment().subtract(BULK_REFRESH_LOCK_TIMEOUT_MINUTES, 'minutes');
+    const refreshStartedAt = row?.bulk_refresh_started_at;
+    return {
+      lastBulkRefreshAt: row?.last_bulk_refresh_at ?? null,
+      isRunning: !!refreshStartedAt && moment(refreshStartedAt).isAfter(lockCutoff),
+    };
+  } catch (err) {
+    logger.error('Failed to fetch bulk refresh state from the competitions_meta table: ', err);
+    throw err;
+  }
+}
+
+// Claims the global bulk refresh slot unless another refresh is running or the
+// last successful Planner bulk refresh is inside the cooldown window.
+async function tryStartBulkRefresh(cooldownCutoff) {
+  try {
+    return await db.withRetry(async (client) => {
+      const staleLockCutoff = moment()
+        .subtract(BULK_REFRESH_LOCK_TIMEOUT_MINUTES, 'minutes')
+        .toDate();
+      const { rows: claimedRows } = await client.query(
+        `UPDATE competitions_meta
+         SET bulk_refresh_started_at = date_trunc('milliseconds', now())
+         WHERE id = 1
+           AND (bulk_refresh_started_at IS NULL OR bulk_refresh_started_at <= $2)
+           AND (last_bulk_refresh_at IS NULL OR last_bulk_refresh_at <= $1)
+         RETURNING last_bulk_refresh_at, bulk_refresh_started_at`,
+        [cooldownCutoff, staleLockCutoff],
+      );
+      if (claimedRows.length) {
+        return {
+          started: true,
+          lastBulkRefreshAt: claimedRows[0].last_bulk_refresh_at ?? null,
+          bulkRefreshStartedAt: claimedRows[0].bulk_refresh_started_at,
+          isRunning: true,
+        };
+      }
+
+      const { rows } = await client.query(
+        'SELECT last_bulk_refresh_at, bulk_refresh_started_at FROM competitions_meta WHERE id = 1',
+      );
+      const refreshStartedAt = rows[0]?.bulk_refresh_started_at;
+      return {
+        started: false,
+        lastBulkRefreshAt: rows[0]?.last_bulk_refresh_at ?? null,
+        bulkRefreshStartedAt: refreshStartedAt ?? null,
+        isRunning:
+          !!refreshStartedAt &&
+          moment(refreshStartedAt).isAfter(moment().subtract(BULK_REFRESH_LOCK_TIMEOUT_MINUTES, 'minutes')),
+      };
+    });
+  } catch (err) {
+    logger.error('Failed to claim the bulk refresh slot in the competitions_meta table: ', err);
+    throw err;
+  }
+}
+
+// Records a successful full refresh and releases its global slot.
+async function completeBulkRefresh(checkedAt, bulkRefreshStartedAt) {
   try {
     await db.withRetry(async (client) => {
-      await client.query('UPDATE competitions_meta SET last_checked = $1 WHERE id = 1', [
-        checkedAt.toDate(),
-      ]);
+      const { rows } = await client.query(
+        `UPDATE competitions_meta
+         SET last_bulk_refresh_at = $1, bulk_refresh_started_at = NULL
+         WHERE id = 1 AND bulk_refresh_started_at = $2
+         RETURNING id`,
+        [checkedAt.toDate(), bulkRefreshStartedAt],
+      );
+      if (!rows.length) {
+        throw new Error('Bulk refresh lock expired or was claimed by another refresh.');
+      }
     });
-    logger.debug(`Set last_checked in the competitions_meta table to ${checkedAt.toISOString()}.`);
+    logger.debug(`Recorded successful full refresh at ${checkedAt.toISOString()}.`);
   } catch (err) {
-    logger.error('Failed to set last_checked in the competitions_meta table: ', err);
+    logger.error('Failed to record the full refresh in the competitions_meta table: ', err);
+    throw err;
+  }
+}
+
+// Releases the global slot after a failed Planner bulk refresh without
+// advancing the last-successful-refresh timestamp.
+async function releaseBulkRefresh(bulkRefreshStartedAt) {
+  try {
+    await db.withRetry(async (client) => {
+      await client.query(
+        `UPDATE competitions_meta
+         SET bulk_refresh_started_at = NULL
+         WHERE id = 1 AND bulk_refresh_started_at = $1`,
+        [bulkRefreshStartedAt],
+      );
+    });
+    logger.debug('Released the full refresh slot in the competitions_meta table.');
+  } catch (err) {
+    logger.error('Failed to release the bulk refresh slot in the competitions_meta table: ', err);
     throw err;
   }
 }
@@ -436,9 +529,12 @@ module.exports = {
   markAnnounced,
   getAnnouncedUpcomingCompetitions,
   getAllUpcomingCompetitionsForPlanner,
-  getUnannouncedCompetitions,
-  getLastChecked,
-  setLastChecked,
+  getCompetitionsPendingDiscordAnnouncement,
+  getLastBulkRefreshAt,
+  getBulkRefreshState,
+  tryStartBulkRefresh,
+  completeBulkRefresh,
+  releaseBulkRefresh,
   getCompetitionById,
   createPlannerCompetition,
   createPlannerCompetitionLinkedToWca,

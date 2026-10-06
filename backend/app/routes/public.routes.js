@@ -66,22 +66,6 @@ router.get('/competitions', asyncRoute(competitionsController.getCompetitions));
 
 /**
  * @openapi
- * /update-competitions:
- *   post:
- *     summary: Refresh competitions data from the WCA API and Contentful.
- *     tags: [Competitions]
- *     responses:
- *       200:
- *         description: Competitions refreshed successfully.
- *       400:
- *         description: Refresh was attempted too recently (rate-limited to once per hour).
- *       500:
- *         description: Internal server error.
- */
-router.post('/update-competitions', asyncRoute(competitionsController.updateCompetitions));
-
-/**
- * @openapi
  * /teams:
  *   get:
  *     summary: Get the public "Who We Are" team/board listing.

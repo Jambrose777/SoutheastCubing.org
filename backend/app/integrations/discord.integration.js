@@ -51,7 +51,7 @@ const DISCORD_CHUNK_DELAY_MS = 2000;
 // for major championships (Nats/NAC/Worlds, which have no SE state) and for
 // SE-wide events like the SE Championship.
 async function postCompetitionInDiscord(competition, { attempt = 0, pingOverride } = {}) {
-  // Background/incidental caller (only POST /update-competitions today) - warn and
+  // Background/incidental caller (POST /dashboard/competition-planner/competitions/refresh) - warn and
   // skip this one post instead of handing axios an undefined URL, so the
   // competitions refresh itself still succeeds. Throwing (rather than resolving)
   // keeps this competition unannounced on Discord, same as any other post failure,

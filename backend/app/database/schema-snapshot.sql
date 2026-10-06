@@ -69,7 +69,8 @@ CREATE TABLE competitions (
 
 CREATE TABLE competitions_meta (
   id INTEGER NOT NULL PRIMARY KEY,
-  last_checked TIMESTAMP WITH TIME ZONE,
+  last_bulk_refresh_at TIMESTAMP WITH TIME ZONE,
+  bulk_refresh_started_at TIMESTAMP WITH TIME ZONE,
   CHECK (id = 1)
 );
 

@@ -18,6 +18,26 @@ export function formatLongDateTime(date: string): string {
   return moment.utc(date).local().format('MMM D, YYYY h:mm A');
 }
 
+// Formats a timestamp as a concise relative time (e.g. "5 minutes ago").
+export function formatRelativeTime(timestamp: string): string {
+  const elapsedSeconds = Math.max(0, Math.floor((Date.now() - Date.parse(timestamp)) / 1000));
+  const units: [Intl.RelativeTimeFormatUnit, number][] = [
+    ['year', 31_536_000],
+    ['month', 2_592_000],
+    ['week', 604_800],
+    ['day', 86_400],
+    ['hour', 3_600],
+    ['minute', 60],
+    ['second', 1],
+  ];
+  const [unit, unitSeconds] = units.find(([, seconds]) => elapsedSeconds >= seconds) ?? [
+    'second',
+    1,
+  ];
+  const value = Math.floor(elapsedSeconds / unitSeconds);
+  return new Intl.RelativeTimeFormat('en', { numeric: 'auto' }).format(-value, unit);
+}
+
 // Formats a competition date range using compact month/year-aware grouping.
 export function formatLongDateRange(startDate: string, endDate: string | null): string {
   const start = moment.utc(startDate);

@@ -17,7 +17,12 @@
         <se-loading-spinner></se-loading-spinner>
       } @else {
         <div class="content-toolbar">
-          <div class="content-toolbar-side"></div>
+          <div class="content-toolbar-side">
+            <se-competition-refresh-control
+              [lastBulkRefreshAt]="lastBulkRefreshAt()"
+              (refreshed)="onBulkRefreshCompleted()"
+            ></se-competition-refresh-control>
+          </div>
           <div class="content-toolbar-side content-toolbar-actions">
             <button type="button" class="btn small" (click)="openAddCompetition()">
               <i class="fa-solid fa-plus fa-sm"></i>

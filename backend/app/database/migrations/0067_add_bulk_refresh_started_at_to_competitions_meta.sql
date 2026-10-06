@@ -1,0 +1,1 @@
+ALTER TABLE competitions_meta ADD COLUMN bulk_refresh_started_at TIMESTAMPTZ;
