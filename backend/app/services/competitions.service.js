@@ -6,7 +6,6 @@ const logger = require('../utils/logger.util.js');
 const wca = require('../integrations/wca.integration.js');
 const googleForm = require('../integrations/googleForm.integration.js');
 const googleDrive = require('../integrations/googleDrive.integration.js');
-const contentful = require('../integrations/contentful.integration.js');
 const discord = require('../integrations/discord.integration.js');
 const authService = require('./auth.service.js');
 const competitionsDb = require('../database/competitions.database.js');
@@ -1184,59 +1183,6 @@ async function refreshCompetitionsFromWCA(actor) {
   );
   wcaCompetitions = wcaCompetitions.concat(managedOnlyCompetitions);
 
-  // fetch manual competitions from Contentful. Isolated in its own
-  // try/catch so a Contentful outage doesn't block the WCA-only data from
-  // being formatted and saved below - it just means no manually-added
-  // competitions are merged in for this cycle.
-  let contentfulEntries;
-  try {
-    contentfulEntries = await contentful.getContentfulCompetitions();
-  } catch {
-    contentfulEntries = { items: [] };
-  }
-
-  // Guard against a malformed/missing `items` field (a Contentful response
-  // shape break).
-  if (!Array.isArray(contentfulEntries.items)) {
-    logger.warn('Contentful competitions response has no items array, treating as empty.');
-    contentfulEntries = { items: [] };
-  }
-
-  let contentfulCompetitions = await Promise.all(
-    contentfulEntries.items.map(async (contentfulComp) => {
-      // Skip entries missing the fields this merge relies on, instead of
-      // crashing the whole fetch cycle over one malformed Contentful entry.
-      if (!contentfulComp.fields || !contentfulComp.fields.id || !contentfulComp.fields.name) {
-        logger.warn(
-          `Skipping malformed Contentful competition entry (sys id: ${contentfulComp.sys && contentfulComp.sys.id}) - missing fields.id or fields.name.`,
-        );
-        return null;
-      }
-
-      // fetch info on contentful competition from WCA
-      const wcaCompetition = await getWCACompetition(wcaCompetitions, contentfulComp.fields.id);
-
-      // Drop this manual competition entirely if its WCA lookup failed
-      if (!wcaCompetition) {
-        logger.warn(
-          `Dropping manual competition "${contentfulComp.fields.name}" (${contentfulComp.fields.id}) - WCA lookup failed.`,
-        );
-        return null;
-      }
-
-      logger.debug(
-        `Merged manual competition "${contentfulComp.fields.name}" (${contentfulComp.fields.id}) from Contentful.`,
-      );
-
-      return applyContentfulCompetitionOverrides(wcaCompetition, contentfulComp);
-    }),
-  );
-
-  // Filter out competitions whose WCA lookup failed, then past competitions
-  contentfulCompetitions = contentfulCompetitions
-    .filter((comp) => comp)
-    .filter(isUpcomingCompetition);
-
   // fetch competitions with a volunteer application
   let competitionsWithVolunteerApp = await googleForm.getCompetitionsInVolunteerForm();
 
@@ -1264,7 +1210,7 @@ async function refreshCompetitionsFromWCA(actor) {
 
   // Fetch registration data before formatting the WCA competition records.
   const competitionsToFormat = filterCompetitionsToTrackedSEStates(
-    wcaCompetitions.concat(contentfulCompetitions),
+    wcaCompetitions,
   );
   const registrationDataByWcaId = await fetchRegistrationDataByWcaId(competitionsToFormat, {
     accessToken,
@@ -1324,22 +1270,6 @@ async function refreshCompetitionsFromWCA(actor) {
   await syncAllWcaDriveFoldersBestEffort(nameChangedDriveFolderIds);
 
   return { competitions: comps, discordPostFailures, privateDataRefreshFailed };
-}
-
-// Applies the editorial fields configured for a WCA competition in Contentful.
-function applyContentfulCompetitionOverrides(wcaCompetition, contentfulCompetition) {
-  const fields = contentfulCompetition.fields;
-  return {
-    ...wcaCompetition,
-    name: fields.name,
-    city: fields.city,
-    venue_address: fields.venueAddress,
-    venue_details: fields.venueDetails,
-    latitude_degrees: fields.latitudeDegrees,
-    longitude_degrees: fields.longitudeDegrees,
-    country_iso2: fields.countryIso2,
-    competitor_limit: fields.competitorLimit,
-  };
 }
 
 // Filters `comps` down to competitions in the tracked SE states and maps
@@ -1457,22 +1387,6 @@ async function fetchRegistrationDataByWcaId(
     }),
   );
   return new Map(entries);
-}
-
-// Fetches a single competition's information
-function getWCACompetition(competitions, competitionId) {
-  // chcek if competition is already in the list of fetched competitions
-  let wcaCompetition = competitions.find((wcaCompetition) => wcaCompetition.id === competitionId);
-  if (wcaCompetition) {
-    return Promise.resolve(wcaCompetition);
-  } else {
-    // fetch competition from WCA - wca.integration.js already logs the failure
-    return wca.fetchCompetitionById(competitionId).catch(() => {
-      // Signal failure explicitly so callers can drop this competition instead of
-      // spreading undefined fields into a broken/incomplete record.
-      return null;
-    });
-  }
 }
 
 // Matches a `[name](url)` markdown-style venue link. Greedy captures so an unbalanced
