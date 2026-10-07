@@ -1,0 +1,1 @@
+ALTER TABLE competitions ADD COLUMN wca_drive_link TEXT;

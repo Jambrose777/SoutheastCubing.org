@@ -173,6 +173,7 @@ export class CompetitionPlannerComponent implements OnInit {
   rows = signal<PlannerCompetition[]>([]);
   lastBulkRefreshAt = signal<string | null>(null);
   refreshingCompetitionIds = signal<Set<string>>(new Set());
+  creatingDriveFolderIds = signal<Set<string>>(new Set());
   potentialRows = computed(() =>
     this.rows()
       .filter((row) => row.status === 'potential')
@@ -191,6 +192,8 @@ export class CompetitionPlannerComponent implements OnInit {
 
   private dateCell = viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('dateCell');
   private nameCell = viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('nameCell');
+  private driveCell =
+    viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('driveCell');
   private locationCell =
     viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('locationCell');
   private delegatesCell =
@@ -282,6 +285,16 @@ export class CompetitionPlannerComponent implements OnInit {
       sortValue: (row) => row.status,
       searchValue: (row) => this.statusLabel(row),
       cellTemplate: this.statusCell(),
+    },
+    {
+      key: 'wcaDrive',
+      label: 'WCA Drive',
+      width: '132px',
+      filterable: false,
+      visibleByDefault: false,
+      sortValue: (row) => row.wca_drive_link ?? '',
+      searchValue: (row) => row.wca_drive_link ?? '',
+      cellTemplate: this.driveCell(),
     },
     {
       key: 'events',
@@ -388,6 +401,24 @@ export class CompetitionPlannerComponent implements OnInit {
         visible: (row) => row.status === 'potential',
       },
       {
+        icon: 'fa-folder-open',
+        label: 'View Drive',
+        onClick: (row) => this.openWcaDriveFolder(row),
+        visible: (row) => !!row.wca_drive_link,
+      },
+      {
+        icon: 'fa-folder-plus',
+        label: 'Create Drive',
+        onClick: (row) => this.createWcaDriveFolder(row),
+        visible: (row) => this.canEdit(row) && !row.wca_drive_link,
+      },
+      {
+        icon: 'fa-link',
+        label: 'Link Drive',
+        onClick: (row) => this.openEditCompetition(row),
+        visible: (row) => this.canEdit(row) && !row.wca_drive_link,
+      },
+      {
         icon: 'fa-trash',
         label: 'Delete',
         onClick: (row) => this.deleteCompetition(row),
@@ -409,6 +440,42 @@ export class CompetitionPlannerComponent implements OnInit {
   openEditCompetition(row: PlannerCompetition): void {
     this.editingCompetition.set(row);
     this.activeSheet.set('add-edit');
+  }
+
+  // Opens a linked WCA Drive folder in a separate tab without exposing this page.
+  openWcaDriveFolder(row: PlannerCompetition): void {
+    if (!row.wca_drive_link) return;
+    window.open(row.wca_drive_link, '_blank', 'noopener,noreferrer');
+  }
+
+  // Creates a folder for an editable Planner row and reloads its saved link.
+  createWcaDriveFolder(row: PlannerCompetition): void {
+    if (!this.canEdit(row) || row.wca_drive_link || this.creatingDriveFolderIds().has(row.id)) {
+      return;
+    }
+
+    this.setDriveFolderCreationPending(row.id, true);
+    this.competitionPlannerApi.createWcaDriveFolder(row.id).subscribe({
+      next: () => {
+        this.setDriveFolderCreationPending(row.id, false);
+        this.toastService.success('WCA Drive folder created.');
+        this.loadCompetitions();
+      },
+      error: (error) => {
+        this.setDriveFolderCreationPending(row.id, false);
+        this.errorBannerService.show(error?.error?.message ?? 'Failed to create WCA Drive folder.');
+      },
+    });
+  }
+
+  // Tracks in-flight folder creation so a row cannot submit the same action twice.
+  private setDriveFolderCreationPending(competitionId: string, pending: boolean): void {
+    this.creatingDriveFolderIds.update((current) => {
+      const next = new Set(current);
+      if (pending) next.add(competitionId);
+      else next.delete(competitionId);
+      return next;
+    });
   }
 
   // Opens the standalone WCA-link sheet for an unlinked Planner row.
@@ -503,7 +570,6 @@ export class CompetitionPlannerComponent implements OnInit {
   }
 
   private loadCompetitions(): void {
-    this.loading.set(true);
     this.competitionPlannerApi.getCompetitions().subscribe({
       next: (response) => {
         this.rows.set(response.competitions);

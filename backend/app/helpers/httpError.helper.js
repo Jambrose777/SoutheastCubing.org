@@ -12,10 +12,11 @@ function httpError(status, message, publicCode) {
 
 // Handles a service-thrown error and sends the appropriate HTTP response -
 // an httpError()'s own status/message for a client error (< 500), or a
-// generic 500 (with the real error logged) for anything else.
+// generic 500 (with the real error logged) for anything else. Or a 503
+// exposing explicitly public service-unavailable errors.
 function respondWithServiceError(res, err, fallbackMessage) {
   const status = err.status || 500;
-  if (status < 500) {
+  if (status < 500 || (status === 503 && err.publicCode)) {
     logger.warn(`${fallbackMessage}: ${err.message}`);
     res.status(status).json({
       message: err.message,

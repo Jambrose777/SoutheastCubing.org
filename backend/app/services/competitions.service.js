@@ -5,6 +5,7 @@ const logger = require('../utils/logger.util.js');
 
 const wca = require('../integrations/wca.integration.js');
 const googleForm = require('../integrations/googleForm.integration.js');
+const googleDrive = require('../integrations/googleDrive.integration.js');
 const contentful = require('../integrations/contentful.integration.js');
 const discord = require('../integrations/discord.integration.js');
 const authService = require('./auth.service.js');
@@ -195,6 +196,238 @@ function assertValidCompetitorLimit(competitorLimit) {
   }
 }
 
+// Convert missing optional Drive setup into the backend's explicit 503 response.
+function rethrowWcaDriveUnavailable(error) {
+  if (error.code === 'WCA_DRIVE_UNAVAILABLE') {
+    throw httpError(
+      503,
+      'WCA Drive folder actions are unavailable because this environment is not fully configured.',
+      'WCA_DRIVE_UNAVAILABLE',
+    );
+  }
+  throw error;
+}
+
+// Restrict linked URLs to the standard Google Drive folder URL format.
+function getWcaDriveFolderId(folderLink) {
+  let parsedUrl;
+  try {
+    parsedUrl = new URL(folderLink);
+  } catch {
+    throw httpError(400, 'Enter a valid Google Drive folder link.');
+  }
+
+  const segments = parsedUrl.pathname.split('/');
+  const folderSegmentIndex = segments.indexOf('folders');
+  const folderId = segments[folderSegmentIndex + 1];
+  if (parsedUrl.hostname !== 'drive.google.com' || !folderId) {
+    throw httpError(400, 'Enter a valid Google Drive folder link.');
+  }
+  return folderId;
+}
+
+// Remove a year from the competition title and prefix its start month.
+function getWcaDriveFolderName(competition) {
+  const startDate = moment.utc(competition.start_date, 'YYYY-MM-DD', true);
+  if (!startDate.isValid()) {
+    const error = new Error('Stored competition start date is invalid; cannot name its WCA Drive folder.');
+    error.code = 'WCA_DRIVE_INVALID_COMPETITION_DATE';
+    throw error;
+  }
+
+  const nameWithoutYear = String(competition.name ?? '')
+    .replace(/\b\d{4}\b/g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/^[\s,:-]+|[\s,:-]+$/g, '');
+  return `${startDate.format('YYYY-MM')} - ${nameWithoutYear}`;
+}
+
+// Select the WCA Drive category for the competition's current status and dates.
+function getWcaDriveTargetFolderType(competition) {
+  if (!competition.wca_competition_id || !competition.is_announced) {
+    return 'proposalsInProgress';
+  }
+
+  const endDate = moment.utc(competition.end_date, 'YYYY-MM-DD', true);
+  if (
+    endDate.isValid() &&
+    moment.utc().startOf('day').isSameOrAfter(endDate.clone().add(7, 'days').startOf('day'))
+  ) {
+    return 'past';
+  }
+  return 'upcoming';
+}
+
+// Validate an existing folder, move it into its current category, and normalize its name.
+async function prepareWcaDriveFolder(competition, folderLink, targetFolderType) {
+  const folderId = getWcaDriveFolderId(folderLink);
+  const folderIds = googleDrive.getWcaDriveFolderIds();
+  let folder;
+  try {
+    folder = await googleDrive.getFolder(folderId);
+  } catch (error) {
+    if ([403, 404].includes(Number(error.code))) {
+      throw httpError(400, 'The folder must be accessible to the WCA Drive service account.');
+    }
+    throw error;
+  }
+
+  if (folder.mimeType !== 'application/vnd.google-apps.folder') {
+    throw httpError(400, 'The link must point to a Google Drive folder.');
+  }
+
+  const categoryFolderIds = [
+    folderIds.upcoming,
+    folderIds.past,
+    folderIds.proposalsInProgress,
+    folderIds.abandoned,
+  ];
+  const currentParentFolderId = folder.parents?.find((parentId) =>
+    categoryFolderIds.includes(parentId),
+  );
+  if (!currentParentFolderId) {
+    throw httpError(400, 'The folder must be inside one of the configured WCA Drive category folders.');
+  }
+
+  const requiredFolderType = targetFolderType ?? getWcaDriveTargetFolderType(competition);
+  const requiredParentFolderId = folderIds[requiredFolderType];
+  if (!requiredParentFolderId) {
+    throw new Error(`Unknown WCA Drive folder type: ${requiredFolderType}.`);
+  }
+  if (currentParentFolderId !== requiredParentFolderId) {
+    folder = await googleDrive.moveFolder(folderId, currentParentFolderId, requiredParentFolderId);
+  }
+
+  const requiredName = getWcaDriveFolderName(competition);
+  if (folder.name !== requiredName) {
+    folder = await googleDrive.renameFolder(folderId, requiredName);
+  }
+
+  return {
+    folderId,
+    folderLink: folder.webViewLink ?? `https://drive.google.com/drive/folders/${folderId}`,
+    folderType: requiredFolderType,
+  };
+}
+
+// Run a direct Drive action and expose unavailable optional setup as HTTP 503.
+async function withWcaDriveAction(action) {
+  try {
+    googleDrive.assertDriveAvailable();
+    return await action();
+  } catch (error) {
+    rethrowWcaDriveUnavailable(error);
+  }
+}
+
+// Create and persist a new WCA Drive folder for a Planner competition.
+async function createWcaDriveFolderForCompetition(competitionId) {
+  const competition = await competitionsDb.getCompetitionById(competitionId);
+  if (!competition) throw httpError(404, 'Competition not found.');
+  if (competition.wca_drive_link) {
+    throw httpError(409, 'This competition already has a WCA Drive folder.');
+  }
+
+  return withWcaDriveAction(async () => {
+    const folderIds = googleDrive.getWcaDriveFolderIds();
+    const folderType = getWcaDriveTargetFolderType(competition);
+    const parentFolderId = folderIds[folderType];
+    const folder = await googleDrive.createFolder(
+      getWcaDriveFolderName(competition),
+      parentFolderId,
+    );
+    const folderLink =
+      folder.webViewLink ?? `https://drive.google.com/drive/folders/${folder.id}`;
+    await competitionsDb.setWcaDriveLink(competitionId, folderLink, folderType);
+    return folderLink;
+  });
+}
+
+// Link, replace, or clear a competition's WCA Drive folder.
+async function setCompetitionWcaDriveLink(competitionId, folderLink) {
+  const competition = await competitionsDb.getCompetitionById(competitionId);
+  if (!competition) throw httpError(404, 'Competition not found.');
+
+  // Removes drive link.
+  if (typeof folderLink !== 'string' || !folderLink.trim()) {
+    await competitionsDb.setWcaDriveLink(competitionId, null);
+    return null;
+  }
+
+  return withWcaDriveAction(async () => {
+    const { folderLink: normalizedFolderLink, folderType } = await prepareWcaDriveFolder(
+      competition,
+      folderLink,
+    );
+    await competitionsDb.setWcaDriveLink(competitionId, normalizedFolderLink, folderType);
+    return normalizedFolderLink;
+  });
+}
+
+// Synchronize a linked folder as best-effort work within a non-Drive operation.
+async function syncWcaDriveFolderBestEffort(
+  competition,
+  context,
+  targetFolderType,
+  forceCheck = false,
+) {
+  if (!competition?.wca_drive_link) return;
+
+  try {
+    const requiredFolderType =
+      targetFolderType ?? getWcaDriveTargetFolderType(competition);
+
+    // Returns and dies nothing if folder hasnt changed
+    if (!forceCheck && competition.wca_drive_folder_type === requiredFolderType) return;
+
+    googleDrive.assertDriveAvailable();
+    const { folderLink, folderType } = await prepareWcaDriveFolder(
+      competition,
+      competition.wca_drive_link,
+      requiredFolderType,
+    );
+    await competitionsDb.setWcaDriveLink(competition.id, folderLink, folderType);
+  } catch (error) {
+    if (error.code === 'WCA_DRIVE_UNAVAILABLE') {
+      logger.warn(`Skipping WCA Drive folder work during ${context}: ${error.message}`);
+    } else if (error.code === 'WCA_DRIVE_INVALID_COMPETITION_DATE') {
+      logger.warn(`Skipping WCA Drive folder work during ${context}: ${error.message}`);
+    } else if (error.status === 400) {
+      logger.warn(`Skipping WCA Drive folder work during ${context}: ${error.message}`);
+    }
+  }
+}
+
+// Reconcile every linked folder, including competitions that have aged out of the upcoming list.
+async function syncAllWcaDriveFoldersBestEffort(nameChangedCompetitionIds = []) {
+  let competitions;
+  try {
+    competitions = await competitionsDb.getCompetitionsWithWcaDriveLink();
+  } catch {
+    return;
+  }
+  if (!competitions.length) return;
+
+  try {
+    googleDrive.assertDriveAvailable();
+  } catch (error) {
+    if (error.code === 'WCA_DRIVE_UNAVAILABLE') {
+      logger.warn(`Skipping WCA Drive folder work during competition refresh: ${error.message}`);
+    }
+    return;
+  }
+
+  const nameChangedIds = new Set(nameChangedCompetitionIds);
+  for (const competition of competitions) {
+    await syncWcaDriveFolderBestEffort(
+      competition,
+      'competition refresh',
+      undefined,
+      nameChangedIds.has(competition.id),
+    );
+  }
+}
+
 // Throws if `startDate` is less than MIN_START_DATE_LEAD_DAYS out from today.
 function assertStartDateFarEnoughOut(startDate) {
   if (moment(startDate).isBefore(moment().add(MIN_START_DATE_LEAD_DAYS, 'days'), 'day')) {
@@ -316,6 +549,19 @@ async function createCompetition(input) {
   assertStartDateFarEnoughOut(startDate);
   assertValidCompetitorLimit(input.competitorLimit);
 
+  // Validates Google Drive params.
+  if (input.createWcaDriveFolder && input.wcaDriveLink) {
+    throw httpError(400, 'Choose either a new WCA Drive folder or an existing folder link.');
+  }
+  if (input.createWcaDriveFolder || input.wcaDriveLink) {
+    try {
+      googleDrive.assertDriveAvailable();
+      if (input.wcaDriveLink) getWcaDriveFolderId(input.wcaDriveLink);
+    } catch (error) {
+      rethrowWcaDriveUnavailable(error);
+    }
+  }
+
   const delegatePeopleIds = input.delegatePeopleIds ?? [];
   const organizerPeopleIds = input.organizerPeopleIds ?? [];
   const equipmentPeopleIds = input.equipmentPeopleIds ?? [];
@@ -357,6 +603,12 @@ async function createCompetition(input) {
   await competitionEquipmentHoldersDb.replaceEquipmentHoldersForCompetition(id, equipmentPeopleIds);
   await competitionEventsDb.replaceEventIds([{ id, event_ids: eventIds }]);
 
+  if (input.createWcaDriveFolder) {
+    await createWcaDriveFolderForCompetition(id);
+  } else if (input.wcaDriveLink) {
+    await setCompetitionWcaDriveLink(id, input.wcaDriveLink);
+  }
+
   logger.debug(`Created Planner competition "${name}" (id ${id}), led by people_id ${leadPeopleId}.`);
   return id;
 }
@@ -369,6 +621,15 @@ async function updateCompetition(id, input) {
   const comp = await competitionsDb.getCompetitionById(id);
   if (!comp) throw httpError(404, 'Competition not found.');
   const status = derivePlannerStatus(comp);
+  const hasDriveLinkUpdate = Object.hasOwn(input, 'wcaDriveLink'); // true even if null.
+  if (hasDriveLinkUpdate && input.wcaDriveLink) {
+    try {
+      googleDrive.assertDriveAvailable();
+      getWcaDriveFolderId(input.wcaDriveLink);
+    } catch (error) {
+      rethrowWcaDriveUnavailable(error);
+    }
+  }
 
   if (!input.leadPeopleId) {
     throw httpError(400, 'Lead Delegate is required.');
@@ -377,6 +638,7 @@ async function updateCompetition(id, input) {
   const equipmentPeopleIds = input.equipmentPeopleIds ?? [];
   await assertEquipmentHoldersAreDelegates(equipmentPeopleIds);
 
+  let updatedCompetition = null;
   if (status === 'potential') {
     const { name, city, state, startDate, endDate } = input;
     if (!name || !city || !state || !startDate || !endDate) {
@@ -397,7 +659,7 @@ async function updateCompetition(id, input) {
     assertValidEventIds(eventIds);
 
     const fullDate = getFullCompetitionDate(input.startDate, input.endDate);
-    await competitionsDb.updatePlannerCompetitionFields(id, {
+    updatedCompetition = await competitionsDb.updatePlannerCompetitionFields(id, {
       name: withYearInName(input.name, input.endDate),
       city: `${input.city}, ${input.state}`,
       state: input.state,
@@ -436,6 +698,16 @@ async function updateCompetition(id, input) {
   // Equipment stays editable regardless of status - Planner-owned, never synced.
   await competitionEquipmentHoldersDb.replaceEquipmentHoldersForCompetition(id, equipmentPeopleIds);
 
+  if (hasDriveLinkUpdate) {
+    await setCompetitionWcaDriveLink(id, input.wcaDriveLink);
+  } else if (
+    comp.wca_drive_link &&
+    updatedCompetition &&
+    getWcaDriveFolderName(comp) !== getWcaDriveFolderName(updatedCompetition)
+  ) {
+    await syncWcaDriveFolderBestEffort(updatedCompetition, 'competition update', undefined, true);
+  }
+
   logger.debug(`Updated Planner competition (id ${id}, status ${status}).`);
 }
 
@@ -447,6 +719,7 @@ async function deleteCompetition(id) {
     throw httpError(400, 'An announced competition can never be deleted.');
   }
 
+  await syncWcaDriveFolderBestEffort(comp, 'Planner competition deletion', 'abandoned', true);
   await competitionsDb.deletePlannerCompetition(id);
   logger.debug(`Deleted Planner competition (id ${id}).`);
 }
@@ -480,7 +753,26 @@ async function syncDelegatesAndOrganizers({ id, delegates, organizers, existingI
 }
 
 // Links an eligible managed WCA competition to an existing Potential row or creates a new row.
-async function linkManagedCompetitionToPlanner({ peopleId, wcaCompetitionId, plannerCompetitionId }) {
+async function linkManagedCompetitionToPlanner({
+  peopleId,
+  wcaCompetitionId,
+  plannerCompetitionId,
+  createWcaDriveFolder,
+  wcaDriveLink,
+}) {
+  // Validate requested Drive setup before linking the WCA competition.
+  if (createWcaDriveFolder && wcaDriveLink) {
+    throw httpError(400, 'Choose either a new WCA Drive folder or an existing folder link.');
+  }
+  if (createWcaDriveFolder || wcaDriveLink) {
+    try {
+      googleDrive.assertDriveAvailable();
+      if (wcaDriveLink) getWcaDriveFolderId(wcaDriveLink);
+    } catch (error) {
+      rethrowWcaDriveUnavailable(error);
+    }
+  }
+
   const accessToken = await authService.getValidAccessTokenForPerson(peopleId);
   if (!accessToken) {
     throw httpError(403, 'WCA manage_competitions access is required to link a competition.');
@@ -548,24 +840,45 @@ async function linkManagedCompetitionToPlanner({ peopleId, wcaCompetitionId, pla
     existingIsLeadByPeopleId,
   });
 
+  if (createWcaDriveFolder) {
+    await createWcaDriveFolderForCompetition(competitionId);
+  } else if (wcaDriveLink) {
+    await setCompetitionWcaDriveLink(competitionId, wcaDriveLink);
+  } else {
+    const linkedCompetition = await competitionsDb.getCompetitionById(competitionId);
+    await syncWcaDriveFolderBestEffort(
+      linkedCompetition,
+      'WCA competition linking',
+      undefined,
+      true,
+    );
+  }
+
   return competitionId;
 }
 
 // Upserts `comps` in chunks under DSQL's row cap, returning the ids newly
 // inserted across every chunk. On first-time population, public competitions
 // are stamped as posted to avoid a Discord backlog; unannounced rows stay pending.
+// Returns linked competitions whose folder names may need updating.
 async function upsertCompetitions(comps) {
-  if (!comps.length) return [];
+  if (!comps.length) {
+    return { insertedIds: [], wcaDriveFolderNameChangedIds: [] };
+  }
 
   try {
     const wasEmpty = (await competitionsDb.getCompetitionsCount()) === 0;
 
     let insertedIds = [];
     let allBatchWithIds = [];
+    let wcaDriveFolderNameChangedIds = [];
     for (const batch of chunk(comps, UPSERT_CHUNK_SIZE)) {
       const result = await competitionsDb.upsertCompetitionsBatch(batch);
       insertedIds = insertedIds.concat(result.insertedIds);
       allBatchWithIds = allBatchWithIds.concat(result.batchWithIds);
+      wcaDriveFolderNameChangedIds = wcaDriveFolderNameChangedIds.concat(
+        result.wcaDriveFolderNameChangedIds,
+      );
     }
 
     await competitionEventsDb.replaceEventIds(
@@ -607,13 +920,13 @@ async function upsertCompetitions(comps) {
       logger.debug(
         `Upserted ${comps.length} competitions in the competitions table (first-time population).`,
       );
-      return [];
+      return { insertedIds, wcaDriveFolderNameChangedIds: [] };
     }
 
     logger.debug(
       `Upserted ${comps.length} competitions in the competitions table (${insertedIds.length} newly inserted).`,
     );
-    return insertedIds;
+    return { insertedIds, wcaDriveFolderNameChangedIds };
   } catch (err) {
     logger.error(`Failed to upsert ${comps.length} competitions in the competitions table: `, err);
     throw err;
@@ -761,6 +1074,8 @@ async function refreshCompetitionFromWCA(competitionId, actor = {}) {
   competition.is_announced = Boolean(wcaCompetition.announced_at);
   competition.is_in_volunteer_application = plannerCompetition.is_in_volunteer_application;
   await upsertCompetitions([competition]);
+  const refreshedCompetition = await competitionsDb.getCompetitionById(plannerCompetition.id);
+  await syncWcaDriveFolderBestEffort(refreshedCompetition, 'single competition refresh', undefined, true);
 
   return { ...competition, id: plannerCompetition.id };
 }
@@ -972,13 +1287,15 @@ async function refreshCompetitionsFromWCA(actor) {
   }
 
   let discordPostFailures = [...majorChampionshipDiscordFailures];
+  let nameChangedDriveFolderIds = [];
   if (comps && comps.length) {
     logger.debug(`Formatted ${comps.length} competitions for the public list.`);
 
     // Upsert into the database. upsertCompetitions handles the cold-start
     // case internally (stamping a first-time population as already
     // announced).
-    await upsertCompetitions(comps);
+    const upsertResult = await upsertCompetitions(comps);
+    nameChangedDriveFolderIds = upsertResult.wcaDriveFolderNameChangedIds;
 
     // Post pending competitions on Discord.
     const competitionsPendingDiscordAnnouncement = await withEventIds(
@@ -1002,6 +1319,9 @@ async function refreshCompetitionsFromWCA(actor) {
   } else {
     logger.warn('There are no competitions!');
   }
+
+  // Sync WCA Drive Folders
+  await syncAllWcaDriveFoldersBestEffort(nameChangedDriveFolderIds);
 
   return { competitions: comps, discordPostFailures, privateDataRefreshFailed };
 }
@@ -1207,6 +1527,8 @@ module.exports = {
   dismissUnannouncedCompetition,
   linkManagedCompetitionToPlanner,
   createCompetition,
+  createWcaDriveFolderForCompetition,
+  setCompetitionWcaDriveLink,
   updateCompetition,
   deleteCompetition,
 };

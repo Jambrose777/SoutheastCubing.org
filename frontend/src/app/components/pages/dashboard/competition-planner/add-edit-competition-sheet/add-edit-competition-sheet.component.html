@@ -189,6 +189,21 @@
     </div>
   }
 
+  @if (isCreateMode) {
+    <mat-checkbox formControlName="createWcaDriveFolder">Create new folder</mat-checkbox>
+    @if (!form.controls.createWcaDriveFolder.value) {
+      <mat-form-field>
+        <mat-label>Existing WCA Drive folder URL</mat-label>
+        <input matInput formControlName="wcaDriveLink" />
+      </mat-form-field>
+    }
+  } @else {
+    <mat-form-field>
+      <mat-label>WCA Drive folder URL</mat-label>
+      <input matInput formControlName="wcaDriveLink" />
+    </mat-form-field>
+  }
+
   @if (!isLinked()) {
     <!-- Competitor Limit -->
     <mat-form-field>

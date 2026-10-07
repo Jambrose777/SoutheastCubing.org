@@ -18,6 +18,7 @@ import {
 } from '@angular/forms';
 import { MatFormField, MatLabel, MatError, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelect, MatOption } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
@@ -82,6 +83,7 @@ function toPlannerPerson(person: SelectedPerson): PlannerPerson {
     MatError,
     MatSuffix,
     MatInput,
+    MatCheckboxModule,
     MatSelect,
     MatOption,
     MatDatepickerModule,
@@ -144,6 +146,8 @@ export class AddEditCompetitionSheetComponent implements OnInit {
     endDate: new FormControl<Moment | null>(null, Validators.required),
     competitorLimit: new FormControl<number | null>(null),
     leadPeopleId: new FormControl<string | null>(null, Validators.required),
+    createWcaDriveFolder: new FormControl(true, { nonNullable: true }),
+    wcaDriveLink: new FormControl(''),
   });
 
   // Lead must already be one of this sheet's own Delegates.
@@ -189,6 +193,8 @@ export class AddEditCompetitionSheetComponent implements OnInit {
         competitorLimit: comp?.competitor_limit ?? null,
         leadPeopleId:
           comp?.delegates.find((d) => d.isLead)?.peopleId ?? defaultDelegates[0]?.peopleId ?? null,
+        createWcaDriveFolder: true,
+        wcaDriveLink: comp?.wca_drive_link ?? '',
       });
       this.delegates.set(comp?.delegates ?? defaultDelegates);
       this.organizers.set(comp?.organizers ?? []);
@@ -343,8 +349,20 @@ export class AddEditCompetitionSheetComponent implements OnInit {
       eventIds: this.eventIds(),
     };
 
-    this.saving = true;
     const existing = this.competition();
+    if (existing) {
+      const wcaDriveLink = value.wcaDriveLink?.trim() ?? '';
+      if (wcaDriveLink !== (existing.wca_drive_link ?? '')) {
+        body.wcaDriveLink = wcaDriveLink || null;
+      }
+    } else {
+      body.createWcaDriveFolder = value.createWcaDriveFolder;
+      if (!value.createWcaDriveFolder && value.wcaDriveLink?.trim()) {
+        body.wcaDriveLink = value.wcaDriveLink.trim();
+      }
+    }
+
+    this.saving = true;
     const request = existing
       ? this.competitionPlannerApi.updateCompetition(existing.id, body)
       : this.competitionPlannerApi.createCompetition(body);

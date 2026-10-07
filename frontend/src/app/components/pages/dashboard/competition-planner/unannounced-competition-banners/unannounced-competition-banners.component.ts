@@ -9,7 +9,6 @@ import {
   signal,
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { ErrorBannerService } from 'src/app/services/error-banner.service';
 import { AuthService } from 'src/app/services/southeastcubing-api/auth.service';
@@ -28,7 +27,7 @@ import { formatLongDate } from 'src/app/shared/date.util';
   templateUrl: './unannounced-competition-banners.component.html',
   styleUrls: ['./unannounced-competition-banners.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatFormFieldModule, MatSelectModule],
+  imports: [MatSelectModule],
 })
 export class UnannouncedCompetitionBannersComponent implements OnInit {
   potentialRows = input.required<PlannerCompetition[]>();
@@ -96,6 +95,15 @@ export class UnannouncedCompetitionBannersComponent implements OnInit {
     });
   }
 
+  // Creates the linked Planner row without creating or linking a Drive folder.
+  createPlannerCompetition(competition: PlannerWcaCompetitionOption): void {
+    const request: PlannerWcaLinkRequest = {
+      wcaCompetitionId: competition.wca_competition_id,
+      createWcaDriveFolder: false,
+    };
+    this.submitLinkRequest(competition, request);
+  }
+
   // Starts linking as soon as a Potential row is explicitly selected.
   selectPlannerCompetition(
     competition: PlannerWcaCompetitionOption,
@@ -127,11 +135,18 @@ export class UnannouncedCompetitionBannersComponent implements OnInit {
 
   // Links to the selected Potential row, or creates a new linked Planner row.
   linkCompetition(competition: PlannerWcaCompetitionOption, plannerCompetitionId?: string): void {
-    const wcaCompetitionId = competition.wca_competition_id;
     const request: PlannerWcaLinkRequest = {
-      wcaCompetitionId,
+      wcaCompetitionId: competition.wca_competition_id,
       ...(plannerCompetitionId ? { plannerCompetitionId } : {}),
     };
+    this.submitLinkRequest(competition, request);
+  }
+
+  private submitLinkRequest(
+    competition: PlannerWcaCompetitionOption,
+    request: PlannerWcaLinkRequest,
+  ): void {
+    const wcaCompetitionId = competition.wca_competition_id;
     this.setPending(wcaCompetitionId, true);
 
     this.competitionPlannerApi.linkWcaCompetition(request).subscribe({

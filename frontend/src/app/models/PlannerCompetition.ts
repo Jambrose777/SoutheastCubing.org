@@ -29,6 +29,7 @@ export interface PlannerCompetition {
   url?: string | null;
   website?: string | null;
   wca_competition_id: string | null;
+  wca_drive_link: string | null;
   country_iso2?: string | null;
   is_announced: boolean;
   is_in_volunteer_application?: boolean | null;
@@ -104,6 +105,12 @@ export interface PlannerCompetitionSaveRequest {
   organizerPeopleIds?: string[];
   equipmentPeopleIds?: (string | null)[];
   eventIds?: string[];
+  createWcaDriveFolder?: boolean;
+  wcaDriveLink?: string | null;
+}
+
+export interface PlannerWcaDriveFolderResponse {
+  folderLink: string;
 }
 
 // An eligible WCA competition that the signed-in user manages and has not linked in Planner.
@@ -119,4 +126,6 @@ export interface PlannerWcaCompetitionOption {
 export interface PlannerWcaLinkRequest {
   wcaCompetitionId: string;
   plannerCompetitionId?: string;
+  createWcaDriveFolder?: boolean;
+  wcaDriveLink?: string | null;
 }

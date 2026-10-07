@@ -53,6 +53,45 @@
           {{ row.name | stripYear }}
         }
       </ng-template>
+      <ng-template #driveCell let-row>
+        @if (row.wca_drive_link) {
+          <a
+            class="drive-folder-link"
+            [href]="row.wca_drive_link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+            WCA Drive
+          </a>
+        } @else if (canEdit(row)) {
+          <div class="drive-folder-actions">
+            <button
+              type="button"
+              class="btn small icon-only"
+              matTooltip="Create new WCA Drive folder"
+              matTooltipPosition="above"
+              aria-label="Create WCA Drive folder"
+              [disabled]="creatingDriveFolderIds().has(row.id)"
+              (click)="createWcaDriveFolder(row)"
+            >
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            </button>
+            <button
+              type="button"
+              class="btn small icon-only"
+              matTooltip="Link existing WCA Drive folder"
+              matTooltipPosition="above"
+              aria-label="Link existing WCA Drive folder"
+              (click)="openEditCompetition(row)"
+            >
+              <i class="fa-solid fa-link" aria-hidden="true"></i>
+            </button>
+          </div>
+        } @else {
+          --
+        }
+      </ng-template>
       <ng-template #dateCell let-row>{{
         row.full_date ?? formatLongDateRange(row.start_date, row.end_date)
       }}</ng-template>

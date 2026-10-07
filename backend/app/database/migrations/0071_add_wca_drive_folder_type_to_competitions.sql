@@ -1,0 +1,1 @@
+ALTER TABLE competitions ADD COLUMN wca_drive_folder_type TEXT;

@@ -693,11 +693,40 @@ router.post(
  *         description: Not signed in.
  *       403:
  *         description: Not Admin/Board/Delegate.
+ *       503:
+ *         description: WCA Drive is not configured or available when folder creation or linking was requested.
  */
 router.post(
   '/dashboard/competition-planner/competitions',
   requireDelegateOrAdminOrBoard,
   asyncRoute(competitionsController.createPlannerCompetition),
+);
+
+/**
+ * @openapi
+ * /dashboard/competition-planner/competitions/{competitionId}/wca-drive-folder:
+ *   post:
+ *     summary: Creates and links a WCA Drive folder for a Planner competition.
+ *     tags: [Competitions]
+ *     responses:
+ *       201:
+ *         description: The created folder link.
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not authorized to edit this competition.
+ *       404:
+ *         description: Competition not found.
+ *       409:
+ *         description: Competition already has a WCA Drive folder.
+ *       503:
+ *         description: WCA Drive is not configured or available.
+ */
+router.post(
+  '/dashboard/competition-planner/competitions/:competitionId/wca-drive-folder',
+  requireDelegateOrAdminOrBoard,
+  requireCompetitionEditAccess,
+  asyncRoute(competitionsController.createPlannerWcaDriveFolder),
 );
 
 /**
@@ -717,6 +746,8 @@ router.post(
  *         description: Not authorized to edit this competition.
  *       404:
  *         description: Competition not found.
+ *       503:
+ *         description: WCA Drive is not configured or available when a folder link was requested.
  *   delete:
  *     summary: Deletes a Planner competition - same access as editing it, and only while Potential/Planning (never once Announced).
  *     tags: [Competitions]

@@ -60,7 +60,7 @@
             title="Create new Competition in Planner"
             aria-label="Create new Competition in Planner"
             [disabled]="pendingActions().has(competition.wca_competition_id)"
-            (click)="linkCompetition(competition)"
+            (click)="createPlannerCompetition(competition)"
           >
             <i class="fa-solid fa-plus" aria-hidden="true"></i>
             Create New

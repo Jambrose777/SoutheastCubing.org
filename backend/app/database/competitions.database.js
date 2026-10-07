@@ -36,6 +36,8 @@ const COLUMNS = [
   'full_date',
   'wca_competition_id',
   'is_announced',
+  'wca_drive_link',
+  'wca_drive_folder_type',
 ];
 
 // Maps a formatted WCA competition object (see competitions.js's
@@ -69,6 +71,8 @@ function toRow(id, comp) {
     comp.full_date,
     comp.wca_competition_id ?? null,
     comp.is_announced ?? false,
+    comp.wca_drive_link ?? null,
+    comp.wca_drive_folder_type ?? null,
   ];
 }
 
@@ -102,6 +106,8 @@ function fromRow(row, eventIds) {
     full_date: row.full_date,
     wca_competition_id: row.wca_competition_id,
     is_announced: row.is_announced,
+    wca_drive_link: row.wca_drive_link,
+    wca_drive_folder_type: row.wca_drive_folder_type,
   };
 }
 
@@ -119,20 +125,34 @@ async function getCompetitionsCount() {
 // `wca_competition_id` first and reuses its surrogate id, generating a fresh 
 // one only when none exists yet, then upserts by that id.
 async function upsertCompetitionsBatch(batch) {
-  if (!batch.length) return { insertedIds: [], batchWithIds: [] };
+  if (!batch.length) {
+    return { insertedIds: [], batchWithIds: [], wcaDriveFolderNameChangedIds: [] };
+  }
 
   return db.withRetry(async (client) => {
     const { rows: existingRows } = await client.query(
-      'SELECT id, wca_competition_id FROM competitions WHERE wca_competition_id = ANY($1)',
+      'SELECT id, wca_competition_id, name, start_date, wca_drive_link FROM competitions WHERE wca_competition_id = ANY($1)',
       [batch.map((comp) => comp.wca_competition_id)],
     );
-    const existingIdByWcaId = new Map(existingRows.map((row) => [row.wca_competition_id, row.id]));
+    const existingRowByWcaId = new Map(
+      existingRows.map((row) => [row.wca_competition_id, row]),
+    );
 
     const insertedIds = [];
+    const wcaDriveFolderNameChangedIds = [];
     const batchWithIds = batch.map((comp) => {
-      const existingId = existingIdByWcaId.get(comp.wca_competition_id);
+      const existingRow = existingRowByWcaId.get(comp.wca_competition_id);
+      const existingId = existingRow?.id;
       const id = existingId ?? crypto.randomUUID();
       if (!existingId) insertedIds.push(id);
+      if (
+        existingRow?.wca_drive_link &&
+        (existingRow.name !== comp.name ||
+          moment.utc(existingRow.start_date).format('YYYY-MM-DD') !==
+            moment.utc(comp.start_date).format('YYYY-MM-DD'))
+      ) {
+        wcaDriveFolderNameChangedIds.push(id);
+      }
       return { id, comp };
     });
 
@@ -153,6 +173,12 @@ async function upsertCompetitionsBatch(batch) {
         if (col === 'waiting_list_count' || col === 'waiting_list_count_updated_at') {
           return `${col} = COALESCE(EXCLUDED.${col}, competitions.${col})`;
         }
+        if (col === 'wca_drive_link') {
+          return `${col} = COALESCE(EXCLUDED.${col}, competitions.${col})`;
+        }
+        if (col === 'wca_drive_folder_type') {
+          return `${col} = COALESCE(EXCLUDED.${col}, competitions.${col})`;
+        }
         return `${col} = EXCLUDED.${col}`;
       })
       .join(', ');
@@ -167,7 +193,7 @@ async function upsertCompetitionsBatch(batch) {
     logger.debug(
       `Upserted ${batch.length} competition(s) in the competitions table (${insertedIds.length} newly inserted).`,
     );
-    return { insertedIds, batchWithIds };
+    return { insertedIds, batchWithIds, wcaDriveFolderNameChangedIds };
   });
 }
 
@@ -197,7 +223,15 @@ async function markAnnounced(ids) {
 async function getAnnouncedUpcomingCompetitions() {
   try {
     const { rows } = await db.pool.query(
-      'SELECT * FROM competitions WHERE end_date >= $1 AND is_announced IS TRUE ORDER BY start_date ASC, name ASC',
+      `SELECT id, url, name, website, city, venue_address, venue_details,
+              latitude_degrees, longitude_degrees, country_iso2, start_date,
+              registration_open, registration_close, end_date, competitor_limit,
+              venue, venue_url, state, is_in_volunteer_application,
+              accepted_registrations, waiting_list_count, waiting_list_count_updated_at,
+              full_date, wca_competition_id, is_announced
+       FROM competitions
+       WHERE end_date >= $1 AND is_announced IS TRUE
+       ORDER BY start_date ASC, name ASC`,
       [moment().add(-1, 'day').format('YYYY-MM-DD')],
     );
     return rows.map((row) => fromRow(row, []));
@@ -364,6 +398,21 @@ async function getCompetitionById(id) {
   return rows[0] ? fromRow(rows[0], []) : null;
 }
 
+// Lists every competition with a Drive folder, including past competitions up to 14 days ago.
+async function getCompetitionsWithWcaDriveLink() {
+  try {
+    const cutoffDate = moment.utc().subtract(14, 'days').format('YYYY-MM-DD');
+    const { rows } = await db.pool.query(
+      'SELECT * FROM competitions WHERE wca_drive_link IS NOT NULL AND end_date >= $1',
+      [cutoffDate],
+    );
+    return rows.map((row) => fromRow(row, []));
+  } catch (error) {
+    logger.error('Failed to fetch competitions with WCA Drive folders from the competitions table:', error);
+    throw error;
+  }
+}
+
 // Inserts a brand-new Planner-created competition row with every field a
 // Delegate can supply by hand.
 async function createPlannerCompetition({
@@ -438,11 +487,15 @@ async function createPlannerCompetitionLinkedToWca(comp) {
 // Links a WCA competition to an existing Potential row, preserving its Planner id.
 async function linkPlannerCompetitionToWca(id, comp) {
   const row = toRow(id, { ...comp, is_announced: false });
-  const columnsToUpdate = COLUMNS.slice(1);
+  const columnsToUpdate = COLUMNS.filter(
+    (column) =>
+      column !== 'id' && column !== 'wca_drive_link' && column !== 'wca_drive_folder_type',
+  );
+  const rowByColumn = Object.fromEntries(COLUMNS.map((column, index) => [column, row[index]]));
   const updateSet = columnsToUpdate
     .map((column, index) => `${column} = $${index + 1}`)
     .join(', ');
-  const params = [...row.slice(1), id];
+  const params = [...columnsToUpdate.map((column) => rowByColumn[column]), id];
 
   try {
     const { rows } = await db.withRetry(async (client) =>
@@ -469,6 +522,25 @@ async function linkPlannerCompetitionToWca(id, comp) {
   }
 }
 
+// Sets or clears a competition's Drive folder URL and synchronized category.
+async function setWcaDriveLink(id, folderLink, folderType = null) {
+  try {
+    const { rows } = await db.withRetry(async (client) =>
+      client.query(
+        'UPDATE competitions SET wca_drive_link = $1, wca_drive_folder_type = $2 WHERE id = $3 RETURNING id',
+        [folderLink ?? null, folderLink ? folderType : null, id],
+      ),
+    );
+    if (rows.length) {
+      logger.debug(`Updated the WCA Drive folder link for competition ${id} in the competitions table.`);
+    }
+    return rows.length > 0;
+  } catch (error) {
+    logger.error(`Failed to update the WCA Drive folder link for competition ${id}:`, error);
+    throw error;
+  }
+}
+
 // Updates a Planner-created competition's own hand-entered fields - only
 // ever called while still Potential, since these become WCA-synced (and
 // read-only) once linked.
@@ -490,12 +562,13 @@ async function updatePlannerCompetitionFields(
     competitorLimit,
   },
 ) {
-  await db.pool.query(
+  const { rows } = await db.pool.query(
     `UPDATE competitions
      SET name = $1, city = $2, state = $3, venue_address = $4, venue_details = $5,
          venue = $6, venue_url = $7, latitude_degrees = $8, longitude_degrees = $9,
          start_date = $10, end_date = $11, full_date = $12, competitor_limit = $13
-     WHERE id = $14`,
+       WHERE id = $14
+       RETURNING *`,
     [
       name,
       city,
@@ -514,6 +587,7 @@ async function updatePlannerCompetitionFields(
     ],
   );
   logger.debug(`Updated Planner competition fields for competition_id ${id}.`);
+  return rows[0] ? fromRow(rows[0], []) : null;
 }
 
 
@@ -545,9 +619,11 @@ module.exports = {
   completeBulkRefresh,
   releaseBulkRefresh,
   getCompetitionById,
+  getCompetitionsWithWcaDriveLink,
   createPlannerCompetition,
   createPlannerCompetitionLinkedToWca,
   linkPlannerCompetitionToWca,
   updatePlannerCompetitionFields,
+  setWcaDriveLink,
   deletePlannerCompetition,
 };

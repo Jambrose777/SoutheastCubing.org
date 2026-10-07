@@ -9,6 +9,7 @@ import {
   PlannerCompetitionsResponse,
   PlannerCompetitionSaveRequest,
   PlannerWcaCompetitionOption,
+  PlannerWcaDriveFolderResponse,
   PlannerWcaLinkRequest,
 } from '../../models/PlannerCompetition';
 
@@ -74,6 +75,14 @@ export class CompetitionPlannerApiService {
     body: PlannerCompetitionSaveRequest,
   ): Observable<PlannerCompetition> {
     return this.http.put<PlannerCompetition>(`${this.base}/competitions/${competitionId}`, body);
+  }
+
+  // Creates and links a new WCA Drive folder for an existing Planner competition.
+  createWcaDriveFolder(competitionId: string): Observable<PlannerWcaDriveFolderResponse> {
+    return this.http.post<PlannerWcaDriveFolderResponse>(
+      `${this.base}/competitions/${encodeURIComponent(competitionId)}/wca-drive-folder`,
+      null,
+    );
   }
 
   // Deletes a Planner competition - only ever possible while Potential/Planning.

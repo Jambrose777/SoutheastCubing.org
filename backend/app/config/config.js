@@ -40,6 +40,13 @@ const configSchema = z.object({
   FRONTEND_URL: z.string().min(1).optional(),
   // Missing disables manage_competitions grants step-up flow.
   TOKEN_ENCRYPTION_KEY: z.string().min(1).optional(),
+  // Missing any required Drive folder ID disables direct Drive actions and skips
+  // incidental folder work during competition refresh.
+  WCA_DRIVE_ROOT_FOLDER_ID: z.string().min(1).optional(),
+  WCA_DRIVE_UPCOMING_FOLDER_ID: z.string().min(1).optional(),
+  WCA_DRIVE_PAST_FOLDER_ID: z.string().min(1).optional(),
+  WCA_DRIVE_PROPOSALS_IN_PROGRESS_FOLDER_ID: z.string().min(1).optional(),
+  WCA_DRIVE_ABANDONED_FOLDER_ID: z.string().min(1).optional(),
   // unset leaves the cookie host-only (fine for local dev where frontend/backend
   // share a hostname);
   SESSION_COOKIE_DOMAIN: z.string().min(1).optional(),
@@ -71,6 +78,16 @@ const OPTIONAL_VAR_DESCRIPTIONS = {
   FRONTEND_URL: 'WCA sign-in routes will respond 503 until this is set',
   TOKEN_ENCRYPTION_KEY:
     'the manage_competitions OAuth step-up flow will respond 503 until this is set',
+  WCA_DRIVE_ROOT_FOLDER_ID:
+    'direct WCA Drive actions will respond 503 and folder work during competition refresh will be skipped until this is set',
+  WCA_DRIVE_UPCOMING_FOLDER_ID:
+    'direct WCA Drive actions will respond 503 and folder work during competition refresh will be skipped until this is set',
+  WCA_DRIVE_PAST_FOLDER_ID:
+    'direct WCA Drive actions will respond 503 and folder work during competition refresh will be skipped until this is set',
+  WCA_DRIVE_PROPOSALS_IN_PROGRESS_FOLDER_ID:
+    'direct WCA Drive actions will respond 503 and folder work during competition refresh will be skipped until this is set',
+  WCA_DRIVE_ABANDONED_FOLDER_ID:
+    'direct WCA Drive actions will respond 503 and folder work during competition refresh will be skipped until this is set',
   SESSION_COOKIE_DOMAIN:
     'the session cookie will be host-only instead of scoped to a parent domain',
   NODE_ENV: 'defaulting to development-level (debug) logging',

@@ -66,7 +66,9 @@ CREATE TABLE competitions (
   wca_competition_id TEXT,
   is_announced BOOLEAN DEFAULT false,
   waiting_list_count INTEGER,
-  waiting_list_count_updated_at TIMESTAMP WITH TIME ZONE
+  waiting_list_count_updated_at TIMESTAMP WITH TIME ZONE,
+  wca_drive_link TEXT,
+  wca_drive_folder_type TEXT
 );
 
 CREATE TABLE competitions_meta (

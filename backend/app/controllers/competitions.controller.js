@@ -12,6 +12,7 @@ const {
   dismissUnannouncedCompetition,
   linkManagedCompetitionToPlanner,
   createCompetition,
+  createWcaDriveFolderForCompetition,
   updateCompetition,
   deleteCompetition,
 } = require('../services/competitions.service.js');
@@ -133,6 +134,8 @@ async function linkPlannerCompetitionToWca(req, res) {
       peopleId: req.user.people_id,
       wcaCompetitionId: req.body?.wcaCompetitionId,
       plannerCompetitionId: req.body?.plannerCompetitionId,
+      createWcaDriveFolder: req.body?.createWcaDriveFolder,
+      wcaDriveLink: req.body?.wcaDriveLink,
     });
     const competitions = await getAllUpcomingCompetitionsForPlanner();
     res.status(200).json(competitions.find((competition) => competition.id === competitionId));
@@ -149,6 +152,17 @@ async function createPlannerCompetition(req, res) {
     res.status(201).json(comps.find((comp) => comp.id === id));
   } catch (err) {
     respondWithServiceError(res, err, 'Failed to create competition');
+  }
+}
+
+// POST /dashboard/competition-planner/competitions/:competitionId/wca-drive-folder - creates
+// and links a folder.
+async function createPlannerWcaDriveFolder(req, res) {
+  try {
+    const folderLink = await createWcaDriveFolderForCompetition(req.params.competitionId);
+    res.status(201).json({ folderLink });
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to create WCA Drive folder');
   }
 }
 
@@ -184,6 +198,7 @@ module.exports = {
   dismissPlannerUnannouncedCompetition,
   linkPlannerCompetitionToWca,
   createPlannerCompetition,
+  createPlannerWcaDriveFolder,
   updatePlannerCompetition,
   deletePlannerCompetition,
 };
