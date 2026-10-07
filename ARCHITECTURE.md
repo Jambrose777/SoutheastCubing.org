@@ -36,7 +36,8 @@ flowchart TB
         Discord["Discord webhook"]
         Gmail["Gmail SMTP"]
         GForms["Google Forms API"]
-        WCA ~~~ Contentful ~~~ Discord ~~~ Gmail ~~~ GForms
+        GDrive["Google Drive API"]
+        WCA ~~~ Contentful ~~~ Discord ~~~ Gmail ~~~ GForms ~~~ GDrive
     end
 
     Browser -->|HTTPS| R53
@@ -53,6 +54,7 @@ flowchart TB
     BE --> Discord
     BE --> Gmail
     BE --> GForms
+    BE --> GDrive
 ```
 
 ## Key characteristics today
@@ -92,6 +94,11 @@ flowchart TB
   `backend/app/database/discordPingPatterns.database.js`)
   alongside the original per-state role pings, with rate-limit-safe chunked
   posting (`backend/app/integrations/discord.integration.js`).
+- **Competition Planner folder automation** uses the Google Drive API through
+  `backend/app/integrations/googleDrive.integration.js`. The Forms and Drive
+  integrations share one service-account credentials file; five environment
+  variables select the local Mock or production WCA Drive folders. Drive
+  configuration and credentials are optional at startup.
 - **"Sign in with WCA" (OAuth) now backs a first-party session** —
   `backend/app/services/auth.service.js`/`auth.controller.js`, DSQL-backed
   `people`/`users`/`sessions` tables. The browser is redirected to WCA's own

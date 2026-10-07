@@ -61,24 +61,29 @@ reload if you change any of the source files.
 
 ## BE Development setup
 
-The backend needs two secret/config files that are never committed to the repo, both
-living under `backend/.env/`:
+The backend's local configuration lives under `backend/.env/`. The `.env` file is
+never committed; the checked-in `.env.template` is the reference for its variables.
+Copy `backend/.env/.env.template` to `backend/.env/.env` and fill in the values needed
+for the features you plan to use. The template uses safe local-development values;
+keep production configuration and Drive folder IDs in the production environment.
 
-- `.env` — environment variables consumed via Node's built-in `--env-file` flag
-  (email credentials, AWS keys, Contentful API keys, Discord webhook URL). `.env` is
-  gitignored and never committed - `backend/.env/.env.template` is the only checked-in
-  reference for which variables exist and how to obtain each one. Copy
-  `backend/.env/.env.template` to `backend/.env/.env` and fill in the blanks - the
-  template only lists safe "Local Development" values (values that never touch real
-  org inboxes or the real Southeast Cubing Discord server).
-- `southeastcubing-org-api.json` — a Google service account credentials file used to
-  authenticate against the Google Forms API (reading the volunteer sign-up form). If
-  this file is missing, the competitions update flow degrades gracefully (volunteer
-  form data is simply treated as empty) instead of breaking.
+- `southeastcubing-org-api.json` — the shared Google service-account credentials file
+  used by both Google Forms (reading volunteer sign-ups) and Google Drive (Competition
+  Planner folders). Create a Google Cloud API Key and give it access to relevant files or request
+  access to the file from Jacob and place it at `backend/.env/southeastcubing-org-api.json`.
+  The app starts without it: volunteer-form data is treated as empty, and Drive
+  operations are unavailable (incidental Drive work is skipped).
 
-Neither file is checked into source control, and there's no secrets manager for this
-project — request both files directly from Jacob (org admin) and share/receive them,
-then place them in `backend/.env/`.
+For local Google Drive use, set the five optional `WCA_DRIVE_*_FOLDER_ID` variables in
+`backend/.env/.env` to the local Mock WCA Drive tree's root and category folder IDs.
+The service account must have access to those folders. Production uses the same
+credentials file but its own production WCA Drive folder IDs in the production
+environment.. If the folder IDs or credentials are missing, the backend still starts,
+but direct Drive actions return an error and background/refresh Drive work is skipped.
+
+The credentials file and `.env` are gitignored and never committed. There is no
+secrets manager for this project; request the Google credentials, local Mock Drive
+folder IDs/access, and any shared development configuration from Jacob (org admin).
 
 ### Dev Aurora DSQL cluster
 
