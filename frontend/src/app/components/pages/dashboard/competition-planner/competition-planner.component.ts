@@ -17,7 +17,11 @@ import { ErrorBannerService } from 'src/app/services/error-banner.service';
 import { CompetitionPlannerApiService } from 'src/app/services/southeastcubing-api/competition-planner-api.service';
 import { Colors, EventNames, StateColors } from 'src/app/shared/types';
 import { formatLongDateRange, formatLongDateTime } from 'src/app/shared/date.util';
-import { PlannerCompetition, PlannerCompetitionStatus } from 'src/app/models/PlannerCompetition';
+import {
+  PlannerCompetition,
+  PlannerCompetitionStatus,
+  PlannerWcaCompetitionOption,
+} from 'src/app/models/PlannerCompetition';
 import { environment } from 'src/environments/environment';
 import { NgClass } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -33,6 +37,7 @@ import { AddEditCompetitionSheetComponent } from './add-edit-competition-sheet/a
 import { ViewCompetitionSheetComponent } from './view-competition-sheet/view-competition-sheet.component';
 import { UnannouncedCompetitionBannersComponent } from './unannounced-competition-banners/unannounced-competition-banners.component';
 import { WcaLinkCompetitionSheetComponent } from './wca-link-competition-sheet/wca-link-competition-sheet.component';
+import { MultiCityCreateSheetComponent } from './multi-city-create-sheet/multi-city-create-sheet.component';
 import { CompetitionRefreshControlComponent } from './competition-refresh-control/competition-refresh-control.component';
 import { DASHBOARD_TOOLS } from '../dashboard-tools';
 import {
@@ -150,6 +155,7 @@ function registrationStatusColor(row: PlannerCompetition): Colors {
     ViewCompetitionSheetComponent,
     UnannouncedCompetitionBannersComponent,
     WcaLinkCompetitionSheetComponent,
+    MultiCityCreateSheetComponent,
     CompetitionRefreshControlComponent,
   ],
 })
@@ -225,11 +231,11 @@ export class CompetitionPlannerComponent implements OnInit {
     {
       key: 'date',
       label: 'Date(s)',
-      width: '130px',
+      width: '135px',
       filterable: false,
       visibleByDefault: true,
       sortValue: (row) => row.start_date,
-      searchValue: (row) => row.full_date ?? formatLongDateRange(row.start_date, row.end_date),
+      searchValue: (row) => formatLongDateRange(row.start_date, row.end_date),
       cellTemplate: this.dateCell(),
     },
     {
@@ -345,12 +351,30 @@ export class CompetitionPlannerComponent implements OnInit {
 
   trackById = (row: PlannerCompetition) => row.id;
 
+  // Finds incomplete manual data on a multi-city location before it is announced.
+  hasMissingMultiCityData = (row: PlannerCompetition): boolean => {
+    if (!row.is_multiple_cities_competition) return false;
+    return (
+      !row.city.trim() ||
+      !row.state ||
+      !row.venue_address?.trim() ||
+      !row.venue_details?.trim() ||
+      !row.venue?.trim() ||
+      !Number.isFinite(row.latitude_degrees) ||
+      !Number.isFinite(row.longitude_degrees) ||
+      row.competitor_limit == null ||
+      row.competitor_limit < 1 ||
+      !row.delegates.some((delegate) => delegate.isLead)
+    );
+  };
+
   // The sheet being shown, if any - consumed by the View/Add-Edit Competition
   // sheets. null means no sheet is open.
   viewingCompetition = signal<PlannerCompetition | null>(null);
   editingCompetition = signal<PlannerCompetition | null>(null);
   linkingWcaCompetition = signal<PlannerCompetition | null>(null);
-  activeSheet = signal<'add-edit' | 'view' | 'wca-link' | null>(null);
+  multiCityWcaCompetition = signal<PlannerWcaCompetitionOption | null>(null);
+  activeSheet = signal<'add-edit' | 'view' | 'wca-link' | 'multi-city-create' | null>(null);
   isSheetClosing = signal(false);
   private unannouncedCompetitionBanners = viewChild(UnannouncedCompetitionBannersComponent);
 
@@ -376,6 +400,12 @@ export class CompetitionPlannerComponent implements OnInit {
 
   rowActions = computed<DataTableActions<PlannerCompetition>>(() => ({
     overflow: [
+      {
+        icon: 'fa-circle-exclamation',
+        label: 'Location info Needed',
+        onClick: (row) => this.openEditCompetition(row),
+        visible: (row) => this.canEdit(row) && this.hasMissingMultiCityData(row),
+      },
       {
         icon: 'fa-eye',
         label: 'View',
@@ -484,6 +514,12 @@ export class CompetitionPlannerComponent implements OnInit {
     this.activeSheet.set('wca-link');
   }
 
+  // Opens the dedicated batch sheet for a managed multi-city WCA competition.
+  openMultiCityCreateSheet(competition: PlannerWcaCompetitionOption): void {
+    this.multiCityWcaCompetition.set(competition);
+    this.activeSheet.set('multi-city-create');
+  }
+
   closeSheet(): void {
     this.isSheetClosing.set(true);
     setTimeout(() => {
@@ -518,6 +554,13 @@ export class CompetitionPlannerComponent implements OnInit {
 
   // Closes the link sheet and reloads WCA-sourced Planner fields.
   onWcaLinkSaved(): void {
+    this.closeSheet();
+    this.loadCompetitions();
+    this.unannouncedCompetitionBanners()?.refresh();
+  }
+
+  // Reloads Planner rows and banner eligibility after batch creation.
+  onMultiCityCreated(): void {
     this.closeSheet();
     this.loadCompetitions();
     this.unannouncedCompetitionBanners()?.refresh();
@@ -569,12 +612,16 @@ export class CompetitionPlannerComponent implements OnInit {
     this.loadCompetitions();
   }
 
-  private loadCompetitions(): void {
+  private loadCompetitions(openEditCompetitionId?: string): void {
     this.competitionPlannerApi.getCompetitions().subscribe({
       next: (response) => {
         this.rows.set(response.competitions);
         this.lastBulkRefreshAt.set(response.meta.lastBulkRefreshAt);
         this.loading.set(false);
+        const createdCompetition = response.competitions.find(
+          (competition) => competition.id === openEditCompetitionId,
+        );
+        if (createdCompetition) this.openEditCompetition(createdCompetition);
       },
       error: () => {
         this.loading.set(false);
@@ -587,8 +634,8 @@ export class CompetitionPlannerComponent implements OnInit {
   }
 
   // Reloads the canonical Planner rows after the child completes a WCA link.
-  onPlannerCompetitionLinked(): void {
-    this.loadCompetitions();
+  onPlannerCompetitionLinked(event: { createdCompetitionId?: string } = {}): void {
+    this.loadCompetitions(event.createdCompetitionId);
   }
 
   // The manage_competitions step-up callback lands back here with

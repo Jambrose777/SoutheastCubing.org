@@ -22,6 +22,15 @@
   font-size: 0.85rem;
 }
 
+.multi-location-badge {
+  align-self: flex-start;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: color-pallet.$se-orange;
+  color: color-pallet.$se-black;
+  font-size: 0.85rem;
+}
+
 .status-badge,
 .lead-label {
   padding: 3px 8px;

@@ -57,13 +57,21 @@
           <button
             type="button"
             class="btn small"
-            title="Create new Competition in Planner"
-            aria-label="Create new Competition in Planner"
+            [title]="
+              competition.is_multiple_cities_competition
+                ? 'Add multi-city locations'
+                : 'Create new Competition in Planner'
+            "
+            [attr.aria-label]="
+              competition.is_multiple_cities_competition
+                ? 'Add multi-city locations'
+                : 'Create new Competition in Planner'
+            "
             [disabled]="pendingActions().has(competition.wca_competition_id)"
             (click)="createPlannerCompetition(competition)"
           >
             <i class="fa-solid fa-plus" aria-hidden="true"></i>
-            Create New
+            {{ competition.is_multiple_cities_competition ? 'Add Locations' : 'Create New' }}
           </button>
           <button
             type="button"

@@ -31,7 +31,8 @@ import { formatLongDate } from 'src/app/shared/date.util';
 })
 export class UnannouncedCompetitionBannersComponent implements OnInit {
   potentialRows = input.required<PlannerCompetition[]>();
-  competitionLinked = output<void>();
+  competitionLinked = output<{ createdCompetitionId?: string }>();
+  multiCityCreateRequested = output<PlannerWcaCompetitionOption>();
 
   private authService = inject(AuthService);
   private errorBannerService = inject(ErrorBannerService);
@@ -97,11 +98,15 @@ export class UnannouncedCompetitionBannersComponent implements OnInit {
 
   // Creates the linked Planner row without creating or linking a Drive folder.
   createPlannerCompetition(competition: PlannerWcaCompetitionOption): void {
+    if (competition.is_multiple_cities_competition) {
+      this.multiCityCreateRequested.emit(competition);
+      return;
+    }
     const request: PlannerWcaLinkRequest = {
       wcaCompetitionId: competition.wca_competition_id,
       createWcaDriveFolder: false,
     };
-    this.submitLinkRequest(competition, request);
+    this.submitLinkRequest(competition, request, true);
   }
 
   // Starts linking as soon as a Potential row is explicitly selected.
@@ -145,13 +150,16 @@ export class UnannouncedCompetitionBannersComponent implements OnInit {
   private submitLinkRequest(
     competition: PlannerWcaCompetitionOption,
     request: PlannerWcaLinkRequest,
+    openCreatedCompetition = false,
   ): void {
     const wcaCompetitionId = competition.wca_competition_id;
     this.setPending(wcaCompetitionId, true);
 
     this.competitionPlannerApi.linkWcaCompetition(request).subscribe({
-      next: () => {
-        this.competitionLinked.emit();
+      next: (createdCompetition) => {
+        this.competitionLinked.emit(
+          openCreatedCompetition ? { createdCompetitionId: createdCompetition.id } : {},
+        );
         this.closeBanner(wcaCompetitionId, 'remove');
         this.toastService.success('Competition linked in Planner.');
       },

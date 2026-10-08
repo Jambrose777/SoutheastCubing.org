@@ -14,6 +14,9 @@
       @if (competition().wca_competition_id) {
         <span class="wca-id">{{ competition().wca_competition_id }}</span>
       }
+      @if (competition().is_multiple_cities_competition) {
+        <span class="multi-location-badge">Multi-location competition</span>
+      }
     </div>
 
     <!-- Status -->
@@ -27,10 +30,7 @@
       <div>
         <dt>Date(s)</dt>
         <dd>
-          {{
-            competition().full_date ??
-              formatLongDateRange(competition().start_date, competition().end_date)
-          }}
+          {{ formatLongDateRange(competition().start_date, competition().end_date) }}
         </dd>
       </div>
       <div>
@@ -89,6 +89,17 @@
         >
           <img src="assets/wca_logo.svg" alt="" width="20" height="20" />
           WCA
+        </a>
+      }
+      @if (competition().wca_drive_link) {
+        <a
+          class="btn small link-button"
+          [href]="competition().wca_drive_link"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+          WCA Drive
         </a>
       }
       @if (hasExternalWebsite()) {

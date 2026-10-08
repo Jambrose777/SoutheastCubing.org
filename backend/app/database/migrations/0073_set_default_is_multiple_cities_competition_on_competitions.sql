@@ -1,0 +1,1 @@
+ALTER TABLE competitions ALTER COLUMN is_multiple_cities_competition SET DEFAULT false;

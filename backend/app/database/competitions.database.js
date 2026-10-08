@@ -38,6 +38,7 @@ const COLUMNS = [
   'is_announced',
   'wca_drive_link',
   'wca_drive_folder_type',
+  'is_multiple_cities_competition',
 ];
 
 // Maps a formatted WCA competition object (see competitions.js's
@@ -73,6 +74,7 @@ function toRow(id, comp) {
     comp.is_announced ?? false,
     comp.wca_drive_link ?? null,
     comp.wca_drive_folder_type ?? null,
+    comp.is_multiple_cities_competition ?? false,
   ];
 }
 
@@ -108,6 +110,7 @@ function fromRow(row, eventIds) {
     is_announced: row.is_announced,
     wca_drive_link: row.wca_drive_link,
     wca_drive_folder_type: row.wca_drive_folder_type,
+    is_multiple_cities_competition: Boolean(row.is_multiple_cities_competition),
   };
 }
 
@@ -228,7 +231,7 @@ async function getAnnouncedUpcomingCompetitions() {
               registration_open, registration_close, end_date, competitor_limit,
               venue, venue_url, state, is_in_volunteer_application,
               accepted_registrations, waiting_list_count, waiting_list_count_updated_at,
-              full_date, wca_competition_id, is_announced
+              full_date, wca_competition_id, is_announced, is_multiple_cities_competition
        FROM competitions
        WHERE end_date >= $1 AND is_announced IS TRUE
        ORDER BY start_date ASC, name ASC`,
@@ -255,6 +258,60 @@ async function getAllUpcomingCompetitionsForPlanner() {
   } catch (err) {
     logger.error('Failed to fetch upcoming competitions for the Competition Planner: ', err);
     throw err;
+  }
+}
+
+// Refreshes WCA-owned fields on every local row for one multi-city competition.
+async function updateMultiCityCompetitionRowsByWcaId(wcaCompetitionId, competition) {
+  try {
+    const { rows } = await db.withRetry(async (client) =>
+      client.query(
+        `UPDATE competitions
+         SET url = $1, name = $2, website = $3, country_iso2 = $4,
+             start_date = $5, registration_open = $6, registration_close = $7,
+             end_date = $8, is_in_volunteer_application = $9,
+             accepted_registrations = CASE
+               WHEN $10 = 0 AND accepted_registrations > 0 THEN accepted_registrations
+               ELSE $10
+             END,
+             waiting_list_count = COALESCE($11, waiting_list_count),
+             waiting_list_count_updated_at = COALESCE($12, waiting_list_count_updated_at),
+             full_date = $13, is_announced = $14,
+             is_multiple_cities_competition = true
+         WHERE wca_competition_id = $15
+           AND is_multiple_cities_competition IS TRUE
+         RETURNING id`,
+        [
+          competition.url,
+          competition.name,
+          competition.website,
+          competition.country_iso2,
+          competition.start_date,
+          competition.registration_open,
+          competition.registration_close,
+          competition.end_date,
+          competition.is_in_volunteer_application ?? false,
+          competition.accepted_registrations ?? 0,
+          competition.waiting_list_count ?? null,
+          competition.waiting_list_count_updated_at ?? null,
+          competition.full_date,
+          competition.is_announced ?? false,
+          String(wcaCompetitionId),
+        ],
+      ),
+    );
+    if (rows.length) {
+      logger.debug(
+        `Refreshed WCA-owned fields for ${rows.length} multi-city location row(s) for WCA competition ${wcaCompetitionId}.`,
+      );
+    }
+    return rows.map((row) => row.id);
+  } catch (error) {
+    logger.error(
+      `Failed to refresh multi-city location rows for WCA competition ${wcaCompetitionId}: `,
+      error,
+    );
+    throw error;
   }
 }
 
@@ -398,6 +455,29 @@ async function getCompetitionById(id) {
   return rows[0] ? fromRow(rows[0], []) : null;
 }
 
+// Finds the Drive folder already associated with a multi-city WCA competition.
+async function getWcaDriveLinkByWcaCompetitionId(wcaCompetitionId) {
+  try {
+    const { rows } = await db.pool.query(
+      `SELECT wca_drive_link, wca_drive_folder_type
+       FROM competitions
+       WHERE wca_competition_id = $1
+         AND is_multiple_cities_competition IS TRUE
+         AND wca_drive_link IS NOT NULL
+       ORDER BY id
+       LIMIT 1`,
+      [String(wcaCompetitionId)],
+    );
+    return rows[0] ?? null;
+  } catch (error) {
+    logger.error(
+      `Failed to fetch the WCA Drive folder link for WCA competition ${wcaCompetitionId}:`,
+      error,
+    );
+    throw error;
+  }
+}
+
 // Lists every competition with a Drive folder, including past competitions up to 14 days ago.
 async function getCompetitionsWithWcaDriveLink() {
   try {
@@ -461,7 +541,7 @@ async function createPlannerCompetition({
 // Creates a new Planner row directly from an unannounced WCA competition.
 async function createPlannerCompetitionLinkedToWca(comp) {
   const id = crypto.randomUUID();
-  const row = toRow(id, { ...comp, is_announced: false });
+  const row = toRow(id, comp);
   try {
     await db.withRetry(async (client) => {
       const placeholders = row.map((_, index) => `$${index + 1}`);
@@ -486,7 +566,7 @@ async function createPlannerCompetitionLinkedToWca(comp) {
 
 // Links a WCA competition to an existing Potential row, preserving its Planner id.
 async function linkPlannerCompetitionToWca(id, comp) {
-  const row = toRow(id, { ...comp, is_announced: false });
+  const row = toRow(id, comp);
   const columnsToUpdate = COLUMNS.filter(
     (column) =>
       column !== 'id' && column !== 'wca_drive_link' && column !== 'wca_drive_folder_type',
@@ -590,6 +670,41 @@ async function updatePlannerCompetitionFields(
   return rows[0] ? fromRow(rows[0], []) : null;
 }
 
+// Updates only the Planner-owned location fields on a linked multi-city row.
+async function updateMultiCityLocationFields(id, location) {
+  try {
+    const { rows } = await db.withRetry(async (client) =>
+      client.query(
+        `UPDATE competitions
+         SET city = $1, state = $2, venue_address = $3, venue_details = $4,
+             venue = $5, venue_url = $6, latitude_degrees = $7,
+             longitude_degrees = $8, competitor_limit = $9
+         WHERE id = $10 AND is_multiple_cities_competition IS TRUE
+         RETURNING *`,
+        [
+          location.city,
+          location.state,
+          location.venueAddress,
+          location.venueDetails,
+          location.venue,
+          location.venueUrl ?? null,
+          location.latitudeDegrees,
+          location.longitudeDegrees,
+          location.competitorLimit,
+          id,
+        ],
+      ),
+    );
+    if (rows.length) {
+      logger.debug(`Updated Planner location fields for multi-city competition (id ${id}).`);
+    }
+    return rows[0] ? fromRow(rows[0], []) : null;
+  } catch (error) {
+    logger.error(`Failed to update Planner location fields for multi-city competition (id ${id}):`, error);
+    throw error;
+  }
+}
+
 
 // Deletes a Planner-created competition row and its join-table rows - only
 // ever called for a still-Potential/Planning competition.
@@ -612,6 +727,7 @@ module.exports = {
   markAnnounced,
   getAnnouncedUpcomingCompetitions,
   getAllUpcomingCompetitionsForPlanner,
+  updateMultiCityCompetitionRowsByWcaId,
   getCompetitionsPendingDiscordAnnouncement,
   getLastBulkRefreshAt,
   getBulkRefreshState,
@@ -619,11 +735,13 @@ module.exports = {
   completeBulkRefresh,
   releaseBulkRefresh,
   getCompetitionById,
+  getWcaDriveLinkByWcaCompetitionId,
   getCompetitionsWithWcaDriveLink,
   createPlannerCompetition,
   createPlannerCompetitionLinkedToWca,
   linkPlannerCompetitionToWca,
   updatePlannerCompetitionFields,
+  updateMultiCityLocationFields,
   setWcaDriveLink,
   deletePlannerCompetition,
 };

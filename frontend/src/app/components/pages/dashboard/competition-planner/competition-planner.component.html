@@ -10,7 +10,8 @@
       <se-manage-competitions-prompt></se-manage-competitions-prompt>
       <se-unannounced-competition-banners
         [potentialRows]="potentialRows()"
-        (competitionLinked)="onPlannerCompetitionLinked()"
+        (competitionLinked)="onPlannerCompetitionLinked($event)"
+        (multiCityCreateRequested)="openMultiCityCreateSheet($event)"
       ></se-unannounced-competition-banners>
 
       @if (loading()) {
@@ -51,6 +52,13 @@
           >
         } @else {
           {{ row.name | stripYear }}
+        }
+        @if (hasMissingMultiCityData(row)) {
+          <i
+            class="fa-solid fa-circle-exclamation missing-multi-city-info"
+            matTooltip="Required location information is missing."
+            aria-label="Required location information is missing"
+          ></i>
         }
       </ng-template>
       <ng-template #driveCell let-row>
@@ -93,7 +101,7 @@
         }
       </ng-template>
       <ng-template #dateCell let-row>{{
-        row.full_date ?? formatLongDateRange(row.start_date, row.end_date)
+        formatLongDateRange(row.start_date, row.end_date)
       }}</ng-template>
       <ng-template #locationCell let-row>
         <span class="location-pill" [style.background]="StateColors[row.state ?? '??']">{{
@@ -256,6 +264,26 @@
         (closed)="closeSheet()"
         (saved)="onWcaLinkSaved()"
       ></se-wca-link-competition-sheet>
+    </div>
+  </div>
+}
+
+@if (activeSheet() === 'multi-city-create') {
+  <div
+    class="sheet-backdrop"
+    (click)="closeSheetIfBackdrop($event, multiCitySheet)"
+    (keydown.escape)="requestCloseSheet(multiCitySheet)"
+    role="button"
+    tabindex="0"
+    aria-label="Close"
+  >
+    <div class="sheet-overlay" [class.closing]="isSheetClosing()">
+      <se-multi-city-create-sheet
+        #multiCitySheet
+        [competition]="multiCityWcaCompetition()!"
+        (closed)="requestCloseSheet(multiCitySheet)"
+        (saved)="onMultiCityCreated()"
+      ></se-multi-city-create-sheet>
     </div>
   </div>
 }

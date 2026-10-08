@@ -680,6 +680,30 @@ router.post(
 
 /**
  * @openapi
+ * /dashboard/competition-planner/competitions/create-multi-city:
+ *   post:
+ *     summary: Creates linked Planner rows for the supplied locations of a managed multi-city WCA competition.
+ *     tags: [Competitions]
+ *     responses:
+ *       201:
+ *         description: The newly-created multi-city location rows.
+ *       400:
+ *         description: The WCA competition or location details are invalid.
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not Admin/Board/Delegate or manage_competitions access is missing.
+ *       503:
+ *         description: WCA Drive is not configured or available when folder creation or linking was requested.
+ */
+router.post(
+  '/dashboard/competition-planner/competitions/create-multi-city',
+  requireDelegateOrAdminOrBoard,
+  asyncRoute(competitionsController.createMultiCityPlannerCompetitionFromWca),
+);
+
+/**
+ * @openapi
  * /dashboard/competition-planner/competitions:
  *   post:
  *     summary: Creates a new Planner competition (always Potential) - open to any Admin/Board/Delegate, since creating one makes them its lead Delegate.

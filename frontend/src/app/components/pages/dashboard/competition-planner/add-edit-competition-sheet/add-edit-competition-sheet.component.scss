@@ -1,7 +1,24 @@
+@use 'src/styles/color-pallet';
 @forward 'src/styles/sheet';
 
 .linked-competition-name {
   margin: 0;
+}
+
+.sheet-body {
+  h3:not(.linked-competition-name),
+  h4 {
+    margin-bottom: 0;
+  }
+}
+
+.multi-location-badge {
+  align-self: flex-start;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: color-pallet.$se-orange;
+  color: color-pallet.$se-black;
+  font-size: 0.85rem;
 }
 
 .date-row {
@@ -17,10 +34,6 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-
-  h3 {
-    margin: 0;
-  }
 }
 
 .person-list {
@@ -47,10 +60,6 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-
-  h3 {
-    margin: 0;
-  }
 }
 
 .venue-toggle {

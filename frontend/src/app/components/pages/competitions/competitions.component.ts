@@ -299,13 +299,15 @@ export class CompetitionsComponent implements OnInit, OnDestroy {
   // Creates array for the map points with lats and longs
   createMapPoints() {
     this.competitionMapPoints.set(
-      this.filteredCompetitions().map((competition) => ({
-        id: competition.id,
-        name: competition.name,
-        lat: competition.latitude_degrees,
-        long: competition.longitude_degrees,
-        colorClass: this.getRegistrationColor(competition.registration_status),
-      })),
+      this.filteredCompetitions()
+        .map((competition) => ({
+          id: competition.id,
+          name: competition.name,
+          lat: competition.latitude_degrees,
+          long: competition.longitude_degrees,
+          colorClass: this.getRegistrationColor(competition.registration_status),
+        }))
+        .filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.long)),
     );
   }
 

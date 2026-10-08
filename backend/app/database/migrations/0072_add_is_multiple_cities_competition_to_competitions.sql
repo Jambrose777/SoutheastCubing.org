@@ -1,0 +1,1 @@
+ALTER TABLE competitions ADD COLUMN is_multiple_cities_competition BOOLEAN;

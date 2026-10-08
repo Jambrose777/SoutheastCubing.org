@@ -9,6 +9,7 @@ import {
   PlannerCompetitionsResponse,
   PlannerCompetitionSaveRequest,
   PlannerWcaCompetitionOption,
+  PlannerMultiCityCreateRequest,
   PlannerWcaDriveFolderResponse,
   PlannerWcaLinkRequest,
 } from '../../models/PlannerCompetition';
@@ -60,6 +61,16 @@ export class CompetitionPlannerApiService {
   // Links a WCA competition to a Potential Planner row or creates a linked row.
   linkWcaCompetition(body: PlannerWcaLinkRequest): Observable<PlannerCompetition> {
     return this.http.post<PlannerCompetition>(`${this.base}/competitions/link-wca`, body);
+  }
+
+  // Creates one linked Planner row for each supplied multi-city location.
+  createMultiCityCompetition(
+    body: PlannerMultiCityCreateRequest,
+  ): Observable<PlannerCompetition[]> {
+    return this.http.post<PlannerCompetition[]>(
+      `${this.base}/competitions/create-multi-city`,
+      body,
+    );
   }
 
   // Creates a new Planner competition (always Potential) - open to any

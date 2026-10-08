@@ -24,6 +24,11 @@
   text-align: center;
 }
 
+.missing-multi-city-info {
+  color: color-pallet.$se-dark-red;
+  margin-inline-start: 6px;
+}
+
 .content-toolbar {
   display: flex;
   flex-wrap: wrap;

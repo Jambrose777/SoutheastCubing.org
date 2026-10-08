@@ -37,12 +37,15 @@ import {
 } from 'src/app/models/PlannerCompetition';
 import { Delegate } from 'src/app/models/Delegate';
 import { SelectedPerson } from 'src/app/models/Person';
+import {
+  equipmentPeopleIdsToValues,
+  equipmentValuesToPeopleIds,
+  OTHER_EQUIPMENT_VALUE,
+  toPlannerPerson,
+} from '../competition-planner.util';
 import { AvatarComponent } from '../../../../shared/avatar/avatar.component';
 import { PersonSearchComponent } from '../../../../shared/person-search/person-search.component';
 import { EventListComponent } from '../../../../shared/event-list/event-list.component';
-
-// Sentinel value standing in for the plain "Other" Equipment option.
-const OTHER_EQUIPMENT_VALUE = '__other__';
 
 // WCA competitions need at least this many days' notice.
 const MIN_START_DATE_LEAD_DAYS = 28;
@@ -52,19 +55,6 @@ const minStartDateValidator: ValidatorFn = (control) => {
   const minDate = moment.utc().add(MIN_START_DATE_LEAD_DAYS, 'days').startOf('day');
   return (control.value as Moment).isBefore(minDate) ? { minStartDate: true } : null;
 };
-
-function toPlannerPerson(person: SelectedPerson): PlannerPerson {
-  return {
-    peopleId: person.peopleId ?? '',
-    name: person.name,
-    wcaId: person.wcaId ?? null,
-    pictureUrl: person.pictureUrl,
-    thumbnailCropX: person.thumbnailCropX ?? null,
-    thumbnailCropY: person.thumbnailCropY ?? null,
-    thumbnailCropW: person.thumbnailCropW ?? null,
-    thumbnailCropH: person.thumbnailCropH ?? null,
-  };
-}
 
 // Slide-in "Add/Edit Competition" sheet - one reactive form shared by create
 // and edit mode. Every WCA-synced field (hand-entered fields, Delegates,
@@ -131,6 +121,7 @@ export class AddEditCompetitionSheetComponent implements OnInit {
   // Status is derived once, since create mode (competition() === null) is
   // always Potential - only an existing competition can already be linked.
   isLinked = computed(() => (this.competition()?.status ?? 'potential') !== 'potential');
+  isMultiCity = computed(() => this.competition()?.is_multiple_cities_competition ?? false);
 
   form = new FormGroup({
     name: new FormControl('', Validators.required),
@@ -199,17 +190,17 @@ export class AddEditCompetitionSheetComponent implements OnInit {
       this.delegates.set(comp?.delegates ?? defaultDelegates);
       this.organizers.set(comp?.organizers ?? []);
       this.equipmentValues.set(
-        (comp?.equipmentHolders ?? []).map((holder) =>
-          holder.peopleId === null ? OTHER_EQUIPMENT_VALUE : holder.peopleId,
-        ),
+        equipmentPeopleIdsToValues((comp?.equipmentHolders ?? []).map((holder) => holder.peopleId)),
       );
       this.eventIds.set(comp?.event_ids ?? []);
       this.signalsDirty = false;
 
-      // WCA-synced fields are read-only once linked - only Equipment and
-      // the lead pick stay editable regardless of status.
       const wcaSyncedControls = [
         this.form.controls.name,
+        this.form.controls.startDate,
+        this.form.controls.endDate,
+      ];
+      const locationControls = [
         this.form.controls.city,
         this.form.controls.state,
         this.form.controls.venueAddress,
@@ -218,14 +209,38 @@ export class AddEditCompetitionSheetComponent implements OnInit {
         this.form.controls.venueUrl,
         this.form.controls.latitudeDegrees,
         this.form.controls.longitudeDegrees,
-        this.form.controls.startDate,
-        this.form.controls.endDate,
         this.form.controls.competitorLimit,
       ];
+      const multiCityRequiredControls = [
+        this.form.controls.venueAddress,
+        this.form.controls.venueDetails,
+        this.form.controls.venue,
+        this.form.controls.latitudeDegrees,
+        this.form.controls.longitudeDegrees,
+      ];
+      multiCityRequiredControls.forEach((control) =>
+        control.setValidators(this.isMultiCity() ? Validators.required : null),
+      );
+      this.form.controls.competitorLimit.setValidators(
+        this.isMultiCity() ? [Validators.required, Validators.min(1)] : null,
+      );
+      [...multiCityRequiredControls, this.form.controls.competitorLimit].forEach((control) =>
+        control.updateValueAndValidity({ emitEvent: false }),
+      );
+      if (this.isMultiCity()) {
+        this.form.controls.startDate.removeValidators(minStartDateValidator);
+      } else {
+        this.form.controls.startDate.addValidators(minStartDateValidator);
+      }
+      this.form.controls.startDate.updateValueAndValidity({ emitEvent: false });
+
       if (this.isLinked()) {
         wcaSyncedControls.forEach((control) => control.disable());
+        locationControls.forEach((control) => control.disable());
+        if (this.isMultiCity()) locationControls.forEach((control) => control.enable());
       } else {
         wcaSyncedControls.forEach((control) => control.enable());
+        locationControls.forEach((control) => control.enable());
       }
     });
   }
@@ -325,9 +340,7 @@ export class AddEditCompetitionSheetComponent implements OnInit {
 
     const value = this.form.getRawValue();
     const leadPeopleId = value.leadPeopleId ?? '';
-    const equipmentPeopleIds = this.equipmentValues().map((v) =>
-      v === OTHER_EQUIPMENT_VALUE ? null : v,
-    );
+    const equipmentPeopleIds = equipmentValuesToPeopleIds(this.equipmentValues());
 
     const body: PlannerCompetitionSaveRequest = {
       name: value.name ?? '',

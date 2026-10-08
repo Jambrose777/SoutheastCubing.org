@@ -13,9 +13,9 @@ function getFullCompetitionDate(start, end) {
   let mend = moment(end);
 
   // Check that year matches
-  if (mstart.year === mend.year) {
+  if (mstart.year() === mend.year()) {
     // Check that month matches
-    if (mstart.month === mend.month) {
+    if (mstart.month() === mend.month()) {
       // Multi day competition with a few days difference. Output example: Jan 1 - 2, 2023
       return mstart.format('MMM D') + ' - ' + mend.format('D, YYYY');
     } else {

@@ -1,0 +1,289 @@
+<!-- Sheet header -->
+<div class="sheet-header">
+  <button type="button" class="back-btn" (click)="close()" aria-label="Back">
+    <i class="fa-solid fa-arrow-left"></i>
+  </button>
+  <h2>Add Multi-City Locations</h2>
+</div>
+
+<div class="sheet-body">
+  <!-- Shared WCA competition details. -->
+  <section class="wca-summary" aria-label="WCA competition details">
+    <h3>{{ competition().name }}</h3>
+    @if (competition().url) {
+      <a
+        class="btn small link-button wca-link-button"
+        [href]="competition().url"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img src="assets/wca_logo.svg" alt="" width="20" height="20" />
+        WCA
+      </a>
+    }
+    <dl>
+      <div>
+        <dt>WCA ID</dt>
+        <dd>{{ competition().wca_competition_id }}</dd>
+      </div>
+      <div>
+        <dt>WCA-listed city</dt>
+        <dd>{{ competition().city }}</dd>
+      </div>
+      <div>
+        <dt>Start date</dt>
+        <dd>{{ competition().start_date }}</dd>
+      </div>
+      @if (competition().end_date) {
+        <div>
+          <dt>End date</dt>
+          <dd>{{ competition().end_date }}</dd>
+        </div>
+      }
+      @if (competition().organizers?.length) {
+        <div>
+          <dt>WCA Organizers</dt>
+          <dd>{{ competition().organizers?.join(', ') }}</dd>
+        </div>
+      }
+    </dl>
+  </section>
+
+  <!-- Reuse or create the WCA Drive folder for all locations. -->
+  <section class="drive-options">
+    <mat-checkbox [formControl]="createWcaDriveFolder"> Create new WCA Drive Folder </mat-checkbox>
+    @if (!createWcaDriveFolder.value) {
+      <mat-form-field>
+        <mat-label>Existing WCA Drive folder URL</mat-label>
+        <input matInput [formControl]="wcaDriveLink" />
+      </mat-form-field>
+    }
+  </section>
+
+  <!-- Events synced from the WCA competition. -->
+  <section class="events-section">
+    <h3>Events</h3>
+    @if (competition().event_ids?.length) {
+      <div class="events-list">
+        @for (event of competition().event_ids; track event) {
+          <span
+            [ngClass]="'cubing-icon event-' + event"
+            [matTooltip]="EventNames[event]"
+            matTooltipPosition="above"
+            [attr.aria-label]="EventNames[event]"
+          ></span>
+        }
+      </div>
+    } @else {
+      <p>--</p>
+    }
+  </section>
+
+  <!-- Location-specific Planner rows. -->
+  <h3 class="section-title">Locations</h3>
+  @for (location of locations(); track location.id; let index = $index) {
+    <section class="location-section" [formGroup]="location.form">
+      <!-- Location heading and optional removal action. -->
+      <div class="location-heading">
+        <h4>Location {{ index + 1 }}</h4>
+        @if (locations().length > 1) {
+          <button
+            type="button"
+            class="btn small icon-only"
+            (click)="removeLocation(location.id)"
+            [attr.aria-label]="'Remove location ' + (index + 1)"
+            title="Remove location"
+          >
+            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+          </button>
+        }
+      </div>
+
+      <!-- City and Southeast state. -->
+      <div class="field-row">
+        <mat-form-field>
+          <mat-label>City</mat-label>
+          <input matInput formControlName="city" />
+          @if (location.form.controls['city'].hasError('required')) {
+            <mat-error>City is required.</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>State</mat-label>
+          <mat-select formControlName="state">
+            @for (state of stateOptions; track state) {
+              <mat-option [value]="state">{{ state }}</mat-option>
+            }
+          </mat-select>
+          @if (location.form.controls['state'].hasError('required')) {
+            <mat-error>State is required.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Venue details for this location. -->
+      <mat-form-field>
+        <mat-label>Venue</mat-label>
+        <input matInput formControlName="venue" />
+        @if (location.form.controls['venue'].hasError('required')) {
+          <mat-error>Venue is required.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Venue details</mat-label>
+        <input matInput formControlName="venueDetails" />
+        @if (location.form.controls['venueDetails'].hasError('required')) {
+          <mat-error>Venue details are required.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Venue URL (optional)</mat-label>
+        <input matInput formControlName="venueUrl" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Venue address</mat-label>
+        <input matInput formControlName="venueAddress" />
+        @if (location.form.controls['venueAddress'].hasError('required')) {
+          <mat-error>Venue address is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Venue coordinates. -->
+      <div class="field-row">
+        <mat-form-field>
+          <mat-label>Latitude</mat-label>
+          <input matInput type="number" formControlName="latitudeDegrees" />
+          @if (location.form.controls['latitudeDegrees'].hasError('required')) {
+            <mat-error>Latitude is required.</mat-error>
+          }
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Longitude</mat-label>
+          <input matInput type="number" formControlName="longitudeDegrees" />
+          @if (location.form.controls['longitudeDegrees'].hasError('required')) {
+            <mat-error>Longitude is required.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Per-location competitor limit. -->
+      <mat-form-field>
+        <mat-label>Competitor limit</mat-label>
+        <input matInput type="number" formControlName="competitorLimit" />
+        @if (location.form.controls['competitorLimit'].hasError('required')) {
+          <mat-error>Competitor limit is required.</mat-error>
+        } @else if (location.form.controls['competitorLimit'].hasError('min')) {
+          <mat-error>Competitor limit must be greater than zero.</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Per-location Delegates and lead Delegate. -->
+      <div class="person-list-section">
+        <h4>Delegates</h4>
+        <mat-form-field>
+          <mat-label>Delegates</mat-label>
+          <mat-select
+            formControlName="delegateWcaIds"
+            (selectionChange)="setSelectedDelegates(location.id, $event.value)"
+            (closed)="markDelegateSelectionTouched(location.id)"
+            multiple
+          >
+            <mat-option>
+              <ngx-mat-select-search
+                [formControl]="location.delegateSearch"
+                placeholderLabel="Search delegates"
+                noEntriesFoundLabel="No delegates found"
+              ></ngx-mat-select-search>
+            </mat-option>
+            @for (
+              delegate of filteredWcaDelegates(location);
+              track delegate.wcaId ?? delegate.name
+            ) {
+              <mat-option [value]="delegate.wcaId" [disabled]="!delegate.wcaId">
+                {{ delegate.name }}{{ delegate.wcaId ? '' : ' (no WCA ID)' }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        @if (
+          !location.resolvingDelegates &&
+          !location.delegates.length &&
+          location.delegateSelectionTouched
+        ) {
+          <mat-error>At least one Delegate is required.</mat-error>
+        }
+        <div class="person-list">
+          @for (delegate of location.delegates; track delegate.peopleId) {
+            <div class="person-row">
+              @if (delegate.pictureUrl) {
+                <se-avatar
+                  [src]="delegate.pictureUrl"
+                  [size]="28"
+                  [alt]="delegate.name"
+                  [cropX]="delegate.thumbnailCropX"
+                  [cropY]="delegate.thumbnailCropY"
+                  [cropW]="delegate.thumbnailCropW"
+                  [cropH]="delegate.thumbnailCropH"
+                ></se-avatar>
+              }
+              <span>{{ delegate.name }}</span>
+              <button
+                type="button"
+                class="btn small icon-only"
+                (click)="removeDelegate(location.id, delegate.peopleId)"
+                [attr.aria-label]="'Remove ' + delegate.name"
+              >
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Lead Delegate for the location. -->
+        <mat-form-field>
+          <mat-label>Lead Delegate</mat-label>
+          <mat-select formControlName="leadPeopleId">
+            @for (delegate of location.delegates; track delegate.peopleId) {
+              <mat-option [value]="delegate.peopleId">{{ delegate.name }}</mat-option>
+            }
+          </mat-select>
+          @if (
+            !location.resolvingDelegates &&
+            location.delegates.length > 0 &&
+            location.form.controls['leadPeopleId'].hasError('required')
+          ) {
+            <mat-error>Lead Delegate is required.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Optional equipment holders for this location. -->
+      <mat-form-field>
+        <mat-label>Equipment</mat-label>
+        <mat-select
+          [value]="location.equipmentValues"
+          (selectionChange)="setEquipmentValues(location.id, $event.value)"
+          multiple
+        >
+          @for (delegate of equipmentOptions(); track delegate.peopleId) {
+            <mat-option [value]="delegate.peopleId">{{ delegate.name }}</mat-option>
+          }
+          <mat-option [value]="otherEquipmentValue">Other</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </section>
+  }
+
+  <!-- Add another local location row to the batch. -->
+  <button type="button" class="btn small add-location" (click)="addLocation()">
+    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+    Add another location
+  </button>
+</div>
+
+<!-- Sheet footer -->
+<div class="sheet-footer">
+  <button type="button" class="btn" [disabled]="saving()" (click)="save()">
+    {{ saving() ? 'Creating…' : 'Create locations' }}
+  </button>
+</div>

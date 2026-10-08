@@ -11,6 +11,7 @@ const {
   getUnannouncedCompetitionLinkOptions,
   dismissUnannouncedCompetition,
   linkManagedCompetitionToPlanner,
+  createMultiCityCompetitionFromWca,
   createCompetition,
   createWcaDriveFolderForCompetition,
   updateCompetition,
@@ -56,8 +57,12 @@ async function getPlannerCompetitions(req, res) {
 // Refreshes upcoming WCA competitions for the signed-in Planner user.
 async function refreshPlannerCompetitions(req, res) {
   try {
-    const { competitions, discordPostFailures, privateDataRefreshFailed } =
-      await runCoordinatedCompetitionRefresh({
+    const {
+      competitions,
+      discordPostFailures,
+      privateDataRefreshFailed,
+      multiCityRefreshFailedIds,
+    } = await runCoordinatedCompetitionRefresh({
         peopleId: req.user.people_id,
         sessionId: req.user.sessionId,
       });
@@ -66,6 +71,7 @@ async function refreshPlannerCompetitions(req, res) {
       competitions,
       discordPostFailures: discordPostFailures.map((comp) => ({ id: comp.id, name: comp.name })),
       privateDataRefreshFailed,
+      multiCityRefreshFailedIds,
       meta: { lastBulkRefreshAt },
     });
   } catch (err) {
@@ -144,6 +150,26 @@ async function linkPlannerCompetitionToWca(req, res) {
   }
 }
 
+// Creates a new linked multi-city location from a selected WCA competition.
+async function createMultiCityPlannerCompetitionFromWca(req, res) {
+  try {
+    const competitionIds = await createMultiCityCompetitionFromWca({
+      peopleId: req.user.people_id,
+      wcaCompetitionId: req.body?.wcaCompetitionId,
+      createWcaDriveFolder: req.body?.createWcaDriveFolder,
+      wcaDriveLink: req.body?.wcaDriveLink,
+      locations: req.body?.locations,
+    });
+    const competitionIdSet = new Set(competitionIds);
+    const competitions = await getAllUpcomingCompetitionsForPlanner();
+    res
+      .status(201)
+      .json(competitions.filter((competition) => competitionIdSet.has(competition.id)));
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to create multi-city competition');
+  }
+}
+
 // POST /dashboard/competition-planner/competitions - creates a new Planner competition.
 async function createPlannerCompetition(req, res) {
   try {
@@ -197,6 +223,7 @@ module.exports = {
   getPlannerWcaLinkOptions,
   dismissPlannerUnannouncedCompetition,
   linkPlannerCompetitionToWca,
+  createMultiCityPlannerCompetitionFromWca,
   createPlannerCompetition,
   createPlannerWcaDriveFolder,
   updatePlannerCompetition,

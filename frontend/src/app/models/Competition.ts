@@ -27,4 +27,5 @@ export interface Competition {
   accepted_registrations?: number;
   is_in_volunteer_application: boolean;
   is_manual_competition: boolean;
+  is_multiple_cities_competition: boolean;
 }

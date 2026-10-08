@@ -7,14 +7,17 @@
 </div>
 
 <div class="sheet-body">
+  <!-- Loadin spinner. -->
   @if (loading()) {
     <div class="sheet-loading">
       <se-loading-spinner></se-loading-spinner>
     </div>
   } @else {
+    <!-- Planner competition being linked. -->
     <h3>{{ competition().name }}</h3>
     <span>Sync with</span>
 
+    <!-- Eligible WCA competition choices or the empty state. -->
     @if (options().length) {
       <!-- Link Selector -->
       <mat-form-field appearance="outline">
@@ -45,6 +48,6 @@
     [disabled]="loading() || saving() || !selectedWcaCompetitionId()"
     (click)="save()"
   >
-    Save
+    {{ saving() ? 'Linking…' : 'Save' }}
   </button>
 </div>

@@ -32,6 +32,7 @@ export interface PlannerCompetition {
   wca_drive_link: string | null;
   country_iso2?: string | null;
   is_announced: boolean;
+  is_multiple_cities_competition: boolean;
   is_in_volunteer_application?: boolean | null;
   status: PlannerCompetitionStatus;
   name: string;
@@ -71,6 +72,7 @@ export interface PlannerBulkRefreshResponse {
   competitions: unknown[];
   discordPostFailures: { id: string; name: string }[];
   privateDataRefreshFailed: boolean;
+  multiCityRefreshFailedIds: string[];
   meta: PlannerRefreshMeta;
 }
 
@@ -117,15 +119,49 @@ export interface PlannerWcaDriveFolderResponse {
 export interface PlannerWcaCompetitionOption {
   wca_competition_id: string;
   name: string;
+  url?: string | null;
+  website?: string | null;
   city: string;
-  state: string;
+  state?: string;
   start_date: string;
+  end_date?: string;
+  event_ids?: string[];
+  delegates?: PlannerWcaDelegateOption[];
+  organizers?: string[];
+  is_multiple_cities_competition: boolean;
+}
+
+export interface PlannerWcaDelegateOption {
+  name: string;
+  wcaId: string | null;
 }
 
 // Body for POST /dashboard/competition-planner/competitions/link-wca.
 export interface PlannerWcaLinkRequest {
   wcaCompetitionId: string;
   plannerCompetitionId?: string;
+  createWcaDriveFolder?: boolean;
+  wcaDriveLink?: string | null;
+}
+
+export interface PlannerMultiCityLocationRequest {
+  city: string;
+  state: string;
+  venueAddress: string;
+  venueDetails: string;
+  venue: string;
+  venueUrl?: string | null;
+  latitudeDegrees: number;
+  longitudeDegrees: number;
+  competitorLimit: number;
+  leadPeopleId: string;
+  delegatePeopleIds: string[];
+  equipmentPeopleIds?: (string | null)[];
+}
+
+export interface PlannerMultiCityCreateRequest {
+  wcaCompetitionId: string;
+  locations: PlannerMultiCityLocationRequest[];
   createWcaDriveFolder?: boolean;
   wcaDriveLink?: string | null;
 }

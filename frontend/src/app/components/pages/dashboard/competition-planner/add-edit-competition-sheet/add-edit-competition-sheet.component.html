@@ -10,6 +10,9 @@
   @if (isLinked()) {
     <!-- Linked (WCA-synced) competitions show their name as plain text. -->
     <h3 class="linked-competition-name">{{ form.controls.name.value }}</h3>
+    @if (isMultiCity()) {
+      <span class="multi-location-badge">Multi-location competition</span>
+    }
   } @else {
     <!-- Competition Name -->
     <mat-form-field>
@@ -19,7 +22,9 @@
         <mat-error>Name is required.</mat-error>
       }
     </mat-form-field>
+  }
 
+  @if (!isLinked() || isMultiCity()) {
     <!-- Competition Dates -->
     <div class="date-row">
       <mat-form-field>
@@ -76,25 +81,13 @@
   }
 
   <div class="person-list-section">
-    @if (!isLinked()) {
+    @if (!isLinked() || isMultiCity()) {
       <h3>Delegates</h3>
     }
 
-    <!-- Lead Delegate -->
-    <mat-form-field>
-      <mat-label>Lead Delegate</mat-label>
-      <mat-select formControlName="leadPeopleId">
-        @for (option of delegateOptions(); track option.peopleId) {
-          <mat-option [value]="option.peopleId">{{ option.name }}</mat-option>
-        }
-      </mat-select>
-      @if (form.controls.leadPeopleId.hasError('required')) {
-        <mat-error>Lead Delegate is required.</mat-error>
-      }
-    </mat-form-field>
-
     <!-- Delegates -->
-    @if (!isLinked()) {
+    @if (!isLinked() || isMultiCity()) {
+      <se-person-search (selected)="addDelegate($event)"></se-person-search>
       <div class="person-list">
         @for (delegate of delegates(); track delegate.peopleId) {
           <div class="person-row">
@@ -124,8 +117,20 @@
       @if (!delegates().length && form.touched) {
         <mat-error>At least one Delegate is required.</mat-error>
       }
-      <se-person-search (selected)="addDelegate($event)"></se-person-search>
     }
+
+    <!-- Lead Delegate -->
+    <mat-form-field>
+      <mat-label>Lead Delegate</mat-label>
+      <mat-select formControlName="leadPeopleId">
+        @for (option of delegateOptions(); track option.peopleId) {
+          <mat-option [value]="option.peopleId">{{ option.name }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.leadPeopleId.hasError('required')) {
+        <mat-error>Lead Delegate is required.</mat-error>
+      }
+    </mat-form-field>
   </div>
 
   <!-- Organizers -->
@@ -189,8 +194,9 @@
     </div>
   }
 
+  <!-- Create or reuse the competition's WCA Drive folder. -->
   @if (isCreateMode) {
-    <mat-checkbox formControlName="createWcaDriveFolder">Create new folder</mat-checkbox>
+    <mat-checkbox formControlName="createWcaDriveFolder">Create new WCA Drive Folder</mat-checkbox>
     @if (!form.controls.createWcaDriveFolder.value) {
       <mat-form-field>
         <mat-label>Existing WCA Drive folder URL</mat-label>
@@ -204,37 +210,50 @@
     </mat-form-field>
   }
 
-  @if (!isLinked()) {
+  <!-- Location-specific fields are editable for multi-city rows. -->
+  @if (!isLinked() || isMultiCity()) {
+    @if (isMultiCity()) {
+      <h3>Location</h3>
+    }
+
     <!-- Competitor Limit -->
     <mat-form-field>
       <mat-label>Competitor limit</mat-label>
       <input matInput type="number" formControlName="competitorLimit" />
+      @if (form.controls.competitorLimit.hasError('required')) {
+        <mat-error>Competitor limit is required.</mat-error>
+      } @else if (form.controls.competitorLimit.hasError('min')) {
+        <mat-error>Competitor limit must be greater than zero.</mat-error>
+      }
     </mat-form-field>
 
-    <!-- Venue fields - collapsed by default behind a show/hide toggle. -->
-    <button type="button" class="btn small venue-toggle" (click)="toggleVenueFields()">
-      <i
-        class="fa-solid"
-        [class.fa-plus]="!showVenueFields()"
-        [class.fa-minus]="showVenueFields()"
-      ></i>
-      {{ showVenueFields() ? 'Hide' : 'Show' }} Venue fields
-    </button>
+    @if (!isMultiCity()) {
+      <!-- Venue fields - collapsed by default behind a show/hide toggle. -->
+      <button type="button" class="btn small venue-toggle" (click)="toggleVenueFields()">
+        <i
+          class="fa-solid"
+          [class.fa-plus]="!showVenueFields()"
+          [class.fa-minus]="showVenueFields()"
+        ></i>
+        {{ showVenueFields() ? 'Hide' : 'Show' }} Venue fields
+      </button>
+    }
 
-    @if (showVenueFields()) {
+    @if (isMultiCity() || showVenueFields()) {
       <mat-form-field>
         <mat-label>Venue</mat-label>
         <input matInput formControlName="venue" />
+        @if (form.controls.venue.hasError('required')) {
+          <mat-error>Venue is required.</mat-error>
+        }
       </mat-form-field>
 
       <mat-form-field>
         <mat-label>Venue details (room name)</mat-label>
         <input matInput formControlName="venueDetails" />
-      </mat-form-field>
-
-      <mat-form-field>
-        <mat-label>Venue address</mat-label>
-        <input matInput formControlName="venueAddress" />
+        @if (form.controls.venueDetails.hasError('required')) {
+          <mat-error>Venue details are required.</mat-error>
+        }
       </mat-form-field>
 
       <mat-form-field>
@@ -242,15 +261,29 @@
         <input matInput formControlName="venueUrl" />
       </mat-form-field>
 
+      <mat-form-field>
+        <mat-label>Venue address</mat-label>
+        <input matInput formControlName="venueAddress" />
+        @if (form.controls.venueAddress.hasError('required')) {
+          <mat-error>Venue address is required.</mat-error>
+        }
+      </mat-form-field>
+
       <div class="date-row">
         <mat-form-field>
           <mat-label>Latitude</mat-label>
           <input matInput type="number" formControlName="latitudeDegrees" />
+          @if (form.controls.latitudeDegrees.hasError('required')) {
+            <mat-error>Latitude is required.</mat-error>
+          }
         </mat-form-field>
 
         <mat-form-field>
           <mat-label>Longitude</mat-label>
           <input matInput type="number" formControlName="longitudeDegrees" />
+          @if (form.controls.longitudeDegrees.hasError('required')) {
+            <mat-error>Longitude is required.</mat-error>
+          }
         </mat-form-field>
       </div>
     }
@@ -259,5 +292,7 @@
 
 <!-- Sheet footer -->
 <div class="sheet-footer">
-  <button type="button" class="btn" [disabled]="saving" (click)="save()">Save</button>
+  <button type="button" class="btn" [disabled]="saving" (click)="save()">
+    {{ saving ? (isCreateMode ? 'Creating…' : 'Saving…') : 'Save' }}
+  </button>
 </div>

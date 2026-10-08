@@ -187,7 +187,12 @@
               id="{{ competition.id }}"
             >
               <div class="item-title">
-                {{ competition.name | stripYear }}
+                @if (competition.is_multiple_cities_competition) {
+                  {{ competition.name | stripYear
+                  }}{{ competition.state ? ' (' + competition.state + ')' : '' }}
+                } @else {
+                  {{ competition.name | stripYear }}
+                }
               </div>
               <div class="item-sub-text">
                 {{ competition.full_date | breakYearOntoNewLine }}

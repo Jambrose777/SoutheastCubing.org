@@ -60,17 +60,39 @@ async function withEventIds(comps) {
   }));
 }
 
-// Public page's announced-only upcoming list, cached since it's hit on every
-// page load.
+// Checks that a multi-city competition has the required public location data.
+function hasCompletePublicMultiCityData(competition) {
+  return (
+    !!competition.city?.trim() &&
+    !!competition.state &&
+    !!competition.venue_address?.trim() &&
+    !!competition.venue_details?.trim() &&
+    !!competition.venue?.trim() &&
+    Number.isFinite(competition.latitude_degrees) &&
+    Number.isFinite(competition.longitude_degrees) &&
+    competition.competitor_limit != null &&
+    competition.competitor_limit >= 1
+  );
+}
+
+// Public page's announced upcoming list, cached since it's hit on every page load.
 async function getAnnouncedUpcomingCompetitions() {
   if (competitionsCache) {
     logger.debug('Served upcoming competitions from cache.');
     return competitionsCache;
   }
 
-  const comps = await withEventIds(await competitionsDb.getAnnouncedUpcomingCompetitions());
-  competitionsCache = comps;
-  logger.debug(`Fetched ${comps.length} upcoming competition(s) from the competitions table.`);
+  const comps = await competitionsDb.getAnnouncedUpcomingCompetitions();
+  const publicCompetitions = comps.filter(
+    (competition) =>
+      !competition.is_multiple_cities_competition ||
+      hasCompletePublicMultiCityData(competition),
+  );
+
+  competitionsCache = await withEventIds(publicCompetitions);
+  logger.debug(
+    `Fetched ${competitionsCache.length} upcoming competition(s) from the competitions table.`,
+  );
   return competitionsCache;
 }
 
@@ -193,6 +215,56 @@ function assertValidCompetitorLimit(competitorLimit) {
   if (!Number.isInteger(competitorLimit) || competitorLimit < 0) {
     throw httpError(400, 'Competitor limit must be a non-negative integer.');
   }
+}
+
+// Validates a Planner location state and returns its canonical display name.
+function getSoutheastState(state) {
+  const canonicalState =
+    typeof state === 'string'
+      ? SOUTHEAST_STATES.find((candidate) => candidate.toLowerCase() === state.trim().toLowerCase())
+      : undefined;
+  if (!canonicalState) {
+    throw httpError(400, 'State must be one of the Southeast states.');
+  }
+  return canonicalState;
+}
+
+// Validates required manual values for a multi-city location and canonicalizes its state.
+function getValidatedMultiCityLocation(location) {
+  if (!location || typeof location !== 'object' || Array.isArray(location)) {
+    throw httpError(400, 'Each multi-city location must be an object.');
+  }
+  const requiredTextFields = [
+    ['city', location.city],
+    ['venue address', location.venueAddress],
+    ['venue details', location.venueDetails],
+    ['venue', location.venue],
+  ];
+  const missingField = requiredTextFields.find(
+    ([, value]) => typeof value !== 'string' || !value.trim(),
+  );
+  if (missingField) {
+    throw httpError(400, `${missingField[0]} is required for a multi-city location.`);
+  }
+  if (!Number.isFinite(location.latitudeDegrees) || !Number.isFinite(location.longitudeDegrees)) {
+    throw httpError(400, 'Latitude and longitude are required for a multi-city location.');
+  }
+  if (location.competitorLimit == null) {
+    throw httpError(400, 'Competitor limit is required for a multi-city location.');
+  }
+  assertValidCompetitorLimit(location.competitorLimit);
+
+  return {
+    city: location.city.trim(),
+    state: getSoutheastState(location.state),
+    venueAddress: location.venueAddress.trim(),
+    venueDetails: location.venueDetails.trim(),
+    venue: location.venue.trim(),
+    venueUrl: typeof location.venueUrl === 'string' ? location.venueUrl.trim() || null : null,
+    latitudeDegrees: location.latitudeDegrees,
+    longitudeDegrees: location.longitudeDegrees,
+    competitorLimit: location.competitorLimit,
+  };
 }
 
 // Convert missing optional Drive setup into the backend's explicit 503 response.
@@ -434,14 +506,21 @@ function assertStartDateFarEnoughOut(startDate) {
   }
 }
 
-// True for a managed WCA competition in a tracked state with enough lead time.
+// Identifies WCA competitions whose locations are represented by separate local rows.
+function isMultipleCitiesWcaCompetition(comp) {
+  return comp.city?.trim().toLowerCase() === 'multiple cities';
+}
+
+// True for an upcoming managed WCA competition in a tracked state or multi-city format.
 function isEligibleManagedCompetition(comp) {
   const startDate = moment(comp.start_date, 'YYYY-MM-DD', true);
+  const isMultipleCities = isMultipleCitiesWcaCompetition(comp);
   return (
     !!comp.id &&
     startDate.isValid() &&
-    !startDate.isBefore(moment().add(MIN_START_DATE_LEAD_DAYS, 'days'), 'day') &&
-    isInSEState(comp)
+    (isMultipleCities ||
+      (!startDate.isBefore(moment().add(MIN_START_DATE_LEAD_DAYS, 'days'), 'day') &&
+        isInSEState(comp)))
   );
 }
 
@@ -456,7 +535,7 @@ async function fetchManagedWcaCompetitions(
   accessToken,
   peopleId,
   {
-    startDate = moment().add(MIN_START_DATE_LEAD_DAYS, 'days').format('YYYY-MM-DD'),
+    startDate = moment().subtract(1, 'day').format('YYYY-MM-DD'),
     isEligible = isEligibleManagedCompetition,
   } = {},
 ) {
@@ -489,8 +568,12 @@ async function fetchManagedWcaCompetitions(
   return competitions.filter(isEligible);
 }
 
-// Lists eligible managed competitions that are not already linked in Planner.
-async function getEligibleUnlinkedManagedCompetitions(accessToken, peopleId) {
+// Lists eligible managed competitions, optionally retaining linked multi-city entries.
+async function getEligibleUnlinkedManagedCompetitions(
+  accessToken,
+  peopleId,
+  { includeLinkedMultiCity = true } = {},
+) {
   const [managedCompetitions, plannerCompetitions] = await Promise.all([
     fetchManagedWcaCompetitions(accessToken, peopleId),
     competitionsDb.getAllUpcomingCompetitionsForPlanner(),
@@ -503,13 +586,27 @@ async function getEligibleUnlinkedManagedCompetitions(accessToken, peopleId) {
   );
 
   return managedCompetitions
-    .filter((comp) => !linkedWcaIds.has(String(comp.id)))
+    .filter(
+      (comp) =>
+        (includeLinkedMultiCity && isMultipleCitiesWcaCompetition(comp)) ||
+        !linkedWcaIds.has(String(comp.id)),
+    )
     .map((comp) => ({
       wca_competition_id: String(comp.id),
       name: comp.name,
+      url: comp.url,
+      website: comp.website,
       city: comp.city,
       state: getTrackedSEState(comp.city),
       start_date: comp.start_date,
+      end_date: comp.end_date,
+      event_ids: comp.event_ids ?? [],
+      delegates: (comp.delegates ?? []).map((person) => ({
+        name: person.name,
+        wcaId: person.wca_id ?? null,
+      })),
+      organizers: (comp.organizers ?? []).map((person) => person.name),
+      is_multiple_cities_competition: isMultipleCitiesWcaCompetition(comp),
     }));
 }
 
@@ -519,7 +616,9 @@ async function getUnannouncedCompetitionBanners(peopleId) {
   if (!accessToken) return [];
 
   const [competitions, dismissedIds] = await Promise.all([
-    getEligibleUnlinkedManagedCompetitions(accessToken, peopleId),
+    getEligibleUnlinkedManagedCompetitions(accessToken, peopleId, {
+      includeLinkedMultiCity: false,
+    }),
     competitionBannerDismissalsDb.listDismissedWcaCompetitionIds(peopleId),
   ]);
   const dismissedIdSet = new Set(dismissedIds.map(String));
@@ -544,6 +643,7 @@ async function createCompetition(input) {
   if (!name || !city || !state || !startDate || !endDate || !leadPeopleId) {
     throw httpError(400, 'name, city, state, start date, end date, and lead Delegate are required.');
   }
+  const southeastState = getSoutheastState(state);
   assertValidPlannerDates(startDate, endDate);
   assertStartDateFarEnoughOut(startDate);
   assertValidCompetitorLimit(input.competitorLimit);
@@ -577,8 +677,8 @@ async function createCompetition(input) {
   await competitionsDb.createPlannerCompetition({
     id,
     name: withYearInName(name, endDate),
-    city: `${city}, ${state}`,
-    state,
+    city: `${city}, ${southeastState}`,
+    state: southeastState,
     venueAddress: input.venueAddress,
     venueDetails: input.venueDetails,
     venue: input.venue,
@@ -643,6 +743,7 @@ async function updateCompetition(id, input) {
     if (!name || !city || !state || !startDate || !endDate) {
       throw httpError(400, 'name, city, state, start date, and end date are required.');
     }
+    const southeastState = getSoutheastState(state);
     assertValidPlannerDates(startDate, endDate);
     assertStartDateFarEnoughOut(startDate);
     assertValidCompetitorLimit(input.competitorLimit);
@@ -660,8 +761,8 @@ async function updateCompetition(id, input) {
     const fullDate = getFullCompetitionDate(input.startDate, input.endDate);
     updatedCompetition = await competitionsDb.updatePlannerCompetitionFields(id, {
       name: withYearInName(input.name, input.endDate),
-      city: `${input.city}, ${input.state}`,
-      state: input.state,
+      city: `${input.city}, ${southeastState}`,
+      state: southeastState,
       venueAddress: input.venueAddress,
       venueDetails: input.venueDetails,
       venue: input.venue,
@@ -682,6 +783,26 @@ async function updateCompetition(id, input) {
       })),
     );
     await competitionEventsDb.replaceEventIds([{ id, event_ids: eventIds }]);
+  } else if (comp.is_multiple_cities_competition) {
+    const location = getValidatedMultiCityLocation(input);
+    const delegatePeopleIds = input.delegatePeopleIds ?? [];
+    if (!Array.isArray(delegatePeopleIds) || !delegatePeopleIds.includes(input.leadPeopleId)) {
+      throw httpError(400, "Lead Delegate must already be one of this competition's Delegates.");
+    }
+    await assertPeopleExist(delegatePeopleIds, 'Delegates');
+
+    updatedCompetition = await competitionsDb.updateMultiCityLocationFields(id, {
+      ...location,
+      city: `${location.city}, ${location.state}`,
+    });
+    if (!updatedCompetition) throw httpError(404, 'Competition not found.');
+    await competitionDelegatesDb.replaceDelegatesForCompetition(
+      id,
+      delegatePeopleIds.map((peopleId) => ({
+        peopleId,
+        isLead: peopleId === input.leadPeopleId,
+      })),
+    );
   } else {
     // Once linked, membership is sync-owned and only the lead flag changes
     // here (setLead), never which rows exist.
@@ -759,17 +880,9 @@ async function linkManagedCompetitionToPlanner({
   createWcaDriveFolder,
   wcaDriveLink,
 }) {
-  // Validate requested Drive setup before linking the WCA competition.
+  // A supplied folder URL and a request to create a folder are mutually exclusive.
   if (createWcaDriveFolder && wcaDriveLink) {
     throw httpError(400, 'Choose either a new WCA Drive folder or an existing folder link.');
-  }
-  if (createWcaDriveFolder || wcaDriveLink) {
-    try {
-      googleDrive.assertDriveAvailable();
-      if (wcaDriveLink) getWcaDriveFolderId(wcaDriveLink);
-    } catch (error) {
-      rethrowWcaDriveUnavailable(error);
-    }
   }
 
   const accessToken = await authService.getValidAccessTokenForPerson(peopleId);
@@ -783,8 +896,9 @@ async function linkManagedCompetitionToPlanner({
   }
 
   let existingIsLeadByPeopleId = new Map();
+  let plannerCompetition = null;
   if (plannerCompetitionId) {
-    const plannerCompetition = await competitionsDb.getCompetitionById(plannerCompetitionId);
+    plannerCompetition = await competitionsDb.getCompetitionById(plannerCompetitionId);
     if (!plannerCompetition) throw httpError(404, 'Competition not found.');
     if (derivePlannerStatus(plannerCompetition) !== 'potential') {
       throw httpError(400, 'Only a Potential competition can be linked to WCA.');
@@ -804,18 +918,54 @@ async function linkManagedCompetitionToPlanner({
     throw httpError(400, 'This WCA competition is no longer eligible to link.');
   }
 
+  // Multi-city locations must start from a manually entered Potential row.
+  const isMultipleCities = isMultipleCitiesWcaCompetition(wcaCompetition);
+  if (isMultipleCities && !plannerCompetition) {
+    throw httpError(400, 'Create a Southeast location row before linking a multi-city WCA competition.');
+  }
+  const existingMultiCityDriveFolder = isMultipleCities
+    ? await competitionsDb.getWcaDriveLinkByWcaCompetitionId(wcaCompetition.id)
+    : null;
+  if (!existingMultiCityDriveFolder && (createWcaDriveFolder || wcaDriveLink)) {
+    try {
+      googleDrive.assertDriveAvailable();
+      if (wcaDriveLink) getWcaDriveFolderId(wcaDriveLink);
+    } catch (error) {
+      rethrowWcaDriveUnavailable(error);
+    }
+  }
+
+  const competitionsToFormat = isMultipleCities
+    ? [wcaCompetition]
+    : filterCompetitionsToTrackedSEStates([wcaCompetition]);
+
   // Fetch registration data to add to the competition.
-  const competitionsToFormat = filterCompetitionsToTrackedSEStates([wcaCompetition]);
   const registrationDataByWcaId = await fetchRegistrationDataByWcaId(competitionsToFormat, {
     accessToken,
     adminCompetitionIds: new Set([String(wcaCompetition.id)]),
   });
+
+  // Format Competition information.
   const [formattedCompetition] = formatCompetitionData(competitionsToFormat, [], registrationDataByWcaId);
   if (!formattedCompetition) {
     throw httpError(400, 'This WCA competition could not be prepared for Planner.');
   }
-  formattedCompetition.is_announced = false;
+  if (isMultipleCities) {
+    Object.assign(formattedCompetition, {
+      city: plannerCompetition.city,
+      state: plannerCompetition.state,
+      venue_address: plannerCompetition.venue_address,
+      venue_details: plannerCompetition.venue_details,
+      venue: plannerCompetition.venue,
+      venue_url: plannerCompetition.venue_url,
+      latitude_degrees: plannerCompetition.latitude_degrees,
+      longitude_degrees: plannerCompetition.longitude_degrees,
+      competitor_limit: plannerCompetition.competitor_limit,
+      is_multiple_cities_competition: true,
+    });
+  }
 
+  // Check that the competition has not already been linked
   let competitionId = plannerCompetitionId;
   if (competitionId) {
     const linked = await competitionsDb.linkPlannerCompetitionToWca(
@@ -832,14 +982,35 @@ async function linkManagedCompetitionToPlanner({
   await competitionEventsDb.replaceEventIds([
     { id: competitionId, event_ids: formattedCompetition.event_ids ?? [] },
   ]);
-  await syncDelegatesAndOrganizers({
-    id: competitionId,
-    delegates: formattedCompetition.delegates,
-    organizers: formattedCompetition.organizers,
-    existingIsLeadByPeopleId,
-  });
+  if (isMultipleCities) {
+    // Organizers are WCA-owned; multi-city Delegates are assigned per location.
+    await competitionOrganizersDb.replaceOrganizersForCompetition(
+      competitionId,
+      await Promise.all((formattedCompetition.organizers ?? []).map(resolvePersonId)),
+    );
+  } else {
+    await syncDelegatesAndOrganizers({
+      id: competitionId,
+      delegates: formattedCompetition.delegates,
+      organizers: formattedCompetition.organizers,
+      existingIsLeadByPeopleId,
+    });
+  }
 
-  if (createWcaDriveFolder) {
+  if (existingMultiCityDriveFolder) {
+    await competitionsDb.setWcaDriveLink(
+      competitionId,
+      existingMultiCityDriveFolder.wca_drive_link,
+      existingMultiCityDriveFolder.wca_drive_folder_type,
+    );
+    const linkedCompetition = await competitionsDb.getCompetitionById(competitionId);
+    await syncWcaDriveFolderBestEffort(
+      linkedCompetition,
+      'WCA competition linking',
+      undefined,
+      true,
+    );
+  } else if (createWcaDriveFolder) {
     await createWcaDriveFolderForCompetition(competitionId);
   } else if (wcaDriveLink) {
     await setCompetitionWcaDriveLink(competitionId, wcaDriveLink);
@@ -854,6 +1025,177 @@ async function linkManagedCompetitionToPlanner({
   }
 
   return competitionId;
+}
+
+// Creates linked Planner rows for every validated Southeast location of one managed WCA competition.
+async function createMultiCityCompetitionFromWca({
+  peopleId,
+  wcaCompetitionId,
+  locations,
+  createWcaDriveFolder,
+  wcaDriveLink,
+}) {
+  // A supplied folder URL and a request to create a folder are mutually exclusive.
+  if (createWcaDriveFolder && wcaDriveLink) {
+    throw httpError(400, 'Choose either a new WCA Drive folder or an existing folder link.');
+  }
+
+  // Confirm the caller can manage the selected WCA competition.
+  const accessToken = await authService.getValidAccessTokenForPerson(peopleId);
+  if (!accessToken) {
+    throw httpError(403, 'WCA manage_competitions access is required to create a linked competition.');
+  }
+
+  const eligibleCompetitions = await getEligibleUnlinkedManagedCompetitions(accessToken, peopleId);
+  if (!eligibleCompetitions.some((comp) => comp.wca_competition_id === String(wcaCompetitionId))) {
+    throw httpError(400, 'This WCA competition is not available to link.');
+  }
+
+  // Fetch and validate the selected WCA record before the first Planner write.
+  const wcaCompetition = await wca.fetchCompetitionById(String(wcaCompetitionId), { accessToken });
+  if (!isEligibleManagedCompetition(wcaCompetition) || !isMultipleCitiesWcaCompetition(wcaCompetition)) {
+    throw httpError(400, 'This WCA competition is not an eligible multi-city competition.');
+  }
+
+  // Validate every location and assignment before creating any rows.
+  if (!Array.isArray(locations) || !locations.length) {
+    throw httpError(400, 'At least one location is required to create a multi-city competition.');
+  }
+  const validatedLocations = locations.map((location) => {
+    const validatedLocation = getValidatedMultiCityLocation(location);
+    const delegatePeopleIds = location.delegatePeopleIds;
+    const equipmentPeopleIds = location.equipmentPeopleIds ?? [];
+    if (!Array.isArray(delegatePeopleIds) || !delegatePeopleIds.length) {
+      throw httpError(400, 'At least one Delegate is required for each multi-city location.');
+    }
+    if (!delegatePeopleIds.includes(location.leadPeopleId)) {
+      throw httpError(400, "Lead Delegate must already be one of this competition's Delegates.");
+    }
+    if (!Array.isArray(equipmentPeopleIds)) {
+      throw httpError(400, 'Equipment holders must be an array.');
+    }
+    return {
+      ...validatedLocation,
+      delegatePeopleIds,
+      leadPeopleId: location.leadPeopleId,
+      equipmentPeopleIds,
+    };
+  });
+  await assertPeopleExist(
+    validatedLocations.flatMap((location) => location.delegatePeopleIds),
+    'Delegates',
+  );
+  await assertEquipmentHoldersAreDelegates(
+    validatedLocations.flatMap((location) => location.equipmentPeopleIds),
+  );
+
+  // Reuse an existing shared folder; otherwise validate any requested Drive action.
+  const existingDriveFolder = await competitionsDb.getWcaDriveLinkByWcaCompetitionId(
+    wcaCompetition.id,
+  );
+  if (!existingDriveFolder && (createWcaDriveFolder || wcaDriveLink)) {
+    try {
+      googleDrive.assertDriveAvailable();
+      if (wcaDriveLink) getWcaDriveFolderId(wcaDriveLink);
+    } catch (error) {
+      rethrowWcaDriveUnavailable(error);
+    }
+  }
+
+  // Fetch registration data and format WCA-owned fields once for all local rows.
+  const registrationDataByWcaId = await fetchRegistrationDataByWcaId([wcaCompetition], {
+    accessToken,
+    adminCompetitionIds: new Set([String(wcaCompetition.id)]),
+  });
+  const [formattedCompetition] = formatCompetitionData(
+    [wcaCompetition],
+    [],
+    registrationDataByWcaId,
+  );
+  if (!formattedCompetition) {
+    throw httpError(400, 'This WCA competition could not be prepared for Planner.');
+  }
+  formattedCompetition.is_multiple_cities_competition = true;
+
+  // Create one local Planner row for each validated Southeast location.
+  const competitionIds = [];
+  for (const location of validatedLocations) {
+    const competitionId = await competitionsDb.createPlannerCompetitionLinkedToWca({
+      ...formattedCompetition,
+      city: `${location.city}, ${location.state}`,
+      state: location.state,
+      venue_address: location.venueAddress,
+      venue_details: location.venueDetails,
+      venue: location.venue,
+      venue_url: location.venueUrl,
+      latitude_degrees: location.latitudeDegrees,
+      longitude_degrees: location.longitudeDegrees,
+      competitor_limit: location.competitorLimit,
+    });
+    competitionIds.push(competitionId);
+  }
+
+  // Store shared events and organizers alongside each location's assignments.
+  await competitionEventsDb.replaceEventIds(
+    competitionIds.map((id) => ({ id, event_ids: formattedCompetition.event_ids ?? [] })),
+  );
+  const organizerPeopleIds = await Promise.all(
+    (formattedCompetition.organizers ?? []).map(resolvePersonId),
+  );
+  for (const [index, competitionId] of competitionIds.entries()) {
+    const location = validatedLocations[index];
+    await competitionOrganizersDb.replaceOrganizersForCompetition(
+      competitionId,
+      organizerPeopleIds,
+    );
+    await competitionDelegatesDb.replaceDelegatesForCompetition(
+      competitionId,
+      location.delegatePeopleIds.map((peopleId) => ({
+        peopleId,
+        isLead: peopleId === location.leadPeopleId,
+      })),
+    );
+    await competitionEquipmentHoldersDb.replaceEquipmentHoldersForCompetition(
+      competitionId,
+      location.equipmentPeopleIds,
+    );
+  }
+
+  // Share one Drive folder across the rows, creating or preparing it only once.
+  const firstCompetitionId = competitionIds[0];
+  if (existingDriveFolder) {
+    for (const competitionId of competitionIds) {
+      await competitionsDb.setWcaDriveLink(
+        competitionId,
+        existingDriveFolder.wca_drive_link,
+        existingDriveFolder.wca_drive_folder_type,
+      );
+    }
+    const competition = await competitionsDb.getCompetitionById(firstCompetitionId);
+    await syncWcaDriveFolderBestEffort(competition, 'WCA competition linking', undefined, true);
+  } else if (createWcaDriveFolder) {
+    await createWcaDriveFolderForCompetition(firstCompetitionId);
+    const firstCompetition = await competitionsDb.getCompetitionById(firstCompetitionId);
+    for (const competitionId of competitionIds.slice(1)) {
+      await competitionsDb.setWcaDriveLink(
+        competitionId,
+        firstCompetition.wca_drive_link,
+        firstCompetition.wca_drive_folder_type,
+      );
+    }
+  } else if (wcaDriveLink) {
+    await setCompetitionWcaDriveLink(firstCompetitionId, wcaDriveLink);
+    const firstCompetition = await competitionsDb.getCompetitionById(firstCompetitionId);
+    for (const competitionId of competitionIds.slice(1)) {
+      await competitionsDb.setWcaDriveLink(
+        competitionId,
+        firstCompetition.wca_drive_link,
+        firstCompetition.wca_drive_folder_type,
+      );
+    }
+  }
+
+  return competitionIds;
 }
 
 // Upserts `comps` in chunks under DSQL's row cap, returning the ids newly
@@ -1079,6 +1421,85 @@ async function refreshCompetitionFromWCA(competitionId, actor = {}) {
   return { ...competition, id: plannerCompetition.id };
 }
 
+// Checks each upcoming multi-city WCA id once and refreshes all its local rows when public.
+async function refreshUpcomingMultiCityCompetitions(
+  plannerCompetitions,
+  volunteerCompetitionNames,
+  accessToken,
+  adminRegistrationCompetitionIds,
+) {
+  // Group all the same WCA Ids together for multi city competitions.
+  const announcedByWcaCompetitionId = new Map();
+  for (const competition of plannerCompetitions) {
+    if (!competition.is_multiple_cities_competition || !competition.wca_competition_id) continue;
+    const wcaCompetitionId = String(competition.wca_competition_id);
+    announcedByWcaCompetitionId.set(
+      wcaCompetitionId,
+      announcedByWcaCompetitionId.get(wcaCompetitionId) || Boolean(competition.is_announced),
+    );
+  }
+
+  const failedWcaCompetitionIds = [];
+  const updatedWcaCompetitionIds = [];
+  let shouldInvalidatePublicCache = false;
+
+  for (const [wcaCompetitionId, wasAnnounced] of announcedByWcaCompetitionId) {
+
+    // Fetch competition from WCA.
+    let wcaCompetition;
+    try {
+      wcaCompetition = await wca.fetchCompetitionById(wcaCompetitionId, {
+        suppressNotFoundLogging: !wasAnnounced,
+        accessToken,
+      });
+    } catch (error) {
+      if (error.response?.status !== 404 || wasAnnounced) {
+        failedWcaCompetitionIds.push(wcaCompetitionId);
+      }
+      continue;
+    }
+
+    // fetch registrations for competition.
+    const registrationDataByWcaId = await fetchRegistrationDataByWcaId([wcaCompetition], {
+      accessToken,
+      adminCompetitionIds: adminRegistrationCompetitionIds,
+    });
+
+    // Format competition.
+    const [formattedCompetition] = formatCompetitionData(
+      [wcaCompetition],
+      volunteerCompetitionNames,
+      registrationDataByWcaId,
+    );
+    formattedCompetition.is_multiple_cities_competition = true;
+
+    // Preform update. Returns all internal ids that link to the same WCA Id.
+    const competitionIds = await competitionsDb.updateMultiCityCompetitionRowsByWcaId(
+      wcaCompetitionId,
+      formattedCompetition,
+    );
+    if (!competitionIds.length) continue;
+    shouldInvalidatePublicCache ||= wasAnnounced || formattedCompetition.is_announced;
+
+    await competitionEventsDb.replaceEventIds(
+      competitionIds.map((id) => ({ id, event_ids: formattedCompetition.event_ids ?? [] })),
+    );
+    const organizerPeopleIds = await Promise.all(
+      (formattedCompetition.organizers ?? []).map(resolvePersonId),
+    );
+    for (const competitionId of competitionIds) {
+      await competitionOrganizersDb.replaceOrganizersForCompetition(
+        competitionId,
+        organizerPeopleIds,
+      );
+    }
+    updatedWcaCompetitionIds.push(wcaCompetitionId);
+  }
+
+  if (shouldInvalidatePublicCache) invalidateCache();
+  return { failedWcaCompetitionIds, updatedWcaCompetitionIds };
+}
+
 // Fetches and persists the full competition list from WCA and supporting sources.
 async function refreshCompetitionsFromWCA(actor) {
   // WCA paginates at per_page results; loop through successive pages
@@ -1111,6 +1532,7 @@ async function refreshCompetitionsFromWCA(actor) {
   const publicWcaCompetitionIds = new Set(
     wcaCompetitions.map((competition) => String(competition.id)),
   );
+  const plannerCompetitions = await competitionsDb.getAllUpcomingCompetitionsForPlanner();
 
   // Get managed competitions and registration-admin access for assigned organizers/delegates.
   let managedOnlyCompetitions = [];
@@ -1119,7 +1541,6 @@ async function refreshCompetitionsFromWCA(actor) {
   let privateDataRefreshFailed = false;
   let adminRegistrationCompetitionIds = new Set();
   if (peopleId) {
-    const plannerCompetitions = await competitionsDb.getAllUpcomingCompetitionsForPlanner();
     const plannerCompetitionIds = plannerCompetitions.map((competition) => competition.id);
     const [delegateRows, organizerRows] = await Promise.all([
       competitionDelegatesDb.listForCompetitions(plannerCompetitionIds),
@@ -1243,19 +1664,6 @@ async function refreshCompetitionsFromWCA(actor) {
     const upsertResult = await upsertCompetitions(comps);
     nameChangedDriveFolderIds = upsertResult.wcaDriveFolderNameChangedIds;
 
-    // Post pending competitions on Discord.
-    const competitionsPendingDiscordAnnouncement = await withEventIds(
-      (await competitionsDb.getCompetitionsPendingDiscordAnnouncement()).filter(
-        (competition) =>
-          !managedOnlyCompetitionIds.has(String(competition.wca_competition_id)),
-      ),
-    );
-    if (competitionsPendingDiscordAnnouncement.length) {
-      discordPostFailures = discordPostFailures.concat(
-        await postCompetitionsToDiscord(competitionsPendingDiscordAnnouncement),
-      );
-    }
-
     // Only recorded on a non-empty result - an empty result is more likely a
     // WCA API glitch than a genuine zero-competition period in these states,
     // so it's treated as an unconfirmed check rather than a successful one.
@@ -1266,10 +1674,43 @@ async function refreshCompetitionsFromWCA(actor) {
     logger.warn('There are no competitions!');
   }
 
+  // Refresh Multiple City Competitions.
+  const multiCityRefreshResult = await refreshUpcomingMultiCityCompetitions(
+    plannerCompetitions,
+    competitionsWithVolunteerApp,
+    accessToken,
+    adminRegistrationCompetitionIds,
+  );
+  const multiCityRefreshFailedIds = multiCityRefreshResult.failedWcaCompetitionIds;
+
+  // Posts pending competitions on Discord.
+  if (comps.length || multiCityRefreshResult.updatedWcaCompetitionIds.length) {
+    const updatedMultiCityIdSet = new Set(multiCityRefreshResult.updatedWcaCompetitionIds);
+    // A regular refresh scans all pending public rows, including multi-city rows; otherwise,
+    // limit announcements to multi-city WCA ids refreshed in this run.
+    const competitionsPendingDiscordAnnouncement = await withEventIds(
+      (await competitionsDb.getCompetitionsPendingDiscordAnnouncement()).filter((competition) =>
+        comps.length
+          ? !managedOnlyCompetitionIds.has(String(competition.wca_competition_id))
+          : updatedMultiCityIdSet.has(String(competition.wca_competition_id)),
+      ),
+    );
+    if (competitionsPendingDiscordAnnouncement.length) {
+      discordPostFailures = discordPostFailures.concat(
+        await postCompetitionsToDiscord(competitionsPendingDiscordAnnouncement),
+      );
+    }
+  }
+
   // Sync WCA Drive Folders
   await syncAllWcaDriveFoldersBestEffort(nameChangedDriveFolderIds);
 
-  return { competitions: comps, discordPostFailures, privateDataRefreshFailed };
+  return {
+    competitions: comps,
+    discordPostFailures,
+    privateDataRefreshFailed,
+    multiCityRefreshFailedIds,
+  };
 }
 
 // Filters `comps` down to competitions in the tracked SE states and maps
@@ -1440,6 +1881,7 @@ module.exports = {
   getUnannouncedCompetitionLinkOptions,
   dismissUnannouncedCompetition,
   linkManagedCompetitionToPlanner,
+  createMultiCityCompetitionFromWca,
   createCompetition,
   createWcaDriveFolderForCompetition,
   setCompetitionWcaDriveLink,
