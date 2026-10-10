@@ -8,6 +8,7 @@ import {
   PlannerCompetitionRefreshResponse,
   PlannerCompetitionsResponse,
   PlannerCompetitionSaveRequest,
+  PlannerMajorCompetitionSaveRequest,
   PlannerWcaCompetitionOption,
   PlannerMultiCityCreateRequest,
   PlannerWcaDriveFolderResponse,
@@ -79,11 +80,16 @@ export class CompetitionPlannerApiService {
     return this.http.post<PlannerCompetition>(`${this.base}/competitions`, body);
   }
 
+  // Creates a manual major competition.
+  createMajorCompetition(body: PlannerMajorCompetitionSaveRequest): Observable<PlannerCompetition> {
+    return this.http.post<PlannerCompetition>(`${this.base}/competitions/major`, body);
+  }
+
   // Edits an existing Planner competition - restricted server-side to
   // Admin/Board/Regional Delegate or a Delegate already assigned to it.
   updateCompetition(
     competitionId: string,
-    body: PlannerCompetitionSaveRequest,
+    body: PlannerCompetitionSaveRequest | PlannerMajorCompetitionSaveRequest,
   ): Observable<PlannerCompetition> {
     return this.http.put<PlannerCompetition>(`${this.base}/competitions/${competitionId}`, body);
   }

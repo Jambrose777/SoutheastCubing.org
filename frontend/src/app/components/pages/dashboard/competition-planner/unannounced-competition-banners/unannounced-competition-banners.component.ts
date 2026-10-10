@@ -87,6 +87,10 @@ export class UnannouncedCompetitionBannersComponent implements OnInit {
     return this.linkingWcaIds().has(competition.wca_competition_id);
   }
 
+  eligiblePotentialRows(competition: PlannerWcaCompetitionOption): PlannerCompetition[] {
+    return this.potentialRows().filter((row) => row.is_major === competition.is_major);
+  }
+
   // Closes the Potential-row selector without changing the banner.
   cancelPlannerCompetitionLink(competition: PlannerWcaCompetitionOption): void {
     this.linkingWcaIds.update((current) => {

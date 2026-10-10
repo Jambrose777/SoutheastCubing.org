@@ -31,6 +31,7 @@ export interface PlannerCompetition {
   wca_competition_id: string | null;
   wca_drive_link: string | null;
   country_iso2?: string | null;
+  is_major: boolean;
   is_announced: boolean;
   is_multiple_cities_competition: boolean;
   is_in_volunteer_application?: boolean | null;
@@ -111,6 +112,27 @@ export interface PlannerCompetitionSaveRequest {
   wcaDriveLink?: string | null;
 }
 
+// Body for POST /dashboard/competition-planner/competitions/major.
+export interface PlannerMajorCompetitionSaveRequest {
+  name: string;
+  city: string;
+  stateOrCountry: string;
+  startDate: string;
+  endDate: string;
+  venueAddress?: string | null;
+  venueDetails?: string | null;
+  venue?: string | null;
+  venueUrl?: string | null;
+  latitudeDegrees?: number | null;
+  longitudeDegrees?: number | null;
+  competitorLimit?: number | null;
+  leadPeopleId?: string | null;
+  delegatePeopleIds?: string[];
+  organizerPeopleIds?: string[];
+  equipmentPeopleIds?: (string | null)[];
+  eventIds?: string[];
+}
+
 export interface PlannerWcaDriveFolderResponse {
   folderLink: string;
 }
@@ -129,6 +151,7 @@ export interface PlannerWcaCompetitionOption {
   delegates?: PlannerWcaDelegateOption[];
   organizers?: string[];
   is_multiple_cities_competition: boolean;
+  is_major: boolean;
 }
 
 export interface PlannerWcaDelegateOption {

@@ -62,7 +62,9 @@
         }
       </ng-template>
       <ng-template #driveCell let-row>
-        @if (row.wca_drive_link) {
+        @if (row.is_major) {
+          --
+        } @else if (row.wca_drive_link) {
           <a
             class="drive-folder-link"
             [href]="row.wca_drive_link"
@@ -104,10 +106,14 @@
         formatLongDateRange(row.start_date, row.end_date)
       }}</ng-template>
       <ng-template #locationCell let-row>
-        <span class="location-pill" [style.background]="StateColors[row.state ?? '??']">{{
-          row.city
-        }}</span>
+        <span
+          class="location-pill"
+          [class.non-southeast-major]="isNonSoutheastMajor(row)"
+          [style.background]="locationColor(row)"
+          >{{ row.city }}</span
+        >
       </ng-template>
+      <ng-template #majorCell let-row>{{ row.is_major ? 'Major' : '--' }}</ng-template>
       <ng-template #delegatesCell let-row>
         <div class="avatar-list">
           @for (delegate of row.delegates; track delegate.peopleId) {
@@ -223,6 +229,7 @@
       <se-add-edit-competition-sheet
         #competitionSheet
         [competition]="editingCompetition()"
+        [canCreateMajor]="canCreateMajor()"
         (closed)="requestCloseSheet(competitionSheet)"
         (saved)="onSheetSaved()"
       ></se-add-edit-competition-sheet>

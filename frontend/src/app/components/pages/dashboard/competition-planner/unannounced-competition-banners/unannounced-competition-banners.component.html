@@ -26,20 +26,26 @@
       @if (isSelectingPlannerCompetition(competition)) {
         <!-- Potential Competition Selection -->
         <div class="banner-link-existing">
-          <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Potential competition</mat-label>
-            <mat-select
-              placeholder="Choose a competition"
-              [disabled]="pendingActions().has(competition.wca_competition_id)"
-              (selectionChange)="selectPlannerCompetition(competition, $event.value)"
-            >
-              @for (row of potentialRows(); track row.id) {
-                <mat-option [value]="row.id">
-                  {{ row.name }} · {{ formatLongDate(row.start_date) }} · {{ row.city }}
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+          @if (eligiblePotentialRows(competition).length) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>{{
+                competition.is_major ? 'Potential major' : 'Potential competition'
+              }}</mat-label>
+              <mat-select
+                placeholder="Choose a competition"
+                [disabled]="pendingActions().has(competition.wca_competition_id)"
+                (selectionChange)="selectPlannerCompetition(competition, $event.value)"
+              >
+                @for (row of eligiblePotentialRows(competition); track row.id) {
+                  <mat-option [value]="row.id">
+                    {{ row.name }} · {{ formatLongDate(row.start_date) }} · {{ row.city }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          } @else {
+            <span>No unlinked Planner rows match this competition type.</span>
+          }
           <button
             type="button"
             class="btn small"

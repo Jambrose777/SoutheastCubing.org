@@ -13,6 +13,7 @@ const {
   linkManagedCompetitionToPlanner,
   createMultiCityCompetitionFromWca,
   createCompetition,
+  createMajorCompetition,
   createWcaDriveFolderForCompetition,
   updateCompetition,
   deleteCompetition,
@@ -63,9 +64,9 @@ async function refreshPlannerCompetitions(req, res) {
       privateDataRefreshFailed,
       multiCityRefreshFailedIds,
     } = await runCoordinatedCompetitionRefresh({
-        peopleId: req.user.people_id,
-        sessionId: req.user.sessionId,
-      });
+      peopleId: req.user.people_id,
+      sessionId: req.user.sessionId,
+    });
     const lastBulkRefreshAt = await competitionsDb.getLastBulkRefreshAt();
     res.status(200).json({
       competitions,
@@ -181,6 +182,17 @@ async function createPlannerCompetition(req, res) {
   }
 }
 
+// Creates a manually-entered major competition.
+async function createPlannerMajorCompetition(req, res) {
+  try {
+    const id = await createMajorCompetition(req.body ?? {});
+    const comps = await getAllUpcomingCompetitionsForPlanner();
+    res.status(201).json(comps.find((comp) => comp.id === id));
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to create major competition');
+  }
+}
+
 // POST /dashboard/competition-planner/competitions/:competitionId/wca-drive-folder - creates
 // and links a folder.
 async function createPlannerWcaDriveFolder(req, res) {
@@ -225,6 +237,7 @@ module.exports = {
   linkPlannerCompetitionToWca,
   createMultiCityPlannerCompetitionFromWca,
   createPlannerCompetition,
+  createPlannerMajorCompetition,
   createPlannerWcaDriveFolder,
   updatePlannerCompetition,
   deletePlannerCompetition,

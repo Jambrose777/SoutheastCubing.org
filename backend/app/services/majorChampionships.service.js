@@ -1,16 +1,10 @@
-// Detection/posting logic for major championships (Nats/NAC/Worlds) that
-// aren't hosted in an SE state. Those never appear on the public competitions
-// page - they're tracked in their own table (database/majorChampionships.js)
-// purely so they can be announced on Discord with an @everyone ping. A major
-// championship that IS SE-hosted skips this module entirely.
+// Detects announced major championships, including non-US majors found by direct WCA lookup.
 
 const moment = require('moment');
 
 const wca = require('../integrations/wca.integration.js');
-const discord = require('../integrations/discord.integration.js');
-const majorChampionshipsDb = require('../database/majorChampionships.database.js');
+const competitionsDb = require('../database/competitions.database.js');
 const discordPingPatternsDb = require('../database/discordPingPatterns.database.js');
-const { getFullCompetitionDate } = require('../helpers/competitionDates.helper.js');
 
 const logger = require('../utils/logger.util.js');
 
@@ -44,14 +38,13 @@ async function fetchSupplementalMajorChampionships(alreadyFetchedIds, patterns) 
     .filter((pattern) => pattern.try_direct_lookup)
     .map((pattern) => pattern.id_pattern.replace(/\*$/, ''));
 
-  const trackedIds = await majorChampionshipsDb.getTrackedIds();
+  const trackedIds = (await competitionsDb.getTrackedMajorWcaIds()).map(String);
   const currentYear = moment().year();
 
   const found = [];
   for (const prefix of prefixes) {
-    // Only years after the highest one already tracked in
-    // major_championship_announcements are probed (e.g. once NAC2026 is
-    // known, years 2026 and earlier are skipped for NAC).
+    // Only years after the highest one already tracked as a major row are probed
+    // (e.g. once NAC2026 is known, years 2026 and earlier are skipped for NAC).
     const maxTrackedYear = trackedIds
       .filter((id) => id.startsWith(prefix) && /^\d+$/.test(id.slice(prefix.length)))
       .map((id) => Number(id.slice(prefix.length)))
@@ -75,73 +68,95 @@ async function fetchSupplementalMajorChampionships(alreadyFetchedIds, patterns) 
   return found;
 }
 
-// Returns the subset of `wcaCompetitions` whose id matches one of
-// `patterns`, mapped to the trimmed record shape stored in
-// major_championship_announcements/posted to Discord.
+// Returns announced WCA records whose ids match a configured major pattern.
 function detectMajorChampionships(wcaCompetitions, patterns) {
   return wcaCompetitions
     .filter((comp) => Boolean(comp.announced_at))
     .filter((comp) =>
       patterns.some((pattern) =>
-        discordPingPatternsDb.matchesIdPattern(comp.id, pattern.id_pattern),
+        discordPingPatternsDb.matchesIdPattern(String(comp.id), pattern.id_pattern),
       ),
-    )
-    .map((comp) => ({
-      id: comp.id,
-      name: comp.name,
-      city: comp.city,
-      start_date: comp.start_date,
-      end_date: comp.end_date,
-      full_date: getFullCompetitionDate(comp.start_date, comp.end_date),
-      competitor_limit: comp.competitor_limit,
-      registration_open: comp.registration_open,
-      event_ids: comp.event_ids,
-    }));
+    );
 }
 
-// Detects Nats/NAC/Worlds from the raw WCA competition list (matched against
-// `patterns`, before the SE-state filter competitions.js applies for the
-// main competitions table) plus a supplemental direct lookup for patterns
-// not covered by the country_iso2=US-filtered main fetch, upserts
-// newly-detected ones, and posts any still-unannounced ones to Discord with
-// an @everyone ping. Returns the competitions that still failed to post
-// after discord.js's own retries, for the caller to report/leave for the
-// next refresh.
-async function refreshMajorChampionships(wcaCompetitions, patterns, excludedIds = new Set()) {
+// Detects announced majors from the main list plus supplemental direct-by-id lookups.
+async function getDetectedMajorChampionships(wcaCompetitions, patterns) {
   if (!patterns.length) return [];
 
-  // `wcaCompetitions` must be the FULL fetched list (not pre-filtered), even
-  // though a match in `excludedIds` won't end up tracked here - the full
-  // list is what keeps fetchSupplementalMajorChampionships from re-probing
-  // (and re-detecting as "hidden") a major championship that's already
-  // accounted for elsewhere.
-  const alreadyFetchedIds = new Set(wcaCompetitions.map((comp) => comp.id));
+  const alreadyFetchedIds = new Set(wcaCompetitions.map((comp) => String(comp.id)));
   const supplemental = await fetchSupplementalMajorChampionships(alreadyFetchedIds, patterns);
-
-  // `excludedIds` is for competitions that competitions.js is instead
-  // handling through the normal public-page pipeline.
-  const detected = detectMajorChampionships(wcaCompetitions.concat(supplemental), patterns).filter(
-    (comp) => !excludedIds.has(comp.id),
-  );
+  const detected = detectMajorChampionships(wcaCompetitions.concat(supplemental), patterns);
   logger.debug(`Detected ${detected.length} major championship(s) this cycle.`);
-  if (!detected.length) return [];
+  return detected;
+}
 
-  await majorChampionshipsDb.upsertMajorChampionships(detected);
-
-  // post any unannounced major championships to Discord with an @everyone ping
-  const publiclyAnnouncedIds = new Set(detected.map((comp) => comp.id));
-  const unannounced = (await majorChampionshipsDb.getUnannounced()).filter((competition) =>
-    publiclyAnnouncedIds.has(competition.id),
+// Prepares non-US major locations with the WCA country name and state override.
+async function prepareMajorCompetitionsForFormatting(competitions, majorWcaIds) {
+  const nonUsCompetitions = competitions.filter(
+    (competition) =>
+      majorWcaIds.has(String(competition.id)) &&
+      String(competition.country_iso2).toUpperCase() !== 'US',
   );
-  if (!unannounced.length) return [];
+  if (!nonUsCompetitions.length) {
+    return { competitions, stateByWcaId: new Map() };
+  }
 
-  logger.info(`Posting ${unannounced.length} unannounced major championship(s) to Discord.`);
-  return discord.postToDiscordInChunks(unannounced, {
-    postFn: (majorChampionship) =>
-      discord.postCompetitionInDiscord(majorChampionship, { pingOverride: 'everyone' }),
-    markAnnouncedFn: majorChampionshipsDb.markAnnounced,
-    getId: (majorChampionship) => majorChampionship.id,
+  const countries = await wca.fetchCountries();
+  const countryNameByIso2 = new Map(
+    countries.map((country) => [country.iso2.toUpperCase(), country.name]),
+  );
+  const stateByWcaId = new Map();
+  const preparedCompetitions = competitions
+    .map((competition) => {
+      if (
+        !majorWcaIds.has(String(competition.id)) ||
+        String(competition.country_iso2).toUpperCase() === 'US'
+      ) {
+        return competition;
+      }
+
+      const wcaCompetitionId = String(competition.id);
+      const countryIso2 = String(competition.country_iso2).toUpperCase();
+      const countryName = countryNameByIso2.get(countryIso2) ?? countryIso2;
+      const city = typeof competition.city === 'string' ? competition.city.trim() : '';
+      if (!city) {
+        logger.warn(`Skipping WCA major ${wcaCompetitionId} because it has no city.`);
+        return null;
+      }
+
+      stateByWcaId.set(wcaCompetitionId, countryName);
+      const suffix = `, ${countryName}`;
+      return {
+        ...competition,
+        city: city.toLowerCase().endsWith(suffix.toLowerCase()) ? city : `${city}, ${countryName}`,
+      };
+    })
+    .filter(Boolean);
+
+  return { competitions: preparedCompetitions, stateByWcaId };
+}
+
+// Matches WCA cities exactly against stored cities with or without State / Country.
+function findMatchingManualMajorCompetitions(wcaCity, candidates) {
+  const normalize = (value) =>
+    typeof value === 'string' ? value.trim().replace(/\s+/g, ' ').toLowerCase() : '';
+  const targetCity = normalize(wcaCity);
+  if (!targetCity) return [];
+
+  return candidates.filter((candidate) => {
+    const city = normalize(candidate.city);
+    const stateOrCountry = normalize(candidate.state);
+    const cityWithoutStateOrCountry =
+      stateOrCountry && city.endsWith(`, ${stateOrCountry}`)
+        ? city.slice(0, -stateOrCountry.length - 2)
+        : city;
+    return targetCity === city || targetCity === cityWithoutStateOrCountry;
   });
 }
 
-module.exports = { refreshMajorChampionships };
+module.exports = {
+  getDetectedMajorChampionships,
+  detectMajorChampionships,
+  prepareMajorCompetitionsForFormatting,
+  findMatchingManualMajorCompetitions,
+};

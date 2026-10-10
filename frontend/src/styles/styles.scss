@@ -17,6 +17,23 @@ input[type='checkbox'] {
   --mat-checkbox-selected-pressed-state-layer-color: #{color-pallet.$se-blue};
 }
 
+.mat-mdc-slide-toggle,
+.mat-mdc-slide-toggle.mat-primary,
+.mat-mdc-slide-toggle.mat-accent {
+  --mat-slide-toggle-selected-icon-color: white;
+  --mat-slide-toggle-selected-focus-state-layer-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-handle-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-hover-state-layer-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-pressed-state-layer-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-focus-handle-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-hover-handle-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-pressed-handle-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-focus-track-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-hover-track-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-pressed-track-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-track-color: #{color-pallet.$se-blue};
+}
+
 @font-face {
   font-family: 'Montserrat';
   src: url('../assets/fonts/Montserrat-Regular.ttf');

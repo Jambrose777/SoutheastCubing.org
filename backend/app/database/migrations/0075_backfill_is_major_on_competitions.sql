@@ -1,0 +1,1 @@
+UPDATE competitions SET is_major = false WHERE is_major IS NULL;

@@ -54,22 +54,6 @@
   gap: 6px;
   font-size: 14px;
   cursor: pointer;
-
-  // Overrides the prebuilt indigo-pink theme's own accent color.
-  mat-slide-toggle {
-    --mat-slide-toggle-selected-icon-color: #{color-pallet.$se-blue};
-    --mat-slide-toggle-selected-focus-state-layer-color: #{color-pallet.$se-blue};
-    --mat-slide-toggle-selected-handle-color: #{color-pallet.$se-blue};
-    --mat-slide-toggle-selected-hover-state-layer-color: #{color-pallet.$se-blue};
-    --mat-slide-toggle-selected-pressed-state-layer-color: #{color-pallet.$se-blue};
-    --mat-slide-toggle-selected-focus-handle-color: #{color-pallet.$se-blue};
-    --mat-slide-toggle-selected-hover-handle-color: #{color-pallet.$se-blue};
-    --mat-slide-toggle-selected-pressed-handle-color: #{color-pallet.$se-blue};
-    --mat-slide-toggle-selected-focus-track-color: #{color-pallet.$se-blue};
-    --mat-slide-toggle-selected-hover-track-color: #{color-pallet.$se-blue};
-    --mat-slide-toggle-selected-pressed-track-color: #{color-pallet.$se-blue};
-    --mat-slide-toggle-selected-track-color: #{color-pallet.$se-blue};
-  }
 }
 
 // One divided button.

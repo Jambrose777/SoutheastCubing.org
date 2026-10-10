@@ -15,7 +15,7 @@ import { AuthService } from 'src/app/services/southeastcubing-api/auth.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { ErrorBannerService } from 'src/app/services/error-banner.service';
 import { CompetitionPlannerApiService } from 'src/app/services/southeastcubing-api/competition-planner-api.service';
-import { Colors, EventNames, StateColors } from 'src/app/shared/types';
+import { Colors, EventNames, StateColors, States } from 'src/app/shared/types';
 import { formatLongDateRange, formatLongDateTime } from 'src/app/shared/date.util';
 import {
   PlannerCompetition,
@@ -45,6 +45,7 @@ import {
   getRegistrationStatusColor,
   getRegistrationStatusLabel,
 } from 'src/app/shared/registrationStatus.util';
+import { orderEventIdsByWcaOrder } from 'src/app/shared/event.util';
 
 // Display label for each derived Competition Planner status.
 const STATUS_LABELS: Record<PlannerCompetitionStatus, string> = {
@@ -85,9 +86,14 @@ function isWaitingListStale(row: PlannerCompetition): boolean {
 // an organizer - noise in the Organizers column, so it's filtered out of
 // what's shown there.
 const SOUTHEAST_CUBING_ORGANIZER_NAME = 'Southeast Cubing';
+const SOUTHEAST_STATE_CODES = new Set([...Object.keys(States), ...Object.values(States)]);
 
 function visibleOrganizers(row: PlannerCompetition) {
   return row.organizers.filter((o) => o.name !== SOUTHEAST_CUBING_ORGANIZER_NAME);
+}
+
+function isNonSoutheastMajor(row: PlannerCompetition): boolean {
+  return row.is_major && !SOUTHEAST_STATE_CODES.has(row.state ?? '');
 }
 
 // The Registration Period column's own color - blue before it opens, green
@@ -191,10 +197,13 @@ export class CompetitionPlannerComponent implements OnInit {
   waitingListTooltip = waitingListTooltip;
   isWaitingListStale = isWaitingListStale;
   visibleOrganizers = visibleOrganizers;
+  locationColor = (row: PlannerCompetition) =>
+    isNonSoutheastMajor(row) ? Colors.black : StateColors[row.state ?? '??'];
   registrationPeriodColor = registrationPeriodColor;
   hasRegistrationPeriod = hasRegistrationPeriod;
   registrationStatusText = registrationStatusText;
   registrationStatusColor = registrationStatusColor;
+  isNonSoutheastMajor = isNonSoutheastMajor;
 
   private dateCell = viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('dateCell');
   private nameCell = viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('nameCell');
@@ -202,6 +211,8 @@ export class CompetitionPlannerComponent implements OnInit {
     viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('driveCell');
   private locationCell =
     viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('locationCell');
+  private majorCell =
+    viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('majorCell');
   private delegatesCell =
     viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('delegatesCell');
   private organizersCell =
@@ -249,6 +260,21 @@ export class CompetitionPlannerComponent implements OnInit {
       sortValue: (row) => row.city,
       searchValue: (row) => row.city,
       cellTemplate: this.locationCell(),
+    },
+    {
+      key: 'major',
+      label: 'Major',
+      width: '85px',
+      filterable: true,
+      filterType: 'custom-multiselect',
+      filterOptions: [
+        { value: 'major', label: 'Major' },
+        { value: 'regular', label: 'Regular' },
+      ],
+      filterValue: (row) => [row.is_major ? 'major' : 'regular'],
+      visibleByDefault: false,
+      searchValue: (row) => (row.is_major ? 'Major' : 'Regular'),
+      cellTemplate: this.majorCell(),
     },
     {
       key: 'delegates',
@@ -387,6 +413,11 @@ export class CompetitionPlannerComponent implements OnInit {
     return row.delegates.some((delegate) => delegate.peopleId === user.peopleId);
   };
 
+  canCreateMajor = computed(() => {
+    const user = this.authService.currentUser();
+    return !!user && (user.roles.isAdmin || user.roles.isBoard || user.roles.isRegionalDelegate);
+  });
+
   // Refresh is public-data-only for announced rows; planning rows need Admin or assignment.
   canRefreshCompetition = (row: PlannerCompetition): boolean => {
     if (!row.wca_competition_id) return false;
@@ -434,19 +465,19 @@ export class CompetitionPlannerComponent implements OnInit {
         icon: 'fa-folder-open',
         label: 'View Drive',
         onClick: (row) => this.openWcaDriveFolder(row),
-        visible: (row) => !!row.wca_drive_link,
+        visible: (row) => !row.is_major && !!row.wca_drive_link,
       },
       {
         icon: 'fa-folder-plus',
         label: 'Create Drive',
         onClick: (row) => this.createWcaDriveFolder(row),
-        visible: (row) => this.canEdit(row) && !row.wca_drive_link,
+        visible: (row) => this.canEdit(row) && !row.is_major && !row.wca_drive_link,
       },
       {
         icon: 'fa-link',
         label: 'Link Drive',
         onClick: (row) => this.openEditCompetition(row),
-        visible: (row) => this.canEdit(row) && !row.wca_drive_link,
+        visible: (row) => this.canEdit(row) && !row.is_major && !row.wca_drive_link,
       },
       {
         icon: 'fa-trash',
@@ -480,7 +511,12 @@ export class CompetitionPlannerComponent implements OnInit {
 
   // Creates a folder for an editable Planner row and reloads its saved link.
   createWcaDriveFolder(row: PlannerCompetition): void {
-    if (!this.canEdit(row) || row.wca_drive_link || this.creatingDriveFolderIds().has(row.id)) {
+    if (
+      !this.canEdit(row) ||
+      row.is_major ||
+      row.wca_drive_link ||
+      this.creatingDriveFolderIds().has(row.id)
+    ) {
       return;
     }
 
@@ -615,7 +651,12 @@ export class CompetitionPlannerComponent implements OnInit {
   private loadCompetitions(openEditCompetitionId?: string): void {
     this.competitionPlannerApi.getCompetitions().subscribe({
       next: (response) => {
-        this.rows.set(response.competitions);
+        this.rows.set(
+          response.competitions.map((competition) => ({
+            ...competition,
+            event_ids: orderEventIdsByWcaOrder(competition.event_ids),
+          })),
+        );
         this.lastBulkRefreshAt.set(response.meta.lastBulkRefreshAt);
         this.loading.set(false);
         const createdCompetition = response.competitions.find(

@@ -90,6 +90,27 @@ async function fetchCompetitionById(
   }
 }
 
+// Fetches WCA country records used to resolve non-US major-championship locations.
+async function fetchCountries() {
+  const url = 'https://www.worldcubeassociation.org/api/v0/countries';
+  try {
+    const res = await axios.get(url);
+    if (
+      !Array.isArray(res.data) ||
+      res.data.some(
+        (country) => typeof country?.iso2 !== 'string' || typeof country?.name !== 'string',
+      )
+    ) {
+      throw new Error('Unexpected WCA countries response shape');
+    }
+    logger.debug(`WCA countries fetch succeeded (${res.data.length} results): ${url}`);
+    return res.data;
+  } catch (err) {
+    logger.error(`WCA countries fetch failed: ${url} - `, err);
+    throw err;
+  }
+}
+
 // Fetches the number of accepted registrations for a competition.
 async function fetchCompetitionRegistrationsCount(competitionId) {
   const url = `https://www.worldcubeassociation.org/api/v0/competitions/${competitionId}/registrations`;
@@ -268,6 +289,7 @@ module.exports = {
   fetchUSCompetitionsPage,
   fetchManagedCompetitionsPage,
   fetchCompetitionById,
+  fetchCountries,
   fetchCompetitionRegistrationsCount,
   fetchCompetitionAdminRegistrations,
   exchangeAuthorizationCodeForToken,

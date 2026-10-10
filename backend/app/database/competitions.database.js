@@ -3,6 +3,7 @@ const moment = require('moment');
 const db = require('./pool.js');
 
 const logger = require('../utils/logger.util.js');
+const { SOUTHEAST_STATES } = require('../helpers/southeastStates.helper.js');
 
 // Treat older refresh claims as abandoned so a crashed process cannot block future refreshes.
 const BULK_REFRESH_LOCK_TIMEOUT_MINUTES = 10;
@@ -39,11 +40,12 @@ const COLUMNS = [
   'wca_drive_link',
   'wca_drive_folder_type',
   'is_multiple_cities_competition',
+  'is_major',
 ];
 
 // Maps a formatted WCA competition object (see competitions.js's
 // formatCompetitionData()) to a `competitions` row value tuple, in COLUMNS
-// order. Event ids are stored separately in competition_events (see 
+// order. Event ids are stored separately in competition_events (see
 // upsertCompetitions), so they're not part of this row.
 function toRow(id, comp) {
   return [
@@ -75,6 +77,7 @@ function toRow(id, comp) {
     comp.wca_drive_link ?? null,
     comp.wca_drive_folder_type ?? null,
     comp.is_multiple_cities_competition ?? false,
+    comp.is_major ?? false,
   ];
 }
 
@@ -111,6 +114,7 @@ function fromRow(row, eventIds) {
     wca_drive_link: row.wca_drive_link,
     wca_drive_folder_type: row.wca_drive_folder_type,
     is_multiple_cities_competition: Boolean(row.is_multiple_cities_competition),
+    is_major: Boolean(row.is_major),
   };
 }
 
@@ -122,10 +126,10 @@ async function getCompetitionsCount() {
 
 // Upserts one batch of `comps` (each with a `wca_competition_id`) in a single
 // transaction, returning `{ insertedIds, batchWithIds }` - `insertedIds` is the
-// subset of surrogate ids newly inserted in this batch `batchWithIds` pairs 
+// subset of surrogate ids newly inserted in this batch `batchWithIds` pairs
 // every comp in the batch (new or updated) with its surrogate id,
-// `wca_competition_id` isn't a unique column - looks up any existing row per 
-// `wca_competition_id` first and reuses its surrogate id, generating a fresh 
+// `wca_competition_id` isn't a unique column - looks up any existing row per
+// `wca_competition_id` first and reuses its surrogate id, generating a fresh
 // one only when none exists yet, then upserts by that id.
 async function upsertCompetitionsBatch(batch) {
   if (!batch.length) {
@@ -137,9 +141,7 @@ async function upsertCompetitionsBatch(batch) {
       'SELECT id, wca_competition_id, name, start_date, wca_drive_link FROM competitions WHERE wca_competition_id = ANY($1)',
       [batch.map((comp) => comp.wca_competition_id)],
     );
-    const existingRowByWcaId = new Map(
-      existingRows.map((row) => [row.wca_competition_id, row]),
-    );
+    const existingRowByWcaId = new Map(existingRows.map((row) => [row.wca_competition_id, row]));
 
     const insertedIds = [];
     const wcaDriveFolderNameChangedIds = [];
@@ -181,6 +183,9 @@ async function upsertCompetitionsBatch(batch) {
         }
         if (col === 'wca_drive_folder_type') {
           return `${col} = COALESCE(EXCLUDED.${col}, competitions.${col})`;
+        }
+        if (col === 'is_major') {
+          return `${col} = COALESCE(competitions.${col}, false) OR EXCLUDED.${col}`;
         }
         return `${col} = EXCLUDED.${col}`;
       })
@@ -231,15 +236,36 @@ async function getAnnouncedUpcomingCompetitions() {
               registration_open, registration_close, end_date, competitor_limit,
               venue, venue_url, state, is_in_volunteer_application,
               accepted_registrations, waiting_list_count, waiting_list_count_updated_at,
-              full_date, wca_competition_id, is_announced, is_multiple_cities_competition
+              full_date, wca_competition_id, is_announced, is_multiple_cities_competition,
+              is_major
        FROM competitions
        WHERE end_date >= $1 AND is_announced IS TRUE
+         AND (is_major IS NOT TRUE OR LOWER(BTRIM(state)) = ANY($2::text[]))
        ORDER BY start_date ASC, name ASC`,
-      [moment().add(-1, 'day').format('YYYY-MM-DD')],
+      [
+        moment().add(-1, 'day').format('YYYY-MM-DD'),
+        SOUTHEAST_STATES.map((state) => state.toLowerCase()),
+      ],
     );
     return rows.map((row) => fromRow(row, []));
   } catch (err) {
     logger.error('Failed to fetch upcoming competitions from the competitions table: ', err);
+    throw err;
+  }
+}
+
+// Lists WCA ids already represented by major rows to bound supplemental lookups.
+async function getTrackedMajorWcaIds() {
+  try {
+    const { rows } = await db.pool.query(
+      `SELECT DISTINCT wca_competition_id
+       FROM competitions
+       WHERE is_major IS TRUE AND wca_competition_id IS NOT NULL`,
+    );
+    logger.debug(`Fetched ${rows.length} tracked major WCA id(s) from the competitions table.`);
+    return rows.map((row) => row.wca_competition_id);
+  } catch (err) {
+    logger.error('Failed to fetch tracked major WCA ids from the competitions table: ', err);
     throw err;
   }
 }
@@ -399,7 +425,9 @@ async function tryStartBulkRefresh(cooldownCutoff) {
         bulkRefreshStartedAt: refreshStartedAt ?? null,
         isRunning:
           !!refreshStartedAt &&
-          moment(refreshStartedAt).isAfter(moment().subtract(BULK_REFRESH_LOCK_TIMEOUT_MINUTES, 'minutes')),
+          moment(refreshStartedAt).isAfter(
+            moment().subtract(BULK_REFRESH_LOCK_TIMEOUT_MINUTES, 'minutes'),
+          ),
       };
     });
   } catch (err) {
@@ -488,7 +516,10 @@ async function getCompetitionsWithWcaDriveLink() {
     );
     return rows.map((row) => fromRow(row, []));
   } catch (error) {
-    logger.error('Failed to fetch competitions with WCA Drive folders from the competitions table:', error);
+    logger.error(
+      'Failed to fetch competitions with WCA Drive folders from the competitions table:',
+      error,
+    );
     throw error;
   }
 }
@@ -510,14 +541,15 @@ async function createPlannerCompetition({
   endDate,
   fullDate,
   competitorLimit,
+  isMajor = false,
 }) {
   await db.pool.query(
     `INSERT INTO competitions (
        id, name, city, state, venue_address, venue_details, venue, venue_url,
        latitude_degrees, longitude_degrees, start_date, end_date, full_date,
-       competitor_limit, is_announced
+       competitor_limit, is_announced, is_major
      )
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, false)`,
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, false, $15)`,
     [
       id,
       name,
@@ -533,6 +565,7 @@ async function createPlannerCompetition({
       endDate,
       fullDate,
       competitorLimit ?? null,
+      isMajor,
     ],
   );
   logger.debug(`Created a new Planner competition row (id ${id}).`);
@@ -569,12 +602,13 @@ async function linkPlannerCompetitionToWca(id, comp) {
   const row = toRow(id, comp);
   const columnsToUpdate = COLUMNS.filter(
     (column) =>
-      column !== 'id' && column !== 'wca_drive_link' && column !== 'wca_drive_folder_type',
+      column !== 'id' &&
+      column !== 'wca_drive_link' &&
+      column !== 'wca_drive_folder_type' &&
+      column !== 'is_major',
   );
   const rowByColumn = Object.fromEntries(COLUMNS.map((column, index) => [column, row[index]]));
-  const updateSet = columnsToUpdate
-    .map((column, index) => `${column} = $${index + 1}`)
-    .join(', ');
+  const updateSet = columnsToUpdate.map((column, index) => `${column} = $${index + 1}`).join(', ');
   const params = [...columnsToUpdate.map((column) => rowByColumn[column]), id];
 
   try {
@@ -612,7 +646,9 @@ async function setWcaDriveLink(id, folderLink, folderType = null) {
       ),
     );
     if (rows.length) {
-      logger.debug(`Updated the WCA Drive folder link for competition ${id} in the competitions table.`);
+      logger.debug(
+        `Updated the WCA Drive folder link for competition ${id} in the competitions table.`,
+      );
     }
     return rows.length > 0;
   } catch (error) {
@@ -700,11 +736,13 @@ async function updateMultiCityLocationFields(id, location) {
     }
     return rows[0] ? fromRow(rows[0], []) : null;
   } catch (error) {
-    logger.error(`Failed to update Planner location fields for multi-city competition (id ${id}):`, error);
+    logger.error(
+      `Failed to update Planner location fields for multi-city competition (id ${id}):`,
+      error,
+    );
     throw error;
   }
 }
-
 
 // Deletes a Planner-created competition row and its join-table rows - only
 // ever called for a still-Potential/Planning competition.
@@ -712,9 +750,7 @@ async function deletePlannerCompetition(id) {
   await db.withRetry(async (client) => {
     await client.query('DELETE FROM competition_delegates WHERE competition_id = $1', [id]);
     await client.query('DELETE FROM competition_organizers WHERE competition_id = $1', [id]);
-    await client.query('DELETE FROM competition_equipment_holders WHERE competition_id = $1', [
-      id,
-    ]);
+    await client.query('DELETE FROM competition_equipment_holders WHERE competition_id = $1', [id]);
     await client.query('DELETE FROM competition_events WHERE competition_id = $1', [id]);
     await client.query('DELETE FROM competitions WHERE id = $1', [id]);
   });
@@ -727,6 +763,7 @@ module.exports = {
   markAnnounced,
   getAnnouncedUpcomingCompetitions,
   getAllUpcomingCompetitionsForPlanner,
+  getTrackedMajorWcaIds,
   updateMultiCityCompetitionRowsByWcaId,
   getCompetitionsPendingDiscordAnnouncement,
   getLastBulkRefreshAt,

@@ -7,6 +7,7 @@ import {
   effect,
   signal,
   computed,
+  untracked,
   OnInit,
 } from '@angular/core';
 import {
@@ -21,6 +22,8 @@ import { MatInput } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelect, MatOption } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 import { CompetitionPlannerApiService } from 'src/app/services/southeastcubing-api/competition-planner-api.service';
 import { PeopleApiService } from 'src/app/services/southeastcubing-api/people-api.service';
@@ -33,6 +36,7 @@ import { Moment } from 'moment';
 import {
   PlannerCompetition,
   PlannerCompetitionSaveRequest,
+  PlannerMajorCompetitionSaveRequest,
   PlannerPerson,
 } from 'src/app/models/PlannerCompetition';
 import { Delegate } from 'src/app/models/Delegate';
@@ -77,6 +81,8 @@ const minStartDateValidator: ValidatorFn = (control) => {
     MatSelect,
     MatOption,
     MatDatepickerModule,
+    MatSlideToggleModule,
+    MatTooltipModule,
     AvatarComponent,
     PersonSearchComponent,
     EventListComponent,
@@ -91,6 +97,8 @@ export class AddEditCompetitionSheetComponent implements OnInit {
 
   // null = create mode (a brand-new Potential competition).
   competition = input<PlannerCompetition | null>(null);
+  canCreateMajor = input(false);
+  majorCreate = signal(false);
   closed = output<void>();
   saved = output<void>();
 
@@ -122,6 +130,8 @@ export class AddEditCompetitionSheetComponent implements OnInit {
   // always Potential - only an existing competition can already be linked.
   isLinked = computed(() => (this.competition()?.status ?? 'potential') !== 'potential');
   isMultiCity = computed(() => this.competition()?.is_multiple_cities_competition ?? false);
+  isMajor = computed(() => this.majorCreate() || (this.competition()?.is_major ?? false));
+  private defaultCreatorPeopleId: string | null = null;
 
   form = new FormGroup({
     name: new FormControl('', Validators.required),
@@ -149,12 +159,12 @@ export class AddEditCompetitionSheetComponent implements OnInit {
     // the sheet is switched into create mode.
     effect(() => {
       const comp = this.competition();
-      // Creating a new entry auto-populates the Delegates list with the
-      // creating Delegate and makes them the lead - editing an existing
-      // competition always starts from its own stored Delegates/lead.
+      const isMajor = untracked(() => this.isMajor());
+      // Regular competition creation defaults the creator to Delegate and lead;
+      // majors and edits start from their stored Delegate assignments.
       const user = this.authService.currentUser();
       const defaultDelegates: PlannerPerson[] =
-        !comp && user?.peopleId
+        !comp && !isMajor && user?.peopleId
           ? [
               {
                 peopleId: user.peopleId,
@@ -168,6 +178,7 @@ export class AddEditCompetitionSheetComponent implements OnInit {
               },
             ]
           : [];
+      this.defaultCreatorPeopleId = defaultDelegates[0]?.peopleId ?? null;
 
       this.form.reset({
         name: comp?.name ?? '',
@@ -243,6 +254,11 @@ export class AddEditCompetitionSheetComponent implements OnInit {
         locationControls.forEach((control) => control.enable());
       }
     });
+
+    effect(() => {
+      this.form.controls.leadPeopleId.setValidators(this.isMajor() ? null : Validators.required);
+      this.form.controls.leadPeopleId.updateValueAndValidity({ emitEvent: false });
+    });
   }
 
   ngOnInit(): void {
@@ -253,6 +269,25 @@ export class AddEditCompetitionSheetComponent implements OnInit {
 
   toggleVenueFields(): void {
     this.showVenueFields.update((shown) => !shown);
+  }
+
+  setMajorCreate(enabled: boolean): void {
+    if (this.majorCreate() === enabled) return;
+    this.majorCreate.set(enabled);
+
+    if (enabled) {
+      const creatorPeopleId = this.defaultCreatorPeopleId;
+      if (creatorPeopleId) {
+        this.delegates.update((current) =>
+          current.filter((delegate) => delegate.peopleId !== creatorPeopleId),
+        );
+        if (this.form.controls.leadPeopleId.value === creatorPeopleId) {
+          this.form.controls.leadPeopleId.setValue(null);
+        }
+        this.defaultCreatorPeopleId = null;
+      }
+    }
+    this.signalsDirty = true;
   }
 
   // Fires on a committed start date pick (calendar selection or blur),
@@ -301,6 +336,7 @@ export class AddEditCompetitionSheetComponent implements OnInit {
   // was the lead Delegate.
   removeDelegate(peopleId: string) {
     this.delegates.update((current) => current.filter((d) => d.peopleId !== peopleId));
+    if (this.defaultCreatorPeopleId === peopleId) this.defaultCreatorPeopleId = null;
     this.signalsDirty = true;
     if (this.form.controls.leadPeopleId.value === peopleId) {
       this.form.controls.leadPeopleId.setValue(null);
@@ -333,19 +369,17 @@ export class AddEditCompetitionSheetComponent implements OnInit {
   }
 
   save() {
-    if (this.form.invalid || !this.delegates().length) {
+    if (this.form.invalid || (!this.isMajor() && !this.delegates().length)) {
       this.form.markAllAsTouched();
       return;
     }
 
     const value = this.form.getRawValue();
-    const leadPeopleId = value.leadPeopleId ?? '';
     const equipmentPeopleIds = equipmentValuesToPeopleIds(this.equipmentValues());
 
-    const body: PlannerCompetitionSaveRequest = {
+    const sharedBody = {
       name: value.name ?? '',
       city: value.city ?? '',
-      state: value.state ?? '',
       venueAddress: value.venueAddress || null,
       venueDetails: value.venueDetails || null,
       venue: value.venue || null,
@@ -355,30 +389,44 @@ export class AddEditCompetitionSheetComponent implements OnInit {
       startDate: value.startDate?.format('YYYY-MM-DD') ?? '',
       endDate: value.endDate?.format('YYYY-MM-DD') ?? '',
       competitorLimit: value.competitorLimit,
-      leadPeopleId,
+      leadPeopleId: value.leadPeopleId,
       delegatePeopleIds: this.delegates().map((d) => d.peopleId),
       organizerPeopleIds: this.organizers().map((o) => o.peopleId),
       equipmentPeopleIds,
       eventIds: this.eventIds(),
     };
+    const regularBody: PlannerCompetitionSaveRequest = {
+      ...sharedBody,
+      state: value.state ?? '',
+      leadPeopleId: value.leadPeopleId ?? '',
+    };
+    const majorBody: PlannerMajorCompetitionSaveRequest = {
+      ...sharedBody,
+      stateOrCountry: value.state ?? '',
+    };
 
     const existing = this.competition();
-    if (existing) {
+    if (existing && !this.isMajor()) {
       const wcaDriveLink = value.wcaDriveLink?.trim() ?? '';
       if (wcaDriveLink !== (existing.wca_drive_link ?? '')) {
-        body.wcaDriveLink = wcaDriveLink || null;
+        regularBody.wcaDriveLink = wcaDriveLink || null;
       }
-    } else {
-      body.createWcaDriveFolder = value.createWcaDriveFolder;
+    } else if (!existing && !this.isMajor()) {
+      regularBody.createWcaDriveFolder = value.createWcaDriveFolder;
       if (!value.createWcaDriveFolder && value.wcaDriveLink?.trim()) {
-        body.wcaDriveLink = value.wcaDriveLink.trim();
+        regularBody.wcaDriveLink = value.wcaDriveLink.trim();
       }
     }
 
     this.saving = true;
     const request = existing
-      ? this.competitionPlannerApi.updateCompetition(existing.id, body)
-      : this.competitionPlannerApi.createCompetition(body);
+      ? this.competitionPlannerApi.updateCompetition(
+          existing.id,
+          this.isMajor() ? majorBody : regularBody,
+        )
+      : this.isMajor()
+        ? this.competitionPlannerApi.createMajorCompetition(majorBody)
+        : this.competitionPlannerApi.createCompetition(regularBody);
 
     request.subscribe({
       next: () => {

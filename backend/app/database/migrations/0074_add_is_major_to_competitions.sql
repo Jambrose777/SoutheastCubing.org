@@ -1,0 +1,1 @@
+ALTER TABLE competitions ADD COLUMN is_major BOOLEAN;

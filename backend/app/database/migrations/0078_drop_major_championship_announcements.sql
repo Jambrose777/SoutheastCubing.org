@@ -1,0 +1,1 @@
+DROP TABLE major_championship_announcements;

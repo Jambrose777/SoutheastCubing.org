@@ -69,7 +69,8 @@ CREATE TABLE competitions (
   waiting_list_count_updated_at TIMESTAMP WITH TIME ZONE,
   wca_drive_link TEXT,
   wca_drive_folder_type TEXT,
-  is_multiple_cities_competition BOOLEAN DEFAULT false
+  is_multiple_cities_competition BOOLEAN DEFAULT false,
+  is_major BOOLEAN DEFAULT false
 );
 
 CREATE TABLE competitions_meta (
@@ -113,24 +114,6 @@ CREATE TABLE delegates (
   updated_by TEXT REFERENCES users (id),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
-);
-
-CREATE TABLE major_championship_announcements (
-  id TEXT NOT NULL PRIMARY KEY,
-  name TEXT,
-  city TEXT,
-  start_date TEXT,
-  end_date TEXT,
-  full_date TEXT,
-  competitor_limit INTEGER,
-  registration_open TEXT,
-  announced_on_discord_at TIMESTAMP WITH TIME ZONE
-);
-
-CREATE TABLE major_championship_events (
-  major_championship_id TEXT NOT NULL REFERENCES major_championship_announcements (id),
-  event_id TEXT NOT NULL,
-  PRIMARY KEY (major_championship_id, event_id)
 );
 
 CREATE TABLE people (

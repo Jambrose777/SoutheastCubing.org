@@ -6,7 +6,11 @@ const photosController = require('../controllers/photos.controller.js');
 const peopleController = require('../controllers/people.controller.js');
 const delegatesController = require('../controllers/delegates.controller.js');
 const competitionsController = require('../controllers/competitions.controller.js');
-const { requireAnyRole, requireAdmin, requireCompetitionEditAccess } = require('../middleware/roles.middleware.js');
+const {
+  requireAnyRole,
+  requireAdmin,
+  requireCompetitionEditAccess,
+} = require('../middleware/roles.middleware.js');
 const { requireAuth } = require('../middleware/session.middleware.js');
 const { photoUploadMiddleware } = require('../middleware/photoUpload.middleware.js');
 const { asyncRoute } = require('../helpers/asyncRoute.helper.js');
@@ -724,6 +728,28 @@ router.post(
   '/dashboard/competition-planner/competitions',
   requireDelegateOrAdminOrBoard,
   asyncRoute(competitionsController.createPlannerCompetition),
+);
+
+/**
+ * @openapi
+ * /dashboard/competition-planner/competitions/major:
+ *   post:
+ *     summary: Creates a manual major competition.
+ *     tags: [Competitions]
+ *     responses:
+ *       201:
+ *         description: The newly-created major competition.
+ *       400:
+ *         description: Missing or invalid fields.
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not Admin/Board/Regional Delegate.
+ */
+router.post(
+  '/dashboard/competition-planner/competitions/major',
+  requireRegionalDelegateOrAdminOrBoard,
+  asyncRoute(competitionsController.createPlannerMajorCompetition),
 );
 
 /**

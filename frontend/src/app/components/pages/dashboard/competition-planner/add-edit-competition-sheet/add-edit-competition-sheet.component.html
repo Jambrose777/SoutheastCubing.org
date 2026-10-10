@@ -3,7 +3,7 @@
   <button type="button" class="back-btn" (click)="close()" aria-label="Back">
     <i class="fa-solid fa-arrow-left"></i>
   </button>
-  <h2>{{ isCreateMode ? 'Add Competition' : 'Edit Competition' }}</h2>
+  <h2>{{ isCreateMode ? 'Add' : 'Edit' }} {{ isMajor() ? 'Championship' : 'Competition' }}</h2>
 </div>
 
 <form [formGroup]="form" class="sheet-body">
@@ -66,18 +66,45 @@
         }
       </mat-form-field>
 
-      <mat-form-field>
-        <mat-label>State</mat-label>
-        <mat-select formControlName="state">
-          @for (option of stateOptions; track option) {
-            <mat-option [value]="option">{{ option }}</mat-option>
+      @if (isMajor()) {
+        <mat-form-field>
+          <mat-label>State / Country</mat-label>
+          <input matInput formControlName="state" />
+          <span
+            matSuffix
+            class="fa-solid fa-circle-info state-country-info"
+            matTooltip="Enter a US state or country name for a non-US major."
+            matTooltipPosition="above"
+            aria-label="Enter a US state or country name for a non-US major."
+          ></span>
+          @if (form.controls.state.hasError('required')) {
+            <mat-error>State is required.</mat-error>
           }
-        </mat-select>
-        @if (form.controls.state.hasError('required')) {
-          <mat-error>State is required.</mat-error>
-        }
-      </mat-form-field>
+        </mat-form-field>
+      } @else {
+        <mat-form-field>
+          <mat-label>State</mat-label>
+          <mat-select formControlName="state">
+            @for (option of stateOptions; track option) {
+              <mat-option [value]="option">{{ option }}</mat-option>
+            }
+          </mat-select>
+          @if (form.controls.state.hasError('required')) {
+            <mat-error>State is required.</mat-error>
+          }
+        </mat-form-field>
+      }
     </div>
+  }
+
+  @if (isCreateMode && canCreateMajor()) {
+    <mat-slide-toggle
+      class="major-mode-toggle"
+      [checked]="majorCreate()"
+      (change)="setMajorCreate($event.checked)"
+    >
+      Major Championship
+    </mat-slide-toggle>
   }
 
   <div class="person-list-section">
@@ -114,7 +141,7 @@
           </div>
         }
       </div>
-      @if (!delegates().length && form.touched) {
+      @if (!isMajor() && !delegates().length && form.touched) {
         <mat-error>At least one Delegate is required.</mat-error>
       }
     }
@@ -195,19 +222,23 @@
   }
 
   <!-- Create or reuse the competition's WCA Drive folder. -->
-  @if (isCreateMode) {
-    <mat-checkbox formControlName="createWcaDriveFolder">Create new WCA Drive Folder</mat-checkbox>
-    @if (!form.controls.createWcaDriveFolder.value) {
+  @if (!isMajor()) {
+    @if (isCreateMode) {
+      <mat-checkbox formControlName="createWcaDriveFolder"
+        >Create new WCA Drive Folder</mat-checkbox
+      >
+      @if (!form.controls.createWcaDriveFolder.value) {
+        <mat-form-field>
+          <mat-label>Existing WCA Drive folder URL</mat-label>
+          <input matInput formControlName="wcaDriveLink" />
+        </mat-form-field>
+      }
+    } @else {
       <mat-form-field>
-        <mat-label>Existing WCA Drive folder URL</mat-label>
+        <mat-label>WCA Drive folder URL</mat-label>
         <input matInput formControlName="wcaDriveLink" />
       </mat-form-field>
     }
-  } @else {
-    <mat-form-field>
-      <mat-label>WCA Drive folder URL</mat-label>
-      <input matInput formControlName="wcaDriveLink" />
-    </mat-form-field>
   }
 
   <!-- Location-specific fields are editable for multi-city rows. -->
