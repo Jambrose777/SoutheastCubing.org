@@ -62,5 +62,7 @@
 </form>
 
 <div class="sheet-footer">
-  <button type="button" class="btn" [disabled]="saving" (click)="save()">Save</button>
+  <button type="button" class="btn" [disabled]="saving" (click)="save()">
+    {{ saving ? 'Saving…' : 'Save' }}
+  </button>
 </div>

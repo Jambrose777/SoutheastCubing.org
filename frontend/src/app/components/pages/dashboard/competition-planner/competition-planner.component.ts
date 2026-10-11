@@ -535,13 +535,16 @@ export class CompetitionPlannerComponent implements OnInit {
     }
 
     this.setDriveFolderCreationPending(row.id, true);
+    const pendingToast = this.toastService.pending('Creating WCA Drive folder…');
     this.competitionPlannerApi.createWcaDriveFolder(row.id).subscribe({
       next: () => {
+        pendingToast.dismiss();
         this.setDriveFolderCreationPending(row.id, false);
         this.toastService.success('WCA Drive folder created.');
         this.loadCompetitions();
       },
       error: (error) => {
+        pendingToast.dismiss();
         this.setDriveFolderCreationPending(row.id, false);
         this.errorBannerService.show(error?.error?.message ?? 'Failed to create WCA Drive folder.');
       },
@@ -620,10 +623,16 @@ export class CompetitionPlannerComponent implements OnInit {
     if (!confirm(`Permanently delete "${row.name}"? This can't be undone.`)) {
       return;
     }
+    const pendingToast = this.toastService.pending('Deleting competition…');
     this.competitionPlannerApi.deleteCompetition(row.id).subscribe({
       next: () => {
+        pendingToast.dismiss();
         this.toastService.success('Competition deleted.');
         this.loadCompetitions();
+      },
+      error: (err) => {
+        pendingToast.dismiss();
+        this.toastService.error(err?.error?.message ?? 'Failed to delete competition.');
       },
     });
   }
@@ -633,8 +642,10 @@ export class CompetitionPlannerComponent implements OnInit {
     if (!this.canRefreshCompetition(row) || this.refreshingCompetitionIds().has(row.id)) return;
     this.refreshingCompetitionIds.update((ids) => new Set(ids).add(row.id));
 
+    const pendingToast = this.toastService.pending('Refreshing WCA data…');
     this.competitionPlannerApi.refreshCompetition(row.id).subscribe({
       next: () => {
+        pendingToast.dismiss();
         this.refreshingCompetitionIds.update((ids) => {
           const updated = new Set(ids);
           updated.delete(row.id);
@@ -644,12 +655,13 @@ export class CompetitionPlannerComponent implements OnInit {
         this.loadCompetitions();
       },
       error: (err) => {
+        pendingToast.dismiss();
         this.refreshingCompetitionIds.update((ids) => {
           const updated = new Set(ids);
           updated.delete(row.id);
           return updated;
         });
-        this.errorBannerService.show(err?.error?.message ?? 'Failed to refresh competition.');
+        this.toastService.error(err?.error?.message ?? 'Failed to refresh competition.');
       },
     });
   }

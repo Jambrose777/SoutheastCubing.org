@@ -238,19 +238,31 @@ export class ManageTeamsComponent implements OnInit {
   }
 
   archiveTeam(team: ManageTeam) {
+    const pendingToast = this.toastService.pending('Archiving team…');
     this.manageTeamsApi.archiveTeam(team.id).subscribe({
       next: () => {
+        pendingToast.dismiss();
         this.toastService.success('Team archived.');
         this.loadTeams();
+      },
+      error: (err) => {
+        pendingToast.dismiss();
+        this.toastService.error(err?.error?.message ?? 'Failed to archive team.');
       },
     });
   }
 
   unarchiveTeam(team: ManageTeam) {
+    const pendingToast = this.toastService.pending('Unarchiving team…');
     this.manageTeamsApi.unarchiveTeam(team.id).subscribe({
       next: () => {
+        pendingToast.dismiss();
         this.toastService.success('Team unarchived.');
         this.loadTeams();
+      },
+      error: (err) => {
+        pendingToast.dismiss();
+        this.toastService.error(err?.error?.message ?? 'Failed to unarchive team.');
       },
     });
   }
@@ -259,19 +271,31 @@ export class ManageTeamsComponent implements OnInit {
     if (!confirm(`Permanently delete "${team.name}" and its full history? This can't be undone.`)) {
       return;
     }
+    const pendingToast = this.toastService.pending('Deleting team…');
     this.manageTeamsApi.hardDeleteTeam(team.id).subscribe({
       next: () => {
+        pendingToast.dismiss();
         this.toastService.success('Team deleted.');
         this.loadTeams();
+      },
+      error: (err) => {
+        pendingToast.dismiss();
+        this.toastService.error(err?.error?.message ?? 'Failed to delete team.');
       },
     });
   }
 
   removeMember(membership: TeamMembership) {
+    const pendingToast = this.toastService.pending('Removing team member…');
     this.manageTeamsApi.removeMember(membership.id).subscribe({
       next: () => {
+        pendingToast.dismiss();
         this.toastService.success('Member removed.');
         this.loadTeams();
+      },
+      error: (err) => {
+        pendingToast.dismiss();
+        this.toastService.error(err?.error?.message ?? 'Failed to remove member.');
       },
     });
   }
@@ -280,28 +304,46 @@ export class ManageTeamsComponent implements OnInit {
     if (!confirm(`Permanently delete ${membership.name}'s membership row? This can't be undone.`)) {
       return;
     }
+    const pendingToast = this.toastService.pending('Deleting membership…');
     this.manageTeamsApi.hardDeleteMembership(membership.id).subscribe({
       next: () => {
+        pendingToast.dismiss();
         this.toastService.success('Membership deleted.');
         this.loadTeams();
+      },
+      error: (err) => {
+        pendingToast.dismiss();
+        this.toastService.error(err?.error?.message ?? 'Failed to delete membership.');
       },
     });
   }
 
   setLeader(team: ManageTeam, membership: TeamMembership) {
+    const pendingToast = this.toastService.pending('Setting team leader…');
     this.manageTeamsApi.setLeader(team.id, membership.people_id).subscribe({
       next: () => {
+        pendingToast.dismiss();
         this.toastService.success(`${membership.name} is now the Leader.`);
         this.loadTeams();
+      },
+      error: (err) => {
+        pendingToast.dismiss();
+        this.toastService.error(err?.error?.message ?? 'Failed to set team leader.');
       },
     });
   }
 
   removeLeader(team: ManageTeam) {
+    const pendingToast = this.toastService.pending('Removing team leader…');
     this.manageTeamsApi.removeLeader(team.id).subscribe({
       next: () => {
+        pendingToast.dismiss();
         this.toastService.success('Leader removed.');
         this.loadTeams();
+      },
+      error: (err) => {
+        pendingToast.dismiss();
+        this.toastService.error(err?.error?.message ?? 'Failed to remove team leader.');
       },
     });
   }

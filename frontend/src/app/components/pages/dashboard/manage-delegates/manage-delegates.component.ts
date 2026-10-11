@@ -255,13 +255,16 @@ export class ManageDelegatesComponent implements OnInit {
       row.type === 'rank'
         ? this.manageDelegatesApi.hardDeleteRankRow(row.id)
         : this.manageDelegatesApi.hardDeleteStateRow(row.id);
+    const pendingToast = this.toastService.pending('Deleting delegate history row…');
     request.subscribe({
       next: () => {
+        pendingToast.dismiss();
         this.toastService.success('History row deleted.');
         this.loadDelegates();
       },
       error: (err) => {
-        this.errorBannerService.show(err?.error?.message ?? 'Failed to delete history row.');
+        pendingToast.dismiss();
+        this.toastService.error(err?.error?.message ?? 'Failed to delete history row.');
       },
     });
   }

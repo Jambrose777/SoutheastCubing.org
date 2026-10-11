@@ -58,6 +58,7 @@ export class EditLeadershipSheetComponent {
   formatLongDateRange = formatLongDateRange;
   checkBadDateInput = checkBadDateInput;
   saving = false;
+  deleting = false;
 
   form = new FormGroup({
     startDate: new FormControl('', Validators.required),
@@ -121,16 +122,19 @@ export class EditLeadershipSheetComponent {
 
   delete() {
     const stint = this.selectedStint();
-    if (!stint) return;
+    if (!stint || this.saving || this.deleting) return;
     if (!confirm(`Permanently delete ${stint.name}'s leadership stint? This can't be undone.`)) {
       return;
     }
+    this.deleting = true;
     this.manageTeamsApi.hardDeleteLeadershipRow(stint.id).subscribe({
       next: () => {
+        this.deleting = false;
         this.toastService.success('Leadership stint deleted.');
         this.deleted.emit();
       },
       error: (err) => {
+        this.deleting = false;
         this.toastService.error(err?.error?.message ?? 'Failed to delete leadership stint.');
       },
     });

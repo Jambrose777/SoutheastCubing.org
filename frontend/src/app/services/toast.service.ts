@@ -11,6 +11,15 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class ToastService {
   private snackBar = inject(MatSnackBar);
 
+  pending(message: string) {
+    return this.snackBar.open(message, '✕', {
+      duration: 0,
+      horizontalPosition: 'end',
+      verticalPosition: 'bottom',
+      panelClass: 'se-toast-pending',
+    });
+  }
+
   success(message: string) {
     // The action button doubles as a manual-dismiss "X" - clicking it
     // dismisses the snack bar immediately, on top of the auto-dismiss timer.

@@ -103,6 +103,6 @@
 
 <div class="sheet-footer">
   <button type="button" class="btn" [disabled]="saving || !selectedPerson()" (click)="save()">
-    Save
+    {{ saving ? 'Saving…' : 'Save' }}
   </button>
 </div>

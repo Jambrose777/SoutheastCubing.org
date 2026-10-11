@@ -130,12 +130,15 @@ export class UnannouncedCompetitionBannersComponent implements OnInit {
   neverLink(competition: PlannerWcaCompetitionOption): void {
     const wcaCompetitionId = competition.wca_competition_id;
     this.setPending(wcaCompetitionId, true);
+    const pendingToast = this.toastService.pending('Dismissing competition banner…');
     this.competitionPlannerApi.dismissUnannouncedCompetition(wcaCompetitionId).subscribe({
       next: () => {
+        pendingToast.dismiss();
         this.closeBanner(wcaCompetitionId, 'remove');
         this.toastService.success('Competition will no longer appear as a banner.');
       },
       error: () => {
+        pendingToast.dismiss();
         this.setPending(wcaCompetitionId, false);
         this.errorBannerService.show('Failed to dismiss the competition banner.');
       },
@@ -159,8 +162,10 @@ export class UnannouncedCompetitionBannersComponent implements OnInit {
     const wcaCompetitionId = competition.wca_competition_id;
     this.setPending(wcaCompetitionId, true);
 
+    const pendingToast = this.toastService.pending('Linking competition in Planner…');
     this.competitionPlannerApi.linkWcaCompetition(request).subscribe({
       next: (createdCompetition) => {
+        pendingToast.dismiss();
         this.competitionLinked.emit(
           openCreatedCompetition ? { createdCompetitionId: createdCompetition.id } : {},
         );
@@ -168,6 +173,7 @@ export class UnannouncedCompetitionBannersComponent implements OnInit {
         this.toastService.success('Competition linked in Planner.');
       },
       error: () => {
+        pendingToast.dismiss();
         this.setPending(wcaCompetitionId, false);
         this.errorBannerService.show('Failed to link the competition.');
       },
