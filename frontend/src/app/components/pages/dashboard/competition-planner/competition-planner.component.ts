@@ -39,6 +39,7 @@ import { UnannouncedCompetitionBannersComponent } from './unannounced-competitio
 import { WcaLinkCompetitionSheetComponent } from './wca-link-competition-sheet/wca-link-competition-sheet.component';
 import { MultiCityCreateSheetComponent } from './multi-city-create-sheet/multi-city-create-sheet.component';
 import { CompetitionRefreshControlComponent } from './competition-refresh-control/competition-refresh-control.component';
+import { UnofficialEventIconComponent } from '../../../shared/unofficial-event-icon/unofficial-event-icon.component';
 import { DASHBOARD_TOOLS } from '../dashboard-tools';
 import {
   getRegistrationStatus,
@@ -163,6 +164,7 @@ function registrationStatusColor(row: PlannerCompetition): Colors {
     WcaLinkCompetitionSheetComponent,
     MultiCityCreateSheetComponent,
     CompetitionRefreshControlComponent,
+    UnofficialEventIconComponent,
   ],
 })
 export class CompetitionPlannerComponent implements OnInit {
@@ -219,6 +221,8 @@ export class CompetitionPlannerComponent implements OnInit {
     viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('organizersCell');
   private eventsCell =
     viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('eventsCell');
+  private unofficialEventsCell =
+    viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('unofficialEventsCell');
   private registrationsCell =
     viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('registrationsCell');
   private statusCell =
@@ -338,6 +342,16 @@ export class CompetitionPlannerComponent implements OnInit {
       visibleByDefault: true,
       searchValue: (row) => row.event_ids.map((event) => EventNames[event]).join(', '),
       cellTemplate: this.eventsCell(),
+    },
+    {
+      key: 'unofficialEvents',
+      label: 'Unofficial',
+      width: '95px',
+      filterable: false,
+      visibleByDefault: false,
+      searchValue: (row) =>
+        (row.unofficial_events ?? []).map((event) => event.event_name).join(', '),
+      cellTemplate: this.unofficialEventsCell(),
     },
     {
       key: 'registrations',

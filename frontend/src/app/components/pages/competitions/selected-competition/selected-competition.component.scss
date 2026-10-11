@@ -29,15 +29,38 @@
       margin: 0 5px;
     }
 
+    .unofficial-event-container se-unofficial-event-icon {
+      font-size: 2em;
+      margin: 0 5px;
+    }
+
     .wca-logo-mobile {
       height: 32px;
       width: auto;
     }
 
+    .event-display-container {
+      width: 100%;
+      margin-bottom: 24px;
+    }
+
     .event-container {
       width: 100%;
-      height: 10%;
       text-align: center;
+    }
+
+    .unofficial-event-container {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .unofficial-event-label {
+      font-size: 0.8em;
+      font-weight: 600;
     }
 
     .detail-container {
@@ -66,8 +89,9 @@
 @media only screen and (max-width: screen-sizes.$small-breakpoint) {
   .selected-item-container {
     .competition-details {
-      .event-container {
+      .event-display-container {
         padding-bottom: 10px;
+        margin-bottom: 10px;
         border-bottom: 2px dashed color-pallet.$se-black;
       }
 

@@ -66,6 +66,9 @@ async function postCompetitionInDiscord(competition, { attempt = 0, pingOverride
   // Neutralize untrusted WCA/Contentful fields
   const name = neutralizeMentions(competition.name);
   const city = neutralizeMentions(competition.city);
+  const unofficialEventNames = (competition.unofficial_events ?? []).map((event) =>
+    neutralizeMentions(event.event_name),
+  );
 
   // Reorder event_ids to match eventIconMap's key order.
   const eventOrder = Object.keys(eventIconMap);
@@ -101,6 +104,9 @@ async function postCompetitionInDiscord(competition, { attempt = 0, pingOverride
         eventIconMap[eventId] ? '<:emojiName:' + eventIconMap[eventId] + '>' : eventId,
       )
       .join(' ') + `\n`;
+  if (unofficialEventNames.length) {
+    discordMessage += `Unofficial: ${unofficialEventNames.join(', ')}\n`;
+  }
   discordMessage += `Competitor Limit: ${competition.competitor_limit}\n\n`;
   discordMessage += `${pingLine}\n\n`;
   discordMessage += `Registrations opens ${moment(competition.registration_open).tz('America/New_York').format('dddd, MMMM Do [at] h:mm a')} Eastern / ${moment(competition.registration_open).tz('America/Chicago').format('h:mm a')} Central\n\n`;

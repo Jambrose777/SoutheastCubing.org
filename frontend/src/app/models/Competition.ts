@@ -1,5 +1,10 @@
 import { RegistrationStatus } from '../shared/types';
 
+export interface CompetitionUnofficialEvent {
+  event_name: string;
+  icon: string;
+}
+
 export interface Competition {
   url: string;
   id: string;
@@ -18,6 +23,7 @@ export interface Competition {
   end_date: string;
   competitor_limit: number;
   event_ids: string[];
+  unofficial_events?: CompetitionUnofficialEvent[];
   venue: string;
   venue_url?: string;
   full_date?: string;

@@ -7,13 +7,21 @@ import { environment } from 'src/environments/environment';
 import { NgClass, NgOptimizedImage, PercentPipe } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { GoogleMapComponent } from '../../../shared/google-map/google-map.component';
+import { UnofficialEventIconComponent } from '../../../shared/unofficial-event-icon/unofficial-event-icon.component';
 
 @Component({
   selector: 'se-selected-competition',
   templateUrl: './selected-competition.component.html',
   styleUrls: ['./selected-competition.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgClass, PercentPipe, NgOptimizedImage, MatTooltipModule, GoogleMapComponent],
+  imports: [
+    NgClass,
+    PercentPipe,
+    NgOptimizedImage,
+    MatTooltipModule,
+    GoogleMapComponent,
+    UnofficialEventIconComponent,
+  ],
 })
 export class SelectedCompetitionComponent {
   private screenSizeService = inject(ScreenSizeService);

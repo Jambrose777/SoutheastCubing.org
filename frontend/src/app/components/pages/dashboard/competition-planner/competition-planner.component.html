@@ -166,6 +166,13 @@
           }
         </div>
       </ng-template>
+      <ng-template #unofficialEventsCell let-row>
+        <div class="unofficial-events-list">
+          @for (event of row.unofficial_events ?? []; track $index) {
+            <se-unofficial-event-icon [icon]="event.icon" [label]="event.event_name" />
+          }
+        </div>
+      </ng-template>
       <ng-template #registrationsCell let-row>
         {{ registrationsText(row) }}
         @if (showWaitingList(row)) {

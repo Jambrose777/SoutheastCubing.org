@@ -14,6 +14,7 @@ const competitionEventsDb = require('../database/competitionEvents.database.js')
 const competitionDelegatesDb = require('../database/competitionDelegates.database.js');
 const competitionOrganizersDb = require('../database/competitionOrganizers.database.js');
 const competitionEquipmentHoldersDb = require('../database/competitionEquipmentHolders.database.js');
+const competitionUnofficialEventsDb = require('../database/competitionUnofficialEvents.database.js');
 const peopleDb = require('../database/people.database.js');
 const delegatesDb = require('../database/delegates.database.js');
 const discordPingPatternsDb = require('../database/discordPingPatterns.database.js');
@@ -49,14 +50,17 @@ function getAnnouncedUpcomingCompetitionsRevision() {
   return `${competitionsCacheInstanceId}-${competitionsCacheRevision}`;
 }
 
-// Merges each comp's event ids with its data.
-async function withEventIds(comps) {
-  const eventIdsByCompetition = await competitionEventsDb.getEventIdsByCompetition(
-    comps.map((comp) => comp.id),
-  );
+// Merges official ids and saved unofficial events into each competition.
+async function withCompetitionEvents(comps) {
+  const competitionIds = comps.map((comp) => comp.id);
+  const [eventIdsByCompetition, unofficialEventsByCompetition] = await Promise.all([
+    competitionEventsDb.getEventIdsByCompetition(competitionIds),
+    competitionUnofficialEventsDb.getUnofficialEventsByCompetition(competitionIds),
+  ]);
   return comps.map((comp) => ({
     ...comp,
     event_ids: eventIdsByCompetition.get(comp.id) ?? [],
+    unofficial_events: unofficialEventsByCompetition.get(comp.id) ?? [],
   }));
 }
 
@@ -88,7 +92,7 @@ async function getAnnouncedUpcomingCompetitions() {
       !competition.is_multiple_cities_competition || hasCompletePublicMultiCityData(competition),
   );
 
-  competitionsCache = await withEventIds(publicCompetitions);
+  competitionsCache = await withCompetitionEvents(publicCompetitions);
   logger.debug(
     `Fetched ${competitionsCache.length} upcoming competition(s) from the competitions table.`,
   );
@@ -104,7 +108,7 @@ function derivePlannerStatus(comp) {
 
 // Competition Planner's full (every status) upcoming list - never cached.
 async function getAllUpcomingCompetitionsForPlanner() {
-  const comps = await withEventIds(await competitionsDb.getAllUpcomingCompetitionsForPlanner());
+  const comps = await withCompetitionEvents(await competitionsDb.getAllUpcomingCompetitionsForPlanner());
   const competitionIds = comps.map((comp) => comp.id);
 
   const delegateRowsByCompetition = groupBy(
@@ -182,6 +186,22 @@ function assertValidEventIds(eventIds) {
   const invalid = eventIds.filter((eventId) => !VALID_EVENT_IDS.includes(eventId));
   if (invalid.length) {
     throw httpError(400, `Invalid event id(s): ${invalid.join(', ')}`);
+  }
+}
+
+// Validates the saved name and upstream icon class for each unofficial event.
+function assertValidUnofficialEvents(events) {
+  if (
+    !Array.isArray(events) ||
+    events.some(
+      (event) =>
+        !event ||
+        typeof event.eventName !== 'string' ||
+        typeof event.icon !== 'string' ||
+        !event.icon.trim(),
+    )
+  ) {
+    throw httpError(400, 'Unofficial events must include a name and icon class.');
   }
 }
 
@@ -700,6 +720,7 @@ async function createCompetition(input) {
   const organizerPeopleIds = input.organizerPeopleIds ?? [];
   const equipmentPeopleIds = input.equipmentPeopleIds ?? [];
   const eventIds = input.eventIds ?? [];
+  const unofficialEvents = input.unofficialEvents ?? [];
   if (!delegatePeopleIds.includes(leadPeopleId)) {
     throw httpError(400, "Lead Delegate must already be one of this competition's Delegates.");
   }
@@ -707,6 +728,7 @@ async function createCompetition(input) {
   await assertPeopleExist(organizerPeopleIds, 'Organizers');
   await assertEquipmentHoldersAreDelegates(equipmentPeopleIds);
   assertValidEventIds(eventIds);
+  assertValidUnofficialEvents(unofficialEvents);
 
   const id = crypto.randomUUID();
   await competitionsDb.createPlannerCompetition({
@@ -736,6 +758,7 @@ async function createCompetition(input) {
   await competitionOrganizersDb.replaceOrganizersForCompetition(id, organizerPeopleIds);
   await competitionEquipmentHoldersDb.replaceEquipmentHoldersForCompetition(id, equipmentPeopleIds);
   await competitionEventsDb.replaceEventIds([{ id, event_ids: eventIds }]);
+  await competitionUnofficialEventsDb.replaceUnofficialEventsForCompetition(id, unofficialEvents);
 
   if (input.createWcaDriveFolder) {
     await createWcaDriveFolderForCompetition(id);
@@ -781,13 +804,18 @@ async function createMajorCompetition(input) {
   const organizerPeopleIds = input.organizerPeopleIds ?? [];
   const equipmentPeopleIds = input.equipmentPeopleIds ?? [];
   const eventIds = input.eventIds ?? [];
+  const unofficialEvents = input.unofficialEvents ?? [];
   if (
     !Array.isArray(delegatePeopleIds) ||
     !Array.isArray(organizerPeopleIds) ||
     !Array.isArray(equipmentPeopleIds) ||
-    !Array.isArray(eventIds)
+    !Array.isArray(eventIds) ||
+    !Array.isArray(unofficialEvents)
   ) {
-    throw httpError(400, 'Delegates, organizers, equipment holders, and events must be arrays.');
+    throw httpError(
+      400,
+      'Delegates, organizers, equipment holders, events, and unofficial events must be arrays.',
+    );
   }
 
   const leadPeopleId = input.leadPeopleId ?? null;
@@ -798,6 +826,7 @@ async function createMajorCompetition(input) {
   await assertPeopleExist(organizerPeopleIds, 'Organizers');
   await assertEquipmentHoldersAreDelegates(equipmentPeopleIds);
   assertValidEventIds(eventIds);
+  assertValidUnofficialEvents(unofficialEvents);
 
   // Create a new competition.
   const id = crypto.randomUUID();
@@ -829,6 +858,7 @@ async function createMajorCompetition(input) {
   await competitionOrganizersDb.replaceOrganizersForCompetition(id, organizerPeopleIds);
   await competitionEquipmentHoldersDb.replaceEquipmentHoldersForCompetition(id, equipmentPeopleIds);
   await competitionEventsDb.replaceEventIds([{ id, event_ids: eventIds }]);
+  await competitionUnofficialEventsDb.replaceUnofficialEventsForCompetition(id, unofficialEvents);
 
   logger.debug(`Created manual major Planner competition "${name}".`);
   return id;
@@ -841,6 +871,8 @@ async function updateCompetition(id, input) {
   const comp = await competitionsDb.getCompetitionById(id);
   if (!comp) throw httpError(404, 'Competition not found.');
   const status = derivePlannerStatus(comp);
+  const unofficialEvents = input.unofficialEvents ?? [];
+  assertValidUnofficialEvents(unofficialEvents);
   const hasDriveLinkUpdate = Object.hasOwn(input, 'wcaDriveLink'); // true even if null.
   if (hasDriveLinkUpdate && input.wcaDriveLink) {
     try {
@@ -959,6 +991,9 @@ async function updateCompetition(id, input) {
 
   // Equipment stays editable regardless of status - Planner-owned, never synced.
   await competitionEquipmentHoldersDb.replaceEquipmentHoldersForCompetition(id, equipmentPeopleIds);
+  const unofficialEventsChanged =
+    await competitionUnofficialEventsDb.replaceUnofficialEventsForCompetition(id, unofficialEvents);
+  if (status === 'announced' && unofficialEventsChanged) invalidateCache();
 
   if (hasDriveLinkUpdate) {
     await setCompetitionWcaDriveLink(id, input.wcaDriveLink);
@@ -1949,7 +1984,7 @@ async function refreshCompetitionsFromWCA(actor) {
     const updatedMultiCityIdSet = new Set(multiCityRefreshResult.updatedWcaCompetitionIds);
     // A regular refresh scans all pending public rows, including multi-city rows; otherwise,
     // limit announcements to multi-city WCA ids refreshed in this run.
-    const competitionsPendingDiscordAnnouncement = await withEventIds(
+    const competitionsPendingDiscordAnnouncement = await withCompetitionEvents(
       (await competitionsDb.getCompetitionsPendingDiscordAnnouncement()).filter((competition) =>
         comps.length
           ? !managedOnlyCompetitionIds.has(String(competition.wca_competition_id))

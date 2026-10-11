@@ -135,6 +135,14 @@
     } @else {
       <p>--</p>
     }
+    @if (competition().unofficial_events?.length) {
+      <h4 class="unofficial-events-heading">Unofficial Events</h4>
+      <div class="events-list">
+        @for (event of competition().unofficial_events ?? []; track $index) {
+          <se-unofficial-event-icon [icon]="event.icon" [label]="event.event_name" />
+        }
+      </div>
+    }
   </section>
 
   <!-- Venue -->

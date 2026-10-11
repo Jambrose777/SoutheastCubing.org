@@ -20,10 +20,11 @@ import {
 import { MatFormField, MatLabel, MatError, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSelect, MatOption } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTooltip } from '@angular/material/tooltip';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 import { CompetitionPlannerApiService } from 'src/app/services/southeastcubing-api/competition-planner-api.service';
 import { PeopleApiService } from 'src/app/services/southeastcubing-api/people-api.service';
@@ -47,9 +48,15 @@ import {
   OTHER_EQUIPMENT_VALUE,
   toPlannerPerson,
 } from '../competition-planner.util';
+import {
+  getUnofficialIconOptions,
+  sortUnofficialEventDrafts,
+  UnofficialEventDraft,
+} from '../../../../shared/unofficial-event-icon/unofficial-events.util';
 import { AvatarComponent } from '../../../../shared/avatar/avatar.component';
 import { PersonSearchComponent } from '../../../../shared/person-search/person-search.component';
 import { EventListComponent } from '../../../../shared/event-list/event-list.component';
+import { UnofficialEventIconComponent } from '../../../../shared/unofficial-event-icon/unofficial-event-icon.component';
 
 // WCA competitions need at least this many days' notice.
 const MIN_START_DATE_LEAD_DAYS = 28;
@@ -78,14 +85,16 @@ const minStartDateValidator: ValidatorFn = (control) => {
     MatSuffix,
     MatInput,
     MatCheckboxModule,
+    MatAutocompleteModule,
     MatSelect,
     MatOption,
     MatDatepickerModule,
     MatSlideToggleModule,
-    MatTooltipModule,
+    MatTooltip,
     AvatarComponent,
     PersonSearchComponent,
     EventListComponent,
+    UnofficialEventIconComponent,
   ],
 })
 export class AddEditCompetitionSheetComponent implements OnInit {
@@ -125,12 +134,25 @@ export class AddEditCompetitionSheetComponent implements OnInit {
   // Equipment holder ids, drawn from this sheet's own Delegates list.
   equipmentValues = signal<string[]>([]);
   eventIds = signal<string[]>([]);
+  unofficialEvents = signal<UnofficialEventDraft[]>([]);
+  unofficialEventSearchControl = new FormControl('', { nonNullable: true });
+  unofficialEventSearchQuery = signal('');
+  readonly unofficialIconOptions = getUnofficialIconOptions();
+  filteredUnofficialIconOptions = computed(() => {
+    const query = this.unofficialEventSearchQuery().trim().toLowerCase();
+    return this.unofficialIconOptions.filter(
+      (option) => !query || `${option.name} ${option.icon}`.toLowerCase().includes(query),
+    );
+  });
+  readonly displayUnofficialIcon = (icon: string | null): string =>
+    this.unofficialIconOptions.find((option) => option.icon === icon)?.name ?? icon ?? '';
 
   // Status is derived once, since create mode (competition() === null) is
   // always Potential - only an existing competition can already be linked.
   isLinked = computed(() => (this.competition()?.status ?? 'potential') !== 'potential');
   isMultiCity = computed(() => this.competition()?.is_multiple_cities_competition ?? false);
   isMajor = computed(() => this.majorCreate() || (this.competition()?.is_major ?? false));
+  private nextUnofficialEventDraftId = 0;
   private defaultCreatorPeopleId: string | null = null;
 
   form = new FormGroup({
@@ -204,6 +226,17 @@ export class AddEditCompetitionSheetComponent implements OnInit {
         equipmentPeopleIdsToValues((comp?.equipmentHolders ?? []).map((holder) => holder.peopleId)),
       );
       this.eventIds.set(comp?.event_ids ?? []);
+      this.unofficialEvents.set(
+        sortUnofficialEventDrafts(
+          (comp?.unofficial_events ?? []).map(({ event_name, icon }) => ({
+            id: this.nextUnofficialEventDraftId++,
+            eventName: event_name,
+            icon,
+          })),
+        ),
+      );
+      this.unofficialEventSearchControl.setValue('');
+      this.unofficialEventSearchQuery.set('');
       this.signalsDirty = false;
 
       const wcaSyncedControls = [
@@ -363,6 +396,45 @@ export class AddEditCompetitionSheetComponent implements OnInit {
     this.signalsDirty = true;
   }
 
+  // Adds one icon selection without deduplicating repeated choices.
+  addUnofficialEvent(icon: string): void {
+    const option = this.unofficialIconOptions.find((candidate) => candidate.icon === icon);
+    if (!option) return;
+    this.unofficialEvents.update((current) =>
+      sortUnofficialEventDrafts([
+        ...current,
+        { id: this.nextUnofficialEventDraftId++, eventName: option.name, icon },
+      ]),
+    );
+    this.signalsDirty = true;
+    this.unofficialEventSearchControl.setValue('');
+    this.unofficialEventSearchQuery.set('');
+  }
+
+  // Updates one unofficial event's editable saved name.
+  setUnofficialEventName(id: number, eventName: string): void {
+    this.unofficialEvents.update((current) =>
+      current.map((event) => (event.id === id ? { ...event, eventName } : event)),
+    );
+    this.signalsDirty = true;
+  }
+
+  // Reorders edited rows only after the name input loses focus.
+  sortUnofficialEvents(): void {
+    this.unofficialEvents.update((current) => sortUnofficialEventDrafts(current));
+  }
+
+  // Removes only the selected row, preserving other uses of the same icon.
+  removeUnofficialEvent(id: number): void {
+    this.unofficialEvents.update((current) => current.filter((event) => event.id !== id));
+    this.signalsDirty = true;
+  }
+
+  // Keeps autocomplete filtering in sync with the search input.
+  onUnofficialEventSearchInput(event: Event): void {
+    this.unofficialEventSearchQuery.set((event.target as HTMLInputElement).value);
+  }
+
   setEquipmentValues(values: string[]) {
     this.equipmentValues.set(values);
     this.signalsDirty = true;
@@ -394,6 +466,7 @@ export class AddEditCompetitionSheetComponent implements OnInit {
       organizerPeopleIds: this.organizers().map((o) => o.peopleId),
       equipmentPeopleIds,
       eventIds: this.eventIds(),
+      unofficialEvents: this.unofficialEvents().map(({ eventName, icon }) => ({ eventName, icon })),
     };
     const regularBody: PlannerCompetitionSaveRequest = {
       ...sharedBody,

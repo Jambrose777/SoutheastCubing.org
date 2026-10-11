@@ -40,6 +40,13 @@ CREATE TABLE competition_patterns_for_discord_pings (
   try_direct_lookup BOOLEAN NOT NULL DEFAULT false
 );
 
+CREATE TABLE competition_unofficial_events (
+  id TEXT NOT NULL PRIMARY KEY,
+  competition_id TEXT NOT NULL REFERENCES competitions (id),
+  event_name TEXT NOT NULL,
+  icon TEXT NOT NULL
+);
+
 CREATE TABLE competitions (
   id TEXT NOT NULL PRIMARY KEY,
   url TEXT,

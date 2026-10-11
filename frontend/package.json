@@ -22,6 +22,7 @@
     "@angular/platform-browser": "^22.1.5",
     "@angular/platform-browser-dynamic": "^22.1.5",
     "@angular/router": "^22.1.5",
+    "@cubing/icons": "^3.0.5",
     "contentful": "^11.12.9",
     "leaflet": "^1.9.4",
     "marked": "^18.0.11",

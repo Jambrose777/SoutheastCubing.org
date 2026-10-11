@@ -45,15 +45,25 @@
       }
 
       <!-- Competition Event List -->
-      <div class="event-container">
-        <!-- Event List -->
-        @for (event of competition.event_ids; track event) {
-          <span
-            [ngClass]="'cubing-icon event-' + event"
-            [matTooltip]="EventNames[event]"
-            matTooltipPosition="above"
-            [attr.aria-label]="EventNames[event]"
-          ></span>
+      <div class="event-display-container">
+        <div class="event-container">
+          <!-- Event List -->
+          @for (event of competition.event_ids; track event) {
+            <span
+              [ngClass]="'cubing-icon event-' + event"
+              [matTooltip]="EventNames[event]"
+              matTooltipPosition="above"
+              [attr.aria-label]="EventNames[event]"
+            ></span>
+          }
+        </div>
+        @if (competition.unofficial_events?.length) {
+          <div class="unofficial-event-container">
+            <span class="unofficial-event-label">Unofficial:</span>
+            @for (event of competition.unofficial_events; track $index) {
+              <se-unofficial-event-icon [icon]="event.icon" [label]="event.event_name" />
+            }
+          </div>
         }
       </div>
 

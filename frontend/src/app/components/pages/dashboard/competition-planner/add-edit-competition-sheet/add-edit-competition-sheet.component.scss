@@ -71,6 +71,42 @@
   gap: 8px;
 }
 
+.unofficial-events-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.unofficial-event-search,
+.unofficial-event-row mat-form-field {
+  width: 100%;
+}
+
+.unofficial-event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.unofficial-event-row {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: 8px;
+
+  se-unofficial-event-icon {
+    font-size: 1.25rem;
+  }
+
+  mat-form-field {
+    min-width: 0;
+  }
+
+  .btn.small.icon-only {
+    margin: 0;
+  }
+}
+
 .venue-toggle {
   align-self: flex-start;
   display: flex;

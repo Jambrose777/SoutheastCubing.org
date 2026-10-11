@@ -1,0 +1,17 @@
+<span
+  class="icon-content"
+  [matTooltip]="label() ?? ''"
+  [matTooltipDisabled]="!label()"
+  matTooltipPosition="above"
+  [attr.aria-label]="label()"
+  [attr.role]="label() ? 'img' : null"
+  [attr.aria-hidden]="label() ? null : 'true'"
+>
+  @if (customIconAsset(); as asset) {
+    <img class="custom-event-icon" [src]="asset" alt="" aria-hidden="true" />
+  } @else if (icon() === otherIconId) {
+    <i class="fa-solid fa-cube" aria-hidden="true"></i>
+  } @else {
+    <span [attr.class]="'cubing-icon ' + icon()" aria-hidden="true"></span>
+  }
+</span>

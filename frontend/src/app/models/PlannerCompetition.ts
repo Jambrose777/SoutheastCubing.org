@@ -22,6 +22,16 @@ export type PlannerEquipmentHolder = { peopleId: null } | PlannerPerson;
 // 'announced'.
 export type PlannerCompetitionStatus = 'potential' | 'planning' | 'announced';
 
+export interface PlannerUnofficialEvent {
+  event_name: string;
+  icon: string;
+}
+
+export interface PlannerUnofficialEventInput {
+  eventName: string;
+  icon: string;
+}
+
 // One row's worth of data - shape returned by
 // GET /dashboard/competition-planner/competitions.
 export interface PlannerCompetition {
@@ -55,6 +65,7 @@ export interface PlannerCompetition {
   waiting_list_count: number | null;
   waiting_list_count_updated_at: string | null;
   event_ids: string[];
+  unofficial_events?: PlannerUnofficialEvent[];
   delegates: PlannerPerson[];
   organizers: PlannerPerson[];
   equipmentHolders: PlannerEquipmentHolder[];
@@ -108,6 +119,7 @@ export interface PlannerCompetitionSaveRequest {
   organizerPeopleIds?: string[];
   equipmentPeopleIds?: (string | null)[];
   eventIds?: string[];
+  unofficialEvents: PlannerUnofficialEventInput[];
   createWcaDriveFolder?: boolean;
   wcaDriveLink?: string | null;
 }
@@ -131,6 +143,7 @@ export interface PlannerMajorCompetitionSaveRequest {
   organizerPeopleIds?: string[];
   equipmentPeopleIds?: (string | null)[];
   eventIds?: string[];
+  unofficialEvents: PlannerUnofficialEventInput[];
 }
 
 export interface PlannerWcaDriveFolderResponse {

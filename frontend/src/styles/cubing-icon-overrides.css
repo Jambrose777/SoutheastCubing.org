@@ -1,0 +1,8 @@
+/* Map the WCA FTO event ID to the upstream unofficial FTO glyph. */
+.cubing-icon.event-fto:before {
+  content: "\f135";
+}
+
+.cubing-icon:before {
+  display: inline-block;
+}

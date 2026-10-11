@@ -144,6 +144,9 @@ importers:
       '@angular/router':
         specifier: ^22.1.5
         version: 22.1.5(@angular/common@22.1.5(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3))(rxjs@7.8.2))(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3))(@angular/platform-browser@22.1.5(@angular/animations@22.1.5(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3)))(@angular/common@22.1.5(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3))(rxjs@7.8.2))(@angular/core@22.1.5(@angular/compiler@22.1.5)(rxjs@7.8.2)(zone.js@0.16.3)))(rxjs@7.8.2)
+      '@cubing/icons':
+        specifier: ^3.0.5
+        version: 3.0.5
       contentful:
         specifier: ^11.12.9
         version: 11.12.9(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
@@ -1136,6 +1139,9 @@ packages:
   '@contentful/rich-text-types@17.2.7':
     resolution: {integrity: sha512-aIdozk8vk5gsYcallOrwEiL6+GSlMXZorDOmiVELfpbVaXMJPJPlf2CBw3LUzviAqCw0UPQcKHHCwG7SdY7u5w==}
     engines: {node: '>=20.0.0'}
+
+  '@cubing/icons@3.0.5':
+    resolution: {integrity: sha512-LA3BW9vf012HSN1FyeKXuDnOOnMeUXDDaXfAn4V9l06BFeMaHWiQGFF1Zod22r24TG/imQVhl4env1+jpkDzAw==}
 
   '@discoveryjs/json-ext@1.1.0':
     resolution: {integrity: sha512-Xc3VhU02wqZ1HvHRJUwL09HkZSTvidqY5Ya0NXBSYOxAp+Ln9dcJr9fySI+CkONzP3PekQo9WdzCv0PGER/mOA==}
@@ -6886,6 +6892,8 @@ snapshots:
       json-pointer: 0.6.2
 
   '@contentful/rich-text-types@17.2.7': {}
+
+  '@cubing/icons@3.0.5': {}
 
   '@discoveryjs/json-ext@1.1.0': {}
 

@@ -1,0 +1,1 @@
+GRANT SELECT, INSERT, UPDATE, DELETE ON competition_unofficial_events TO app_dev;

@@ -540,7 +540,7 @@ router.put(
  *     tags: [Competitions]
  *     responses:
  *       200:
- *         description: Upcoming competitions, each with its derived status, event ids, delegates, and organizers.
+ *         description: Upcoming competitions, each with its derived status, official event ids, unofficial event names and icons, delegates, and organizers.
  *       401:
  *         description: Not signed in.
  *       403:

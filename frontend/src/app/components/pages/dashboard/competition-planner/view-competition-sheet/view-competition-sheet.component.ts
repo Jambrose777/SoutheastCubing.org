@@ -6,6 +6,7 @@ import { formatLongDateRange } from 'src/app/shared/date.util';
 import { Colors, EventNames, StateColors } from 'src/app/shared/types';
 import { AvatarComponent } from '../../../../shared/avatar/avatar.component';
 import { GoogleMapComponent } from '../../../../shared/google-map/google-map.component';
+import { UnofficialEventIconComponent } from '../../../../shared/unofficial-event-icon/unofficial-event-icon.component';
 import {
   getRegistrationStatus,
   getRegistrationStatusColor,
@@ -18,7 +19,13 @@ import {
   templateUrl: './view-competition-sheet.component.html',
   styleUrls: ['./view-competition-sheet.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AvatarComponent, GoogleMapComponent, NgClass, MatTooltipModule],
+  imports: [
+    AvatarComponent,
+    GoogleMapComponent,
+    NgClass,
+    MatTooltipModule,
+    UnofficialEventIconComponent,
+  ],
 })
 export class ViewCompetitionSheetComponent {
   competition = input.required<PlannerCompetition>();

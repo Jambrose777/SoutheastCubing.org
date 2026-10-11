@@ -210,16 +210,69 @@
   </mat-form-field>
 
   <!-- Event List -->
-  @if (!isLinked()) {
-    <div class="events-section">
-      <h3>Events</h3>
+  <div class="events-section">
+    <h3>Events</h3>
+    @if (!isLinked()) {
       <se-event-list
         [selectedEvents]="eventIds()"
         [emptyMeansAllSelected]="false"
         (selectEventEmitter)="toggleEvent($event)"
       ></se-event-list>
+    }
+
+    <!-- Unofficial Event List. -->
+    <mat-form-field class="unofficial-event-search">
+      <mat-label>Add unofficial event</mat-label>
+      <input
+        matInput
+        [formControl]="unofficialEventSearchControl"
+        [matAutocomplete]="unofficialEventAutocomplete"
+        (input)="onUnofficialEventSearchInput($event)"
+      />
+      <mat-autocomplete
+        #unofficialEventAutocomplete="matAutocomplete"
+        [displayWith]="displayUnofficialIcon"
+        (optionSelected)="addUnofficialEvent($event.option.value)"
+      >
+        @for (option of filteredUnofficialIconOptions(); track option.icon) {
+          <mat-option [value]="option.icon">
+            <se-unofficial-event-icon [icon]="option.icon" aria-hidden="true" />
+            {{ option.name }}
+          </mat-option>
+        } @empty {
+          <mat-option disabled>No matching unofficial icons.</mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+    <div class="unofficial-event-list">
+      @for (event of unofficialEvents(); track event.id) {
+        <div class="unofficial-event-row">
+          <se-unofficial-event-icon
+            [icon]="event.icon"
+            [label]="event.eventName"
+            aria-hidden="true"
+          />
+          <mat-form-field subscriptSizing="dynamic">
+            <input
+              matInput
+              [value]="event.eventName"
+              aria-label="Unofficial event name"
+              (input)="setUnofficialEventName(event.id, $any($event.target).value)"
+              (blur)="sortUnofficialEvents()"
+            />
+          </mat-form-field>
+          <button
+            type="button"
+            class="btn small icon-only"
+            [attr.aria-label]="'Remove ' + event.eventName"
+            (click)="removeUnofficialEvent(event.id)"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      }
     </div>
-  }
+  </div>
 
   <!-- Create or reuse the competition's WCA Drive folder. -->
   @if (!isMajor()) {
