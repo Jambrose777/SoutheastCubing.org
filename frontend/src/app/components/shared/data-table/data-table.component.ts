@@ -6,6 +6,7 @@ import {
   signal,
   computed,
   effect,
+  output,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -59,6 +60,7 @@ interface DataTableSavedState {
   columnOrder: string[];
   columnFilters: Record<string, string[]>;
   actionsColumnVisible: boolean;
+  consumerState?: Record<string, unknown>;
 }
 
 // Generic, reusable data table: virtualized rows plus configurable column
@@ -105,6 +107,10 @@ export class DataTableComponent<T> {
   // table. No persistence at all when left `null`, and the Save button is hidden.
   storageKey = input<string | null>(null);
 
+  // Consumer-owned state saved alongside this table's own preferences.
+  consumerState = input<Record<string, unknown>>({});
+  consumerStateRestored = output<Record<string, unknown>>();
+
   rowHeight = DATA_TABLE_ROW_HEIGHT_PX;
 
   // The header row's own horizontal offset (px) - mirrors the viewport's
@@ -118,6 +124,8 @@ export class DataTableComponent<T> {
 
   // The currently active sort, if any - `null` means "no sort applied".
   sort = signal<DataTableSort | null>(null);
+  sortChange = output<DataTableSort>();
+  tableReset = output<void>();
 
   // Each filterable column's own currently-selected value set, by column
   // key - absent entry means "untouched, nothing excluded yet".
@@ -131,6 +139,7 @@ export class DataTableComponent<T> {
 
   // Every column's current display order (by key).
   columnOrder = signal<string[]>([]);
+  private hasRestoredConsumerState = false;
 
   constructor() {
     // Seeds default column visibility/order from `columns()`, then applies
@@ -146,6 +155,7 @@ export class DataTableComponent<T> {
       if (!saved) {
         this.visibleColumnKeys.set(defaultVisible);
         this.columnOrder.set(defaultOrder);
+        this.hasRestoredConsumerState = true;
         return;
       }
 
@@ -164,6 +174,10 @@ export class DataTableComponent<T> {
       this.columnFilters.set(filters);
       this.actionsColumnVisible.set(saved.actionsColumnVisible);
       if (saved.sort) this.sort.set(saved.sort);
+      if (!this.hasRestoredConsumerState) {
+        this.hasRestoredConsumerState = true;
+        if (saved.consumerState) this.consumerStateRestored.emit(saved.consumerState);
+      }
     });
 
     // Applies `defaultSort` exactly once, the first time it's available.
@@ -201,6 +215,7 @@ export class DataTableComponent<T> {
         [...this.columnFilters()].map(([columnKey, values]) => [columnKey, [...values]]),
       ),
       actionsColumnVisible: this.actionsColumnVisible(),
+      consumerState: this.consumerState(),
     };
     localStorage.setItem(key, JSON.stringify(state));
     this.toastService.success('Table view saved.');
@@ -365,6 +380,7 @@ export class DataTableComponent<T> {
     );
     this.columnOrder.set(cols.map((column) => column.key));
     this.actionsColumnVisible.set(true);
+    this.tableReset.emit();
   }
 
   // `rows()` narrowed by every filterable column's own currently-selected
@@ -428,6 +444,11 @@ export class DataTableComponent<T> {
 
   trackByRow = (_index: number, row: T) => this.trackBy()(row);
 
+  // Hides the overflow trigger when no action applies to the current row.
+  hasVisibleOverflowActions(actions: DataTableActions<T>, row: T): boolean {
+    return (actions.overflow ?? []).some((action) => !action.visible || action.visible(row));
+  }
+
   onSearchInput(event: Event) {
     this.searchTerm.set((event.target as HTMLInputElement).value);
   }
@@ -437,11 +458,14 @@ export class DataTableComponent<T> {
   // asc <-> desc (never back to "no sort")
   toggleSort(columnKey: string) {
     const current = this.sort();
+    let nextSort: DataTableSort;
     if (!current || current.columnKey !== columnKey) {
-      this.sort.set({ columnKey, direction: 'asc' });
+      nextSort = { columnKey, direction: 'asc' };
     } else {
-      this.sort.set({ columnKey, direction: current.direction === 'asc' ? 'desc' : 'asc' });
+      nextSort = { columnKey, direction: current.direction === 'asc' ? 'desc' : 'asc' };
     }
+    this.sort.set(nextSort);
+    this.sortChange.emit(nextSort);
   }
 
   onViewportScroll(event: Event) {

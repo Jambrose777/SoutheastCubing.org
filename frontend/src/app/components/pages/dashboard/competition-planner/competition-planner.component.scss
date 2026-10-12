@@ -29,6 +29,10 @@
   margin-inline-start: 6px;
 }
 
+.planner-generated-cell {
+  color: color-pallet.$se-dark-grey;
+}
+
 .content-toolbar {
   display: flex;
   flex-wrap: wrap;

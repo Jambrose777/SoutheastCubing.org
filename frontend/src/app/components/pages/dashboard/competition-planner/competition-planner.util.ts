@@ -1,5 +1,8 @@
-import { PlannerPerson } from 'src/app/models/PlannerCompetition';
+import { PlannerCompetition, PlannerPerson } from 'src/app/models/PlannerCompetition';
 import { SelectedPerson } from 'src/app/models/Person';
+import { PlannerMajorHoliday } from './competition-planner-holidays.util';
+
+type CompetitionDateRange = Pick<PlannerCompetition, 'start_date' | 'end_date'>;
 
 // Maps a selected person to the Planner's person shape.
 export function toPlannerPerson(person: SelectedPerson): PlannerPerson {
@@ -25,4 +28,42 @@ export function equipmentValuesToPeopleIds(values: string[]): (string | null)[] 
 // Converts stored equipment-holder IDs into values understood by the select.
 export function equipmentPeopleIdsToValues(peopleIds: (string | null)[]): string[] {
   return peopleIds.map((peopleId) => peopleId ?? OTHER_EQUIPMENT_VALUE);
+}
+
+// Returns Saturdays whose Saturday and Sunday dates are both free of competitions.
+// Returns Saturdays free of competitions and, when supplied, major holidays.
+export function getOpenWeekendDates(
+  competitions: CompetitionDateRange[],
+  startDate: string,
+  endDate: string,
+  holidays: Pick<PlannerMajorHoliday, 'date'>[] = [],
+): string[] {
+  if (startDate > endDate) return [];
+
+  const firstDate = new Date(`${startDate}T00:00:00.000Z`);
+  const lastDate = new Date(`${endDate}T00:00:00.000Z`);
+  if (!Number.isFinite(firstDate.getTime()) || !Number.isFinite(lastDate.getTime())) return [];
+
+  const daysUntilSaturday = (6 - firstDate.getUTCDay() + 7) % 7;
+  const saturday = new Date(firstDate);
+  saturday.setUTCDate(saturday.getUTCDate() + daysUntilSaturday);
+
+  const openWeekendDates: string[] = [];
+  while (saturday <= lastDate) {
+    const saturdayDate = saturday.toISOString().slice(0, 10);
+    const sunday = new Date(saturday);
+    sunday.setUTCDate(sunday.getUTCDate() + 1);
+    const sundayDate = sunday.toISOString().slice(0, 10);
+    const hasCompetition = competitions.some(
+      (competition) => competition.start_date <= sundayDate && competition.end_date >= saturdayDate,
+    );
+    const hasHoliday = holidays.some(
+      (holiday) => holiday.date >= saturdayDate && holiday.date <= sundayDate,
+    );
+
+    if (!hasCompetition && !hasHoliday) openWeekendDates.push(saturdayDate);
+    saturday.setUTCDate(saturday.getUTCDate() + 7);
+  }
+
+  return openWeekendDates;
 }

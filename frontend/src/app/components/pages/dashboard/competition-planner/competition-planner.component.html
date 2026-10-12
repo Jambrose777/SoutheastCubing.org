@@ -44,6 +44,18 @@
               Past
             </button>
           </div>
+          @if (view() === 'upcoming') {
+            <mat-slide-toggle
+              [checked]="showMajorHolidays()"
+              (change)="onMajorHolidayToggleChange($event.checked)"
+              >Major holidays</mat-slide-toggle
+            >
+            <mat-slide-toggle
+              [checked]="showOpenWeekends()"
+              (change)="onOpenWeekendsToggleChange($event.checked)"
+              >Open weekends</mat-slide-toggle
+            >
+          }
           <div class="content-toolbar-side content-toolbar-actions">
             <button type="button" class="btn small" (click)="openAddCompetition()">
               <i class="fa-solid fa-plus fa-sm"></i>
@@ -53,17 +65,25 @@
         </div>
 
         <se-data-table
-          [rows]="rows()"
+          [rows]="tableRows()"
           [columns]="columns()"
           [actions]="rowActions()"
           [trackBy]="trackById"
           [defaultSort]="defaultSort()"
+          [consumerState]="plannerConsumerState()"
+          (consumerStateRestored)="restorePlannerConsumerState($event)"
           storageKey="table-prefs:competition-planner"
+          (sortChange)="onPlannerTableSort($event)"
+          (tableReset)="onPlannerTableReset()"
         ></se-data-table>
       }
 
       <ng-template #nameCell let-row>
-        @if (row.wca_competition_id) {
+        @if (row.plannerRowType === 'holiday') {
+          <span class="planner-generated-cell">{{ row.name }}</span>
+        } @else if (row.plannerRowType === 'open-weekend') {
+          {{ '' }}
+        } @else if (row.wca_competition_id) {
           <a
             [href]="environment.links.wcaCompetition + row.wca_competition_id"
             target="_blank"
@@ -82,7 +102,9 @@
         }
       </ng-template>
       <ng-template #driveCell let-row>
-        @if (row.is_major) {
+        @if (row.plannerRowType) {
+          {{ '' }}
+        } @else if (row.is_major) {
           --
         } @else if (row.wca_drive_link) {
           <a
@@ -122,18 +144,30 @@
           --
         }
       </ng-template>
-      <ng-template #dateCell let-row>{{
-        formatLongDateRange(row.start_date, row.end_date)
-      }}</ng-template>
-      <ng-template #locationCell let-row>
+      <ng-template #dateCell let-row>
         <span
-          class="location-pill"
-          [class.non-southeast-major]="isNonSoutheastMajor(row)"
-          [style.background]="locationColor(row)"
-          >{{ row.city }}</span
+          [class.planner-generated-cell]="row.plannerRowType"
+          [matTooltip]="formatWeekdayDateRange(row.start_date, row.end_date)"
+          matTooltipPosition="above"
         >
+          {{ formatLongDateRange(row.start_date, row.end_date) }}
+        </span>
       </ng-template>
-      <ng-template #majorCell let-row>{{ row.is_major ? 'Major' : '--' }}</ng-template>
+      <ng-template #locationCell let-row>
+        @if (row.plannerRowType) {
+          {{ '' }}
+        } @else {
+          <span
+            class="location-pill"
+            [class.non-southeast-major]="isNonSoutheastMajor(row)"
+            [style.background]="locationColor(row)"
+            >{{ row.city }}</span
+          >
+        }
+      </ng-template>
+      <ng-template #majorCell let-row>
+        {{ row.plannerRowType ? '' : row.is_major ? 'Major' : '--' }}
+      </ng-template>
       <ng-template #delegatesCell let-row>
         <div class="avatar-list">
           @for (delegate of row.delegates; track delegate.peopleId) {
@@ -172,11 +206,15 @@
         </div>
       </ng-template>
       <ng-template #statusCell let-row>
-        <span class="status-badge" [class]="row.status">{{ statusLabel(row) }}</span>
+        @if (row.plannerRowType) {
+          {{ '' }}
+        } @else {
+          <span class="status-badge" [class]="row.status">{{ statusLabel(row) }}</span>
+        }
       </ng-template>
       <ng-template #eventsCell let-row>
         <div class="events-list">
-          @for (event of row.event_ids; track event) {
+          @for (event of row.event_ids; track event.toString()) {
             <span
               [ngClass]="'cubing-icon event-' + event"
               [matTooltip]="EventNames[event]"
@@ -194,7 +232,7 @@
         </div>
       </ng-template>
       <ng-template #registrationsCell let-row>
-        {{ registrationsText(row) }}
+        {{ row.plannerRowType ? '' : registrationsText(row) }}
         @if (showWaitingList(row)) {
           <br />
           <span
@@ -217,7 +255,7 @@
             {{ formatLongDateRange(row.registration_open, row.registration_close) }}
           </span>
         } @else {
-          --
+          {{ row.plannerRowType ? '' : '--' }}
         }
       </ng-template>
       <ng-template #registrationStatusCell let-row>
@@ -231,7 +269,7 @@
             {{ registrationStatusText(row) }}
           </span>
         } @else {
-          --
+          {{ row.plannerRowType ? '' : '--' }}
         }
       </ng-template>
     </div>

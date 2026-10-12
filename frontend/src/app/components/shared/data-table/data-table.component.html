@@ -165,7 +165,7 @@
                 </button>
               }
             }
-            @if (rowActions.overflow?.length) {
+            @if (hasVisibleOverflowActions(rowActions, row)) {
               <button
                 type="button"
                 class="btn small icon-only"

@@ -1,3 +1,5 @@
+import { getPlannerMajorHolidaysBetween } from './competition-planner-holidays.util';
+import { getOpenWeekendDates } from './competition-planner.util';
 import {
   Component,
   ChangeDetectionStrategy,
@@ -16,7 +18,12 @@ import { ToastService } from 'src/app/services/toast.service';
 import { ErrorBannerService } from 'src/app/services/error-banner.service';
 import { CompetitionPlannerApiService } from 'src/app/services/southeastcubing-api/competition-planner-api.service';
 import { Colors, EventNames, StateColors, States } from 'src/app/shared/types';
-import { formatLongDateRange, formatLongDateTime } from 'src/app/shared/date.util';
+import {
+  formatLongDateRange,
+  formatLongDateTime,
+  formatWeekdayDateRange,
+  getYesterdayDateString,
+} from 'src/app/shared/date.util';
 import {
   PlannerCompetition,
   PlannerCompetitionStatus,
@@ -26,6 +33,7 @@ import {
 import { environment } from 'src/environments/environment';
 import { NgClass } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { StripYearPipe } from 'src/app/pipes/stripYear.pipe';
 import { HeaderComponent } from '../../../core/header/header.component';
 import { DashboardSidePaneComponent } from '../dashboard-side-pane/dashboard-side-pane.component';
@@ -48,6 +56,61 @@ import {
   getRegistrationStatusLabel,
 } from 'src/app/shared/registrationStatus.util';
 import { orderEventIdsByWcaOrder } from 'src/app/shared/event.util';
+
+// Display label for each derived Competition Planner status.
+type PlannerTableRow = PlannerCompetition & {
+  plannerRowType?: 'holiday' | 'open-weekend';
+};
+
+// Identifies rows generated for planner calendar dates rather than competitions.
+function isPlannerGeneratedRow(row: PlannerTableRow): boolean {
+  return row.plannerRowType !== undefined;
+}
+
+// Identifies a holiday row so it can use holiday-specific sorting and styling.
+function isPlannerHolidayRow(row: PlannerTableRow): boolean {
+  return row.plannerRowType === 'holiday';
+}
+
+// Converts a date-only value to its weekend's Saturday, or null on weekdays.
+// Adapts a generated calendar date into the planner's table shape only.
+function toPlannerGeneratedRow(
+  name: string,
+  date: string,
+  plannerRowType: 'holiday' | 'open-weekend',
+): PlannerTableRow {
+  return {
+    id: `${plannerRowType}-${date}`,
+    wca_competition_id: null,
+    wca_drive_link: null,
+    is_major: false,
+    is_announced: false,
+    is_multiple_cities_competition: false,
+    status: 'announced',
+    name,
+    city: '',
+    state: null,
+    venue_address: null,
+    venue_details: null,
+    venue: null,
+    venue_url: null,
+    latitude_degrees: null,
+    longitude_degrees: null,
+    start_date: date,
+    end_date: date,
+    registration_open: '',
+    registration_close: '',
+    competitor_limit: null,
+    accepted_registrations: null,
+    waiting_list_count: null,
+    waiting_list_count_updated_at: null,
+    event_ids: [],
+    delegates: [],
+    organizers: [],
+    equipmentHolders: [],
+    plannerRowType,
+  };
+}
 
 // Display label for each derived Competition Planner status.
 const STATUS_LABELS: Record<PlannerCompetitionStatus, string> = {
@@ -159,6 +222,7 @@ function registrationStatusColor(row: PlannerCompetition): Colors {
     StripYearPipe,
     NgClass,
     MatTooltipModule,
+    MatSlideToggleModule,
     AddEditCompetitionSheetComponent,
     ViewCompetitionSheetComponent,
     UnannouncedCompetitionBannersComponent,
@@ -181,12 +245,57 @@ export class CompetitionPlannerComponent implements OnInit {
   isMobile = this.screenSizeService.isMobile;
   environment = environment;
   formatLongDateRange = formatLongDateRange;
+  formatWeekdayDateRange = formatWeekdayDateRange;
   StateColors = StateColors;
   EventNames = EventNames;
 
   loading = signal(true);
   view = signal<PlannerCompetitionView>('upcoming');
   rows = signal<PlannerCompetition[]>([]);
+  showMajorHolidays = signal(true);
+  showOpenWeekends = signal(true);
+  plannerConsumerState = computed(() => ({
+    showMajorHolidays: this.showMajorHolidays(),
+    showOpenWeekends: this.showOpenWeekends(),
+  }));
+  tableRows = computed<PlannerTableRow[]>(() => {
+    const competitionRows = this.rows();
+
+    // return rows unchanged.
+    if (
+      this.view() !== 'upcoming' ||
+      (!this.showMajorHolidays() && !this.showOpenWeekends()) ||
+      competitionRows.length === 0
+    ) {
+      return competitionRows;
+    }
+
+    // Construct date helpers for Generated Rows
+    const lastCompetitionYear = competitionRows.reduce(
+      (latestYear, row) => Math.max(latestYear, Number(row.end_date.slice(0, 4))),
+      0,
+    );
+    if (lastCompetitionYear === 0) return competitionRows;
+    const startDate = getYesterdayDateString();
+    const endDate = `${lastCompetitionYear}-12-31`;
+
+    // Get holidays
+    const holidays = this.showMajorHolidays()
+      ? getPlannerMajorHolidaysBetween(startDate, endDate)
+      : [];
+    const holidayRows = holidays.map((holiday) =>
+      toPlannerGeneratedRow(holiday.name, holiday.date, 'holiday'),
+    );
+
+    // Get Open Weekends
+    const openWeekendRows = this.showOpenWeekends()
+      ? getOpenWeekendDates(competitionRows, startDate, endDate, holidays).map((date) =>
+          toPlannerGeneratedRow('', date, 'open-weekend'),
+        )
+      : [];
+
+    return [...competitionRows, ...holidayRows, ...openWeekendRows];
+  });
   lastBulkRefreshAt = signal<string | null>(null);
   refreshingCompetitionIds = signal<Set<string>>(new Set());
   creatingDriveFolderIds = signal<Set<string>>(new Set());
@@ -209,32 +318,30 @@ export class CompetitionPlannerComponent implements OnInit {
   registrationStatusColor = registrationStatusColor;
   isNonSoutheastMajor = isNonSoutheastMajor;
 
-  private dateCell = viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('dateCell');
-  private nameCell = viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('nameCell');
-  private driveCell =
-    viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('driveCell');
+  private dateCell = viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('dateCell');
+  private nameCell = viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('nameCell');
+  private driveCell = viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('driveCell');
   private locationCell =
-    viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('locationCell');
-  private majorCell =
-    viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('majorCell');
+    viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('locationCell');
+  private majorCell = viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('majorCell');
   private delegatesCell =
-    viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('delegatesCell');
+    viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('delegatesCell');
   private organizersCell =
-    viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('organizersCell');
+    viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('organizersCell');
   private eventsCell =
-    viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('eventsCell');
+    viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('eventsCell');
   private unofficialEventsCell =
-    viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('unofficialEventsCell');
+    viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('unofficialEventsCell');
   private registrationsCell =
-    viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('registrationsCell');
+    viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('registrationsCell');
   private statusCell =
-    viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('statusCell');
+    viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('statusCell');
   private registrationPeriodCell =
-    viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('registrationPeriodCell');
+    viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('registrationPeriodCell');
   private registrationStatusCell =
-    viewChild.required<TemplateRef<{ $implicit: PlannerCompetition }>>('registrationStatusCell');
+    viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('registrationStatusCell');
 
-  columns = computed<DataTableColumn<PlannerCompetition>[]>(() => [
+  columns = computed<DataTableColumn<PlannerTableRow>[]>(() => [
     {
       key: 'name',
       label: 'Name',
@@ -251,7 +358,7 @@ export class CompetitionPlannerComponent implements OnInit {
       width: '135px',
       filterable: false,
       visibleByDefault: true,
-      sortValue: (row) => row.start_date,
+      sortValue: (row) => `${row.start_date}-${isPlannerHolidayRow(row) ? '0' : '1'}`,
       searchValue: (row) => formatLongDateRange(row.start_date, row.end_date),
       cellTemplate: this.dateCell(),
     },
@@ -394,7 +501,39 @@ export class CompetitionPlannerComponent implements OnInit {
     direction: this.view() === 'past' ? 'desc' : 'asc',
   }));
 
-  trackById = (row: PlannerCompetition) => row.id;
+  trackById = (row: PlannerTableRow) => row.id;
+
+  // Turns off holiday rows when the user sorts by a non-date column.
+  // Turns off generated calendar rows when the user sorts by a non-date column.
+  onPlannerTableSort(sort: DataTableSort): void {
+    if (sort.columnKey !== 'date' && this.view() === 'upcoming') {
+      this.showMajorHolidays.set(false);
+      this.showOpenWeekends.set(false);
+    }
+  }
+
+  onMajorHolidayToggleChange(enabled: boolean): void {
+    this.showMajorHolidays.set(enabled);
+  }
+
+  onOpenWeekendsToggleChange(enabled: boolean): void {
+    this.showOpenWeekends.set(enabled);
+  }
+
+  // Restores only recognized boolean preferences from the table's saved state.
+  restorePlannerConsumerState(state: Record<string, unknown>): void {
+    if (typeof state['showMajorHolidays'] === 'boolean') {
+      this.showMajorHolidays.set(state['showMajorHolidays']);
+    }
+    if (typeof state['showOpenWeekends'] === 'boolean') {
+      this.showOpenWeekends.set(state['showOpenWeekends']);
+    }
+  }
+
+  onPlannerTableReset(): void {
+    this.showMajorHolidays.set(true);
+    this.showOpenWeekends.set(true);
+  }
 
   // Finds incomplete manual data on a multi-city location before it is announced.
   hasMissingMultiCityData = (row: PlannerCompetition): boolean => {
@@ -425,7 +564,8 @@ export class CompetitionPlannerComponent implements OnInit {
 
   // True for Admin/Board/Regional Delegate, or a Delegate already assigned to
   // this specific competition.
-  canEdit = (row: PlannerCompetition): boolean => {
+  canEdit = (row: PlannerTableRow): boolean => {
+    if (isPlannerGeneratedRow(row)) return false;
     const user = this.authService.currentUser();
     if (!user) return false;
     if (user.roles.isAdmin || user.roles.isBoard || user.roles.isRegionalDelegate) return true;
@@ -438,7 +578,7 @@ export class CompetitionPlannerComponent implements OnInit {
   });
 
   // Refresh is public-data-only for announced rows; planning rows need Admin or assignment.
-  canRefreshCompetition = (row: PlannerCompetition): boolean => {
+  canRefreshCompetition = (row: PlannerTableRow): boolean => {
     if (!row.wca_competition_id) return false;
     if (row.is_announced) return true;
     const user = this.authService.currentUser();
@@ -448,7 +588,7 @@ export class CompetitionPlannerComponent implements OnInit {
     );
   };
 
-  rowActions = computed<DataTableActions<PlannerCompetition>>(() => ({
+  rowActions = computed<DataTableActions<PlannerTableRow>>(() => ({
     overflow: [
       {
         icon: 'fa-circle-exclamation',
@@ -460,6 +600,7 @@ export class CompetitionPlannerComponent implements OnInit {
         icon: 'fa-eye',
         label: 'View',
         onClick: (row) => this.openViewCompetition(row),
+        visible: (row) => !isPlannerGeneratedRow(row),
       },
       {
         icon: 'fa-pen',
