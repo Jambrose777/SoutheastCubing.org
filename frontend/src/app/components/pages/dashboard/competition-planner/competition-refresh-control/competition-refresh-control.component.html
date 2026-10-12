@@ -6,16 +6,15 @@
 >
   <button
     type="button"
-    class="btn small"
+    class="btn small icon-only"
+    [attr.aria-label]="bulkRefreshInProgress() ? 'Refreshing competitions' : 'Refresh competitions'"
     [disabled]="bulkRefreshDisabled()"
     (click)="refreshAllCompetitions()"
   >
     @if (bulkRefreshInProgress()) {
       <i class="fa-solid fa-spinner fa-spin fa-sm"></i>
-      Refreshing...
     } @else {
       <i class="fa-solid fa-arrows-rotate fa-sm"></i>
-      Refresh
     }
   </button>
 </span>

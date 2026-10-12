@@ -1,0 +1,166 @@
+@use 'src/styles/color-pallet';
+
+:host {
+  display: block;
+  min-height: 0;
+}
+
+:host ::ng-deep .fc {
+  --fc-classic-button: #{color-pallet.$se-blue};
+  --fc-classic-button-border: #{color-pallet.$se-dark-blue};
+  --fc-classic-button-strong: #{color-pallet.$se-dark-blue};
+  --fc-classic-button-strong-border: #{color-pallet.$se-dark-blue};
+  --fc-classic-button-foreground: #{color-pallet.$se-black};
+  --fc-classic-primary: #{color-pallet.$se-dark-blue};
+  --fc-classic-primary-foreground: white;
+  --fc-classic-event: var(--fc-classic-primary);
+  --fc-classic-event-contrast: var(--fc-classic-primary-foreground);
+  --fc-classic-background: white;
+  --fc-classic-faint: #{color-pallet.$se-grey};
+  --fc-classic-muted: #{color-pallet.$se-dark-grey};
+  --fc-classic-strong: #{color-pallet.$se-dark-grey};
+  --fc-classic-foreground: #{color-pallet.$se-black};
+  --fc-classic-faint-foreground: #{color-pallet.$se-dark-grey};
+  --fc-classic-muted-foreground: #{color-pallet.$se-dark-grey};
+  --fc-classic-border: #{color-pallet.$se-dark-grey};
+  --fc-classic-strong-border: #{color-pallet.$se-dark-grey};
+  --fc-classic-today: #{color-pallet.$se-blue};
+  --fc-classic-highlight: #{color-pallet.$se-blue};
+}
+
+:host ::ng-deep full-calendar > div:first-child {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+:host ::ng-deep full-calendar {
+  row-gap: 0;
+}
+
+:host ::ng-deep full-calendar > div:first-child > div:last-child {
+  justify-self: end;
+}
+
+:host ::ng-deep full-calendar > div:first-child > div:nth-child(2) {
+  justify-self: center;
+  text-align: center;
+}
+
+:host ::ng-deep full-calendar button[aria-label='This Month'],
+:host ::ng-deep full-calendar button[aria-label='Previous Month'],
+:host ::ng-deep full-calendar button[aria-label='Next Month'] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid color-pallet.$se-black;
+  border-radius: 30px;
+  background: color-pallet.$se-grey;
+  color: color-pallet.$se-black;
+  box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
+  font: inherit;
+  margin: 0;
+}
+
+:host ::ng-deep full-calendar button[aria-label='This Month'] {
+  padding: 4px 10px;
+  font-size: 14px;
+}
+
+:host ::ng-deep full-calendar button[aria-label='Previous Month'],
+:host ::ng-deep full-calendar button[aria-label='Next Month'] {
+  padding: 4px 8px;
+}
+
+:host ::ng-deep full-calendar div:has(> button[aria-label='Previous Month']) {
+  gap: 6px;
+}
+
+:host ::ng-deep full-calendar button[aria-label='This Month']:hover:not(:disabled),
+:host ::ng-deep full-calendar button[aria-label='Previous Month']:hover,
+:host ::ng-deep full-calendar button[aria-label='Next Month']:hover {
+  opacity: 0.7;
+}
+
+:host ::ng-deep .fc .fc-col-header-cell {
+  background: color-pallet.$se-grey;
+  font-weight: 600;
+}
+
+:host ::ng-deep .fc .fc-daygrid-day-frame {
+  min-height: 104px;
+}
+
+:host ::ng-deep .fc .fc-daygrid-day-number {
+  display: none;
+}
+
+:host ::ng-deep [aria-hidden='true']:has(.calendar-day-top) {
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+:host ::ng-deep .calendar-day-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+  padding: 4px 6px;
+}
+
+:host ::ng-deep .calendar-holiday-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: color-pallet.$se-dark-grey;
+  font-size: 11px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .calendar-day-number {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+:host ::ng-deep .calendar-day-number.today {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 2px solid color-pallet.$se-blue;
+  border-radius: 50%;
+  box-sizing: border-box;
+  color: color-pallet.$se-dark-blue;
+  font-weight: 600;
+}
+
+:host ::ng-deep .fc .fc-event {
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: normal;
+}
+
+:host ::ng-deep .calendar-event-chip {
+  display: block;
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  padding: 3px 5px;
+  border-radius: 3px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+:host ::ng-deep .fc .fc-daygrid-event-harness {
+  margin: 1px 4px;
+}

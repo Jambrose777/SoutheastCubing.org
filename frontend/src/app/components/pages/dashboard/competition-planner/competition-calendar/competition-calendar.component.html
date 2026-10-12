@@ -1,0 +1,24 @@
+<full-calendar [options]="calendarOptions()">
+  <ng-template #dayCellTopContent let-info>
+    <div class="calendar-day-top">
+      @if (holidayNameForDate(info.date); as holidayName) {
+        <span class="calendar-holiday-label">
+          {{ holidayName }}
+        </span>
+      }
+      <span class="calendar-day-number" [class.today]="info.isToday">
+        {{ info.dayNumberText }}
+      </span>
+    </div>
+  </ng-template>
+  <ng-template #eventContent let-info>
+    <span
+      class="calendar-event-chip"
+      [class.holiday-event]="info.event.extendedProps.isHoliday"
+      [style.backgroundColor]="info.event.extendedProps.chipColor"
+      [style.color]="info.event.extendedProps.chipTextColor"
+    >
+      {{ info.event.title | stripYear }}
+    </span>
+  </ng-template>
+</full-calendar>

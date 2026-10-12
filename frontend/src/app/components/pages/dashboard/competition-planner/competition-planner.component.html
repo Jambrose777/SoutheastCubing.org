@@ -8,21 +8,33 @@
 
     <div class="competition-planner-content">
       <se-manage-competitions-prompt></se-manage-competitions-prompt>
-      <se-unannounced-competition-banners
-        [potentialRows]="potentialRows()"
-        (competitionLinked)="onPlannerCompetitionLinked($event)"
-        (multiCityCreateRequested)="openMultiCityCreateSheet($event)"
-      ></se-unannounced-competition-banners>
+      @if (view() === 'upcoming') {
+        <se-unannounced-competition-banners
+          [potentialRows]="potentialRows()"
+          (competitionLinked)="onPlannerCompetitionLinked($event)"
+          (multiCityCreateRequested)="openMultiCityCreateSheet($event)"
+        ></se-unannounced-competition-banners>
+      }
 
       @if (loading()) {
         <se-loading-spinner></se-loading-spinner>
       } @else {
         <div class="content-toolbar">
-          <div class="content-toolbar-side">
-            <se-competition-refresh-control
-              [lastBulkRefreshAt]="lastBulkRefreshAt()"
-              (refreshed)="onBulkRefreshCompleted()"
-            ></se-competition-refresh-control>
+          <div class="content-toolbar-side content-toolbar-left">
+            @if (view() !== 'past') {
+              <mat-slide-toggle
+                [checked]="showMajorHolidays()"
+                (change)="onMajorHolidayToggleChange($event.checked)"
+                >Show holidays</mat-slide-toggle
+              >
+            }
+            @if (view() === 'upcoming') {
+              <mat-slide-toggle
+                [checked]="showOpenWeekends()"
+                (change)="onOpenWeekendsToggleChange($event.checked)"
+                >Show weekends</mat-slide-toggle
+              >
+            }
           </div>
           <div class="view-mode-toggle" role="group" aria-label="Competition date scope">
             <button
@@ -43,39 +55,56 @@
             >
               Past
             </button>
-          </div>
-          @if (view() === 'upcoming') {
-            <mat-slide-toggle
-              [checked]="showMajorHolidays()"
-              (change)="onMajorHolidayToggleChange($event.checked)"
-              >Major holidays</mat-slide-toggle
+            <button
+              type="button"
+              class="toggle-half"
+              [class.active]="view() === 'calendar'"
+              [attr.aria-pressed]="view() === 'calendar'"
+              (click)="setPlannerView('calendar')"
             >
-            <mat-slide-toggle
-              [checked]="showOpenWeekends()"
-              (change)="onOpenWeekendsToggleChange($event.checked)"
-              >Open weekends</mat-slide-toggle
-            >
-          }
-          <div class="content-toolbar-side content-toolbar-actions">
-            <button type="button" class="btn small" (click)="openAddCompetition()">
-              <i class="fa-solid fa-plus fa-sm"></i>
-              Add Competition
+              Calendar
             </button>
+          </div>
+          <div class="content-toolbar-side content-toolbar-actions">
+            @if (view() === 'upcoming') {
+              <se-competition-refresh-control
+                [lastBulkRefreshAt]="lastBulkRefreshAt()"
+                (refreshed)="onBulkRefreshCompleted()"
+              ></se-competition-refresh-control>
+              <button
+                type="button"
+                class="btn small icon-only"
+                aria-label="Add competition"
+                matTooltip="Add competition"
+                matTooltipPosition="above"
+                (click)="openAddCompetition()"
+              >
+                <i class="fa-solid fa-plus fa-sm"></i>
+              </button>
+            }
           </div>
         </div>
 
-        <se-data-table
-          [rows]="tableRows()"
-          [columns]="columns()"
-          [actions]="rowActions()"
-          [trackBy]="trackById"
-          [defaultSort]="defaultSort()"
-          [consumerState]="plannerConsumerState()"
-          (consumerStateRestored)="restorePlannerConsumerState($event)"
-          storageKey="table-prefs:competition-planner"
-          (sortChange)="onPlannerTableSort($event)"
-          (tableReset)="onPlannerTableReset()"
-        ></se-data-table>
+        @if (view() === 'calendar') {
+          <se-competition-calendar
+            [competitions]="rows()"
+            [showMajorHolidays]="showMajorHolidays()"
+            (competitionSelected)="openViewCompetition($event)"
+          ></se-competition-calendar>
+        } @else {
+          <se-data-table
+            [rows]="tableRows()"
+            [columns]="columns()"
+            [actions]="rowActions()"
+            [trackBy]="trackById"
+            [defaultSort]="defaultSort()"
+            [consumerState]="plannerConsumerState()"
+            (consumerStateRestored)="restorePlannerConsumerState($event)"
+            storageKey="table-prefs:competition-planner"
+            (sortChange)="onPlannerTableSort($event)"
+            (tableReset)="onPlannerTableReset()"
+          ></se-data-table>
+        }
       }
 
       <ng-template #nameCell let-row>

@@ -23,6 +23,12 @@ export function getYesterdayDateString(): string {
   return `${year}-${month}-${day}`;
 }
 
+// Returns the first day of the current local month as YYYY-MM-DD.
+export function currentMonthDate(): string {
+  const today = new Date();
+  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
+}
+
 // Formats a timestamp in the user's local timezone.
 export function formatLongDateTime(date: string): string {
   return moment.utc(date).local().format('MMM D, YYYY h:mm A');

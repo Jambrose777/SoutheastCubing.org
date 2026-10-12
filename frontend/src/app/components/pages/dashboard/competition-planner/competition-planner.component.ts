@@ -48,6 +48,7 @@ import { UnannouncedCompetitionBannersComponent } from './unannounced-competitio
 import { WcaLinkCompetitionSheetComponent } from './wca-link-competition-sheet/wca-link-competition-sheet.component';
 import { MultiCityCreateSheetComponent } from './multi-city-create-sheet/multi-city-create-sheet.component';
 import { CompetitionRefreshControlComponent } from './competition-refresh-control/competition-refresh-control.component';
+import { CompetitionCalendarComponent } from './competition-calendar/competition-calendar.component';
 import { UnofficialEventIconComponent } from '../../../shared/unofficial-event-icon/unofficial-event-icon.component';
 import { DASHBOARD_TOOLS } from '../dashboard-tools';
 import {
@@ -229,6 +230,7 @@ function registrationStatusColor(row: PlannerCompetition): Colors {
     WcaLinkCompetitionSheetComponent,
     MultiCityCreateSheetComponent,
     CompetitionRefreshControlComponent,
+    CompetitionCalendarComponent,
     UnofficialEventIconComponent,
   ],
 })
@@ -252,6 +254,8 @@ export class CompetitionPlannerComponent implements OnInit {
   loading = signal(true);
   view = signal<PlannerCompetitionView>('upcoming');
   rows = signal<PlannerCompetition[]>([]);
+  private upcomingCompetitions: PlannerCompetition[] | null = null;
+  private pastCompetitions: PlannerCompetition[] | null = null;
   showMajorHolidays = signal(true);
   showOpenWeekends = signal(true);
   plannerConsumerState = computed(() => ({
@@ -821,17 +825,22 @@ export class CompetitionPlannerComponent implements OnInit {
   }
 
   private loadCompetitions(openEditCompetitionId?: string): void {
-    this.competitionPlannerApi.getCompetitions(this.view()).subscribe({
+    const scope = this.view() === 'upcoming' ? 'upcoming' : 'past'; // Sets calendar to past.
+    this.competitionPlannerApi.getCompetitions(scope).subscribe({
       next: (response) => {
-        this.rows.set(
-          response.competitions.map((competition) => ({
-            ...competition,
-            event_ids: orderEventIdsByWcaOrder(competition.event_ids),
-          })),
-        );
+        const competitions = response.competitions.map((competition) => ({
+          ...competition,
+          event_ids: orderEventIdsByWcaOrder(competition.event_ids),
+        }));
+        if (scope === 'past') {
+          this.pastCompetitions = competitions;
+        } else {
+          this.upcomingCompetitions = competitions;
+        }
         this.lastBulkRefreshAt.set(response.meta.lastBulkRefreshAt);
+        this.rows.set(this.cachedCompetitionsForView(this.view()) ?? competitions);
         this.loading.set(false);
-        const createdCompetition = response.competitions.find(
+        const createdCompetition = competitions.find(
           (competition) => competition.id === openEditCompetitionId,
         );
         if (createdCompetition) this.openEditCompetition(createdCompetition);
@@ -842,11 +851,31 @@ export class CompetitionPlannerComponent implements OnInit {
     });
   }
 
+  private cachedCompetitionsForView(view: PlannerCompetitionView): PlannerCompetition[] | null {
+    if (view === 'upcoming') return this.upcomingCompetitions;
+    if (view === 'past') return this.pastCompetitions;
+    if (this.upcomingCompetitions === null || this.pastCompetitions === null) return null;
+
+    const competitionsById = new Map<string, PlannerCompetition>();
+    for (const competition of [...this.upcomingCompetitions, ...this.pastCompetitions]) {
+      competitionsById.set(competition.id, competition);
+    }
+    return [...competitionsById.values()].sort((left, right) =>
+      left.start_date.localeCompare(right.start_date),
+    );
+  }
+
   // Loads the selected date scope without showing rows from the previous scope.
   setPlannerView(view: PlannerCompetitionView): void {
     if (view === this.view()) return;
     this.view.set(view);
     this.rows.set([]);
+    const cachedCompetitions = this.cachedCompetitionsForView(view);
+    if (cachedCompetitions !== null) {
+      this.rows.set(cachedCompetitions);
+      this.loading.set(false);
+      return;
+    }
     this.loading.set(true);
     this.loadCompetitions();
   }

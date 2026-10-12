@@ -58,9 +58,11 @@ export class CompetitionRefreshControlComponent implements OnDestroy {
   refreshAllCompetitions(): void {
     if (this.bulkRefreshDisabled()) return;
     this.bulkRefreshInProgress.set(true);
+    const pendingToast = this.toastService.pending('Refreshing competitions…');
 
     this.competitionPlannerApi.refreshCompetitions().subscribe({
       next: (response) => {
+        pendingToast.dismiss();
         this.bulkRefreshInProgress.set(false);
         this.setLastBulkRefreshAt(response.meta.lastBulkRefreshAt);
         const warnings: string[] = [];
@@ -83,6 +85,7 @@ export class CompetitionRefreshControlComponent implements OnDestroy {
         this.refreshed.emit();
       },
       error: (err) => {
+        pendingToast.dismiss();
         this.bulkRefreshInProgress.set(false);
         const errorBody = err?.error as PlannerBulkRefreshConflictResponse | undefined;
         if (err?.status === 409) {
