@@ -6,7 +6,7 @@ const {
   refreshCompetitionFromWCA,
   getAnnouncedUpcomingCompetitions,
   getAnnouncedUpcomingCompetitionsRevision,
-  getAllUpcomingCompetitionsForPlanner,
+  getCompetitionsForPlanner,
   getUnannouncedCompetitionBanners,
   getUnannouncedCompetitionLinkOptions,
   dismissUnannouncedCompetition,
@@ -40,11 +40,17 @@ async function getCompetitions(req, res) {
   }
 }
 
-// Gets every upcoming competition regardless of status for the Competition Planner tool.
+// Gets competitions in the requested date scope for the Competition Planner tool.
 async function getPlannerCompetitions(req, res) {
+  const view = req.query.view ?? 'upcoming';
+  if (view !== 'upcoming' && view !== 'past') {
+    res.status(400).json({ message: 'View must be either upcoming or past.' });
+    return;
+  }
+
   try {
     const [competitions, lastBulkRefreshAt] = await Promise.all([
-      getAllUpcomingCompetitionsForPlanner(),
+      getCompetitionsForPlanner(view),
       competitionsDb.getLastBulkRefreshAt(),
     ]);
     res.status(200).json({ competitions, meta: { lastBulkRefreshAt } });
@@ -144,7 +150,7 @@ async function linkPlannerCompetitionToWca(req, res) {
       createWcaDriveFolder: req.body?.createWcaDriveFolder,
       wcaDriveLink: req.body?.wcaDriveLink,
     });
-    const competitions = await getAllUpcomingCompetitionsForPlanner();
+    const competitions = await getCompetitionsForPlanner('upcoming');
     res.status(200).json(competitions.find((competition) => competition.id === competitionId));
   } catch (err) {
     respondWithServiceError(res, err, 'Failed to link WCA competition');
@@ -162,7 +168,7 @@ async function createMultiCityPlannerCompetitionFromWca(req, res) {
       locations: req.body?.locations,
     });
     const competitionIdSet = new Set(competitionIds);
-    const competitions = await getAllUpcomingCompetitionsForPlanner();
+    const competitions = await getCompetitionsForPlanner('upcoming');
     res
       .status(201)
       .json(competitions.filter((competition) => competitionIdSet.has(competition.id)));
@@ -175,7 +181,7 @@ async function createMultiCityPlannerCompetitionFromWca(req, res) {
 async function createPlannerCompetition(req, res) {
   try {
     const id = await createCompetition(req.body ?? {});
-    const comps = await getAllUpcomingCompetitionsForPlanner();
+    const comps = await getCompetitionsForPlanner('upcoming');
     res.status(201).json(comps.find((comp) => comp.id === id));
   } catch (err) {
     respondWithServiceError(res, err, 'Failed to create competition');
@@ -186,7 +192,7 @@ async function createPlannerCompetition(req, res) {
 async function createPlannerMajorCompetition(req, res) {
   try {
     const id = await createMajorCompetition(req.body ?? {});
-    const comps = await getAllUpcomingCompetitionsForPlanner();
+    const comps = await getCompetitionsForPlanner('upcoming');
     res.status(201).json(comps.find((comp) => comp.id === id));
   } catch (err) {
     respondWithServiceError(res, err, 'Failed to create major competition');
@@ -208,7 +214,7 @@ async function createPlannerWcaDriveFolder(req, res) {
 async function updatePlannerCompetition(req, res) {
   try {
     await updateCompetition(req.params.competitionId, req.body ?? {});
-    const comps = await getAllUpcomingCompetitionsForPlanner();
+    const comps = await getCompetitionsForPlanner('upcoming');
     res.json(comps.find((comp) => comp.id === req.params.competitionId));
   } catch (err) {
     respondWithServiceError(res, err, 'Failed to update competition');

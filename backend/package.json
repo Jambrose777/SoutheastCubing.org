@@ -10,6 +10,8 @@
     "schema-snapshot": "node --env-file=.env/.env scripts/generate-schema-snapshot.js",
     "backfill-people-pictures": "node --env-file=.env/.env scripts/backfill-people-pictures.js",
     "backfill-delegate-bios": "node --env-file=.env/.env scripts/backfill-delegate-bios-from-contentful.js",
+    "import-competition-history": "node --env-file=.env/.env scripts/import-competition-history.js",
+    "import-multi-city-competition-history": "node --env-file=.env/.env scripts/import-multi-city-competition-history.js",
     "test": "echo \"No automated tests configured for backend — smoke test manually via node server.js\" && exit 0"
   },
   "keywords": [],

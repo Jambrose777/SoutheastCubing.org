@@ -20,6 +20,7 @@ import { formatLongDateRange, formatLongDateTime } from 'src/app/shared/date.uti
 import {
   PlannerCompetition,
   PlannerCompetitionStatus,
+  PlannerCompetitionView,
   PlannerWcaCompetitionOption,
 } from 'src/app/models/PlannerCompetition';
 import { environment } from 'src/environments/environment';
@@ -184,6 +185,7 @@ export class CompetitionPlannerComponent implements OnInit {
   EventNames = EventNames;
 
   loading = signal(true);
+  view = signal<PlannerCompetitionView>('upcoming');
   rows = signal<PlannerCompetition[]>([]);
   lastBulkRefreshAt = signal<string | null>(null);
   refreshingCompetitionIds = signal<Set<string>>(new Set());
@@ -387,7 +389,10 @@ export class CompetitionPlannerComponent implements OnInit {
     },
   ]);
 
-  defaultSort: DataTableSort = { columnKey: 'date', direction: 'asc' };
+  defaultSort = computed<DataTableSort>(() => ({
+    columnKey: 'date',
+    direction: this.view() === 'past' ? 'desc' : 'asc',
+  }));
 
   trackById = (row: PlannerCompetition) => row.id;
 
@@ -675,7 +680,7 @@ export class CompetitionPlannerComponent implements OnInit {
   }
 
   private loadCompetitions(openEditCompetitionId?: string): void {
-    this.competitionPlannerApi.getCompetitions().subscribe({
+    this.competitionPlannerApi.getCompetitions(this.view()).subscribe({
       next: (response) => {
         this.rows.set(
           response.competitions.map((competition) => ({
@@ -694,6 +699,15 @@ export class CompetitionPlannerComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  // Loads the selected date scope without showing rows from the previous scope.
+  setPlannerView(view: PlannerCompetitionView): void {
+    if (view === this.view()) return;
+    this.view.set(view);
+    this.rows.set([]);
+    this.loading.set(true);
+    this.loadCompetitions();
   }
 
   onBulkRefreshCompleted(): void {

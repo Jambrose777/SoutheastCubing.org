@@ -13,6 +13,7 @@ import {
   PlannerMultiCityCreateRequest,
   PlannerWcaDriveFolderResponse,
   PlannerWcaLinkRequest,
+  PlannerCompetitionView,
 } from '../../models/PlannerCompetition';
 
 // Backs the Competition Planner dashboard.
@@ -23,9 +24,11 @@ export class CompetitionPlannerApiService {
   private http = inject(HttpClient);
   private base = `${environment.links.southeastCubingApi}/dashboard/competition-planner`;
 
-  // Every upcoming competition regardless of status, for the planner's list view.
-  getCompetitions(): Observable<PlannerCompetitionsResponse> {
-    return this.http.get<PlannerCompetitionsResponse>(`${this.base}/competitions`);
+  // Every competition in the selected date scope, regardless of status.
+  getCompetitions(view: PlannerCompetitionView): Observable<PlannerCompetitionsResponse> {
+    return this.http.get<PlannerCompetitionsResponse>(`${this.base}/competitions`, {
+      params: { view },
+    });
   }
 
   // Refreshes upcoming competitions, subject to the global cooldown and single-flight guard.

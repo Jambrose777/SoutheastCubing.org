@@ -77,7 +77,8 @@ CREATE TABLE competitions (
   wca_drive_link TEXT,
   wca_drive_folder_type TEXT,
   is_multiple_cities_competition BOOLEAN DEFAULT false,
-  is_major BOOLEAN DEFAULT false
+  is_major BOOLEAN DEFAULT false,
+  is_cancelled BOOLEAN DEFAULT false
 );
 
 CREATE TABLE competitions_meta (

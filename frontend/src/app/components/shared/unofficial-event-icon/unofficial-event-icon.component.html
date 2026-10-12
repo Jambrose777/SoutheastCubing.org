@@ -9,8 +9,8 @@
 >
   @if (customIconAsset(); as asset) {
     <img class="custom-event-icon" [src]="asset" alt="" aria-hidden="true" />
-  } @else if (icon() === otherIconId) {
-    <i class="fa-solid fa-cube" aria-hidden="true"></i>
+  } @else if (customFontAwesomeIconClass(); as iconClass) {
+    <i class="fa-solid {{ iconClass }}" aria-hidden="true"></i>
   } @else {
     <span [attr.class]="'cubing-icon ' + icon()" aria-hidden="true"></span>
   }

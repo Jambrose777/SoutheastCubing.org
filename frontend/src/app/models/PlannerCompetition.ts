@@ -22,6 +22,8 @@ export type PlannerEquipmentHolder = { peopleId: null } | PlannerPerson;
 // 'announced'.
 export type PlannerCompetitionStatus = 'potential' | 'planning' | 'announced';
 
+export type PlannerCompetitionView = 'upcoming' | 'past';
+
 export interface PlannerUnofficialEvent {
   event_name: string;
   icon: string;

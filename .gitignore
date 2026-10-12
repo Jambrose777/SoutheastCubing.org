@@ -53,6 +53,9 @@ backend/.env/southeastcubing-org-api.json
 # Local-dev-only managed photo storage
 backend/uploads/
 
+# Local-only competition history preparation scripts and source files
+backend/scripts/backfill-competition-history/
+
 # AI agent instructions & local planning docs (not part of the shipped project)
 /.github
 /docs

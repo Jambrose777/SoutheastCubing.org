@@ -1,0 +1,674 @@
+[
+  {
+    "competitionId": "CubingUSASoutheastFMCChampio2023",
+    "wcaDriveLink": "https://drive.google.com/drive/folders/1CHts-xBtSLvQr3ewYmVLTtSYByo9p-Vt",
+    "locations": [
+      {
+        "city": "Cumming",
+        "state": "Georgia",
+        "delegates": [
+          {
+            "name": "Jacob Ambrose",
+            "wcaId": "2010AMBR01"
+          },
+          {
+            "name": "Katie Hull",
+            "wcaId": "2010HULL01"
+          }
+        ],
+        "leadDelegateWcaId": "2010AMBR01",
+        "competitorLimit": "30",
+        "venue": "Midway Park",
+        "venueDetails": "Community Building",
+        "venueUrl": null,
+        "venueAddress": "5100 Post Rd, Cumming, GA 30040",
+        "latitudeDegrees": "34.2023678",
+        "longitudeDegrees": "-84.2186091"
+      },
+      {
+        "city": "Orlando",
+        "state": "Florida",
+        "delegates": [
+          {
+            "name": "Nancy Hartman",
+            "wcaId": "2017HART11"
+          }
+        ],
+        "leadDelegateWcaId": "2017HART11",
+        "competitorLimit": "25",
+        "venue": "Black Belt Center",
+        "venueDetails": "Enter through the black double doors on the side of the building.",
+        "venueUrl": null,
+        "venueAddress": "4516 Hoffner Ave 32812, Orlando, FL 32812",
+        "latitudeDegrees": "28.4799889",
+        "longitudeDegrees": "-81.3285653"
+      },
+      {
+        "city": "Charlotte",
+        "state": "North Carolina",
+        "delegates": [
+          {
+            "name": "Zachary Ochs",
+            "wcaId": "2016OCHS01"
+          }
+        ],
+        "leadDelegateWcaId": "2016OCHS01",
+        "competitorLimit": "20",
+        "venue": "UNC Charlotte Popp Martin Student Union ",
+        "venueDetails": "Room 200 (James M. Hoppa Room)",
+        "venueUrl": null,
+        "venueAddress": "8845 Craver Rd, Charlotte, NC",
+        "latitudeDegrees": "35.308643",
+        "longitudeDegrees": "-80.7337476"
+      },
+      {
+        "city": "Birmingham",
+        "state": "Alabama",
+        "delegates": [
+          {
+            "name": "Jared Stinson",
+            "wcaId": "2014STIN01"
+          }
+        ],
+        "leadDelegateWcaId": "2014STIN01",
+        "competitorLimit": "20",
+        "venue": "Homewood Public Library",
+        "venueDetails": "Room 101",
+        "venueUrl": null,
+        "venueAddress": "1721 Oxmoor Rd Birmingham, AL",
+        "latitudeDegrees": "33.4751274",
+        "longitudeDegrees": "-86.7954001"
+      }
+    ]
+  },
+  {
+    "competitionId": "FMC2019",
+    "wcaDriveLink": null,
+    "locations": [
+      {
+        "city": "Atlanta",
+        "state": "Georgia",
+        "delegates": [
+          {
+            "name": "Jacob Ambrose",
+            "wcaId": "2010AMBR01"
+          }
+        ],
+        "leadDelegateWcaId": "2010AMBR01",
+        "competitorLimit": "10",
+        "venue": "Private Residence",
+        "venueDetails": "Private Residence",
+        "venueUrl": null,
+        "venueAddress": "Atlanta, Georgia",
+        "latitudeDegrees": "33.7501275",
+        "longitudeDegrees": "-84.3885209"
+      },
+      {
+        "city": "Charlotte",
+        "state": "North Carolina",
+        "delegates": [
+          {
+            "name": "Cady Shields",
+            "wcaId": "2014SHIE03"
+          }
+        ],
+        "leadDelegateWcaId": "2014SHIE03",
+        "competitorLimit": "20",
+        "venue": "Private Residence",
+        "venueDetails": "Private Residence",
+        "venueUrl": null,
+        "venueAddress": "Charlotte, North Carolina",
+        "latitudeDegrees": "35.2270768",
+        "longitudeDegrees": "-80.84089329999999"
+      }
+    ]
+  },
+  {
+    "competitionId": "FMC2024",
+    "wcaDriveLink": null,
+    "locations": [
+      {
+        "city": "Elberton",
+        "state": "Georgia",
+        "delegates": [
+          {
+            "name": "Raymond Goslow",
+            "wcaId": "2014GOSL01"
+          }
+        ],
+        "leadDelegateWcaId": "2014GOSL01",
+        "competitorLimit": "20",
+        "venue": "Samuel Elbert Hotel",
+        "venueDetails": "Backroom",
+        "venueUrl": null,
+        "venueAddress": "4 S Public Square, Elberton, GA 30635",
+        "latitudeDegrees": "34.1095794",
+        "longitudeDegrees": "-82.8680584"
+      }
+    ]
+  },
+  {
+    "competitionId": "FMCAmericas2017",
+    "wcaDriveLink": null,
+    "locations": [
+      {
+        "city": "Duluth",
+        "state": "Georgia",
+        "delegates": [
+          {
+            "name": "Chris Hardwick",
+            "wcaId": "2003HARD01"
+          }
+        ],
+        "leadDelegateWcaId": "2003HARD01",
+        "competitorLimit": "15",
+        "venue": "The Estate and Reserve at Foxdale",
+        "venueDetails": "Community Clubhouse",
+        "venueUrl": null,
+        "venueAddress": "10915 Chatburn Way, Duluth, GA 30097",
+        "latitudeDegrees": "34.045979",
+        "longitudeDegrees": "-84.17044299999999"
+      }
+    ]
+  },
+  {
+    "competitionId": "FMCAmericas2018",
+    "wcaDriveLink": null,
+    "locations": [
+      {
+        "city": "Atlanta",
+        "state": "Georgia",
+        "delegates": [
+          {
+            "name": "Jacob Ambrose",
+            "wcaId": "2010AMBR01"
+          }
+        ],
+        "leadDelegateWcaId": "2010AMBR01",
+        "competitorLimit": "10",
+        "venue": "Private Residence",
+        "venueDetails": "Private Residence",
+        "venueUrl": null,
+        "venueAddress": "Atlanta, Georgia",
+        "latitudeDegrees": "33.7501275",
+        "longitudeDegrees": "-84.3885209"
+      }
+    ]
+  },
+  {
+    "competitionId": "FMCAmericas2019",
+    "wcaDriveLink": null,
+    "locations": [
+      {
+        "city": "Atlanta",
+        "state": "Georgia",
+        "delegates": [
+          {
+            "name": "Jacob Ambrose",
+            "wcaId": "2010AMBR01"
+          }
+        ],
+        "leadDelegateWcaId": "2010AMBR01",
+        "competitorLimit": "10",
+        "venue": "Private Residence",
+        "venueDetails": "Private Residence",
+        "venueUrl": null,
+        "venueAddress": "Atlanta, Georgia",
+        "latitudeDegrees": "33.7501275",
+        "longitudeDegrees": "-84.3885209"
+      },
+      {
+        "city": "Charlotte",
+        "state": "North Carolina",
+        "delegates": [
+          {
+            "name": "Cady Shields",
+            "wcaId": "2014SHIE03"
+          }
+        ],
+        "leadDelegateWcaId": "2014SHIE03",
+        "competitorLimit": "20",
+        "venue": "Private Residence",
+        "venueDetails": "Private Residence",
+        "venueUrl": null,
+        "venueAddress": "Charlotte, North Carolina",
+        "latitudeDegrees": "35.2270768",
+        "longitudeDegrees": "-80.84089329999999"
+      }
+    ]
+  },
+  {
+    "competitionId": "FMCUSA2014",
+    "wcaDriveLink": null,
+    "locations": [
+      {
+        "city": "Atlanta",
+        "state": "Georgia",
+        "delegates": [
+          {
+            "name": "Chris Krueger",
+            "wcaId": "2006KRUE01"
+          }
+        ],
+        "leadDelegateWcaId": "2006KRUE01",
+        "competitorLimit": "10",
+        "venue": "Molecular Science and Engineering building",
+        "venueDetails": "Contact Chris Krueger for access.",
+        "venueUrl": null,
+        "venueAddress": "315 Ferst Dr NW, Atlanta, GA 30332",
+        "latitudeDegrees": "33.7789271",
+        "longitudeDegrees": "-84.3972424"
+      }
+    ]
+  },
+  {
+    "competitionId": "FMCUSA2015",
+    "wcaDriveLink": null,
+    "locations": [
+      {
+        "city": "Atlanta",
+        "state": "Georgia",
+        "delegates": [
+          {
+            "name": "Chris Tran",
+            "wcaId": "2008TRAN02"
+          }
+        ],
+        "leadDelegateWcaId": "2008TRAN02",
+        "competitorLimit": "10",
+        "venue": "Georgia Tech",
+        "venueDetails": "Kell Hall - Room 330",
+        "venueUrl": null,
+        "venueAddress": "24 Peachtree Center Ave SE, Atlanta, GA 30303",
+        "latitudeDegrees": "33.7535451",
+        "longitudeDegrees": "-84.38671839999999"
+      },
+      {
+        "city": "Tampa",
+        "state": "Florida",
+        "delegates": [
+          {
+            "name": "James LaChance",
+            "wcaId": "2010LACH01"
+          }
+        ],
+        "leadDelegateWcaId": "2010LACH01",
+        "competitorLimit": "10",
+        "venue": "Private Residence",
+        "venueDetails": "Private Residence",
+        "venueUrl": null,
+        "venueAddress": "Private Residence",
+        "latitudeDegrees": "27.9516896",
+        "longitudeDegrees": "-82.45875269999999"
+      }
+    ]
+  },
+  {
+    "competitionId": "FMCUSA2016",
+    "wcaDriveLink": null,
+    "locations": [
+      {
+        "city": "Athens",
+        "state": "Georgia",
+        "delegates": [
+          {
+            "name": "Jacob Ambrose",
+            "wcaId": "2010AMBR01"
+          }
+        ],
+        "leadDelegateWcaId": "2010AMBR01",
+        "competitorLimit": "10",
+        "venue": "Tate Student Center",
+        "venueDetails": "Tate Student Center",
+        "venueUrl": null,
+        "venueAddress": "University of Georgia, 45 Baxter St, Athens, GA 30602",
+        "latitudeDegrees": "33.9423394",
+        "longitudeDegrees": "-83.37242420000001"
+      }
+    ]
+  },
+  {
+    "competitionId": "FMCWorld2026",
+    "wcaDriveLink": "https://drive.google.com/drive/folders/1YmnCsBWMxyWRZm5oHv8bTHLcAWR0MDpD",
+    "locations": [
+      {
+        "city": "Marietta",
+        "state": "Georgia",
+        "delegates": [
+          {
+            "name": "Raymond Goslow",
+            "wcaId": "2014GOSL01"
+          }
+        ],
+        "leadDelegateWcaId": "2014GOSL01",
+        "competitorLimit": "12",
+        "venue": "Private Residence",
+        "venueDetails": "Private Residence",
+        "venueUrl": null,
+        "venueAddress": "Private Residence",
+        "latitudeDegrees": "33.9532531",
+        "longitudeDegrees": "-84.5499358"
+      }
+    ]
+  },
+  {
+    "competitionId": "SoutheastFMCChampionship2022",
+    "wcaDriveLink": null,
+    "locations": [
+      {
+        "city": "Cumming",
+        "state": "Georgia",
+        "delegates": [
+          {
+            "name": "Jacob Ambrose",
+            "wcaId": "2010AMBR01"
+          }
+        ],
+        "leadDelegateWcaId": "2010AMBR01",
+        "competitorLimit": "30",
+        "venue": "Coal Mountain Park",
+        "venueDetails": "Community Building",
+        "venueUrl": null,
+        "venueAddress": "3560 Settingdown Rd, Cumming GA 30028",
+        "latitudeDegrees": "34.2709956",
+        "longitudeDegrees": "-84.0897344"
+      },
+      {
+        "city": "Orlando",
+        "state": "Florida",
+        "delegates": [
+          {
+            "name": "Nancy Hartman",
+            "wcaId": "2017HART11"
+          }
+        ],
+        "leadDelegateWcaId": "2017HART11",
+        "competitorLimit": "30",
+        "venue": "Black Belt Center",
+        "venueDetails": "Enter through the black double doors on the side of the building.",
+        "venueUrl": null,
+        "venueAddress": "4516 Hoffner Ave 32812, Orlando, FL 32812",
+        "latitudeDegrees": "28.4799889",
+        "longitudeDegrees": "-81.3285653"
+      },
+      {
+        "city": "Wilmington",
+        "state": "North Carolina",
+        "delegates": [
+          {
+            "name": "Zachary Ochs",
+            "wcaId": "2016OCHS01"
+          }
+        ],
+        "leadDelegateWcaId": "2016OCHS01",
+        "competitorLimit": "12",
+        "venue": "Private Residence",
+        "venueDetails": "Private Residence",
+        "venueUrl": null,
+        "venueAddress": "Private Residence",
+        "latitudeDegrees": "34.2103894",
+        "longitudeDegrees": "-77.8868117"
+      }
+    ]
+  },
+  {
+    "competitionId": "SoutheastFMCChampionship2024",
+    "wcaDriveLink": "https://drive.google.com/drive/folders/1TUxvNo3ov2F-k4TR4V8QYINQHhbYjJkD",
+    "locations": [
+      {
+        "city": "Homewood",
+        "state": "Alabama",
+        "delegates": [
+          {
+            "name": "Roman Wofford",
+            "wcaId": "2017WOFF01"
+          }
+        ],
+        "leadDelegateWcaId": "2017WOFF01",
+        "competitorLimit": "20",
+        "venue": "Homewood Public Library",
+        "venueDetails": "Homewood Public Library",
+        "venueUrl": null,
+        "venueAddress": "1721 Oxmoor Rd, Homewood, AL",
+        "latitudeDegrees": "33.4751274",
+        "longitudeDegrees": "-86.7954001"
+      },
+      {
+        "city": "Charlotte",
+        "state": "North Carolina",
+        "delegates": [
+          {
+            "name": "Zachary Ochs",
+            "wcaId": "2016OCHS01"
+          }
+        ],
+        "leadDelegateWcaId": "2016OCHS01",
+        "competitorLimit": "20",
+        "venue": "UNC Charlotte Popp Martin Student Union",
+        "venueDetails": "Room 200",
+        "venueUrl": null,
+        "venueAddress": "8845 Craver Rd, Charlotte, NC",
+        "latitudeDegrees": "35.308643",
+        "longitudeDegrees": "-80.7337476"
+      },
+      {
+        "city": "Orlando",
+        "state": "Florida",
+        "delegates": [
+          {
+            "name": "Nancy Hartman",
+            "wcaId": "2017HART11"
+          }
+        ],
+        "leadDelegateWcaId": "2017HART11",
+        "competitorLimit": "20",
+        "venue": "Black Belt Center",
+        "venueDetails": "Enter through the black double doors on the side of the building.",
+        "venueUrl": null,
+        "venueAddress": "4516 Hoffner Ave 32812, Orlando, FL 32812",
+        "latitudeDegrees": "28.4799889",
+        "longitudeDegrees": "-81.3285653"
+      },
+      {
+        "city": "Murfreesboro",
+        "state": "Tennessee",
+        "delegates": [
+          {
+            "name": "Roxana Johnson",
+            "wcaId": "2019JOHN03"
+          },
+          {
+            "name": "Alison Meador",
+            "wcaId": "2017MEAD01"
+          }
+        ],
+        "leadDelegateWcaId": "2019JOHN03",
+        "competitorLimit": "20",
+        "venue": "Linebaugh Public Library",
+        "venueDetails": "Linebaugh Public Library",
+        "venueUrl": null,
+        "venueAddress": "105 W Vine St, Murfreesboro, TN",
+        "latitudeDegrees": "35.844194",
+        "longitudeDegrees": "-86.3921139"
+      },
+      {
+        "city": "Atlanta",
+        "state": "Georgia",
+        "delegates": [
+          {
+            "name": "Jacob Ambrose",
+            "wcaId": "2010AMBR01"
+          },
+          {
+            "name": "Clay Moore",
+            "wcaId": "2017MOOR03"
+          }
+        ],
+        "leadDelegateWcaId": "2010AMBR01",
+        "competitorLimit": "25",
+        "venue": "Instructional Center",
+        "venueDetails": "Room 111",
+        "venueUrl": null,
+        "venueAddress": "759 Ferst Dr, Atlanta, GA",
+        "latitudeDegrees": "33.7755594",
+        "longitudeDegrees": "-84.4012333"
+      }
+    ]
+  },
+  {
+    "competitionId": "SoutheastFMCChampionship2025",
+    "wcaDriveLink": "https://drive.google.com/drive/folders/1ubjk-AZk4v18PdEnqkCsqlKyckp0e3bt",
+    "locations": [
+      {
+        "city": "Orlando",
+        "state": "Florida",
+        "delegates": [
+          {
+            "name": "Nancy Hartman",
+            "wcaId": "2017HART11"
+          }
+        ],
+        "leadDelegateWcaId": "2017HART11",
+        "competitorLimit": "20",
+        "venue": "Black Belt Center",
+        "venueDetails": "Enter through the black double doors on the side of the building.",
+        "venueUrl": null,
+        "venueAddress": "4516 Hoffner Ave 32812, Orlando, FL 32812",
+        "latitudeDegrees": "28.4799889",
+        "longitudeDegrees": "-81.3285653"
+      },
+      {
+        "city": "Atlanta",
+        "state": "Georgia",
+        "delegates": [
+          {
+            "name": "Clay Moore",
+            "wcaId": "2017MOOR03"
+          }
+        ],
+        "leadDelegateWcaId": "2017MOOR03",
+        "competitorLimit": "24",
+        "venue": "Georgia Tech Engineering Science & Mechanics",
+        "venueDetails": "Building Room 201",
+        "venueUrl": null,
+        "venueAddress": "620 Cherry St NW, Atlanta, GA 30332",
+        "latitudeDegrees": "33.7716015",
+        "longitudeDegrees": "-84.3957855"
+      },
+      {
+        "city": "Charlotte",
+        "state": "North Carolina",
+        "delegates": [
+          {
+            "name": "Zachary Ochs",
+            "wcaId": "2016OCHS01"
+          }
+        ],
+        "leadDelegateWcaId": "2016OCHS01",
+        "competitorLimit": "20",
+        "venue": "UNC Charlotte Cone University Center",
+        "venueDetails": "Room 113",
+        "venueUrl": null,
+        "venueAddress": "9025 University Rd, Charlotte, NC 28223",
+        "latitudeDegrees": "35.3050925",
+        "longitudeDegrees": "-80.7332454"
+      }
+    ]
+  },
+  {
+    "competitionId": "SoutheastFMCChampionship2026",
+    "wcaDriveLink": "https://drive.google.com/drive/folders/1_D3jdllbdXF9QUlaiotMHTO130yRdLfC",
+    "locations": [
+      {
+        "city": "Tuscaloosa",
+        "state": "Alabama",
+        "delegates": [
+          {
+            "name": "Roman Wofford",
+            "wcaId": "2017WOFF01"
+          }
+        ],
+        "leadDelegateWcaId": "2017WOFF01",
+        "competitorLimit": "25",
+        "venue": "The University of Alabama Student Center",
+        "venueDetails": "Room 3104",
+        "venueUrl": null,
+        "venueAddress": "751 Campus W Dr, Tuscaloosa, AL 35487",
+        "latitudeDegrees": "33.2144145",
+        "longitudeDegrees": "-87.54566799999999"
+      },
+      {
+        "city": "Orlando",
+        "state": "Florida",
+        "delegates": [
+          {
+            "name": "Nancy Hartman",
+            "wcaId": "2017HART11"
+          }
+        ],
+        "leadDelegateWcaId": "2017HART11",
+        "competitorLimit": "20",
+        "venue": "Black Belt Center",
+        "venueDetails": "Enter through the black double doors on the side of the building.",
+        "venueUrl": null,
+        "venueAddress": "4516 Hoffner Ave 32812, Orlando, FL 32812",
+        "latitudeDegrees": "28.4799889",
+        "longitudeDegrees": "-81.3285653"
+      },
+      {
+        "city": "Atlanta",
+        "state": "Georgia",
+        "delegates": [
+          {
+            "name": "Justin Barker",
+            "wcaId": "2013BARK01"
+          }
+        ],
+        "leadDelegateWcaId": "2013BARK01",
+        "competitorLimit": "40",
+        "venue": "Georgia Tech Instructional Center",
+        "venueDetails": "Room 205",
+        "venueUrl": null,
+        "venueAddress": "759 Ferst Dr, Atlanta, GA 30318",
+        "latitudeDegrees": "33.7755594",
+        "longitudeDegrees": "-84.4012333"
+      },
+      {
+        "city": "Mebane",
+        "state": "North Carolina",
+        "delegates": [
+          {
+            "name": "Rue Clippinger",
+            "wcaId": "2016CLIP01"
+          }
+        ],
+        "leadDelegateWcaId": "2016CLIP01",
+        "competitorLimit": "20",
+        "venue": "5th & Washington Event Center",
+        "venueDetails": "5th & Washington Event Center",
+        "venueUrl": null,
+        "venueAddress": "103C S Fifth St, Mebane, NC 27302",
+        "latitudeDegrees": "36.09426810000001",
+        "longitudeDegrees": "-79.26528859999999"
+      },
+      {
+        "city": "Nashville",
+        "state": "Tennessee",
+        "delegates": [
+          {
+            "name": "Roxana Johnson",
+            "wcaId": "2019JOHN03"
+          }
+        ],
+        "leadDelegateWcaId": "2019JOHN03",
+        "competitorLimit": "20",
+        "venue": "Vanderbilt University Alumni Hall",
+        "venueDetails": "Room 201",
+        "venueUrl": null,
+        "venueAddress": "2205 West End Ave, Nashville, TN 37240",
+        "latitudeDegrees": "36.1479402",
+        "longitudeDegrees": "-86.8033593"
+      }
+    ]
+  }
+]

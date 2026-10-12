@@ -137,6 +137,28 @@ table. This file is generated and never hand-edited or applied directly
 pnpm --filter southeastcubing-org-api schema-snapshot
 ```
 
+## Backend backfill process
+
+After confirming `backend/.env/.env` points to the intended dev DSQL cluster, run
+pending database migrations, then run these backfills in order:
+
+```bash
+pnpm --filter southeastcubing-org-api migrate
+pnpm --filter southeastcubing-org-api backfill-people-pictures
+pnpm --filter southeastcubing-org-api backfill-delegate-bios
+pnpm --filter southeastcubing-org-api import-competition-history
+pnpm --filter southeastcubing-org-api import-multi-city-competition-history
+```
+
+The photo backfill mirrors WCA avatars for managed-photo people whose local
+`picture_url` is missing. The Delegate-bio backfill copies Contentful descriptions
+only into blank `delegates.bio` fields. The competition-history importers populate
+past Southeast competitions from WCA and the manifests in `backend/scripts/`; the
+standard importer runs before the separate multi-city importer. They reconcile
+matching rows and can be rerun. The history importers write competition, event,
+Delegate, and organizer data; resolving assignments may create missing WCA person
+records. They do not post to Discord or fetch registration or waiting-list counts.
+
 ## BE Deployment
 
 - cd SoutheastCubing.org

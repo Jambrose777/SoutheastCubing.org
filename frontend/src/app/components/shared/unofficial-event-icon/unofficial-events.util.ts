@@ -3,6 +3,7 @@ import { EventNames } from 'src/app/shared/types';
 
 export const BANANA_ICON_ID = 'custom-2x2x3-banana';
 export const OTHER_ICON_ID = 'fa-cube';
+export const MYSTERY_ICON_ID = 'fa-circle-question';
 
 const CUSTOM_ICON_ASSETS: Record<string, string> = {
   [BANANA_ICON_ID]: 'assets/2x2x3-banana.svg',
@@ -10,9 +11,14 @@ const CUSTOM_ICON_ASSETS: Record<string, string> = {
 
 const CUSTOM_ICON_OPTIONS: UnofficialIconOption[] = [
   { icon: BANANA_ICON_ID, name: '2x2x3 Banana' },
+  { icon: MYSTERY_ICON_ID, name: 'Mystery' },
 ];
 
 const OTHER_ICON_OPTION: UnofficialIconOption = { icon: OTHER_ICON_ID, name: 'Other' };
+const CUSTOM_FONT_AWESOME_ICON_CLASSES: Record<string, string> = {
+  [OTHER_ICON_ID]: 'fa-cube',
+  [MYSTERY_ICON_ID]: 'fa-circle-question',
+};
 
 export interface UnofficialIconOption {
   icon: string;
@@ -90,6 +96,11 @@ export function getUnofficialIconOptions(): UnofficialIconOption[] {
 // Resolves custom event IDs to the SVG asset configured for that icon.
 export function getCustomUnofficialIconAsset(icon: string): string | null {
   return CUSTOM_ICON_ASSETS[icon] ?? null;
+}
+
+// Resolve custom Font Awesome icons separately from the upstream cubing font.
+export function getCustomFontAwesomeIconClass(icon: string): string | null {
+  return CUSTOM_FONT_AWESOME_ICON_CLASSES[icon] ?? null;
 }
 
 // Sorts drafts without changing their stable identities.

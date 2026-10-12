@@ -1,0 +1,1 @@
+ALTER TABLE competitions ALTER COLUMN is_cancelled SET DEFAULT false;

@@ -34,6 +34,34 @@ input[type='checkbox'] {
   --mat-slide-toggle-selected-track-color: #{color-pallet.$se-blue};
 }
 
+// Shared divided view control for dashboard list pages.
+.view-mode-toggle {
+  display: flex;
+  border: 1px solid color-pallet.$se-black;
+  border-radius: 4px;
+  overflow: hidden;
+
+  .toggle-half {
+    padding: 4px 10px;
+    font-size: 14px;
+    background-color: color-pallet.$se-grey;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    &:not(:last-child) {
+      border-right: 1px solid color-pallet.$se-black;
+    }
+
+    &.active {
+      background-color: color-pallet.$se-black;
+      color: white;
+    }
+  }
+}
+
 @font-face {
   font-family: 'Montserrat';
   src: url('../assets/fonts/Montserrat-Regular.ttf');

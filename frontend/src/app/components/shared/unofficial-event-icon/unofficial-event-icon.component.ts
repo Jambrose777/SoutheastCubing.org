@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatTooltip } from '@angular/material/tooltip';
-import { getCustomUnofficialIconAsset, OTHER_ICON_ID } from './unofficial-events.util';
+import {
+  getCustomFontAwesomeIconClass,
+  getCustomUnofficialIconAsset,
+} from './unofficial-events.util';
 
 @Component({
   selector: 'se-unofficial-event-icon',
@@ -13,5 +16,5 @@ export class UnofficialEventIconComponent {
   icon = input.required<string>();
   label = input<string | null>(null);
   customIconAsset = computed(() => getCustomUnofficialIconAsset(this.icon()));
-  otherIconId = OTHER_ICON_ID;
+  customFontAwesomeIconClass = computed(() => getCustomFontAwesomeIconClass(this.icon()));
 }

@@ -24,6 +24,26 @@
               (refreshed)="onBulkRefreshCompleted()"
             ></se-competition-refresh-control>
           </div>
+          <div class="view-mode-toggle" role="group" aria-label="Competition date scope">
+            <button
+              type="button"
+              class="toggle-half"
+              [class.active]="view() === 'upcoming'"
+              [attr.aria-pressed]="view() === 'upcoming'"
+              (click)="setPlannerView('upcoming')"
+            >
+              Upcoming
+            </button>
+            <button
+              type="button"
+              class="toggle-half"
+              [class.active]="view() === 'past'"
+              [attr.aria-pressed]="view() === 'past'"
+              (click)="setPlannerView('past')"
+            >
+              Past
+            </button>
+          </div>
           <div class="content-toolbar-side content-toolbar-actions">
             <button type="button" class="btn small" (click)="openAddCompetition()">
               <i class="fa-solid fa-plus fa-sm"></i>
@@ -37,7 +57,7 @@
           [columns]="columns()"
           [actions]="rowActions()"
           [trackBy]="trackById"
-          [defaultSort]="defaultSort"
+          [defaultSort]="defaultSort()"
           storageKey="table-prefs:competition-planner"
         ></se-data-table>
       }

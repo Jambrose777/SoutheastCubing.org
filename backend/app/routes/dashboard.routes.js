@@ -536,11 +536,21 @@ router.put(
  * @openapi
  * /dashboard/competition-planner/competitions:
  *   get:
- *     summary: Every upcoming competition regardless of status (Potential/Planning/Announced) for the Competition Planner tool.
+ *     summary: Competitions in a date scope regardless of status (Potential/Planning/Announced) for the Competition Planner tool.
  *     tags: [Competitions]
+ *     parameters:
+ *       - in: query
+ *         name: view
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [upcoming, past]
+ *           default: upcoming
  *     responses:
  *       200:
- *         description: Upcoming competitions, each with its derived status, official event ids, unofficial event names and icons, delegates, and organizers.
+ *         description: Competitions in the requested date scope, each with its derived status, official event ids, unofficial event names and icons, delegates, and organizers.
+ *       400:
+ *         description: Invalid view parameter.
  *       401:
  *         description: Not signed in.
  *       403:

@@ -270,19 +270,22 @@ async function getTrackedMajorWcaIds() {
   }
 }
 
-// Returns every upcoming competition regardless of status for the Competition
-// Planner tool. Given a 1 day grace period so competitions don't disappear
-// from the list due to timezones.
-async function getAllUpcomingCompetitionsForPlanner() {
+// Returns the requested Planner date scope with the existing one-day grace period.
+async function getCompetitionsForPlanner(view) {
   try {
+    const isPast = view === 'past';
+    const dateOperator = isPast ? '<' : '>=';
+    const startDateDirection = isPast ? 'DESC' : 'ASC';
     const { rows } = await db.pool.query(
-      'SELECT * FROM competitions WHERE end_date >= $1 ORDER BY start_date ASC, name ASC',
+      `SELECT * FROM competitions
+       WHERE end_date ${dateOperator} $1
+       ORDER BY start_date ${startDateDirection}, name ASC`,
       [moment().add(-1, 'day').format('YYYY-MM-DD')],
     );
     const comps = rows.map((row) => fromRow(row, []));
     return comps;
   } catch (err) {
-    logger.error('Failed to fetch upcoming competitions for the Competition Planner: ', err);
+    logger.error(`Failed to fetch ${view} competitions for the Competition Planner: `, err);
     throw err;
   }
 }
@@ -762,7 +765,7 @@ module.exports = {
   upsertCompetitionsBatch,
   markAnnounced,
   getAnnouncedUpcomingCompetitions,
-  getAllUpcomingCompetitionsForPlanner,
+  getCompetitionsForPlanner,
   getTrackedMajorWcaIds,
   updateMultiCityCompetitionRowsByWcaId,
   getCompetitionsPendingDiscordAnnouncement,

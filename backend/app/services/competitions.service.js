@@ -106,9 +106,9 @@ function derivePlannerStatus(comp) {
   return comp.is_announced ? 'announced' : 'planning';
 }
 
-// Competition Planner's full (every status) upcoming list - never cached.
-async function getAllUpcomingCompetitionsForPlanner() {
-  const comps = await withCompetitionEvents(await competitionsDb.getAllUpcomingCompetitionsForPlanner());
+// Competition Planner's full list for one date scope, including every status.
+async function getCompetitionsForPlanner(view) {
+  const comps = await withCompetitionEvents(await competitionsDb.getCompetitionsForPlanner(view));
   const competitionIds = comps.map((comp) => comp.id);
 
   const delegateRowsByCompetition = groupBy(
@@ -598,7 +598,7 @@ async function getEligibleUnlinkedManagedCompetitions(
   // Fetch dependencies for compiling managed competitions.
   const [managedCompetitions, plannerCompetitions, patterns] = await Promise.all([
     fetchManagedWcaCompetitions(accessToken, peopleId, { isEligible: isUpcomingCompetition }),
-    competitionsDb.getAllUpcomingCompetitionsForPlanner(),
+    competitionsDb.getCompetitionsForPlanner('upcoming'),
     discordPingPatternsDb.getPatterns(),
   ]);
 
@@ -1824,7 +1824,7 @@ async function refreshCompetitionsFromWCA(actor) {
   const publicWcaCompetitionIds = new Set(
     wcaCompetitions.map((competition) => String(competition.id)),
   );
-  const plannerCompetitions = await competitionsDb.getAllUpcomingCompetitionsForPlanner();
+  const plannerCompetitions = await competitionsDb.getCompetitionsForPlanner('upcoming');
 
   // Get managed competitions and registration-admin access for assigned organizers/delegates.
   let managedOnlyCompetitions = [];
@@ -2176,7 +2176,7 @@ module.exports = {
   refreshCompetitionFromWCA,
   getAnnouncedUpcomingCompetitions,
   getAnnouncedUpcomingCompetitionsRevision,
-  getAllUpcomingCompetitionsForPlanner,
+  getCompetitionsForPlanner,
   getUnannouncedCompetitionBanners,
   getUnannouncedCompetitionLinkOptions,
   dismissUnannouncedCompetition,

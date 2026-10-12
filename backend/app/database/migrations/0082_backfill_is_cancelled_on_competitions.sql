@@ -1,0 +1,1 @@
+UPDATE competitions SET is_cancelled = false WHERE is_cancelled IS NULL;
