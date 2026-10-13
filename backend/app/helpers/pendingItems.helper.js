@@ -13,12 +13,23 @@ const PROVIDERS = [
       fieldId: 'delegate-bio-field',
     };
   },
+  // Current Delegate records without a Discord user ID need Board/Admin attention.
+  async function missingDelegateDiscordUserId(_user, roles) {
+    if (!roles?.isAdmin && !roles?.isBoard) return null;
+    if (!(await delegatesDb.hasCurrentDelegatesMissingDiscordUserId())) return null;
+    return {
+      id: 'delegate-discord-user-id',
+      label: 'Add Discord user IDs for current Delegates',
+      toolRouterLink: '/dashboard/manage-users',
+      queryParams: { showMissingDiscordIds: 'true' },
+    };
+  },
 ];
 
 // Every pending item currently open for `user` - at most one per provider,
 // in provider-registration order.
-async function getPendingItems(user) {
-  const items = await Promise.all(PROVIDERS.map((provider) => provider(user)));
+async function getPendingItems(user, roles) {
+  const items = await Promise.all(PROVIDERS.map((provider) => provider(user, roles)));
   return items.filter((item) => item !== null);
 }
 

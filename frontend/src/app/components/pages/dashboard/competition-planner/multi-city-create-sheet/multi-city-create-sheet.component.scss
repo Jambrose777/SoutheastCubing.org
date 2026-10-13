@@ -105,6 +105,40 @@
   }
 }
 
+.equipment-holder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.equipment-holder-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid color-pallet.$se-grey;
+  padding-top: 8px;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.equipment-holder-person {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  span {
+    flex: 1;
+  }
+}
+
+.equipment-holder-avatar {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+}
+
 .add-location {
   align-self: flex-start;
   display: inline-flex;

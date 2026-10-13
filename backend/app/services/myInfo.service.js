@@ -222,6 +222,7 @@ async function getMyInfo(user) {
     hasManagedPhoto: user.has_managed_photo,
     pictureSyncedWithWca: user.picture_synced_with_wca,
     memberships: { current, past },
+    ...(delegate ? { discordUserId: delegate.discord_user_id ?? null } : {}),
     // Only present at all for an actual (or impersonated) Delegate.
     ...(delegate || isImpersonatedDelegate ? { delegateBio } : {}),
   };

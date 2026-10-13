@@ -55,12 +55,12 @@ async function postCompetitionInDiscord(competition, { attempt = 0, pingOverride
   // skip this one post instead of handing axios an undefined URL, so the
   // competitions refresh itself still succeeds. Throwing (rather than resolving)
   // keeps this competition unannounced on Discord, same as any other post failure,
-  // so it's retried on the next refresh once DISCORD_WEBHOOK is configured.
-  if (!config.DISCORD_WEBHOOK) {
+  // so it's retried on the next refresh once the competition webhook is configured.
+  if (!config.DISCORD_COMPETITION_ANNOUNCEMENTS_WEBHOOK) {
     logger.warn(
-      `DISCORD_WEBHOOK is not set - skipping Discord post for competition ${competition.id}.`,
+      `DISCORD_COMPETITION_ANNOUNCEMENTS_WEBHOOK is not set - skipping Discord post for competition ${competition.id}.`,
     );
-    throw new Error('DISCORD_WEBHOOK is not configured');
+    throw new Error('DISCORD_COMPETITION_ANNOUNCEMENTS_WEBHOOK is not configured');
   }
 
   // Neutralize untrusted WCA/Contentful fields
@@ -115,7 +115,7 @@ async function postCompetitionInDiscord(competition, { attempt = 0, pingOverride
   // Post message
   try {
     const res = await axios.post(
-      config.DISCORD_WEBHOOK,
+      config.DISCORD_COMPETITION_ANNOUNCEMENTS_WEBHOOK,
       JSON.stringify({
         content: discordMessage,
       }),
@@ -142,6 +142,73 @@ async function postCompetitionInDiscord(competition, { attempt = 0, pingOverride
 
     logger.error('Error posting competitions on Discord: ', err);
     throw err;
+  }
+}
+
+// Sends equipment details through the dedicated webhook with assigned holders
+// as the only users Discord is allowed to mention.
+async function postEquipmentReminderInDiscord(competition, holders) {
+  if (!config.DISCORD_EQUIPMENT_NOTIFICATIONS_WEBHOOK) {
+    logger.warn(
+      `DISCORD_EQUIPMENT_NOTIFICATIONS_WEBHOOK is not set - skipping equipment reminder for competition ${competition.id}.`,
+    );
+    throw new Error('DISCORD_EQUIPMENT_NOTIFICATIONS_WEBHOOK is not configured');
+  }
+
+  const allowedUserIds = new Set();
+  const orderedHolders = [...holders].sort((left, right) => {
+    if (left.people_id === null) return right.people_id === null ? 0 : 1;
+    if (right.people_id === null) return -1;
+    return (left.name ?? '').localeCompare(right.name ?? '', undefined, { sensitivity: 'base' });
+  });
+  const holderLines = orderedHolders.map((holder) => {
+    const storedDiscordUserId = holder.discord_user_id?.trim();
+    const discordUserId =
+      storedDiscordUserId && /^\d+$/.test(storedDiscordUserId) ? storedDiscordUserId : null;
+    if (discordUserId) allowedUserIds.add(discordUserId);
+
+    const holderName = holder.people_id === null ? 'Other' : neutralizeMentions(holder.name ?? '');
+    const mention = discordUserId ? ` <@${discordUserId}>` : '';
+    const equipmentDetails = neutralizeMentions(holder.equipment_details ?? '', {
+      preserveNewlines: true,
+    }).trim();
+    const holderLine = `- ${holderName}${mention}`;
+    return equipmentDetails ? `${holderLine}\n${equipmentDetails}\n` : `${holderLine}\n`;
+  });
+  const content = [
+    `Equipment reminder:\n${neutralizeMentions(competition.name ?? '')}`,
+    `${neutralizeMentions(competition.full_date ?? competition.start_date ?? '')} - ${neutralizeMentions(competition.city ?? '')}`,
+    '',
+    ...holderLines,
+  ].join('\n');
+
+  try {
+    const response = await axios.post(
+      config.DISCORD_EQUIPMENT_NOTIFICATIONS_WEBHOOK,
+      JSON.stringify({
+        content,
+        allowed_mentions: {
+          parse: [],
+          users: [...allowedUserIds],
+          roles: [],
+        },
+      }),
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    logger.debug(
+      `Successfully posted equipment reminder for competition ${competition.id} on Discord.`,
+    );
+    return response;
+  } catch (error) {
+    logger.error(
+      `Failed to post equipment reminder for competition ${competition.id} on Discord: `,
+      error,
+    );
+    throw error;
   }
 }
 
@@ -182,4 +249,9 @@ async function postToDiscordInChunks(items, { postFn, markAnnouncedFn, getId }) 
   return failures;
 }
 
-module.exports = { postCompetitionInDiscord, postToDiscordInChunks, stateTagIds };
+module.exports = {
+  postCompetitionInDiscord,
+  postEquipmentReminderInDiscord,
+  postToDiscordInChunks,
+  stateTagIds,
+};

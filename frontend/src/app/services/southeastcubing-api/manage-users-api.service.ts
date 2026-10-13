@@ -23,6 +23,13 @@ export class ManageUsersApiService {
     return this.http.put<{ bio: string }>(`${this.base}/manage-users/${peopleId}/bio`, { bio });
   }
 
+  // Sets a Delegate's Discord user ID on their behalf.
+  updateDiscordUserId(peopleId: string, discordUserId: string | null): Observable<unknown> {
+    return this.http.put<unknown>(`${this.base}/manage-users/${peopleId}/discord-user-id`, {
+      discordUserId,
+    });
+  }
+
   // Enables or disables WCA sync for another person's managed photo on
   // their behalf. Enabling re-mirrors from WCA if their avatar has changed;
   // disabling freezes the current managed photo/crop in place.

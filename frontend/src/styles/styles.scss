@@ -1,6 +1,21 @@
 @use 'color-pallet';
 @use 'screen-sizes';
 
+.notification-badge {
+  display: inline-flex;
+  flex: 0 0 18px;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: color-pallet.$se-dark-red;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+}
+
 input[type='checkbox'] {
   accent-color: color-pallet.$se-blue;
 }

@@ -45,8 +45,52 @@
   font-family: 'MontserratBold';
 }
 
+.discord-id-label {
+  display: flex;
+  width: 110px;
+  min-width: 110px;
+  align-items: center;
+  gap: 4px;
+}
+
+.discord-id-help {
+  flex: 0 0 auto;
+  cursor: help;
+}
+
 .field-value {
   word-break: break-word;
+}
+
+.discord-id-edit {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.discord-id-input-row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.discord-id-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid color-pallet.$se-black;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.discord-id-actions {
+  display: flex;
+  gap: 8px;
 }
 
 // Plain clickable inline text (the "not set"/"not shared" link-to-add cases).

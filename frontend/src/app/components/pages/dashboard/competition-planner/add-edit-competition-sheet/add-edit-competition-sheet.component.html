@@ -194,20 +194,53 @@
     </div>
   }
 
-  <!-- Equipment Holders -->
-  <mat-form-field>
-    <mat-label>Equipment</mat-label>
-    <mat-select
-      [value]="equipmentValues()"
-      (selectionChange)="setEquipmentValues($event.value)"
-      multiple
-    >
-      @for (option of equipmentOptions(); track option.peopleId) {
-        <mat-option [value]="option.peopleId">{{ option.name }}</mat-option>
+  <!-- Equipment holders. -->
+  <div class="equipment-section">
+    <h3>Equipment</h3>
+    <mat-form-field>
+      <mat-label>Equipment holders</mat-label>
+      <mat-select
+        [value]="equipmentValues()"
+        (selectionChange)="setEquipmentValues($event.value)"
+        multiple
+      >
+        @for (option of equipmentSelectOptions(); track option.value) {
+          <mat-option [value]="option.value">{{ option.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <div class="equipment-holder-list">
+      @for (holder of equipmentAssignments(); track holder.value) {
+        <div class="equipment-holder-row">
+          <div class="equipment-holder-person">
+            <div class="equipment-holder-avatar">
+              @if (holder.person?.pictureUrl) {
+                <se-avatar
+                  [src]="holder.person.pictureUrl"
+                  [size]="28"
+                  [alt]="holder.person.name"
+                  [cropX]="holder.person.thumbnailCropX"
+                  [cropY]="holder.person.thumbnailCropY"
+                  [cropW]="holder.person.thumbnailCropW"
+                  [cropH]="holder.person.thumbnailCropH"
+                ></se-avatar>
+              }
+            </div>
+            <span>{{ holder.name }}</span>
+          </div>
+          <mat-form-field subscriptSizing="dynamic">
+            <mat-label>What are they bringing?</mat-label>
+            <textarea
+              matInput
+              rows="2"
+              [value]="holder.equipmentDetails"
+              (input)="setEquipmentDetails(holder.value, $any($event.target).value)"
+            ></textarea>
+          </mat-form-field>
+        </div>
       }
-      <mat-option [value]="otherEquipmentValue">Other</mat-option>
-    </mat-select>
-  </mat-form-field>
+    </div>
+  </div>
 
   <!-- Event List -->
   <div class="events-section">

@@ -37,6 +37,7 @@ import { Moment } from 'moment';
 import {
   PlannerCompetition,
   PlannerCompetitionSaveRequest,
+  PlannerEquipmentHolderInput,
   PlannerMajorCompetitionSaveRequest,
   PlannerPerson,
 } from 'src/app/models/PlannerCompetition';
@@ -44,8 +45,8 @@ import { Delegate } from 'src/app/models/Delegate';
 import { SelectedPerson } from 'src/app/models/Person';
 import {
   equipmentPeopleIdsToValues,
-  equipmentValuesToPeopleIds,
   OTHER_EQUIPMENT_VALUE,
+  sortEquipmentHolders,
   toPlannerPerson,
 } from '../competition-planner.util';
 import {
@@ -128,11 +129,45 @@ export class AddEditCompetitionSheetComponent implements OnInit {
   equipmentOptions = computed(() =>
     [...this.delegateRoster()].sort((a, b) => a.name.localeCompare(b.name)),
   );
+  equipmentSelectOptions = computed(() =>
+    sortEquipmentHolders([
+      ...this.equipmentOptions().map((option) => ({
+        value: option.peopleId,
+        peopleId: option.peopleId,
+        name: option.name,
+      })),
+      { value: this.otherEquipmentValue, peopleId: null, name: 'Other' },
+    ]),
+  );
 
   delegates = signal<PlannerPerson[]>([]);
   organizers = signal<PlannerPerson[]>([]);
   // Equipment holder ids, drawn from this sheet's own Delegates list.
   equipmentValues = signal<string[]>([]);
+  equipmentDetailsByHolder = signal<Record<string, string>>({});
+  equipmentAssignments = computed(() => {
+    const detailsByHolder = this.equipmentDetailsByHolder();
+    const savedHolders = this.competition()?.equipmentHolders ?? [];
+    const options = this.equipmentOptions();
+    return sortEquipmentHolders(
+      this.equipmentValues().map((value) => {
+        const peopleId = value === OTHER_EQUIPMENT_VALUE ? null : value;
+        const savedHolder = savedHolders.find((holder) => holder.peopleId === peopleId);
+        const person =
+          peopleId === null
+            ? null
+            : (options.find((option) => option.peopleId === peopleId) ??
+              (savedHolder && savedHolder.peopleId !== null ? savedHolder : null));
+        return {
+          value,
+          peopleId,
+          person,
+          name: peopleId === null ? 'Other' : (person?.name ?? ''),
+          equipmentDetails: detailsByHolder[value] ?? '',
+        };
+      }),
+    );
+  });
   eventIds = signal<string[]>([]);
   unofficialEvents = signal<UnofficialEventDraft[]>([]);
   unofficialEventSearchControl = new FormControl('', { nonNullable: true });
@@ -222,8 +257,17 @@ export class AddEditCompetitionSheetComponent implements OnInit {
       });
       this.delegates.set(comp?.delegates ?? defaultDelegates);
       this.organizers.set(comp?.organizers ?? []);
+      const equipmentHolders = comp?.equipmentHolders ?? [];
       this.equipmentValues.set(
-        equipmentPeopleIdsToValues((comp?.equipmentHolders ?? []).map((holder) => holder.peopleId)),
+        equipmentPeopleIdsToValues(equipmentHolders.map((holder) => holder.peopleId)),
+      );
+      this.equipmentDetailsByHolder.set(
+        Object.fromEntries(
+          equipmentHolders.map((holder) => [
+            holder.peopleId ?? OTHER_EQUIPMENT_VALUE,
+            holder.equipmentDetails ?? '',
+          ]),
+        ),
       );
       this.eventIds.set(comp?.event_ids ?? []);
       this.unofficialEvents.set(
@@ -440,6 +484,14 @@ export class AddEditCompetitionSheetComponent implements OnInit {
     this.signalsDirty = true;
   }
 
+  setEquipmentDetails(peopleId: string, equipmentDetails: string): void {
+    this.equipmentDetailsByHolder.update((current) => ({
+      ...current,
+      [peopleId]: equipmentDetails,
+    }));
+    this.signalsDirty = true;
+  }
+
   save() {
     if (this.form.invalid || (!this.isMajor() && !this.delegates().length)) {
       this.form.markAllAsTouched();
@@ -447,7 +499,12 @@ export class AddEditCompetitionSheetComponent implements OnInit {
     }
 
     const value = this.form.getRawValue();
-    const equipmentPeopleIds = equipmentValuesToPeopleIds(this.equipmentValues());
+    const equipmentHolders: PlannerEquipmentHolderInput[] = this.equipmentAssignments().map(
+      ({ peopleId, equipmentDetails }) => ({
+        peopleId,
+        equipmentDetails: equipmentDetails.trim() || null,
+      }),
+    );
 
     const sharedBody = {
       name: value.name ?? '',
@@ -464,7 +521,7 @@ export class AddEditCompetitionSheetComponent implements OnInit {
       leadPeopleId: value.leadPeopleId,
       delegatePeopleIds: this.delegates().map((d) => d.peopleId),
       organizerPeopleIds: this.organizers().map((o) => o.peopleId),
-      equipmentPeopleIds,
+      equipmentHolders,
       eventIds: this.eventIds(),
       unofficialEvents: this.unofficialEvents().map(({ eventName, icon }) => ({ eventName, icon })),
     };

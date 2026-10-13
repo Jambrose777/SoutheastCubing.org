@@ -28,8 +28,8 @@ import { SoutheastcubingApiService } from 'src/app/services/southeastcubing-api/
 import { ToastService } from 'src/app/services/toast.service';
 import { EventNames, States } from 'src/app/shared/types';
 import {
-  equipmentValuesToPeopleIds,
   OTHER_EQUIPMENT_VALUE,
+  sortEquipmentHolders,
   toPlannerPerson,
 } from '../competition-planner.util';
 import { AvatarComponent } from '../../../../shared/avatar/avatar.component';
@@ -43,6 +43,7 @@ interface MultiCityLocationDraft {
   delegateSearch: FormControl<string>;
   resolvingDelegates: boolean;
   equipmentValues: string[];
+  equipmentDetailsByHolder: Record<string, string>;
 }
 
 // Creates multiple Planner location rows from one managed multi-city WCA competition.
@@ -86,6 +87,16 @@ export class MultiCityCreateSheetComponent implements OnInit {
   wcaDriveLink = new FormControl('');
   equipmentOptions = computed(() =>
     [...this.delegateRoster()].sort((left, right) => left.name.localeCompare(right.name)),
+  );
+  equipmentSelectOptions = computed(() =>
+    sortEquipmentHolders([
+      ...this.equipmentOptions().map((option) => ({
+        value: option.peopleId,
+        peopleId: option.peopleId,
+        name: option.name,
+      })),
+      { value: this.otherEquipmentValue, peopleId: null, name: 'Other' },
+    ]),
   );
   wcaDelegateOptions = computed(() =>
     [...(this.competition().delegates ?? [])].sort((left, right) =>
@@ -139,6 +150,7 @@ export class MultiCityCreateSheetComponent implements OnInit {
       delegateSearch: new FormControl('', { nonNullable: true }),
       resolvingDelegates: false,
       equipmentValues: [],
+      equipmentDetailsByHolder: {},
     };
     this.locations.update((current) => [...current, location]);
     if (markDirty) this.signalsDirty = true;
@@ -219,6 +231,37 @@ export class MultiCityCreateSheetComponent implements OnInit {
     this.signalsDirty = true;
   }
 
+  // Returns the selected equipment assignments with their location-specific details.
+  equipmentAssignments(location: MultiCityLocationDraft) {
+    return sortEquipmentHolders(
+      location.equipmentValues.map((value) => {
+        const peopleId = value === OTHER_EQUIPMENT_VALUE ? null : value;
+        const person =
+          peopleId === null
+            ? null
+            : this.equipmentOptions().find((delegate) => delegate.peopleId === peopleId);
+        return {
+          value,
+          peopleId,
+          person,
+          name: peopleId === null ? 'Other' : (person?.name ?? ''),
+          equipmentDetails: location.equipmentDetailsByHolder[value] ?? '',
+        };
+      }),
+    );
+  }
+
+  setEquipmentDetails(locationId: number, peopleId: string, equipmentDetails: string): void {
+    this.updateLocation(locationId, (location) => ({
+      ...location,
+      equipmentDetailsByHolder: {
+        ...location.equipmentDetailsByHolder,
+        [peopleId]: equipmentDetails,
+      },
+    }));
+    this.signalsDirty = true;
+  }
+
   // Builds the server payload and submits all location rows as one batch.
   save(): void {
     const locations = this.locations();
@@ -245,7 +288,12 @@ export class MultiCityCreateSheetComponent implements OnInit {
         competitorLimit: value.competitorLimit,
         leadPeopleId: value.leadPeopleId,
         delegatePeopleIds: location.delegates.map((delegate) => delegate.peopleId),
-        equipmentPeopleIds: equipmentValuesToPeopleIds(location.equipmentValues),
+        equipmentHolders: this.equipmentAssignments(location).map(
+          ({ peopleId, equipmentDetails }) => ({
+            peopleId,
+            equipmentDetails: equipmentDetails.trim() || null,
+          }),
+        ),
       };
     });
     const driveLink = this.wcaDriveLink.value?.trim() ?? '';

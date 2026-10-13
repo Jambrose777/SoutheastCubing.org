@@ -7,6 +7,7 @@ import {
   computed,
   effect,
   output,
+  model,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -95,6 +96,13 @@ export class DataTableComponent<T> {
   // consumer that doesn't want a given feature hide it outright.
   showColumnsButton = input<boolean>(true);
   showFilterPills = input<boolean>(true);
+
+  // When active, this filters all rows and temporarily bypasses search and column filters.
+  quickFilterOverride = input<{
+    label: string;
+    predicate: (row: T) => boolean;
+  } | null>(null);
+  quickFilterActive = model(false);
 
   // The Actions column config.
   actions = input<DataTableActions<T> | null>(null);
@@ -372,6 +380,7 @@ export class DataTableComponent<T> {
   // search term back to this table's own configured defaults.
   resetAll() {
     this.searchTerm.set('');
+    this.quickFilterActive.set(false);
     this.columnFilters.set(new Map());
     this.sort.set(this.defaultSort());
     const cols = this.columns();
@@ -408,6 +417,11 @@ export class DataTableComponent<T> {
   // regardless of whether that column is currently shown. A column with no
   // `searchValue` simply can't be searched.
   filteredRows = computed(() => {
+    const quickFilterOverride = this.quickFilterOverride();
+    if (this.quickFilterActive() && quickFilterOverride) {
+      return this.rows().filter(quickFilterOverride.predicate);
+    }
+
     const term = this.searchTerm().trim().toLowerCase();
     const base = this.columnFilteredRows();
     if (!term) return base;

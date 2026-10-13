@@ -7,11 +7,14 @@
         <se-loading-spinner></se-loading-spinner>
       } @else {
         <se-data-table
+          #manageUsersTable
           [rows]="rows()"
           [columns]="columns()"
           [trackBy]="trackByPeopleId"
           [defaultSort]="defaultSort"
           [actions]="actions"
+          [quickFilterOverride]="missingDiscordIdQuickFilter"
+          [(quickFilterActive)]="missingDiscordIdsOverrideActive"
           storageKey="table-prefs:manage-users"
         ></se-data-table>
       }
@@ -29,8 +32,23 @@
           ></se-avatar>
         }
       </ng-template>
-      <ng-template #nameCell let-row>{{ row.name }}</ng-template>
+      <ng-template #nameCell let-row>
+        @if (row.needsDiscordUserId) {
+          <button
+            type="button"
+            class="notification-badge missing-discord-id-indicator"
+            matTooltip="Add Discord user ID"
+            matTooltipPosition="above"
+            [attr.aria-label]="'Add Discord user ID for ' + row.name"
+            (click)="openEditSheet(row)"
+          >
+            !
+          </button>
+        }
+        {{ row.name }}
+      </ng-template>
       <ng-template #wcaIdCell let-row>{{ row.wcaId ?? row.wcaUserId ?? '--' }}</ng-template>
+      <ng-template #discordUserIdCell let-row>{{ row.discordUserId ?? '--' }}</ng-template>
       <ng-template #seciIdCell let-row>{{ row.seciId }}</ng-template>
       <ng-template #emailCell let-row>{{ row.email ?? '--' }}</ng-template>
       <ng-template #dobCell let-row>{{ row.dob ? formatLongDate(row.dob) : '--' }}</ng-template>

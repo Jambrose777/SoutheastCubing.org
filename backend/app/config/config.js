@@ -20,7 +20,8 @@ const configSchema = z.object({
   // optional env vars
   CONTENTFUL_SPACE: z.string().min(1).optional(),
   CONTENTFUL_ACCESS_TOKEN: z.string().min(1).optional(),
-  DISCORD_WEBHOOK: z.string().min(1).optional(),
+  DISCORD_COMPETITION_ANNOUNCEMENTS_WEBHOOK: z.string().min(1).optional(),
+  DISCORD_EQUIPMENT_NOTIFICATIONS_WEBHOOK: z.string().min(1).optional(),
   EMAIL_USER: z.string().min(1).optional(),
   EMAIL_PASS: z.string().min(1).optional(),
   EMAIL_TO_COMPETITIONS: z.string().min(1).optional(),
@@ -64,8 +65,10 @@ const OPTIONAL_VAR_DESCRIPTIONS = {
     'manually-added Contentful competitions will be skipped (WCA-sourced competitions still work)',
   CONTENTFUL_ACCESS_TOKEN:
     'manually-added Contentful competitions will be skipped (WCA-sourced competitions still work)',
-  DISCORD_WEBHOOK:
+  DISCORD_COMPETITION_ANNOUNCEMENTS_WEBHOOK:
     'competition Discord posts will be skipped (the competitions refresh itself still succeeds)',
+  DISCORD_EQUIPMENT_NOTIFICATIONS_WEBHOOK:
+    'equipment reminder Discord posts will be skipped until this is set',
   EMAIL_USER: 'POST /email will respond 503 until this is set',
   EMAIL_PASS: 'POST /email will respond 503 until this is set',
   EMAIL_TO_COMPETITIONS:

@@ -41,6 +41,12 @@
               <span class="field-label">WCA User ID</span>
               <span class="field-value">{{ info.wcaUserId ?? 'Not linked' }}</span>
             </div>
+            @if (info.discordUserId !== undefined) {
+              <div class="field-row">
+                <span class="field-label">Discord User ID</span>
+                <span class="field-value">{{ info.discordUserId ?? 'Not set' }}</span>
+              </div>
+            }
             <div class="field-row">
               <span class="field-label">Email</span>
               <span class="field-value">{{ info.email ?? 'Not shared' }}</span>

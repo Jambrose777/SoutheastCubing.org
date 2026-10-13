@@ -6,6 +6,7 @@ const {
   fetchCompetitions,
   runCoordinatedCompetitionRefresh,
 } = require('../services/competitions.service.js');
+const { sendDueEquipmentReminders } = require('../services/equipmentReminders.service.js');
 
 // Fetches competitions once immediately on boot (if the stored data is
 // stale) and schedules a recurring daily refresh at midnight UTC - kept
@@ -24,7 +25,16 @@ function registerCompetitionsRefreshJob() {
   schedule.scheduleJob('0 0 * * *', () => {
     logger.info('Fetching competitions on scheduled update.');
     runCoordinatedCompetitionRefresh()
-      .then(() => logger.info('Successfully fetched competitions on scheduled update.'))
+      .then(async () => {
+        try {
+          await sendDueEquipmentReminders();
+        } catch {
+          logger.warn(
+            'Equipment reminder processing did not complete; unsent reminders will be retried on a later refresh.',
+          );
+        }
+        logger.info('Successfully fetched competitions on scheduled update.');
+      })
       .catch((e) => {
         if (e.status === 409) {
           logger.info(`Skipping scheduled competition refresh: ${e.message}`);

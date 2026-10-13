@@ -265,12 +265,42 @@
           (selectionChange)="setEquipmentValues(location.id, $event.value)"
           multiple
         >
-          @for (delegate of equipmentOptions(); track delegate.peopleId) {
-            <mat-option [value]="delegate.peopleId">{{ delegate.name }}</mat-option>
+          @for (option of equipmentSelectOptions(); track option.value) {
+            <mat-option [value]="option.value">{{ option.name }}</mat-option>
           }
-          <mat-option [value]="otherEquipmentValue">Other</mat-option>
         </mat-select>
       </mat-form-field>
+      <div class="equipment-holder-list">
+        @for (holder of equipmentAssignments(location); track holder.value) {
+          <div class="equipment-holder-row">
+            <div class="equipment-holder-person">
+              <div class="equipment-holder-avatar">
+                @if (holder.person?.pictureUrl) {
+                  <se-avatar
+                    [src]="holder.person.pictureUrl"
+                    [size]="28"
+                    [alt]="holder.person.name"
+                    [cropX]="holder.person.thumbnailCropX"
+                    [cropY]="holder.person.thumbnailCropY"
+                    [cropW]="holder.person.thumbnailCropW"
+                    [cropH]="holder.person.thumbnailCropH"
+                  ></se-avatar>
+                }
+              </div>
+              <span>{{ holder.name }}</span>
+            </div>
+            <mat-form-field subscriptSizing="dynamic">
+              <mat-label>What are they bringing?</mat-label>
+              <textarea
+                matInput
+                rows="2"
+                [value]="holder.equipmentDetails"
+                (input)="setEquipmentDetails(location.id, holder.value, $any($event.target).value)"
+              ></textarea>
+            </mat-form-field>
+          </div>
+        }
+      </div>
     </section>
   }
 

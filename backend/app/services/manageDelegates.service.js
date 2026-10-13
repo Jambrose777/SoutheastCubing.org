@@ -126,6 +126,21 @@ async function updateBio(peopleId, bio, actorId) {
   return delegatesDb.updateBio(delegate.id, bio, actorId);
 }
 
+// Sets a Delegate's Discord user ID from the Board/Admin Manage Users tool.
+async function updateDiscordUserId(peopleId, discordUserId, actorId) {
+  if (discordUserId !== null && typeof discordUserId !== 'string') {
+    throw httpError(400, 'Discord user ID must be a string or null.');
+  }
+  const normalizedDiscordUserId = discordUserId?.trim() || null;
+  if (normalizedDiscordUserId && !/^\d+$/.test(normalizedDiscordUserId)) {
+    throw httpError(400, 'Discord user ID must contain digits only.');
+  }
+
+  const delegate = await delegatesDb.findDelegateByPeopleId(peopleId);
+  if (!delegate) throw httpError(404, 'This person is not a Delegate.');
+  return delegatesDb.updateDiscordUserId(delegate.id, normalizedDiscordUserId, actorId);
+}
+
 module.exports = {
   createRankRow,
   createStateRow,
@@ -134,4 +149,5 @@ module.exports = {
   hardDeleteRankRow,
   hardDeleteStateRow,
   updateBio,
+  updateDiscordUserId,
 };

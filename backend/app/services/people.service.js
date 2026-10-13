@@ -115,6 +115,9 @@ function buildUserRow(person, { openRanksByPeopleId, openStateByPeopleId, teamsB
     delegateRank,
     delegateState,
     bio: person.bio,
+    discordUserId: person.discord_user_id ?? null,
+    needsDiscordUserId:
+      openRanks.length > 0 && !!delegateState && !person.discord_user_id,
     teams: teamsByPeopleId.get(person.id) ?? [],
     updatedAt,
   };

@@ -1,12 +1,12 @@
 // One open item in the notification-badge mechanism.
-// `toolRouterLink` matches a DashboardTool.routerLink
-// `fieldId` is the DOM element id the badge's click should scroll to/focus
-// once that tool's page has loaded.
+// `toolRouterLink` matches a DashboardTool.routerLink; navigation can either
+// focus a page field or pass tool-specific query parameters.
 export interface PendingItem {
   id: string;
   label: string;
   toolRouterLink: string;
-  fieldId: string;
+  fieldId?: string;
+  queryParams?: Record<string, string>;
 }
 
 // The signed-in user's public display info, as returned by GET /auth/me -

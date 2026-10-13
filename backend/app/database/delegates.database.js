@@ -166,6 +166,25 @@ async function listAllOpenStateRows() {
   return rows;
 }
 
+// Reports whether any currently-active Delegate lacks a Discord user ID.
+async function hasCurrentDelegatesMissingDiscordUserId() {
+  const { rows } = await db.pool.query(
+    `SELECT 1
+     FROM delegates d
+     WHERE d.discord_user_id IS NULL
+       AND EXISTS (
+         SELECT 1 FROM delegate_rank_history drh
+         WHERE drh.delegate_id = d.people_id AND drh.end_date IS NULL
+       )
+       AND EXISTS (
+         SELECT 1 FROM delegate_state_history dsh
+         WHERE dsh.delegate_id = d.people_id AND dsh.end_date IS NULL
+       )
+     LIMIT 1`,
+  );
+  return rows.length > 0;
+}
+
 // Opens a new SE state row - moving into the Southeast, or moving from one
 // SE state to another. `startDate` is a 'YYYY-MM-DD' string (or a Date).
 async function openStateRow(peopleId, state, startDate, actorId = null, endDate = null) {
@@ -266,6 +285,19 @@ async function updateBio(delegateId, bio, actorId = null) {
   return rows[0] ?? null;
 }
 
+// Sets a Delegate's Discord user ID on their behalf.
+async function updateDiscordUserId(delegateId, discordUserId, actorId = null) {
+  const { rows } = await db.pool.query(
+    `UPDATE delegates
+     SET discord_user_id = $2, updated_by = $3, updated_at = now()
+     WHERE id = $1
+     RETURNING *`,
+    [delegateId, discordUserId, actorId],
+  );
+  logger.debug(`Updated Discord user ID for delegate_id ${delegateId}.`);
+  return rows[0] ?? null;
+}
+
 // Every currently-open rank a person holds (via their delegates row), as
 // plain rank strings - the shared role-derivation helper's raw input for
 // resolving `delegateRank` (see roles.helper.js's getCurrentRoles). Returns
@@ -310,6 +342,7 @@ module.exports = {
   openStateRow,
   closeStateRow,
   findStateRowById,
+  hasCurrentDelegatesMissingDiscordUserId,
   updateStateRow,
   hardDeleteStateRow,
   updateCompetitionsDelegatedCount,
@@ -317,4 +350,5 @@ module.exports = {
   listRankRowsForDelegate,
   listStateRowsForDelegate,
   updateBio,
+  updateDiscordUserId,
 };

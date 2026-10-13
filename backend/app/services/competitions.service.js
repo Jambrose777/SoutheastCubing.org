@@ -140,8 +140,11 @@ async function getCompetitionsForPlanner(view) {
   };
 
   // An equipment holder's people_id is null for the plain "Other" option,
-  // which never resolves to a person.
-  const toEquipmentHolder = (row) => (row.people_id === null ? { peopleId: null } : toPerson(row));
+  // which carries assignment details without resolving to a person.
+  const toEquipmentHolder = (row) => ({
+    ...(row.people_id === null ? { peopleId: null } : toPerson(row)),
+    equipmentDetails: row.equipment_details,
+  });
 
   return comps.map((comp) => ({
     ...comp,
@@ -169,10 +172,37 @@ async function assertPeopleExist(peopleIds, label) {
   }
 }
 
-// Equipment holders are drawn from the Delegate roster generally (plus the
-// plain "Other" option, a null entry).
-async function assertEquipmentHoldersAreDelegates(equipmentPeopleIds) {
-  const peopleIds = equipmentPeopleIds.filter((peopleId) => peopleId !== null);
+// Validates the Planner's equipment-holder assignment objects.
+function getEquipmentHolders(input) {
+  const equipmentHolders = input.equipmentHolders;
+  if (!Array.isArray(equipmentHolders)) {
+    throw httpError(400, 'Equipment holders must be an array.');
+  }
+  if (
+    equipmentHolders.some(
+      (holder) =>
+        !holder ||
+        typeof holder !== 'object' ||
+        Array.isArray(holder) ||
+        !Object.hasOwn(holder, 'peopleId') ||
+        (holder.peopleId !== null && typeof holder.peopleId !== 'string') ||
+        !Object.hasOwn(holder, 'equipmentDetails') ||
+        (holder.equipmentDetails !== null && typeof holder.equipmentDetails !== 'string'),
+    )
+  ) {
+    throw httpError(400, 'Equipment holders must be valid assignment objects.');
+  }
+  if (new Set(equipmentHolders.map((holder) => holder.peopleId)).size !== equipmentHolders.length) {
+    throw httpError(400, 'Equipment holders must not contain duplicate assignments.');
+  }
+  return equipmentHolders;
+}
+
+// Person assignments must reference current Delegates; null represents "Other".
+async function assertEquipmentHoldersAreDelegates(equipmentHolders) {
+  const peopleIds = equipmentHolders
+    .map((holder) => holder.peopleId)
+    .filter((peopleId) => peopleId !== null);
   if (!peopleIds.length) return;
   const openDelegatePeopleIds = await delegatesDb.findOpenDelegatePeopleIds(peopleIds);
   const invalid = peopleIds.some((peopleId) => !openDelegatePeopleIds.includes(peopleId));
@@ -718,7 +748,7 @@ async function createCompetition(input) {
 
   const delegatePeopleIds = input.delegatePeopleIds ?? [];
   const organizerPeopleIds = input.organizerPeopleIds ?? [];
-  const equipmentPeopleIds = input.equipmentPeopleIds ?? [];
+  const equipmentHolders = getEquipmentHolders(input);
   const eventIds = input.eventIds ?? [];
   const unofficialEvents = input.unofficialEvents ?? [];
   if (!delegatePeopleIds.includes(leadPeopleId)) {
@@ -726,7 +756,7 @@ async function createCompetition(input) {
   }
   await assertPeopleExist(delegatePeopleIds, 'Delegates');
   await assertPeopleExist(organizerPeopleIds, 'Organizers');
-  await assertEquipmentHoldersAreDelegates(equipmentPeopleIds);
+  await assertEquipmentHoldersAreDelegates(equipmentHolders);
   assertValidEventIds(eventIds);
   assertValidUnofficialEvents(unofficialEvents);
 
@@ -756,7 +786,7 @@ async function createCompetition(input) {
     })),
   );
   await competitionOrganizersDb.replaceOrganizersForCompetition(id, organizerPeopleIds);
-  await competitionEquipmentHoldersDb.replaceEquipmentHoldersForCompetition(id, equipmentPeopleIds);
+  await competitionEquipmentHoldersDb.replaceEquipmentHoldersForCompetition(id, equipmentHolders);
   await competitionEventsDb.replaceEventIds([{ id, event_ids: eventIds }]);
   await competitionUnofficialEventsDb.replaceUnofficialEventsForCompetition(id, unofficialEvents);
 
@@ -802,19 +832,18 @@ async function createMajorCompetition(input) {
 
   const delegatePeopleIds = input.delegatePeopleIds ?? [];
   const organizerPeopleIds = input.organizerPeopleIds ?? [];
-  const equipmentPeopleIds = input.equipmentPeopleIds ?? [];
+  const equipmentHolders = getEquipmentHolders(input);
   const eventIds = input.eventIds ?? [];
   const unofficialEvents = input.unofficialEvents ?? [];
   if (
     !Array.isArray(delegatePeopleIds) ||
     !Array.isArray(organizerPeopleIds) ||
-    !Array.isArray(equipmentPeopleIds) ||
     !Array.isArray(eventIds) ||
     !Array.isArray(unofficialEvents)
   ) {
     throw httpError(
       400,
-      'Delegates, organizers, equipment holders, events, and unofficial events must be arrays.',
+      'Delegates, organizers, events, and unofficial events must be arrays.',
     );
   }
 
@@ -824,7 +853,7 @@ async function createMajorCompetition(input) {
   }
   await assertPeopleExist(delegatePeopleIds, 'Delegates');
   await assertPeopleExist(organizerPeopleIds, 'Organizers');
-  await assertEquipmentHoldersAreDelegates(equipmentPeopleIds);
+  await assertEquipmentHoldersAreDelegates(equipmentHolders);
   assertValidEventIds(eventIds);
   assertValidUnofficialEvents(unofficialEvents);
 
@@ -856,7 +885,7 @@ async function createMajorCompetition(input) {
     })),
   );
   await competitionOrganizersDb.replaceOrganizersForCompetition(id, organizerPeopleIds);
-  await competitionEquipmentHoldersDb.replaceEquipmentHoldersForCompetition(id, equipmentPeopleIds);
+  await competitionEquipmentHoldersDb.replaceEquipmentHoldersForCompetition(id, equipmentHolders);
   await competitionEventsDb.replaceEventIds([{ id, event_ids: eventIds }]);
   await competitionUnofficialEventsDb.replaceUnofficialEventsForCompetition(id, unofficialEvents);
 
@@ -887,8 +916,8 @@ async function updateCompetition(id, input) {
     throw httpError(400, 'Lead Delegate is required.');
   }
 
-  const equipmentPeopleIds = input.equipmentPeopleIds ?? [];
-  await assertEquipmentHoldersAreDelegates(equipmentPeopleIds);
+  const equipmentHolders = getEquipmentHolders(input);
+  await assertEquipmentHoldersAreDelegates(equipmentHolders);
 
   let updatedCompetition = null;
   if (status === 'potential') {
@@ -990,7 +1019,7 @@ async function updateCompetition(id, input) {
   }
 
   // Equipment stays editable regardless of status - Planner-owned, never synced.
-  await competitionEquipmentHoldersDb.replaceEquipmentHoldersForCompetition(id, equipmentPeopleIds);
+  await competitionEquipmentHoldersDb.replaceEquipmentHoldersForCompetition(id, equipmentHolders);
   const unofficialEventsChanged =
     await competitionUnofficialEventsDb.replaceUnofficialEventsForCompetition(id, unofficialEvents);
   if (status === 'announced' && unofficialEventsChanged) invalidateCache();
@@ -1283,21 +1312,18 @@ async function createMultiCityCompetitionFromWca({
   const validatedLocations = locations.map((location) => {
     const validatedLocation = getValidatedMultiCityLocation(location);
     const delegatePeopleIds = location.delegatePeopleIds;
-    const equipmentPeopleIds = location.equipmentPeopleIds ?? [];
+    const equipmentHolders = getEquipmentHolders(location);
     if (!Array.isArray(delegatePeopleIds) || !delegatePeopleIds.length) {
       throw httpError(400, 'At least one Delegate is required for each multi-city location.');
     }
     if (!delegatePeopleIds.includes(location.leadPeopleId)) {
       throw httpError(400, "Lead Delegate must already be one of this competition's Delegates.");
     }
-    if (!Array.isArray(equipmentPeopleIds)) {
-      throw httpError(400, 'Equipment holders must be an array.');
-    }
     return {
       ...validatedLocation,
       delegatePeopleIds,
       leadPeopleId: location.leadPeopleId,
-      equipmentPeopleIds,
+      equipmentHolders,
     };
   });
   await assertPeopleExist(
@@ -1305,7 +1331,7 @@ async function createMultiCityCompetitionFromWca({
     'Delegates',
   );
   await assertEquipmentHoldersAreDelegates(
-    validatedLocations.flatMap((location) => location.equipmentPeopleIds),
+    validatedLocations.flatMap((location) => location.equipmentHolders),
   );
 
   // Reuse an existing shared folder; otherwise validate any requested Drive action.
@@ -1376,7 +1402,7 @@ async function createMultiCityCompetitionFromWca({
     );
     await competitionEquipmentHoldersDb.replaceEquipmentHoldersForCompetition(
       competitionId,
-      location.equipmentPeopleIds,
+      location.equipmentHolders,
     );
   }
 

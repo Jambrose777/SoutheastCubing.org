@@ -26,12 +26,20 @@ export class DashboardSidePaneComponent {
   );
 
   // The single open pending item (if any) targeting each visible tool, by
-  // its routerLink - drives that row's "!" badge and, on click, which field
-  // the destination page should scroll to/focus.
+  // its routerLink - drives that row's "!" badge and navigation destination.
   pendingItemFor = computed(() => {
     const pendingItems = this.authService.currentUser()?.pendingItems ?? [];
     return (routerLink: string) => pendingItems.find((item) => item.toolRouterLink === routerLink);
   });
+
+  // Uses tool-specific query parameters when present; otherwise, pending
+  // items continue to use the shared focus-field navigation convention.
+  queryParamsForTool(routerLink: string): Record<string, string> | null {
+    const pendingItem = this.pendingItemFor()(routerLink);
+    if (!pendingItem) return null;
+    if (pendingItem.queryParams) return pendingItem.queryParams;
+    return pendingItem.fieldId ? { focusField: pendingItem.fieldId } : null;
+  }
 
   // Dashboard always requires auth, so this always redirects home.
   signOut() {

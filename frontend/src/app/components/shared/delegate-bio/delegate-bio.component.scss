@@ -39,22 +39,6 @@
   text-decoration: underline;
   cursor: pointer;
 }
-
-// The generic notification-badge mechanism's "!" indicator.
-.pending-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background-color: color-pallet.$se-dark-red;
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
-}
-
 // Rendered markdown. Strips the rendered markdown's own first/last paragraph
 // margin so it doesn't add extra space inside this box's own padding.
 .bio-text {

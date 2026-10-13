@@ -234,6 +234,26 @@
           }
         </div>
       </ng-template>
+      <ng-template #equipmentHoldersCell let-row>
+        <div class="avatar-list">
+          @for (holder of visibleEquipmentHolders(row); track holder.peopleId ?? $index) {
+            @if (holder.peopleId === null) {
+              <span class="equipment-holder-label">Other</span>
+            } @else if (holder.pictureUrl) {
+              <se-avatar
+                [src]="holder.pictureUrl"
+                [size]="28"
+                [alt]="holder.name"
+                [showTooltip]="true"
+                [cropX]="holder.thumbnailCropX"
+                [cropY]="holder.thumbnailCropY"
+                [cropW]="holder.thumbnailCropW"
+                [cropH]="holder.thumbnailCropH"
+              ></se-avatar>
+            }
+          }
+        </div>
+      </ng-template>
       <ng-template #statusCell let-row>
         @if (row.plannerRowType) {
           {{ '' }}

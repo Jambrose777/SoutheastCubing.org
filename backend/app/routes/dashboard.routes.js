@@ -534,6 +534,26 @@ router.put(
 
 /**
  * @openapi
+ * /dashboard/manage-users/{peopleId}/discord-user-id:
+ *   put:
+ *     summary: Admin/Board sets a Delegate's Discord user ID on their behalf.
+ *     tags: [People]
+ *     responses:
+ *       400:
+ *         description: Invalid Discord user ID.
+ *       403:
+ *         description: Not Board/Admin.
+ *       404:
+ *         description: This person is not a Delegate.
+ */
+router.put(
+  '/dashboard/manage-users/:peopleId/discord-user-id',
+  requireBoardOrAdmin,
+  asyncRoute(delegatesController.updateDiscordUserIdForPerson),
+);
+
+/**
+ * @openapi
  * /dashboard/competition-planner/competitions:
  *   get:
  *     summary: Competitions in a date scope regardless of status (Potential/Planning/Announced) for the Competition Planner tool.

@@ -12,18 +12,14 @@
           <a
             class="item-row"
             [routerLink]="tool.routerLink"
-            [queryParams]="
-              pendingItemFor()(tool.routerLink)
-                ? { focusField: pendingItemFor()(tool.routerLink)!.fieldId }
-                : null
-            "
+            [queryParams]="queryParamsForTool(tool.routerLink)"
           >
             <div class="item-title">
               <span>{{ tool.label }}</span>
               <span class="item-title-end">
                 @if (pendingItemFor()(tool.routerLink); as pendingItem) {
                   <span
-                    class="pending-badge"
+                    class="notification-badge pending-badge"
                     [matTooltip]="pendingItem.label"
                     matTooltipPosition="above"
                     aria-label="{{ pendingItem.label }}"

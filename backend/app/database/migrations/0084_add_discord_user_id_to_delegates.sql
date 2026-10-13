@@ -1,0 +1,1 @@
+ALTER TABLE delegates ADD COLUMN discord_user_id TEXT;

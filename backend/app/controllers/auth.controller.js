@@ -280,12 +280,13 @@ async function getCurrentUser(req, res) {
     res.status(401).json({ message: 'Not signed in.' });
     return;
   }
-  const [{ isAdmin, isBoard, isRegionalDelegate, isDelegate }, pendingItems, grant] =
-    await Promise.all([
-      getCurrentRoles(req.user.people_id, req.user.sessionId),
-      getPendingItems(req.user),
-      wcaOauthGrantsDb.findByPeopleId(req.user.people_id),
-    ]);
+  const currentRolesPromise = getCurrentRoles(req.user.people_id, req.user.sessionId);
+  const [currentRoles, pendingItems, grant] = await Promise.all([
+    currentRolesPromise,
+    currentRolesPromise.then((roles) => getPendingItems(req.user, roles)),
+    wcaOauthGrantsDb.findByPeopleId(req.user.people_id),
+  ]);
+  const { isAdmin, isBoard, isRegionalDelegate, isDelegate } = currentRoles;
 
   // Only spread in impersonatedRole when it's actually set - never send the
   // key at all (not even as a null value) outside local dev, so a

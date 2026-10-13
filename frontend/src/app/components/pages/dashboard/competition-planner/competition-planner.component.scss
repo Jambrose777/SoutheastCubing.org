@@ -120,6 +120,14 @@
   }
 }
 
+.equipment-holder-label {
+  flex: 0 0 auto;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .events-list {
   display: flex;
   flex-wrap: wrap;

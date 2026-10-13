@@ -28,6 +28,8 @@ export interface ManageUser {
   delegateRank: 'trainee' | 'junior' | 'delegate' | 'senior' | 'regional' | null;
   delegateState: string | null;
   bio: string | null;
+  discordUserId: string | null;
+  needsDiscordUserId: boolean;
   teams: ManageUserTeam[];
   updatedAt: string | null;
 }

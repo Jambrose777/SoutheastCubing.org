@@ -1,5 +1,5 @@
 import { getPlannerMajorHolidaysBetween } from './competition-planner-holidays.util';
-import { getOpenWeekendDates } from './competition-planner.util';
+import { getOpenWeekendDates, sortEquipmentHolders } from './competition-planner.util';
 import {
   Component,
   ChangeDetectionStrategy,
@@ -158,6 +158,15 @@ function visibleOrganizers(row: PlannerCompetition) {
   return row.organizers.filter((o) => o.name !== SOUTHEAST_CUBING_ORGANIZER_NAME);
 }
 
+function visibleEquipmentHolders(row: PlannerCompetition) {
+  return sortEquipmentHolders(
+    row.equipmentHolders.map((holder) => ({
+      ...holder,
+      name: holder.peopleId === null ? 'Other' : holder.name,
+    })),
+  );
+}
+
 function isNonSoutheastMajor(row: PlannerCompetition): boolean {
   return row.is_major && !SOUTHEAST_STATE_CODES.has(row.state ?? '');
 }
@@ -314,6 +323,7 @@ export class CompetitionPlannerComponent implements OnInit {
   waitingListTooltip = waitingListTooltip;
   isWaitingListStale = isWaitingListStale;
   visibleOrganizers = visibleOrganizers;
+  visibleEquipmentHolders = visibleEquipmentHolders;
   locationColor = (row: PlannerCompetition) =>
     isNonSoutheastMajor(row) ? Colors.black : StateColors[row.state ?? '??'];
   registrationPeriodColor = registrationPeriodColor;
@@ -332,6 +342,8 @@ export class CompetitionPlannerComponent implements OnInit {
     viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('delegatesCell');
   private organizersCell =
     viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('organizersCell');
+  private equipmentHoldersCell =
+    viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('equipmentHoldersCell');
   private eventsCell =
     viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('eventsCell');
   private unofficialEventsCell =
@@ -417,6 +429,20 @@ export class CompetitionPlannerComponent implements OnInit {
           .map((o) => o.name)
           .join(', '),
       cellTemplate: this.organizersCell(),
+    },
+    {
+      key: 'equipmentHolders',
+      label: 'Equipment',
+      width: '125px',
+      filterable: true,
+      filterType: 'multiselect',
+      filterValue: (row) => visibleEquipmentHolders(row).map((holder) => holder.name),
+      visibleByDefault: false,
+      searchValue: (row) =>
+        visibleEquipmentHolders(row)
+          .map((holder) => holder.name)
+          .join(', '),
+      cellTemplate: this.equipmentHoldersCell(),
     },
     {
       key: 'status',

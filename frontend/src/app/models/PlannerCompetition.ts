@@ -13,9 +13,19 @@ export interface PlannerPerson {
   isLead?: boolean;
 }
 
-// An Equipment holder on a planner competition row - `peopleId` is null for
-// the plain "Other" option, which never resolves to a person.
-export type PlannerEquipmentHolder = { peopleId: null } | PlannerPerson;
+// A person-backed equipment-holder assignment.
+export interface PlannerPersonEquipmentHolder extends PlannerPerson {
+  equipmentDetails: string | null;
+}
+
+// An equipment-holder assignment - `peopleId` is null for the generic "Other" row.
+export type PlannerEquipmentHolder =
+  PlannerPersonEquipmentHolder | { peopleId: null; equipmentDetails: string | null };
+
+export interface PlannerEquipmentHolderInput {
+  peopleId: string | null;
+  equipmentDetails: string | null;
+}
 
 // A competition's derived Competition Planner status - 'potential' (no WCA
 // competition id yet), 'planning' (linked but not yet announced), or
@@ -119,7 +129,7 @@ export interface PlannerCompetitionSaveRequest {
   leadPeopleId: string;
   delegatePeopleIds?: string[];
   organizerPeopleIds?: string[];
-  equipmentPeopleIds?: (string | null)[];
+  equipmentHolders: PlannerEquipmentHolderInput[];
   eventIds?: string[];
   unofficialEvents: PlannerUnofficialEventInput[];
   createWcaDriveFolder?: boolean;
@@ -143,7 +153,7 @@ export interface PlannerMajorCompetitionSaveRequest {
   leadPeopleId?: string | null;
   delegatePeopleIds?: string[];
   organizerPeopleIds?: string[];
-  equipmentPeopleIds?: (string | null)[];
+  equipmentHolders: PlannerEquipmentHolderInput[];
   eventIds?: string[];
   unofficialEvents: PlannerUnofficialEventInput[];
 }
@@ -194,7 +204,7 @@ export interface PlannerMultiCityLocationRequest {
   competitorLimit: number;
   leadPeopleId: string;
   delegatePeopleIds: string[];
-  equipmentPeopleIds?: (string | null)[];
+  equipmentHolders: PlannerEquipmentHolderInput[];
 }
 
 export interface PlannerMultiCityCreateRequest {

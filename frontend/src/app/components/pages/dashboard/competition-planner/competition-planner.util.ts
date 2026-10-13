@@ -30,6 +30,17 @@ export function equipmentPeopleIdsToValues(peopleIds: (string | null)[]): string
   return peopleIds.map((peopleId) => peopleId ?? OTHER_EQUIPMENT_VALUE);
 }
 
+// Alphabetizes person holders and always places the generic "Other" assignment last.
+export function sortEquipmentHolders<T extends { peopleId: string | null; name: string }>(
+  holders: T[],
+): T[] {
+  return [...holders].sort((left, right) => {
+    if (left.peopleId === null) return right.peopleId === null ? 0 : 1;
+    if (right.peopleId === null) return -1;
+    return left.name.localeCompare(right.name);
+  });
+}
+
 // Returns Saturdays whose Saturday and Sunday dates are both free of competitions.
 // Returns Saturdays free of competitions and, when supplied, major holidays.
 export function getOpenWeekendDates(

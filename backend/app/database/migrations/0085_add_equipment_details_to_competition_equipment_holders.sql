@@ -1,0 +1,1 @@
+ALTER TABLE competition_equipment_holders ADD COLUMN equipment_details TEXT;

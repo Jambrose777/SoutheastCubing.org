@@ -2,12 +2,17 @@ import {
   Component,
   ChangeDetectionStrategy,
   inject,
+  DestroyRef,
   OnInit,
   viewChild,
   TemplateRef,
   computed,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Location } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { ManageUsersApiService } from 'src/app/services/southeastcubing-api/manage-users-api.service';
@@ -67,6 +72,7 @@ function teamCellText(row: ManageUser): string {
     AvatarComponent,
     LoadingSpinnerComponent,
     DataTableComponent,
+    MatTooltipModule,
     EditUserSheetComponent,
   ],
 })
@@ -74,6 +80,10 @@ export class ManageUsersComponent implements OnInit {
   private screenSizeService = inject(ScreenSizeService);
   private themeService = inject(ThemeService);
   private manageUsersApi = inject(ManageUsersApiService);
+  private location = inject(Location);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   isMobile = this.screenSizeService.isMobile;
 
@@ -83,10 +93,17 @@ export class ManageUsersComponent implements OnInit {
   formatLongDateTime = formatLongDateTime;
   delegateCellText = delegateCellText;
   teamCellText = teamCellText;
+  missingDiscordIdsOverrideActive = signal(false);
+  missingDiscordIdQuickFilter = {
+    label: 'Delegates missing Discord IDs',
+    predicate: (row: ManageUser) => row.needsDiscordUserId,
+  };
 
   private pictureCell = viewChild.required<TemplateRef<{ $implicit: ManageUser }>>('pictureCell');
   private nameCell = viewChild.required<TemplateRef<{ $implicit: ManageUser }>>('nameCell');
   private wcaIdCell = viewChild.required<TemplateRef<{ $implicit: ManageUser }>>('wcaIdCell');
+  private discordUserIdCell =
+    viewChild.required<TemplateRef<{ $implicit: ManageUser }>>('discordUserIdCell');
   private delegateCell = viewChild.required<TemplateRef<{ $implicit: ManageUser }>>('delegateCell');
   private teamCell = viewChild.required<TemplateRef<{ $implicit: ManageUser }>>('teamCell');
   private updatedAtCell =
@@ -134,6 +151,16 @@ export class ManageUsersComponent implements OnInit {
       sortValue: (row) => row.seciId,
       searchValue: (row) => row.seciId,
       cellTemplate: this.seciIdCell(),
+    },
+    {
+      key: 'discordUserId',
+      label: 'Discord User ID',
+      width: '210px',
+      filterable: false,
+      visibleByDefault: false,
+      sortValue: (row) => row.discordUserId ?? '',
+      searchValue: (row) => row.discordUserId ?? '',
+      cellTemplate: this.discordUserIdCell(),
     },
     {
       key: 'email',
@@ -214,6 +241,9 @@ export class ManageUsersComponent implements OnInit {
   ngOnInit(): void {
     const tool = DASHBOARD_TOOLS.find((t) => t.routerLink === '/dashboard/manage-users');
     this.themeService.setMainPaneColor(tool?.color ?? Colors.grey);
+    this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.handleNotificationRouteParam();
+    });
     this.loadUsers();
   }
 
@@ -230,8 +260,32 @@ export class ManageUsersComponent implements OnInit {
     });
   }
 
+  // Activates the missing-ID override as soon as its navigation parameter arrives.
+  private handleNotificationRouteParam(): void {
+    if (this.route.snapshot.queryParamMap.get('showMissingDiscordIds') !== 'true') {
+      return;
+    }
+
+    this.missingDiscordIdsOverrideActive.set(true);
+    this.clearNotificationRouteParam();
+  }
+
+  // Removes the one-time parameter only after the router finishes applying it.
+  private clearNotificationRouteParam(): void {
+    if (this.route.snapshot.queryParamMap.get('showMissingDiscordIds') !== 'true') {
+      return;
+    }
+
+    const url = this.router.createUrlTree([], {
+      relativeTo: this.route,
+      queryParams: { showMissingDiscordIds: null },
+      queryParamsHandling: 'merge',
+    });
+    this.location.replaceState(this.router.serializeUrl(url));
+  }
+
   // Opens the edit sheet for this row.
-  private openEditSheet(row: ManageUser) {
+  openEditSheet(row: ManageUser) {
     this.selectedUser.set(row);
     this.editSheetOpen.set(true);
   }

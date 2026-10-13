@@ -138,6 +138,23 @@ se-google-map {
   gap: 8px;
 }
 
+.equipment-holder-avatar {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.equipment-holder-info {
+  min-width: 0;
+}
+
+.equipment-details {
+  margin: 2px 0 0;
+  color: color-pallet.$se-dark-grey;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .lead-label {
   font-size: 0.8rem;
   background: color-pallet.$se-blue;

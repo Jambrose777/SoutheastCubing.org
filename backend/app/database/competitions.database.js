@@ -226,6 +226,27 @@ async function markAnnounced(ids) {
   }
 }
 
+// Marks reminder rows as sent only after their Discord posts have succeeded.
+async function markEquipmentRemindersSent(ids) {
+  if (!ids.length) return [];
+  try {
+    const { rows } = await db.withRetry(async (client) =>
+      client.query(
+        `UPDATE competitions
+         SET equipment_reminder_sent_at = now()
+         WHERE id = ANY($1) AND equipment_reminder_sent_at IS NULL
+         RETURNING id`,
+        [ids],
+      ),
+    );
+    logger.debug(`Marked ${rows.length} equipment reminder(s) sent in the competitions table.`);
+    return rows.map((row) => row.id);
+  } catch (error) {
+    logger.error('Failed to mark equipment reminders sent in the competitions table: ', error);
+    throw error;
+  }
+}
+
 // Returns every announced competition ending on or after yesterday, ordered
 // by start date, ties broken by name.
 async function getAnnouncedUpcomingCompetitions() {
@@ -357,6 +378,33 @@ async function getCompetitionsPendingDiscordAnnouncement() {
       err,
     );
     throw err;
+  }
+}
+
+// Finds announced, unsent competitions on or after `today` with a holder assigned.
+async function getEquipmentReminderCandidates(today) {
+  try {
+    const { rows } = await db.pool.query(
+      `SELECT c.id, c.name, c.city, c.start_date, c.end_date, c.full_date
+       FROM competitions c
+       WHERE c.is_announced IS TRUE
+         AND c.is_cancelled IS FALSE
+         AND c.equipment_reminder_sent_at IS NULL
+         AND c.start_date >= $1
+         AND EXISTS (
+           SELECT 1 FROM competition_equipment_holders ceh
+           WHERE ceh.competition_id = c.id
+         )
+       ORDER BY c.start_date ASC, c.name ASC`,
+      [today],
+    );
+    return rows;
+  } catch (error) {
+    logger.error(
+      'Failed to fetch equipment reminder candidates from the competitions table: ',
+      error,
+    );
+    throw error;
   }
 }
 
@@ -764,11 +812,13 @@ module.exports = {
   getCompetitionsCount,
   upsertCompetitionsBatch,
   markAnnounced,
+  markEquipmentRemindersSent,
   getAnnouncedUpcomingCompetitions,
   getCompetitionsForPlanner,
   getTrackedMajorWcaIds,
   updateMultiCityCompetitionRowsByWcaId,
   getCompetitionsPendingDiscordAnnouncement,
+  getEquipmentReminderCandidates,
   getLastBulkRefreshAt,
   getBulkRefreshState,
   tryStartBulkRefresh,

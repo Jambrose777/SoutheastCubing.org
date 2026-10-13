@@ -10,6 +10,24 @@
       (input)="onSearchInput($event)"
     />
 
+    @if (quickFilterOverride(); as filter) {
+      <button
+        type="button"
+        class="notification-badge quick-filter-toggle"
+        [matTooltip]="
+          quickFilterActive() ? 'Restore search and column filters' : 'Show only ' + filter.label
+        "
+        matTooltipPosition="above"
+        [attr.aria-label]="
+          quickFilterActive() ? 'Restore search and column filters' : 'Show only ' + filter.label
+        "
+        [attr.aria-pressed]="quickFilterActive()"
+        (click)="quickFilterActive.update((active) => !active)"
+      >
+        !
+      </button>
+    }
+
     <!-- Active filter pills -->
     @if (showFilterPills()) {
       <se-filter-pills

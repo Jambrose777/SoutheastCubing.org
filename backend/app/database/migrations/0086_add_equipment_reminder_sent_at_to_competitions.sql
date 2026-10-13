@@ -1,0 +1,1 @@
+ALTER TABLE competitions ADD COLUMN equipment_reminder_sent_at TIMESTAMPTZ;

@@ -147,6 +147,21 @@ async function updateBioForPerson(req, res) {
   }
 }
 
+// PUT /dashboard/manage-users/:peopleId/discord-user-id - Board/Admin sets a
+// Delegate's Discord user ID on their behalf.
+async function updateDiscordUserIdForPerson(req, res) {
+  try {
+    const updated = await manageDelegatesService.updateDiscordUserId(
+      req.params.peopleId,
+      req.body?.discordUserId,
+      req.user.id,
+    );
+    res.json(updated);
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to update Discord user ID');
+  }
+}
+
 module.exports = {
   listPublicDelegates,
   listForDashboard,
@@ -158,4 +173,5 @@ module.exports = {
   updateStateRow,
   hardDeleteStateRow,
   updateBioForPerson,
+  updateDiscordUserIdForPerson,
 };

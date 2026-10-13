@@ -5,6 +5,7 @@ import { ManageUsersApiService } from 'src/app/services/southeastcubing-api/mana
 import { formatLongDate } from 'src/app/shared/date.util';
 import { RANK_LABELS } from 'src/app/models/Delegate';
 import { ManageUser } from 'src/app/models/ManageUser';
+import { ToastService } from 'src/app/services/toast.service';
 import { PictureCropSheetComponent } from '../../../../shared/picture-crop-sheet/picture-crop-sheet.component';
 import { DelegateBioComponent } from '../../../../shared/delegate-bio/delegate-bio.component';
 
@@ -24,6 +25,7 @@ interface DirtyCheckable {
 })
 export class EditUserSheetComponent {
   private manageUsersApi = inject(ManageUsersApiService);
+  private toastService = inject(ToastService);
 
   user = input.required<ManageUser>();
   closed = output<void>();
@@ -50,6 +52,51 @@ export class EditUserSheetComponent {
 
   // Bound the same way, for the shared Delegate Bio field.
   updateBio = (bio: string) => this.manageUsersApi.updateBio(this.user().peopleId, bio);
+
+  editingDiscordUserId = signal(false);
+  discordUserIdDraft = signal('');
+  savingDiscordUserId = signal(false);
+
+  // Edits and saves the Delegate's Discord user ID independently of the sheet.
+  startEditingDiscordUserId() {
+    this.discordUserIdDraft.set(this.user().discordUserId ?? '');
+    this.editingDiscordUserId.set(true);
+  }
+
+  // Removes non-digits from typed or pasted input while preserving the cursor.
+  filterDiscordUserIdInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const cursorPosition = input.selectionStart ?? input.value.length;
+    const filteredValue = input.value.replace(/\D/g, '');
+    const filteredCursorPosition = input.value.slice(0, cursorPosition).replace(/\D/g, '').length;
+
+    this.discordUserIdDraft.set(filteredValue);
+    if (filteredValue !== input.value) {
+      input.value = filteredValue;
+      input.setSelectionRange(filteredCursorPosition, filteredCursorPosition);
+    }
+  }
+
+  cancelEditingDiscordUserId() {
+    this.editingDiscordUserId.set(false);
+  }
+
+  saveDiscordUserId() {
+    this.savingDiscordUserId.set(true);
+    const discordUserId = this.discordUserIdDraft().trim() || null;
+    this.manageUsersApi.updateDiscordUserId(this.user().peopleId, discordUserId).subscribe({
+      next: () => {
+        this.savingDiscordUserId.set(false);
+        this.editingDiscordUserId.set(false);
+        this.toastService.success('Discord user ID updated.');
+        this.saved.emit();
+      },
+      error: (err) => {
+        this.savingDiscordUserId.set(false);
+        this.toastService.error(err?.error?.message ?? 'Failed to update Discord user ID.');
+      },
+    });
+  }
 
   close() {
     this.closed.emit();

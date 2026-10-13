@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PlannerCompetition } from 'src/app/models/PlannerCompetition';
@@ -12,6 +12,7 @@ import {
   getRegistrationStatusColor,
   getRegistrationStatusLabel,
 } from 'src/app/shared/registrationStatus.util';
+import { sortEquipmentHolders } from '../competition-planner.util';
 
 // Sheet for Viewing a competition's data.
 @Component({
@@ -29,6 +30,14 @@ import {
 })
 export class ViewCompetitionSheetComponent {
   competition = input.required<PlannerCompetition>();
+  equipmentHolders = computed(() =>
+    sortEquipmentHolders(
+      this.competition().equipmentHolders.map((holder) => ({
+        ...holder,
+        name: holder.peopleId === null ? 'Other' : holder.name,
+      })),
+    ),
+  );
   closed = output<void>();
   EventNames = EventNames;
   StateColors = StateColors;

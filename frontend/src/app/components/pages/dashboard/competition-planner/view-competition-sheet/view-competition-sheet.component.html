@@ -255,20 +255,27 @@
     <h3>Equipment Holders</h3>
     @if (competition().equipmentHolders.length) {
       <div class="person-list">
-        @for (holder of competition().equipmentHolders; track holder.peopleId ?? $index) {
+        @for (holder of equipmentHolders(); track holder.peopleId ?? $index) {
           <div class="person-row">
-            @if (holder.peopleId !== null && holder.pictureUrl) {
-              <se-avatar
-                [src]="holder.pictureUrl"
-                [size]="32"
-                [alt]="holder.name"
-                [cropX]="holder.thumbnailCropX"
-                [cropY]="holder.thumbnailCropY"
-                [cropW]="holder.thumbnailCropW"
-                [cropH]="holder.thumbnailCropH"
-              ></se-avatar>
-            }
-            <span>{{ holder.peopleId === null ? 'Other' : holder.name }}</span>
+            <div class="equipment-holder-avatar">
+              @if (holder.peopleId !== null && holder.pictureUrl) {
+                <se-avatar
+                  [src]="holder.pictureUrl"
+                  [size]="32"
+                  [alt]="holder.name"
+                  [cropX]="holder.thumbnailCropX"
+                  [cropY]="holder.thumbnailCropY"
+                  [cropW]="holder.thumbnailCropW"
+                  [cropH]="holder.thumbnailCropH"
+                ></se-avatar>
+              }
+            </div>
+            <div class="equipment-holder-info">
+              <span>{{ holder.peopleId === null ? 'Other' : holder.name }}</span>
+              @if (holder.equipmentDetails?.trim()) {
+                <p class="equipment-details">{{ holder.equipmentDetails }}</p>
+              }
+            </div>
           </div>
         }
       </div>

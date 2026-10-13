@@ -268,7 +268,8 @@ async function listAllPeopleWithUsersAndDelegate() {
             p.picture_synced_with_wca, p.thumbnail_crop_x, p.thumbnail_crop_y,
             p.thumbnail_crop_w, p.thumbnail_crop_h, p.updated_at AS people_updated_at,
             u.id AS user_id, u.email, u.dob, u.updated_at AS users_updated_at,
-            del.id AS delegate_id, del.bio, del.updated_at AS delegate_updated_at
+            del.id AS delegate_id, del.bio, del.discord_user_id,
+            del.updated_at AS delegate_updated_at
      FROM people p
      LEFT JOIN users u ON u.people_id = p.id
      LEFT JOIN delegates del ON del.people_id = p.id`,

@@ -7,6 +7,16 @@
   min-height: 0;
 }
 
+.quick-filter-toggle {
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+}
+
+.quick-filter-toggle[aria-pressed='true'] {
+  box-shadow: 0 0 0 2px color-pallet.$se-black;
+}
+
 .data-table {
   flex: 1;
   display: flex;

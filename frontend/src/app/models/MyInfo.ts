@@ -102,6 +102,8 @@ export interface MyInfo {
     current: MyInfoCurrentEntry[];
     past: MyInfoPastEntry[];
   };
+  // Only present for an actual Delegate - absent for every other user.
+  discordUserId?: string | null;
   // Only present at all for an actual Delegate - absent entirely (not even
   // sent as null) for every other user.
   delegateBio?: string;

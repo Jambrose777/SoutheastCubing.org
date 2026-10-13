@@ -45,6 +45,71 @@
       <span class="field-label">WCA User ID</span>
       <span class="field-value">{{ user().wcaUserId ?? 'Not linked' }}</span>
     </div>
+    @if (user().hasDelegateHistory) {
+      <div class="field-row">
+        <span class="field-label discord-id-label">
+          @if (user().needsDiscordUserId) {
+            <span
+              class="notification-badge discord-id-warning"
+              matTooltip="Discord user ID is missing"
+              matTooltipPosition="above"
+              role="img"
+              aria-label="Discord user ID is missing"
+              >!</span
+            >
+          }
+          Discord User ID
+          <i
+            class="fa-solid fa-circle-question discord-id-help"
+            matTooltip="A Discord user ID is a number. In Discord, enable Developer Mode under User Settings > Advanced, then right-click a profile and choose Copy User ID."
+            matTooltipPosition="above"
+            role="img"
+            tabindex="0"
+            aria-label="How to find your Discord user ID"
+          ></i>
+        </span>
+        @if (editingDiscordUserId()) {
+          <div class="discord-id-edit">
+            <div class="discord-id-input-row">
+              <input
+                class="discord-id-input"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                aria-label="Discord user ID"
+                [value]="discordUserIdDraft()"
+                (input)="filterDiscordUserIdInput($event)"
+                [disabled]="savingDiscordUserId()"
+              />
+            </div>
+            <div class="discord-id-actions" aria-live="polite">
+              @if (savingDiscordUserId()) {
+                <span role="status">Saving...</span>
+              } @else {
+                <button type="button" class="btn small" (click)="saveDiscordUserId()">Save</button>
+                <button type="button" class="btn small" (click)="cancelEditingDiscordUserId()">
+                  Cancel
+                </button>
+              }
+            </div>
+          </div>
+        } @else {
+          <span class="field-value">
+            {{ user().discordUserId ?? 'Not set' }}
+          </span>
+          <button
+            type="button"
+            class="btn small icon-only"
+            (click)="startEditingDiscordUserId()"
+            matTooltip="Edit Discord User ID"
+            matTooltipPosition="above"
+            aria-label="Edit Discord User ID"
+          >
+            <i class="fa-solid fa-pen"></i>
+          </button>
+        }
+      </div>
+    }
     <div class="field-row">
       <span class="field-label">Email</span>
       <span class="field-value">{{ user().email ?? 'Not shared' }}</span>

@@ -20,7 +20,8 @@ CREATE TABLE competition_delegates (
 CREATE TABLE competition_equipment_holders (
   id TEXT NOT NULL PRIMARY KEY,
   competition_id TEXT NOT NULL REFERENCES competitions (id),
-  people_id TEXT REFERENCES people (id)
+  people_id TEXT REFERENCES people (id),
+  equipment_details TEXT
 );
 
 CREATE TABLE competition_events (
@@ -78,7 +79,8 @@ CREATE TABLE competitions (
   wca_drive_folder_type TEXT,
   is_multiple_cities_competition BOOLEAN DEFAULT false,
   is_major BOOLEAN DEFAULT false,
-  is_cancelled BOOLEAN DEFAULT false
+  is_cancelled BOOLEAN DEFAULT false,
+  equipment_reminder_sent_at TIMESTAMP WITH TIME ZONE
 );
 
 CREATE TABLE competitions_meta (
@@ -121,7 +123,8 @@ CREATE TABLE delegates (
   created_by TEXT REFERENCES users (id),
   updated_by TEXT REFERENCES users (id),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  discord_user_id TEXT
 );
 
 CREATE TABLE people (
