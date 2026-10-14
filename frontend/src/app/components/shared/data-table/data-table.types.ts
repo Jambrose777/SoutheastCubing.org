@@ -57,7 +57,8 @@ export interface DataTableColumn<T> extends DataTableColumnMeta {
 // One action button for a row - rendered either inline (its own button) or
 // inside the overflow "..." menu.
 export interface DataTableAction<T> {
-  icon: string;
+  icon?: string;
+  iconImageSrc?: string;
   label: string;
   onClick: (row: T) => void;
   // Omit to always show this action; when provided, the action is hidden

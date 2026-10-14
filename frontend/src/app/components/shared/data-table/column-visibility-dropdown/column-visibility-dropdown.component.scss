@@ -66,6 +66,12 @@
   padding-top: 8px;
 }
 
+.column-option-pinned-start {
+  margin-bottom: 4px;
+  border-bottom: 1px solid color-pallet.$se-grey;
+  padding-bottom: 8px;
+}
+
 // The gap left behind in the list while dragging.
 .cdk-drag-placeholder {
   opacity: 0.3;

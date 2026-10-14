@@ -29,7 +29,9 @@ export class ColumnVisibilityDropdownComponent {
   columns = input.required<DataTableColumnMeta[]>();
   // Columns that always render last, after every reorderable one above - not
   // draggable, just a plain visibility checkbox.
-  pinnedColumns = input<DataTableColumnMeta[]>([]);
+  pinnedEndColumns = input<DataTableColumnMeta[]>([]);
+  // Columns fixed at the start of the table - always visible and not reorderable.
+  pinnedStartColumns = input<DataTableColumnMeta[]>([]);
   visibleKeys = input.required<Set<string>>();
   // Emitted whenever a single column's checkbox is toggled.
   visibilityChange = output<{ key: string; shown: boolean }>();

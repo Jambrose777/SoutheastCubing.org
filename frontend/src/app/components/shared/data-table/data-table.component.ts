@@ -107,6 +107,9 @@ export class DataTableComponent<T> {
   // The Actions column config.
   actions = input<DataTableActions<T> | null>(null);
 
+  // Optional column that stays at the left edge and cannot be hidden or reordered.
+  stickyStartColumnKey = input<string | null>(null);
+
   // The sort applied before the user ever interacts with the table.
   defaultSort = input<DataTableSort | null>(null);
 
@@ -155,9 +158,17 @@ export class DataTableComponent<T> {
     effect(() => {
       const cols = this.columns();
       const defaultOrder = cols.map((column) => column.key);
+      const stickyStartColumnKey = this.stickyStartColumnKey();
+      if (stickyStartColumnKey && defaultOrder.includes(stickyStartColumnKey)) {
+        defaultOrder.splice(defaultOrder.indexOf(stickyStartColumnKey), 1);
+        defaultOrder.unshift(stickyStartColumnKey);
+      }
       const defaultVisible = new Set(
         cols.filter((column) => column.visibleByDefault).map((column) => column.key),
       );
+      if (stickyStartColumnKey && defaultOrder.includes(stickyStartColumnKey)) {
+        defaultVisible.add(stickyStartColumnKey);
+      }
 
       const saved = this.loadSavedState();
       if (!saved) {
@@ -168,12 +179,24 @@ export class DataTableComponent<T> {
       }
 
       const validKeys = new Set(defaultOrder);
-      const savedOrder = saved.columnOrder.filter((key) => validKeys.has(key));
-      const missingFromSaved = defaultOrder.filter((key) => !savedOrder.includes(key));
-      this.columnOrder.set([...savedOrder, ...missingFromSaved]);
-      this.visibleColumnKeys.set(
-        new Set(saved.visibleColumnKeys.filter((key) => validKeys.has(key))),
+      const savedOrder = saved.columnOrder.filter(
+        (key) => validKeys.has(key) && key !== stickyStartColumnKey,
       );
+      const missingFromSaved = defaultOrder.filter(
+        (key) => !savedOrder.includes(key) && key !== stickyStartColumnKey,
+      );
+      this.columnOrder.set([
+        ...(stickyStartColumnKey && validKeys.has(stickyStartColumnKey)
+          ? [stickyStartColumnKey]
+          : []),
+        ...savedOrder,
+        ...missingFromSaved,
+      ]);
+      const savedVisibleKeys = new Set(saved.visibleColumnKeys.filter((key) => validKeys.has(key)));
+      if (stickyStartColumnKey && validKeys.has(stickyStartColumnKey)) {
+        savedVisibleKeys.add(stickyStartColumnKey);
+      }
+      this.visibleColumnKeys.set(savedVisibleKeys);
 
       const filters = new Map<string, Set<string>>();
       for (const [key, values] of Object.entries(saved.columnFilters)) {
@@ -233,6 +256,11 @@ export class DataTableComponent<T> {
     () => new Map(this.columns().map((column) => [column.key, column])),
   );
 
+  stickyStartColumn = computed(() => {
+    const key = this.stickyStartColumnKey();
+    return key ? (this.columnsByKey().get(key) ?? null) : null;
+  });
+
   // Every column (visible or not), in its current display order.
   orderedColumns = computed(() => {
     const byKey = this.columnsByKey();
@@ -241,10 +269,25 @@ export class DataTableComponent<T> {
       .filter((column): column is DataTableColumn<T> => !!column);
   });
 
+  // The column-visibility dropdown keeps the sticky-start column outside the
+  // reorderable list.
+  reorderableColumns = computed(() =>
+    this.orderedColumns().filter((column) => column.key !== this.stickyStartColumnKey()),
+  );
+
+  pinnedStartColumnMeta = computed<DataTableColumnMeta[]>(() => {
+    const key = this.stickyStartColumnKey();
+    const column = key ? this.columnsByKey().get(key) : undefined;
+    return column ? [{ key: column.key, label: column.label }] : [];
+  });
+
   // Which columns are currently shown, in their current order.
   visibleColumns = computed(() => {
     const keys = this.visibleColumnKeys();
-    return this.orderedColumns().filter((column) => keys.has(column.key));
+    const stickyStartColumnKey = this.stickyStartColumnKey();
+    return this.orderedColumns().filter(
+      (column) => keys.has(column.key) || column.key === stickyStartColumnKey,
+    );
   });
 
   // The Actions column's own pinned entry for the column-visibility
@@ -257,6 +300,8 @@ export class DataTableComponent<T> {
   // the reserved Actions key, so one checklist covers both.
   dropdownVisibleKeys = computed(() => {
     const keys = new Set(this.visibleColumnKeys());
+    const stickyStartColumnKey = this.stickyStartColumnKey();
+    if (stickyStartColumnKey) keys.add(stickyStartColumnKey);
     if (this.actionsColumnVisible()) keys.add(ACTIONS_COLUMN_KEY);
     return keys;
   });
@@ -384,10 +429,20 @@ export class DataTableComponent<T> {
     this.columnFilters.set(new Map());
     this.sort.set(this.defaultSort());
     const cols = this.columns();
-    this.visibleColumnKeys.set(
-      new Set(cols.filter((column) => column.visibleByDefault).map((column) => column.key)),
+    const stickyStartColumnKey = this.stickyStartColumnKey();
+    const visibleKeys = new Set(
+      cols.filter((column) => column.visibleByDefault).map((column) => column.key),
     );
-    this.columnOrder.set(cols.map((column) => column.key));
+    if (stickyStartColumnKey && cols.some((column) => column.key === stickyStartColumnKey)) {
+      visibleKeys.add(stickyStartColumnKey);
+    }
+    this.visibleColumnKeys.set(visibleKeys);
+    const order = cols.map((column) => column.key);
+    if (stickyStartColumnKey && order.includes(stickyStartColumnKey)) {
+      order.splice(order.indexOf(stickyStartColumnKey), 1);
+      order.unshift(stickyStartColumnKey);
+    }
+    this.columnOrder.set(order);
     this.actionsColumnVisible.set(true);
     this.tableReset.emit();
   }
@@ -487,6 +542,7 @@ export class DataTableComponent<T> {
   }
 
   onColumnVisibilityChange(event: { key: string; shown: boolean }) {
+    if (event.key === this.stickyStartColumnKey()) return;
     if (event.key === ACTIONS_COLUMN_KEY) {
       this.actionsColumnVisible.set(event.shown);
       return;
@@ -501,6 +557,14 @@ export class DataTableComponent<T> {
   }
 
   onColumnOrderChange(order: string[]) {
-    this.columnOrder.set(order);
+    const stickyStartColumnKey = this.stickyStartColumnKey();
+    this.columnOrder.set([
+      ...(stickyStartColumnKey ? [stickyStartColumnKey] : []),
+      ...order.filter((key) => key !== stickyStartColumnKey),
+    ]);
+  }
+
+  isStickyStartColumn(key: string): boolean {
+    return key === this.stickyStartColumnKey();
   }
 }

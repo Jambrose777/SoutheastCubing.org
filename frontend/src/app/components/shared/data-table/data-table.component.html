@@ -41,8 +41,9 @@
   <div class="data-table-toolbar-end">
     @if (showColumnsButton()) {
       <se-column-visibility-dropdown
-        [columns]="orderedColumns()"
-        [pinnedColumns]="actionsColumnMeta()"
+        [columns]="reorderableColumns()"
+        [pinnedStartColumns]="pinnedStartColumnMeta()"
+        [pinnedEndColumns]="actionsColumnMeta()"
         [visibleKeys]="dropdownVisibleKeys()"
         (visibilityChange)="onColumnVisibilityChange($event)"
         (orderChange)="onColumnOrderChange($event)"
@@ -75,6 +76,36 @@
   </div>
 </div>
 
+<ng-template #columnHeader let-column>
+  <div class="data-table-header-cell" role="columnheader">
+    <span>{{ column.showLabelInHeader === false ? '' : column.label }}</span>
+    @if (column.filterable) {
+      <se-column-filter-dropdown
+        [label]="column.label"
+        [options]="columnFilterOptions().get(column.key) ?? []"
+        [selected]="selectedFilterValues(column.key)"
+        [showSearch]="column.filterType !== 'custom-multiselect'"
+        (selectionChange)="onColumnFilterChange(column.key, $event)"
+      ></se-column-filter-dropdown>
+    }
+    @if (column.sortValue) {
+      <button
+        type="button"
+        class="data-table-sort-btn"
+        [class.active]="sort()?.columnKey === column.key"
+        (click)="toggleSort(column.key)"
+        [attr.aria-label]="'Sort by ' + column.label"
+      >
+        <i
+          class="fa-solid fa-sm"
+          [class.fa-arrow-up]="sort()?.columnKey !== column.key || sort()?.direction === 'asc'"
+          [class.fa-arrow-down]="sort()?.columnKey === column.key && sort()?.direction === 'desc'"
+        ></i>
+      </button>
+    }
+  </div>
+</ng-template>
+
 <div class="data-table" role="table">
   <div class="data-table-header-wrapper">
     <!-- Reserves space for the absolutely-positioned Actions header cell -->
@@ -87,47 +118,30 @@
         [style.transform]="'translateX(-' + headerScrollLeft() + 'px)'"
       >
         @for (column of visibleColumns(); track column.key) {
-          <div class="data-table-header-cell" role="columnheader">
-            <!-- Column label -->
-            <span>{{ column.showLabelInHeader === false ? '' : column.label }}</span>
-
-            <!-- Column filter dropdown -->
-            @if (column.filterable) {
-              <se-column-filter-dropdown
-                [label]="column.label"
-                [options]="columnFilterOptions().get(column.key) ?? []"
-                [selected]="selectedFilterValues(column.key)"
-                [showSearch]="column.filterType !== 'custom-multiselect'"
-                (selectionChange)="onColumnFilterChange(column.key, $event)"
-              ></se-column-filter-dropdown>
-            }
-
-            <!-- Column sort button -->
-            @if (column.sortValue) {
-              <button
-                type="button"
-                class="data-table-sort-btn"
-                [class.active]="sort()?.columnKey === column.key"
-                (click)="toggleSort(column.key)"
-                [attr.aria-label]="'Sort by ' + column.label"
-              >
-                <i
-                  class="fa-solid fa-sm"
-                  [class.fa-arrow-up]="
-                    sort()?.columnKey !== column.key || sort()?.direction === 'asc'
-                  "
-                  [class.fa-arrow-down]="
-                    sort()?.columnKey === column.key && sort()?.direction === 'desc'
-                  "
-                ></i>
-              </button>
-            }
-          </div>
+          @if (isStickyStartColumn(column.key)) {
+            <div aria-hidden="true"></div>
+          } @else {
+            <ng-container
+              [ngTemplateOutlet]="columnHeader"
+              [ngTemplateOutletContext]="{ $implicit: column }"
+            ></ng-container>
+          }
         }
       </div>
     </div>
 
-    <!-- Action Buttons. Rendered as its own absolutely-positioned element, 
+    @if (stickyStartColumn(); as column) {
+      <div class="data-table-header-sticky-start-cell" [style.width]="column.width">
+        <div class="data-table-header-row">
+          <ng-container
+            [ngTemplateOutlet]="columnHeader"
+            [ngTemplateOutletContext]="{ $implicit: column }"
+          ></ng-container>
+        </div>
+      </div>
+    }
+
+    <!-- Action Buttons. Rendered as its own absolutely-positioned element,
          outside the transform-shifted/clipped header row above -->
     @if (actions() && actionsColumnVisible()) {
       <div
@@ -156,7 +170,11 @@
         [style.height.px]="rowHeight"
       >
         @for (column of visibleColumns(); track column.key) {
-          <div class="data-table-cell" role="cell">
+          <div
+            class="data-table-cell"
+            [class.data-table-sticky-start]="isStickyStartColumn(column.key)"
+            role="cell"
+          >
             <div class="data-table-cell-content" seTruncationTooltip>
               <ng-container
                 [ngTemplateOutlet]="column.cellTemplate"
@@ -179,7 +197,11 @@
                   matTooltipPosition="above"
                   [attr.aria-label]="action.label"
                 >
-                  <i class="fa-solid {{ action.icon }} fa-sm"></i>
+                  @if (action.iconImageSrc) {
+                    <img class="data-table-action-icon" [src]="action.iconImageSrc" alt="" />
+                  } @else if (action.icon) {
+                    <i class="fa-solid {{ action.icon }} fa-sm"></i>
+                  }
                 </button>
               }
             }
@@ -198,7 +220,11 @@
                 @for (action of rowActions.overflow; track action.label) {
                   @if (!action.visible || action.visible(row)) {
                     <button type="button" mat-menu-item (click)="action.onClick(row)">
-                      <i class="fa-solid {{ action.icon }}"></i>
+                      @if (action.iconImageSrc) {
+                        <img class="data-table-action-icon" [src]="action.iconImageSrc" alt="" />
+                      } @else if (action.icon) {
+                        <i class="fa-solid {{ action.icon }}"></i>
+                      }
                       {{ action.label }}
                     </button>
                   }

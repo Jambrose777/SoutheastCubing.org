@@ -163,6 +163,20 @@ function visibleOrganizers(row: PlannerCompetition) {
   return row.organizers.filter((o) => o.name !== SOUTHEAST_CUBING_ORGANIZER_NAME);
 }
 
+function isSeciOrganizerConnected(row: PlannerCompetition): boolean {
+  return row.organizers.some((organizer) => organizer.name === SOUTHEAST_CUBING_ORGANIZER_NAME);
+}
+
+function seciOrganizerConnectionStatus(row: PlannerTableRow): string {
+  if (isPlannerGeneratedRow(row) || row.is_major) return 'Not applicable';
+  return isSeciOrganizerConnected(row) ? 'Connected' : 'Not connected';
+}
+
+// Uses the registration-status palette for the connected-state pill.
+function seciOrganizerConnectedColor(row: PlannerCompetition): Colors {
+  return isSeciOrganizerConnected(row) ? Colors.green : Colors.red;
+}
+
 function visibleEquipmentHolders(row: PlannerCompetition) {
   return sortEquipmentHolders(
     row.equipmentHolders.map((holder) => ({
@@ -340,6 +354,8 @@ export class CompetitionPlannerComponent implements OnInit {
   waitingListTooltip = waitingListTooltip;
   isWaitingListStale = isWaitingListStale;
   visibleOrganizers = visibleOrganizers;
+  isSeciOrganizerConnected = isSeciOrganizerConnected;
+  seciOrganizerConnectedColor = seciOrganizerConnectedColor;
   visibleEquipmentHolders = visibleEquipmentHolders;
   locationColor = (row: PlannerCompetition) =>
     isNonSoutheastMajor(row) ? Colors.black : StateColors[row.state ?? '??'];
@@ -369,6 +385,9 @@ export class CompetitionPlannerComponent implements OnInit {
     viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('registrationsCell');
   private statusCell =
     viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('statusCell');
+  private seciOrganizerConnectedCell = viewChild.required<
+    TemplateRef<{ $implicit: PlannerTableRow }>
+  >('seciOrganizerConnectedCell');
   private registrationPeriodCell =
     viewChild.required<TemplateRef<{ $implicit: PlannerTableRow }>>('registrationPeriodCell');
   private registrationStatusCell =
@@ -477,6 +496,18 @@ export class CompetitionPlannerComponent implements OnInit {
       sortValue: (row) => row.status,
       searchValue: (row) => this.statusLabel(row),
       cellTemplate: this.statusCell(),
+    },
+    {
+      key: 'seciOrganizerConnected',
+      label: 'SECI Organizer Connected',
+      width: '180px',
+      filterable: true,
+      filterType: 'multiselect',
+      filterValue: (row) => [seciOrganizerConnectionStatus(row)],
+      visibleByDefault: false,
+      sortValue: (row) => seciOrganizerConnectionStatus(row),
+      searchValue: (row) => seciOrganizerConnectionStatus(row),
+      cellTemplate: this.seciOrganizerConnectedCell(),
     },
     {
       key: 'wcaDrive',
@@ -650,6 +681,12 @@ export class CompetitionPlannerComponent implements OnInit {
         visible: (row) => !isPlannerGeneratedRow(row),
       },
       {
+        iconImageSrc: 'assets/wca_logo.svg',
+        label: 'Open WCA',
+        onClick: (row) => this.openWcaCompetition(row),
+        visible: (row) => !!row.wca_competition_id,
+      },
+      {
         icon: 'fa-pen',
         label: 'Edit',
         onClick: (row) => this.openEditCompetition(row),
@@ -714,6 +751,16 @@ export class CompetitionPlannerComponent implements OnInit {
   openWcaDriveFolder(row: PlannerCompetition): void {
     if (!row.wca_drive_link) return;
     window.open(row.wca_drive_link, '_blank', 'noopener,noreferrer');
+  }
+
+  // Opens the linked competition's WCA page in a separate tab.
+  openWcaCompetition(row: PlannerCompetition): void {
+    if (!row.wca_competition_id) return;
+    window.open(
+      `${environment.links.wcaCompetition}${row.wca_competition_id}`,
+      '_blank',
+      'noopener,noreferrer',
+    );
   }
 
   // Creates a folder for an editable Planner row and reloads its saved link.

@@ -99,6 +99,7 @@
           <se-data-table
             [rows]="tableRows()"
             [columns]="columns()"
+            [stickyStartColumnKey]="'name'"
             [actions]="rowActions()"
             [trackBy]="trackById"
             [defaultSort]="defaultSort()"
@@ -263,6 +264,16 @@
           {{ '' }}
         } @else {
           <span class="status-badge" [class]="row.status">{{ statusLabel(row) }}</span>
+        }
+      </ng-template>
+      <ng-template #seciOrganizerConnectedCell let-row>
+        @if (!row.plannerRowType && !row.is_major) {
+          <span
+            class="registration-period-pill"
+            [style.background]="seciOrganizerConnectedColor(row)"
+          >
+            {{ isSeciOrganizerConnected(row) ? 'Connected' : 'Missing' }}
+          </span>
         }
       </ng-template>
       <ng-template #eventsCell let-row>

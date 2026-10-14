@@ -21,6 +21,16 @@
       cdkDropList
       (cdkDropListDropped)="onDrop($event)"
     >
+      <!-- Sticky-start columns stay visible and cannot be reordered. -->
+      @for (column of pinnedStartColumns(); track column.key) {
+        <div class="column-option column-option-pinned-start">
+          <span class="drag-handle-placeholder" aria-hidden="true"></span>
+          <label>
+            <input type="checkbox" [checked]="visibleKeys().has(column.key)" disabled />
+            {{ column.label }}
+          </label>
+        </div>
+      }
       <!-- Regular columns -->
       @for (column of columns(); track column.key) {
         <div class="column-option" cdkDrag>
@@ -36,7 +46,7 @@
         </div>
       }
       <!-- Pinned columns -->
-      @for (column of pinnedColumns(); track column.key) {
+      @for (column of pinnedEndColumns(); track column.key) {
         <div class="column-option column-option-pinned">
           <span class="drag-handle-placeholder" aria-hidden="true"></span>
           <label>

@@ -133,6 +133,21 @@ se-filter-pills {
   }
 }
 
+.data-table-header-sticky-start-cell {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  height: 100%;
+  box-sizing: border-box;
+  background-color: var(--main-pane-color);
+}
+
+.data-table-header-sticky-start-cell .data-table-header-row {
+  height: 100%;
+  box-sizing: border-box;
+}
+
 .data-table-sort-btn {
   flex-shrink: 0;
   padding: 2px 4px;
@@ -180,6 +195,7 @@ se-filter-pills {
 .data-table-row .data-table-actions-cell {
   position: sticky;
   right: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -188,9 +204,20 @@ se-filter-pills {
   background-color: var(--main-pane-color);
 }
 
+.data-table-row .data-table-sticky-start {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background-color: var(--main-pane-color);
+}
+
 // Its own opaque background otherwise blocks the row's own `:hover` tint from
 // showing through too.
 .data-table-row:hover .data-table-actions-cell {
+  background-image: linear-gradient(rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.08));
+}
+
+.data-table-row:hover .data-table-sticky-start {
   background-image: linear-gradient(rgb(0 0 0 / 0.08), rgb(0 0 0 / 0.08));
 }
 
@@ -205,4 +232,11 @@ se-filter-pills {
   font-size: 14px;
   border-bottom: 2px solid color-pallet.$se-black;
   background-color: var(--main-pane-color);
+}
+
+.data-table-action-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  vertical-align: middle;
 }
