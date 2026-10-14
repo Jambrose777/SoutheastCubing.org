@@ -110,6 +110,30 @@ function buildDelegateBioReminderMessage({ name, wcaEmail }) {
   };
 }
 
+// Builds one deadline reminder for all competition Delegate account emails.
+function buildWcaDeadlineReminderMessage({ competitionName, competitionDate, recipients }) {
+  const resolvedRecipients = [
+    ...new Set(
+      recipients
+        .filter((recipient) => typeof recipient === 'string' && recipient.trim())
+        .map((recipient) => resolveRecipient(recipient.trim(), 'wca-deadline-reminder'))
+        .filter(Boolean),
+    ),
+  ];
+  if (!resolvedRecipients.length) {
+    return null;
+  }
+
+  return {
+    from: `"Southeast Cubing" <${config.EMAIL_USER}>`,
+    to: resolvedRecipients,
+    subject: '[SoutheastCubing.org] WCA announcement deadline reminder',
+    text:
+      `${stripNewlines(competitionName)} is scheduled to begin on ${competitionDate}.\n\n` +
+      'Please submit the competition to WCA for review to ensure it is announced on WCA at least 28 days before it begins.',
+  };
+}
+
 // Builds the nodemailer message options for a contact-form submission -
 // resolves the destination address from emailType and strips \r/\n from
 // user-supplied fields that end up in email headers. Returns null if
@@ -138,5 +162,6 @@ module.exports = {
   EmailType,
   buildContactFormMessage,
   buildDelegateBioReminderMessage,
+  buildWcaDeadlineReminderMessage,
   resolveRecipient,
 };

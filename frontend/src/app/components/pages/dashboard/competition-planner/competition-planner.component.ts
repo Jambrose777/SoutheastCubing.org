@@ -1,5 +1,9 @@
 import { getPlannerMajorHolidaysBetween } from './competition-planner-holidays.util';
-import { getOpenWeekendDates, sortEquipmentHolders } from './competition-planner.util';
+import {
+  getOpenWeekendDates,
+  getVisibleWcaAnnouncementDeadlineCompetitions,
+  sortEquipmentHolders,
+} from './competition-planner.util';
 import {
   Component,
   ChangeDetectionStrategy,
@@ -49,6 +53,7 @@ import { WcaLinkCompetitionSheetComponent } from './wca-link-competition-sheet/w
 import { MultiCityCreateSheetComponent } from './multi-city-create-sheet/multi-city-create-sheet.component';
 import { CompetitionRefreshControlComponent } from './competition-refresh-control/competition-refresh-control.component';
 import { CompetitionCalendarComponent } from './competition-calendar/competition-calendar.component';
+import { WcaAnnouncementDeadlineBannersComponent } from './wca-announcement-deadline-banners/wca-announcement-deadline-banners.component';
 import { UnofficialEventIconComponent } from '../../../shared/unofficial-event-icon/unofficial-event-icon.component';
 import { DASHBOARD_TOOLS } from '../dashboard-tools';
 import {
@@ -240,6 +245,7 @@ function registrationStatusColor(row: PlannerCompetition): Colors {
     MultiCityCreateSheetComponent,
     CompetitionRefreshControlComponent,
     CompetitionCalendarComponent,
+    WcaAnnouncementDeadlineBannersComponent,
     UnofficialEventIconComponent,
   ],
 })
@@ -263,6 +269,17 @@ export class CompetitionPlannerComponent implements OnInit {
   loading = signal(true);
   view = signal<PlannerCompetitionView>('upcoming');
   rows = signal<PlannerCompetition[]>([]);
+  wcaAnnouncementDeadlineWarnings = computed(() => {
+    if (this.view() !== 'upcoming') return [];
+
+    const deadlineDate = new Date();
+    deadlineDate.setUTCDate(deadlineDate.getUTCDate() + (28 - 1));
+    return getVisibleWcaAnnouncementDeadlineCompetitions(
+      this.rows(),
+      this.authService.currentUser(),
+      deadlineDate.toISOString().slice(0, 10),
+    );
+  });
   private upcomingCompetitions: PlannerCompetition[] | null = null;
   private pastCompetitions: PlannerCompetition[] | null = null;
   showMajorHolidays = signal(true);

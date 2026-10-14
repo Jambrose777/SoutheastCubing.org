@@ -311,6 +311,29 @@ async function getCompetitionsForPlanner(view) {
   }
 }
 
+// Returns linked, unannounced competitions on `startDate` with their assigned Delegates' account emails.
+async function getUnannouncedDeadlineReminderCandidates(startDate) {
+  try {
+    const { rows } = await db.pool.query(
+      `SELECT c.id AS competition_id, c.name AS competition_name, c.start_date,
+              p.id AS people_id, p.name AS delegate_name, u.email AS delegate_email
+       FROM competitions c
+       LEFT JOIN competition_delegates cd ON cd.competition_id = c.id
+       LEFT JOIN people p ON p.id = cd.people_id
+       LEFT JOIN users u ON u.people_id = p.id
+       WHERE c.start_date = $1
+         AND c.wca_competition_id IS NOT NULL
+         AND c.is_announced IS NOT TRUE
+       ORDER BY c.id, p.name`,
+      [startDate],
+    );
+    return rows;
+  } catch (error) {
+    logger.error('Failed to fetch WCA deadline reminder candidates from the competitions table: ', error);
+    throw error;
+  }
+}
+
 // Refreshes WCA-owned fields on every local row for one multi-city competition.
 async function updateMultiCityCompetitionRowsByWcaId(wcaCompetitionId, competition) {
   try {
@@ -815,6 +838,7 @@ module.exports = {
   markEquipmentRemindersSent,
   getAnnouncedUpcomingCompetitions,
   getCompetitionsForPlanner,
+  getUnannouncedDeadlineReminderCandidates,
   getTrackedMajorWcaIds,
   updateMultiCityCompetitionRowsByWcaId,
   getCompetitionsPendingDiscordAnnouncement,

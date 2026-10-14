@@ -1,4 +1,5 @@
 import { PlannerCompetition, PlannerPerson } from 'src/app/models/PlannerCompetition';
+import { CurrentUser } from 'src/app/models/CurrentUser';
 import { SelectedPerson } from 'src/app/models/Person';
 import { PlannerMajorHoliday } from './competition-planner-holidays.util';
 
@@ -16,6 +17,24 @@ export function toPlannerPerson(person: SelectedPerson): PlannerPerson {
     thumbnailCropW: person.thumbnailCropW ?? null,
     thumbnailCropH: person.thumbnailCropH ?? null,
   };
+}
+
+// Filters deadline-warning competitions to those visible to this user.
+export function getVisibleWcaAnnouncementDeadlineCompetitions(
+  competitions: PlannerCompetition[],
+  currentUser: Pick<CurrentUser, 'peopleId' | 'roles'> | null,
+  deadlineDate: string,
+): PlannerCompetition[] {
+  if (!currentUser) return [];
+
+  return competitions.filter(
+    (competition) =>
+      competition.start_date <= deadlineDate &&
+      !competition.is_announced &&
+      (currentUser.roles.isAdmin ||
+        currentUser.roles.isBoard ||
+        competition.delegates.some((delegate) => delegate.peopleId === currentUser.peopleId)),
+  );
 }
 
 export const OTHER_EQUIPMENT_VALUE = '__other__';

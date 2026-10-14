@@ -7,6 +7,7 @@ const {
   runCoordinatedCompetitionRefresh,
 } = require('../services/competitions.service.js');
 const { sendDueEquipmentReminders } = require('../services/equipmentReminders.service.js');
+const { sendDueWcaDeadlineReminders } = require('../services/competitionDeadlineReminders.service.js');
 
 // Fetches competitions once immediately on boot (if the stored data is
 // stale) and schedules a recurring daily refresh at midnight UTC - kept
@@ -31,6 +32,13 @@ function registerCompetitionsRefreshJob() {
         } catch {
           logger.warn(
             'Equipment reminder processing did not complete; unsent reminders will be retried on a later refresh.',
+          );
+        }
+        try {
+          await sendDueWcaDeadlineReminders();
+        } catch {
+          logger.warn(
+            'WCA deadline reminder processing did not complete; reminders will not be retried on a later date.',
           );
         }
         logger.info('Successfully fetched competitions on scheduled update.');

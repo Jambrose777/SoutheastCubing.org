@@ -15,6 +15,10 @@
           (multiCityCreateRequested)="openMultiCityCreateSheet($event)"
         ></se-unannounced-competition-banners>
       }
+      <se-wca-announcement-deadline-banners
+        [competitions]="wcaAnnouncementDeadlineWarnings()"
+        (deleteRequested)="deleteCompetition($event)"
+      ></se-wca-announcement-deadline-banners>
 
       @if (loading()) {
         <se-loading-spinner></se-loading-spinner>

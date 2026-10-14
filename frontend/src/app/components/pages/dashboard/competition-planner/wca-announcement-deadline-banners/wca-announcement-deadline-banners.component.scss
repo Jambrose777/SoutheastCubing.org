@@ -1,0 +1,90 @@
+@use 'src/styles/color-pallet';
+
+.deadline-banners-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.deadline-banners-list.has-multiple-visible-competitions {
+  max-height: 178px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+  scrollbar-gutter: stable;
+}
+
+.deadline-banners-list.has-visible-competitions {
+  margin-bottom: 10px;
+}
+
+.deadline-banner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  border: 1px solid color-pallet.$se-orange;
+  background: color-pallet.$se-yellow;
+}
+
+.banner-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+
+  .banner-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: color-pallet.$se-dark-grey;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  p {
+    margin: 0;
+    color: color-pallet.$se-black;
+    font-size: 0.9rem;
+  }
+}
+
+.banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 700px) {
+  .deadline-banners-list.has-multiple-visible-competitions {
+    max-height: 600px;
+  }
+
+  .deadline-banner {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 10px;
+  }
+
+  .banner-actions {
+    justify-content: flex-start;
+  }
+}
