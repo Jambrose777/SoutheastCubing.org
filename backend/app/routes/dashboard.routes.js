@@ -856,4 +856,28 @@ router.delete(
   asyncRoute(competitionsController.deletePlannerCompetition),
 );
 
+/**
+ * @openapi
+ * /dashboard/competition-planner/competitions/{competitionId}/wca-link:
+ *   delete:
+ *     summary: Unlinks a Planning competition from WCA without changing its other data.
+ *     tags: [Competitions]
+ *     responses:
+ *       200:
+ *         description: Unlinked.
+ *       400:
+ *         description: The competition is not Planning.
+ *       401:
+ *         description: Not signed in.
+ *       403:
+ *         description: Not authorized to unlink this competition.
+ *       404:
+ *         description: Competition not found.
+ */
+router.delete(
+  '/dashboard/competition-planner/competitions/:competitionId/wca-link',
+  requireCompetitionEditAccess,
+  asyncRoute(competitionsController.unlinkPlannerCompetitionFromWca),
+);
+
 module.exports = router;

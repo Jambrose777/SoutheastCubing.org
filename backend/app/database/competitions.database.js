@@ -818,6 +818,30 @@ async function updateMultiCityLocationFields(id, location) {
   }
 }
 
+// Clears only the WCA competition id, leaving the Planner row and its data intact.
+async function unlinkPlannerCompetitionFromWca(id) {
+  try {
+    const { rows } = await db.withRetry(async (client) =>
+      client.query(
+        `UPDATE competitions
+         SET wca_competition_id = NULL
+         WHERE id = $1
+           AND wca_competition_id IS NOT NULL
+           AND COALESCE(is_announced, false) = false
+         RETURNING id`,
+        [id],
+      ),
+    );
+    if (rows.length) {
+      logger.debug(`Unlinked WCA competition from Planner competition ${id} in the competitions table.`);
+    }
+    return rows.length > 0;
+  } catch (error) {
+    logger.error(`Failed to unlink WCA competition from Planner competition ${id}:`, error);
+    throw error;
+  }
+}
+
 // Deletes a Planner-created competition row and its join-table rows - only
 // ever called for a still-Potential/Planning competition.
 async function deletePlannerCompetition(id) {
@@ -856,6 +880,7 @@ module.exports = {
   linkPlannerCompetitionToWca,
   updatePlannerCompetitionFields,
   updateMultiCityLocationFields,
+  unlinkPlannerCompetitionFromWca,
   setWcaDriveLink,
   deletePlannerCompetition,
 };

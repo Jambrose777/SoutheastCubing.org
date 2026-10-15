@@ -1050,6 +1050,23 @@ async function deleteCompetition(id) {
   logger.debug(`Deleted Planner competition (id ${id}).`);
 }
 
+// Unlinks a Planning competition while retaining its Planner data and related rows.
+async function unlinkCompetitionFromWca(id) {
+  const comp = await competitionsDb.getCompetitionById(id);
+  if (!comp) throw httpError(404, 'Competition not found.');
+  if (derivePlannerStatus(comp) !== 'planning') {
+    throw httpError(400, 'Only Planning competitions can be unlinked from WCA.');
+  }
+
+  const unlinked = await competitionsDb.unlinkPlannerCompetitionFromWca(id);
+  if (!unlinked) {
+    const currentCompetition = await competitionsDb.getCompetitionById(id);
+    if (!currentCompetition) throw httpError(404, 'Competition not found.');
+    throw httpError(400, 'Only Planning competitions can be unlinked from WCA.');
+  }
+  logger.debug(`Unlinked WCA from Planner competition (id ${id}).`);
+}
+
 // Resolves a WCA Person sub-resource into a `people` row id.
 async function resolvePersonId(wcaPerson) {
   const person = await peopleDb.findOrCreatePersonFromWcaProfile({
@@ -2214,4 +2231,5 @@ module.exports = {
   setCompetitionWcaDriveLink,
   updateCompetition,
   deleteCompetition,
+  unlinkCompetitionFromWca,
 };

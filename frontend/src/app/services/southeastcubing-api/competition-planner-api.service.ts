@@ -109,4 +109,11 @@ export class CompetitionPlannerApiService {
   deleteCompetition(competitionId: string): Observable<{ status: string }> {
     return this.http.delete<{ status: string }>(`${this.base}/competitions/${competitionId}`);
   }
+
+  // Unlinks a WCA competition from an existing Planning row.
+  unlinkWcaCompetition(competitionId: string): Observable<{ status: string }> {
+    return this.http.delete<{ status: string }>(
+      `${this.base}/competitions/${encodeURIComponent(competitionId)}/wca-link`,
+    );
+  }
 }

@@ -17,6 +17,7 @@ const {
   createWcaDriveFolderForCompetition,
   updateCompetition,
   deleteCompetition,
+  unlinkCompetitionFromWca,
 } = require('../services/competitions.service.js');
 const { respondWithServiceError } = require('../helpers/httpError.helper.js');
 
@@ -232,6 +233,16 @@ async function deletePlannerCompetition(req, res) {
   }
 }
 
+// DELETE /dashboard/competition-planner/competitions/:competitionId/wca-link - unlinks WCA.
+async function unlinkPlannerCompetitionFromWca(req, res) {
+  try {
+    await unlinkCompetitionFromWca(req.params.competitionId);
+    res.json({ status: 'success' });
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to unlink WCA competition');
+  }
+}
+
 module.exports = {
   getCompetitions,
   getPlannerCompetitions,
@@ -247,4 +258,5 @@ module.exports = {
   createPlannerWcaDriveFolder,
   updatePlannerCompetition,
   deletePlannerCompetition,
+  unlinkPlannerCompetitionFromWca,
 };

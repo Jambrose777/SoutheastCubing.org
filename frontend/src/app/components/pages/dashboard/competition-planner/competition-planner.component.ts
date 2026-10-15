@@ -343,6 +343,7 @@ export class CompetitionPlannerComponent implements OnInit {
   lastBulkRefreshAt = signal<string | null>(null);
   refreshingCompetitionIds = signal<Set<string>>(new Set());
   creatingDriveFolderIds = signal<Set<string>>(new Set());
+  unlinkingCompetitionIds = signal<Set<string>>(new Set());
   potentialRows = computed(() =>
     this.rows()
       .filter((row) => row.status === 'potential')
@@ -724,6 +725,15 @@ export class CompetitionPlannerComponent implements OnInit {
         visible: (row) => this.canEdit(row) && !row.is_major && !row.wca_drive_link,
       },
       {
+        icon: 'fa-link-slash',
+        label: 'Unlink from WCA',
+        onClick: (row) => this.unlinkCompetitionFromWca(row),
+        visible: (row) =>
+          this.canEdit(row) &&
+          row.status === 'planning' &&
+          !this.unlinkingCompetitionIds().has(row.id),
+      },
+      {
         icon: 'fa-trash',
         label: 'Delete',
         onClick: (row) => this.deleteCompetition(row),
@@ -794,6 +804,43 @@ export class CompetitionPlannerComponent implements OnInit {
   // Tracks in-flight folder creation so a row cannot submit the same action twice.
   private setDriveFolderCreationPending(competitionId: string, pending: boolean): void {
     this.creatingDriveFolderIds.update((current) => {
+      const next = new Set(current);
+      if (pending) next.add(competitionId);
+      else next.delete(competitionId);
+      return next;
+    });
+  }
+
+  // Unlinks an editable Planning row immediately, then reloads its Potential state.
+  private unlinkCompetitionFromWca(row: PlannerTableRow): void {
+    if (
+      !this.canEdit(row) ||
+      row.status !== 'planning' ||
+      this.unlinkingCompetitionIds().has(row.id)
+    ) {
+      return;
+    }
+
+    this.setCompetitionUnlinkPending(row.id, true);
+    const pendingToast = this.toastService.pending('Unlinking competition from WCA…');
+    this.competitionPlannerApi.unlinkWcaCompetition(row.id).subscribe({
+      next: () => {
+        pendingToast.dismiss();
+        this.setCompetitionUnlinkPending(row.id, false);
+        this.toastService.success('Competition unlinked from WCA.');
+        this.loadCompetitions();
+      },
+      error: (error) => {
+        pendingToast.dismiss();
+        this.setCompetitionUnlinkPending(row.id, false);
+        this.toastService.error(error?.error?.message ?? 'Failed to unlink competition from WCA.');
+      },
+    });
+  }
+
+  // Tracks pending unlink requests so repeated clicks cannot submit duplicates.
+  private setCompetitionUnlinkPending(competitionId: string, pending: boolean): void {
+    this.unlinkingCompetitionIds.update((current) => {
       const next = new Set(current);
       if (pending) next.add(competitionId);
       else next.delete(competitionId);
