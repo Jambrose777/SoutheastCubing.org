@@ -1,4 +1,10 @@
-<div class="header" [ngClass]="{ 'title-only': showTitle() && !showNavCluster() }">
+<div
+  class="header"
+  [ngClass]="{
+    'title-only': showTitle() && !showNavCluster(),
+    'title-with-nav': showTitle() && showNavCluster(),
+  }"
+>
   @if (showNavCluster()) {
     <img
       ngSrc="assets/SECILogoColor-header.png"

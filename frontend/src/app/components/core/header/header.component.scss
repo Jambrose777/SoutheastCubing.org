@@ -23,15 +23,72 @@
     margin-left: 40px;
     line-height: 25px;
     z-index: 10002;
+    min-width: 0;
   }
 
   &.title-only {
-    justify-content: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 4fr) minmax(0, 1fr);
     align-items: center;
+    height: auto;
+    min-height: 80px;
 
     .se-title {
+      grid-column: 2;
+      grid-row: 1;
+      width: 100%;
       margin-right: 0;
       margin-left: 0;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+
+    .auth-action {
+      position: static;
+      grid-column: 3;
+      grid-row: 1;
+      justify-self: end;
+      margin-right: 20px;
+      transform: none;
+    }
+  }
+
+  &.title-with-nav {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    height: auto;
+    min-height: 80px;
+
+    .se-logo {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .se-title {
+      grid-column: 2;
+      grid-row: 1;
+      width: 100%;
+      margin: 0;
+      text-align: center;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .auth-action {
+      position: static;
+      grid-column: 4;
+      grid-row: 1;
+      justify-self: end;
+      margin: 0 10px 0 0;
+      transform: none;
+    }
+
+    ::ng-deep [mobileHeaderAction] {
+      grid-column: 3;
+      grid-row: 1;
+      justify-self: center;
+      margin: 0 8px;
     }
   }
 
@@ -183,12 +240,36 @@
   }
 
   .se-title {
-    width: 100%;
-    margin-right: 10px !important;
-    margin-left: 10px !important;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 1.5rem;
+  }
+}
+
+@media only screen and (max-width: screen-sizes.$extra-small-breakpoint) {
+  .header.title-with-nav {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-rows: 60px auto;
+
+    .se-logo {
+      height: 50px;
+      margin: 5px 10px;
+    }
+
+    .se-title {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      margin: 0 10px 10px;
+      font-size: 1.5rem;
+    }
+
+    .auth-action {
+      grid-column: 3;
+      grid-row: 1;
+      margin-right: 10px;
+    }
+
+    ::ng-deep [mobileHeaderAction] {
+      grid-column: 2;
+      grid-row: 1;
+    }
   }
 }

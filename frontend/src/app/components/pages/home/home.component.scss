@@ -93,6 +93,7 @@
       height: 500px;
       width: 80%;
       margin: auto;
+      flex: 0 0 auto;
     }
 
     .home-override-container {
@@ -123,6 +124,34 @@
     height: 200px;
     width: 95%;
     margin: auto;
+    flex: 0 0 auto;
+  }
+}
+
+@media only screen and (min-width: 769px) {
+  .component-container {
+    .main-pane .home-photo-container,
+    .mobile-home-photo-container {
+      height: 300px;
+    }
+  }
+}
+
+@media only screen and (min-width: 1024px) {
+  .component-container {
+    .main-pane .home-photo-container,
+    .mobile-home-photo-container {
+      height: 400px;
+    }
+  }
+}
+
+@media only screen and (min-width: 1180px) {
+  .component-container {
+    .main-pane .home-photo-container,
+    .mobile-home-photo-container {
+      height: 500px;
+    }
   }
 }
 

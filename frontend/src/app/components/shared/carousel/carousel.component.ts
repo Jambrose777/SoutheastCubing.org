@@ -26,7 +26,6 @@ export interface CarouselImage {
 })
 export class CarouselComponent {
   images = input.required<CarouselImage[]>();
-  height = input.required<number>();
   loop = input(false);
   autoplay = input(false);
   arrows = input(true);
