@@ -1,7 +1,7 @@
 const crypto = require('crypto');
-const db = require('./pool.js');
+const db = require('../pool.js');
 
-const logger = require('../utils/logger.util.js');
+const logger = require('../../utils/logger.util.js');
 
 // Every competition_organizers row for the given competition ids, joined with
 // each person's display fields - alphabetical by name.

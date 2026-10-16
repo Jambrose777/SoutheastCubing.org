@@ -1,9 +1,9 @@
 const { config } = require('../config/config.js');
 const wcaIntegration = require('../integrations/wca.integration.js');
-const peopleDb = require('../database/people.database.js');
-const usersDb = require('../database/users.database.js');
-const sessionsDb = require('../database/sessions.database.js');
-const wcaOauthGrantsDb = require('../database/wcaOauthGrants.database.js');
+const peopleDb = require('../database/people/people.database.js');
+const usersDb = require('../database/auth/users.database.js');
+const sessionsDb = require('../database/auth/sessions.database.js');
+const wcaOauthGrantsDb = require('../database/auth/wcaOauthGrants.database.js');
 const photosService = require('./photos.service.js');
 const { generateSessionToken } = require('../helpers/session.helper.js');
 const { encrypt, decrypt } = require('../helpers/encryption.helper.js');

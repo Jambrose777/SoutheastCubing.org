@@ -1,7 +1,7 @@
 const crypto = require('crypto');
-const db = require('./pool.js');
+const db = require('../pool.js');
 
-const logger = require('../utils/logger.util.js');
+const logger = require('../../utils/logger.util.js');
 
 // Looks up a single `delegates` row by people_id. Returns null if this
 // person has never been tracked as a Delegate.

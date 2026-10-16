@@ -1,7 +1,7 @@
-const db = require('./pool.js');
-const { hashSessionToken } = require('../helpers/session.helper.js');
+const db = require('../pool.js');
+const { hashSessionToken } = require('../../helpers/session.helper.js');
 
-const logger = require('../utils/logger.util.js');
+const logger = require('../../utils/logger.util.js');
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 // Only rewrite expires_at once more than this much time has passed since it

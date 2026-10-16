@@ -1,6 +1,6 @@
 const logger = require('../utils/logger.util.js');
 
-const competitionsDb = require('../database/competitions.database.js');
+const competitionsMetaDb = require('../database/competitions/competitionsMeta.database.js');
 const {
   runCoordinatedCompetitionRefresh,
   refreshCompetitionFromWCA,
@@ -52,7 +52,7 @@ async function getPlannerCompetitions(req, res) {
   try {
     const [competitions, lastBulkRefreshAt] = await Promise.all([
       getCompetitionsForPlanner(view),
-      competitionsDb.getLastBulkRefreshAt(),
+      competitionsMetaDb.getLastBulkRefreshAt(),
     ]);
     res.status(200).json({ competitions, meta: { lastBulkRefreshAt } });
   } catch (err) {
@@ -74,7 +74,7 @@ async function refreshPlannerCompetitions(req, res) {
       peopleId: req.user.people_id,
       sessionId: req.user.sessionId,
     });
-    const lastBulkRefreshAt = await competitionsDb.getLastBulkRefreshAt();
+    const lastBulkRefreshAt = await competitionsMetaDb.getLastBulkRefreshAt();
     res.status(200).json({
       competitions,
       discordPostFailures: discordPostFailures.map((comp) => ({ id: comp.id, name: comp.name })),

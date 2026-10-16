@@ -4,10 +4,10 @@ const path = require('path');
 const moment = require('moment');
 
 const wca = require('../app/integrations/wca.integration.js');
-const competitionEventsDb = require('../app/database/competitionEvents.database.js');
-const competitionDelegatesDb = require('../app/database/competitionDelegates.database.js');
-const competitionOrganizersDb = require('../app/database/competitionOrganizers.database.js');
-const peopleDb = require('../app/database/people.database.js');
+const competitionEventsDb = require('../app/database/competitions/competitionEvents.database.js');
+const competitionDelegatesDb = require('../app/database/competitions/competitionDelegates.database.js');
+const competitionOrganizersDb = require('../app/database/competitions/competitionOrganizers.database.js');
+const peopleDb = require('../app/database/people/people.database.js');
 const peopleService = require('../app/services/people.service.js');
 const { pool, withRetry } = require('../app/database/pool.js');
 const { getFullCompetitionDate } = require('../app/helpers/competitionDates.helper.js');

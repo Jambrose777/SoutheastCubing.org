@@ -1,6 +1,6 @@
 const { stripNewlines } = require('../helpers/sanitize.helper.js');
 const { config } = require('../config/config.js');
-const teamsDb = require('../database/teams.database.js');
+const teamsDb = require('../database/teams/teams.database.js');
 const { BOARD_TEAM_ID } = require('../helpers/fixedTeams.helper.js');
 
 const logger = require('../utils/logger.util.js');

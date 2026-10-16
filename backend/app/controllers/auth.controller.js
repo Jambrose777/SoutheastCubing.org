@@ -1,8 +1,8 @@
 const crypto = require('crypto');
 const { config } = require('../config/config.js');
 const authService = require('../services/auth.service.js');
-const sessionsDb = require('../database/sessions.database.js');
-const wcaOauthGrantsDb = require('../database/wcaOauthGrants.database.js');
+const sessionsDb = require('../database/auth/sessions.database.js');
+const wcaOauthGrantsDb = require('../database/auth/wcaOauthGrants.database.js');
 const { getCurrentRoles } = require('../helpers/roles.helper.js');
 const devImpersonation = require('../helpers/devImpersonation.helper.js');
 const { resolvePersonPicture } = require('../helpers/personPicture.helper.js');

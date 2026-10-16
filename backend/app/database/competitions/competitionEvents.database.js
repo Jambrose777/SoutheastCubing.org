@@ -1,6 +1,6 @@
-const { chunk } = require('../helpers/chunk.helper.js');
-const { groupBy } = require('../helpers/groupBy.helper.js');
-const db = require('./pool.js');
+const { chunk } = require('../../helpers/chunk.helper.js');
+const { groupBy } = require('../../helpers/groupBy.helper.js');
+const db = require('../pool.js');
 
 // Competitions typically carry at most ~20 WCA event ids each. Chunking
 // competition ids into groups of this size keeps queries under DSQL's row cap.

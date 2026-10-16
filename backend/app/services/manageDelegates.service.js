@@ -1,4 +1,4 @@
-const delegatesDb = require('../database/delegates.database.js');
+const delegatesDb = require('../database/people/delegates.database.js');
 const peopleService = require('./people.service.js');
 const { httpError } = require('../helpers/httpError.helper.js');
 const { SOUTHEAST_STATES } = require('../helpers/southeastStates.helper.js');

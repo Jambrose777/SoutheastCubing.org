@@ -1,7 +1,7 @@
 const crypto = require('crypto');
-const db = require('./pool.js');
+const db = require('../pool.js');
 
-const logger = require('../utils/logger.util.js');
+const logger = require('../../utils/logger.util.js');
 
 // Upserts the `users` row linked to `peopleId` - creates it on a person's
 // first-ever login, otherwise refreshes `email`.

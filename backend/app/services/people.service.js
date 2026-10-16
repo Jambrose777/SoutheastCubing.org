@@ -1,6 +1,6 @@
-const peopleDb = require('../database/people.database.js');
-const delegatesDb = require('../database/delegates.database.js');
-const teamMembershipsDb = require('../database/teamMemberships.database.js');
+const peopleDb = require('../database/people/people.database.js');
+const delegatesDb = require('../database/people/delegates.database.js');
+const teamMembershipsDb = require('../database/teams/teamMemberships.database.js');
 const wcaIntegration = require('../integrations/wca.integration.js');
 const photosService = require('./photos.service.js');
 const { httpError } = require('../helpers/httpError.helper.js');

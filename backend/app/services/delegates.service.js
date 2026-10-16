@@ -1,4 +1,4 @@
-const delegatesDb = require('../database/delegates.database.js');
+const delegatesDb = require('../database/people/delegates.database.js');
 const { resolvePersonPicture } = require('../helpers/personPicture.helper.js');
 const { RANK_DISPLAY_ORDER, highestDisplayRank } = require('../helpers/delegateRanks.helper.js');
 const { groupBy } = require('../helpers/groupBy.helper.js');

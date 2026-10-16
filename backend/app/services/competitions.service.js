@@ -8,16 +8,20 @@ const googleForm = require('../integrations/googleForm.integration.js');
 const googleDrive = require('../integrations/googleDrive.integration.js');
 const discord = require('../integrations/discord.integration.js');
 const authService = require('./auth.service.js');
-const competitionsDb = require('../database/competitions.database.js');
-const competitionBannerDismissalsDb = require('../database/competitionBannerDismissals.database.js');
-const competitionEventsDb = require('../database/competitionEvents.database.js');
-const competitionDelegatesDb = require('../database/competitionDelegates.database.js');
-const competitionOrganizersDb = require('../database/competitionOrganizers.database.js');
-const competitionEquipmentHoldersDb = require('../database/competitionEquipmentHolders.database.js');
-const competitionUnofficialEventsDb = require('../database/competitionUnofficialEvents.database.js');
-const peopleDb = require('../database/people.database.js');
-const delegatesDb = require('../database/delegates.database.js');
-const discordPingPatternsDb = require('../database/discordPingPatterns.database.js');
+const competitionsDb = require('../database/competitions/competitions-table/competitions.database.js');
+const competitionPlannerDb = require('../database/competitions/competitions-table/competitionPlanner.database.js');
+const competitionsMetaDb = require('../database/competitions/competitionsMeta.database.js');
+const competitionRemindersDb = require('../database/competitions/competitions-table/competitionReminders.database.js');
+const competitionWcaDriveDb = require('../database/competitions/competitions-table/competitionWcaDrive.database.js');
+const competitionBannerDismissalsDb = require('../database/competitions/competitionBannerDismissals.database.js');
+const competitionEventsDb = require('../database/competitions/competitionEvents.database.js');
+const competitionDelegatesDb = require('../database/competitions/competitionDelegates.database.js');
+const competitionOrganizersDb = require('../database/competitions/competitionOrganizers.database.js');
+const competitionEquipmentHoldersDb = require('../database/competitions/competitionEquipmentHolders.database.js');
+const competitionUnofficialEventsDb = require('../database/competitions/competitionUnofficialEvents.database.js');
+const peopleDb = require('../database/people/people.database.js');
+const delegatesDb = require('../database/people/delegates.database.js');
+const discordPingPatternsDb = require('../database/competitions/discordPingPatterns.database.js');
 const majorChampionships = require('./majorChampionships.service.js');
 const { getFullCompetitionDate } = require('../helpers/competitionDates.helper.js');
 const { SOUTHEAST_STATES } = require('../helpers/southeastStates.helper.js');
@@ -108,7 +112,7 @@ function derivePlannerStatus(comp) {
 
 // Competition Planner's full list for one date scope, including every status.
 async function getCompetitionsForPlanner(view) {
-  const comps = await withCompetitionEvents(await competitionsDb.getCompetitionsForPlanner(view));
+  const comps = await withCompetitionEvents(await competitionPlannerDb.getCompetitionsForPlanner(view));
   const competitionIds = comps.map((comp) => comp.id);
 
   const delegateRowsByCompetition = groupBy(
@@ -461,7 +465,7 @@ async function createWcaDriveFolderForCompetition(competitionId) {
       parentFolderId,
     );
     const folderLink = folder.webViewLink ?? `https://drive.google.com/drive/folders/${folder.id}`;
-    await competitionsDb.setWcaDriveLink(competitionId, folderLink, folderType);
+    await competitionWcaDriveDb.setWcaDriveLink(competitionId, folderLink, folderType);
     return folderLink;
   });
 }
@@ -473,7 +477,7 @@ async function setCompetitionWcaDriveLink(competitionId, folderLink) {
 
   // Removes drive link.
   if (typeof folderLink !== 'string' || !folderLink.trim()) {
-    await competitionsDb.setWcaDriveLink(competitionId, null);
+    await competitionWcaDriveDb.setWcaDriveLink(competitionId, null);
     return null;
   }
 
@@ -482,7 +486,7 @@ async function setCompetitionWcaDriveLink(competitionId, folderLink) {
       competition,
       folderLink,
     );
-    await competitionsDb.setWcaDriveLink(competitionId, normalizedFolderLink, folderType);
+    await competitionWcaDriveDb.setWcaDriveLink(competitionId, normalizedFolderLink, folderType);
     return normalizedFolderLink;
   });
 }
@@ -508,7 +512,7 @@ async function syncWcaDriveFolderBestEffort(
       competition.wca_drive_link,
       requiredFolderType,
     );
-    await competitionsDb.setWcaDriveLink(competition.id, folderLink, folderType);
+    await competitionWcaDriveDb.setWcaDriveLink(competition.id, folderLink, folderType);
   } catch (error) {
     if (error.code === 'WCA_DRIVE_UNAVAILABLE') {
       logger.warn(`Skipping WCA Drive folder work during ${context}: ${error.message}`);
@@ -524,7 +528,7 @@ async function syncWcaDriveFolderBestEffort(
 async function syncAllWcaDriveFoldersBestEffort(nameChangedCompetitionIds = []) {
   let competitions;
   try {
-    competitions = await competitionsDb.getCompetitionsWithWcaDriveLink();
+    competitions = await competitionWcaDriveDb.getCompetitionsWithWcaDriveLink();
   } catch {
     return;
   }
@@ -628,7 +632,7 @@ async function getEligibleUnlinkedManagedCompetitions(
   // Fetch dependencies for compiling managed competitions.
   const [managedCompetitions, plannerCompetitions, patterns] = await Promise.all([
     fetchManagedWcaCompetitions(accessToken, peopleId, { isEligible: isUpcomingCompetition }),
-    competitionsDb.getCompetitionsForPlanner('upcoming'),
+    competitionPlannerDb.getCompetitionsForPlanner('upcoming'),
     discordPingPatternsDb.getPatterns(),
   ]);
 
@@ -761,7 +765,7 @@ async function createCompetition(input) {
   assertValidUnofficialEvents(unofficialEvents);
 
   const id = crypto.randomUUID();
-  await competitionsDb.createPlannerCompetition({
+  await competitionPlannerDb.createPlannerCompetition({
     id,
     name: withYearInName(name, endDate),
     city: `${city}, ${southeastState}`,
@@ -859,7 +863,7 @@ async function createMajorCompetition(input) {
 
   // Create a new competition.
   const id = crypto.randomUUID();
-  await competitionsDb.createPlannerCompetition({
+  await competitionPlannerDb.createPlannerCompetition({
     id,
     name: withYearInName(name, endDate),
     city: `${city.trim()}, ${normalizedStateOrCountry}`,
@@ -947,7 +951,7 @@ async function updateCompetition(id, input) {
     assertValidEventIds(eventIds);
 
     const fullDate = getFullCompetitionDate(input.startDate, input.endDate);
-    updatedCompetition = await competitionsDb.updatePlannerCompetitionFields(id, {
+    updatedCompetition = await competitionPlannerDb.updatePlannerCompetitionFields(id, {
       name: withYearInName(input.name, input.endDate),
       city: `${input.city.trim()}, ${state}`,
       state,
@@ -979,7 +983,7 @@ async function updateCompetition(id, input) {
     }
     await assertPeopleExist(delegatePeopleIds, 'Delegates');
 
-    updatedCompetition = await competitionsDb.updateMultiCityLocationFields(id, {
+    updatedCompetition = await competitionPlannerDb.updateMultiCityLocationFields(id, {
       ...location,
       city: `${location.city}, ${location.state}`,
     });
@@ -1046,7 +1050,7 @@ async function deleteCompetition(id) {
   }
 
   await syncWcaDriveFolderBestEffort(comp, 'Planner competition deletion', 'abandoned', true);
-  await competitionsDb.deletePlannerCompetition(id);
+  await competitionPlannerDb.deletePlannerCompetition(id);
   logger.debug(`Deleted Planner competition (id ${id}).`);
 }
 
@@ -1058,7 +1062,7 @@ async function unlinkCompetitionFromWca(id) {
     throw httpError(400, 'Only Planning competitions can be unlinked from WCA.');
   }
 
-  const unlinked = await competitionsDb.unlinkPlannerCompetitionFromWca(id);
+  const unlinked = await competitionPlannerDb.unlinkPlannerCompetitionFromWca(id);
   if (!unlinked) {
     const currentCompetition = await competitionsDb.getCompetitionById(id);
     if (!currentCompetition) throw httpError(404, 'Competition not found.');
@@ -1164,7 +1168,7 @@ async function linkManagedCompetitionToPlanner({
   }
   const existingMultiCityDriveFolder =
     isMultipleCities && !isMajor
-      ? await competitionsDb.getWcaDriveLinkByWcaCompetitionId(wcaCompetition.id)
+      ? await competitionWcaDriveDb.getWcaDriveLinkByWcaCompetitionId(wcaCompetition.id)
       : null;
   if (!isMajor && !existingMultiCityDriveFolder && (createWcaDriveFolder || wcaDriveLink)) {
     try {
@@ -1224,7 +1228,7 @@ async function linkManagedCompetitionToPlanner({
   // Check that the competition has not already been linked
   let competitionId = plannerCompetitionId;
   if (competitionId) {
-    const linked = await competitionsDb.linkPlannerCompetitionToWca(
+    const linked = await competitionPlannerDb.linkPlannerCompetitionToWca(
       competitionId,
       formattedCompetition,
     );
@@ -1232,7 +1236,9 @@ async function linkManagedCompetitionToPlanner({
       throw httpError(409, 'This Potential competition has already been linked.');
     }
   } else {
-    competitionId = await competitionsDb.createPlannerCompetitionLinkedToWca(formattedCompetition);
+    competitionId = await competitionPlannerDb.createPlannerCompetitionLinkedToWca(
+      formattedCompetition,
+    );
   }
 
   await competitionEventsDb.replaceEventIds([
@@ -1257,7 +1263,7 @@ async function linkManagedCompetitionToPlanner({
   if (isMajor) {
     // Major competitions do not use WCA Drive linkage or folder automation.
   } else if (existingMultiCityDriveFolder) {
-    await competitionsDb.setWcaDriveLink(
+    await competitionWcaDriveDb.setWcaDriveLink(
       competitionId,
       existingMultiCityDriveFolder.wca_drive_link,
       existingMultiCityDriveFolder.wca_drive_folder_type,
@@ -1352,7 +1358,7 @@ async function createMultiCityCompetitionFromWca({
   );
 
   // Reuse an existing shared folder; otherwise validate any requested Drive action.
-  const existingDriveFolder = await competitionsDb.getWcaDriveLinkByWcaCompetitionId(
+  const existingDriveFolder = await competitionWcaDriveDb.getWcaDriveLinkByWcaCompetitionId(
     wcaCompetition.id,
   );
   if (!existingDriveFolder && (createWcaDriveFolder || wcaDriveLink)) {
@@ -1382,7 +1388,7 @@ async function createMultiCityCompetitionFromWca({
   // Create one local Planner row for each validated Southeast location.
   const competitionIds = [];
   for (const location of validatedLocations) {
-    const competitionId = await competitionsDb.createPlannerCompetitionLinkedToWca({
+    const competitionId = await competitionPlannerDb.createPlannerCompetitionLinkedToWca({
       ...formattedCompetition,
       city: `${location.city}, ${location.state}`,
       state: location.state,
@@ -1427,7 +1433,7 @@ async function createMultiCityCompetitionFromWca({
   const firstCompetitionId = competitionIds[0];
   if (existingDriveFolder) {
     for (const competitionId of competitionIds) {
-      await competitionsDb.setWcaDriveLink(
+      await competitionWcaDriveDb.setWcaDriveLink(
         competitionId,
         existingDriveFolder.wca_drive_link,
         existingDriveFolder.wca_drive_folder_type,
@@ -1439,7 +1445,7 @@ async function createMultiCityCompetitionFromWca({
     await createWcaDriveFolderForCompetition(firstCompetitionId);
     const firstCompetition = await competitionsDb.getCompetitionById(firstCompetitionId);
     for (const competitionId of competitionIds.slice(1)) {
-      await competitionsDb.setWcaDriveLink(
+      await competitionWcaDriveDb.setWcaDriveLink(
         competitionId,
         firstCompetition.wca_drive_link,
         firstCompetition.wca_drive_folder_type,
@@ -1449,7 +1455,7 @@ async function createMultiCityCompetitionFromWca({
     await setCompetitionWcaDriveLink(firstCompetitionId, wcaDriveLink);
     const firstCompetition = await competitionsDb.getCompetitionById(firstCompetitionId);
     for (const competitionId of competitionIds.slice(1)) {
-      await competitionsDb.setWcaDriveLink(
+      await competitionWcaDriveDb.setWcaDriveLink(
         competitionId,
         firstCompetition.wca_drive_link,
         firstCompetition.wca_drive_folder_type,
@@ -1569,7 +1575,7 @@ async function linkDetectedMajorsToUniqueManualRows(competitions, plannerCompeti
     const existingIsLeadByPeopleId = new Map(
       existingDelegateRows.map((row) => [row.people_id, row.is_lead]),
     );
-    const linked = await competitionsDb.linkPlannerCompetitionToWca(
+    const linked = await competitionPlannerDb.linkPlannerCompetitionToWca(
       manualCompetition.id,
       competition,
     );
@@ -1590,7 +1596,7 @@ async function linkDetectedMajorsToUniqueManualRows(competitions, plannerCompeti
 
 // Refetches competitions from WCA if the stored data is stale.
 async function fetchCompetitions() {
-  const lastBulkRefreshAt = await competitionsDb.getLastBulkRefreshAt();
+  const lastBulkRefreshAt = await competitionsMetaDb.getLastBulkRefreshAt();
 
   if (
     !lastBulkRefreshAt ||
@@ -1644,7 +1650,7 @@ function sortForDiscordPosting(competitions) {
 // Claims the global refresh slot and records only successful full refreshes.
 async function runCoordinatedCompetitionRefresh(actor) {
   const cooldownCutoff = moment().subtract(BULK_REFRESH_COOLDOWN_MINUTES, 'minutes');
-  const refreshState = await competitionsDb.tryStartBulkRefresh(cooldownCutoff.toDate());
+  const refreshState = await competitionsMetaDb.tryStartBulkRefresh(cooldownCutoff.toDate());
 
   if (!refreshState.started) {
     const reason = refreshState.isRunning
@@ -1658,13 +1664,13 @@ async function runCoordinatedCompetitionRefresh(actor) {
   try {
     const result = await refreshCompetitionsFromWCA(actor);
     if (result.competitions.length) {
-      await competitionsDb.completeBulkRefresh(moment(), refreshState.bulkRefreshStartedAt);
+      await competitionsMetaDb.completeBulkRefresh(moment(), refreshState.bulkRefreshStartedAt);
     } else {
-      await competitionsDb.releaseBulkRefresh(refreshState.bulkRefreshStartedAt);
+      await competitionsMetaDb.releaseBulkRefresh(refreshState.bulkRefreshStartedAt);
     }
     return result;
   } catch (err) {
-    await competitionsDb.releaseBulkRefresh(refreshState.bulkRefreshStartedAt);
+    await competitionsMetaDb.releaseBulkRefresh(refreshState.bulkRefreshStartedAt);
     throw err;
   }
 }
@@ -1867,7 +1873,7 @@ async function refreshCompetitionsFromWCA(actor) {
   const publicWcaCompetitionIds = new Set(
     wcaCompetitions.map((competition) => String(competition.id)),
   );
-  const plannerCompetitions = await competitionsDb.getCompetitionsForPlanner('upcoming');
+  const plannerCompetitions = await competitionPlannerDb.getCompetitionsForPlanner('upcoming');
 
   // Get managed competitions and registration-admin access for assigned organizers/delegates.
   let managedOnlyCompetitions = [];
@@ -2028,7 +2034,7 @@ async function refreshCompetitionsFromWCA(actor) {
     // A regular refresh scans all pending public rows, including multi-city rows; otherwise,
     // limit announcements to multi-city WCA ids refreshed in this run.
     const competitionsPendingDiscordAnnouncement = await withCompetitionEvents(
-      (await competitionsDb.getCompetitionsPendingDiscordAnnouncement()).filter((competition) =>
+      (await competitionRemindersDb.getCompetitionsPendingDiscordAnnouncement()).filter((competition) =>
         comps.length
           ? !managedOnlyCompetitionIds.has(String(competition.wca_competition_id))
           : updatedMultiCityIdSet.has(String(competition.wca_competition_id)),

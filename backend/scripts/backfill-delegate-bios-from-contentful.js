@@ -12,7 +12,7 @@
 // Run via `pnpm --filter southeastcubing-org-api run backfill-delegate-bios`.
 
 const db = require('../app/database/pool.js');
-const delegatesDb = require('../app/database/delegates.database.js');
+const delegatesDb = require('../app/database/people/delegates.database.js');
 const contentful = require('../app/integrations/contentful.integration.js');
 const logger = require('../app/utils/logger.util.js');
 

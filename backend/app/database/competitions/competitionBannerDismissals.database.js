@@ -1,7 +1,7 @@
 const crypto = require('crypto');
-const db = require('./pool.js');
+const db = require('../pool.js');
 
-const logger = require('../utils/logger.util.js');
+const logger = require('../../utils/logger.util.js');
 
 // Lists the WCA competition ids a Delegate has permanently dismissed.
 async function listDismissedWcaCompetitionIds(peopleId) {

@@ -1,8 +1,8 @@
 const crypto = require('crypto');
-const { groupBy } = require('../helpers/groupBy.helper.js');
-const db = require('./pool.js');
+const { groupBy } = require('../../helpers/groupBy.helper.js');
+const db = require('../pool.js');
 
-const logger = require('../utils/logger.util.js');
+const logger = require('../../utils/logger.util.js');
 
 // Fetches unofficial events grouped by competition, alphabetically by saved name.
 async function getUnofficialEventsByCompetition(competitionIds) {

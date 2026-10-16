@@ -1,7 +1,7 @@
 const crypto = require('crypto');
-const db = require('./pool.js');
+const db = require('../pool.js');
 
-const logger = require('../utils/logger.util.js');
+const logger = require('../../utils/logger.util.js');
 
 // Looks up a person's current manage_competitions OAuth grant, or null if
 // they've never granted it (or it was since revoked).

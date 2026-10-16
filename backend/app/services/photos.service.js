@@ -1,6 +1,6 @@
 const { imageSize } = require('image-size');
 
-const peopleDb = require('../database/people.database.js');
+const peopleDb = require('../database/people/people.database.js');
 const wcaIntegration = require('../integrations/wca.integration.js');
 const photoStorage = require('../integrations/photoStorage.integration.js');
 const { httpError } = require('../helpers/httpError.helper.js');

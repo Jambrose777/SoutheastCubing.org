@@ -1,7 +1,7 @@
 const crypto = require('crypto');
-const db = require('./pool.js');
+const db = require('../pool.js');
 
-const logger = require('../utils/logger.util.js');
+const logger = require('../../utils/logger.util.js');
 
 // Every currently-active (end_date IS NULL) team id a person belongs to.
 async function getActiveTeamIdsForPerson(peopleId) {

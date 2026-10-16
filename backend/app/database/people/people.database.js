@@ -1,7 +1,7 @@
 const crypto = require('crypto');
-const db = require('./pool.js');
+const db = require('../pool.js');
 
-const logger = require('../utils/logger.util.js');
+const logger = require('../../utils/logger.util.js');
 
 // Looks up an existing `people` row by wca_id (preferred, when present) or
 // wca_user_id (fallback) - matches on whichever identifier a caller has, per

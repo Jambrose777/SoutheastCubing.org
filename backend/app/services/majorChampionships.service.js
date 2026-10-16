@@ -3,8 +3,8 @@
 const moment = require('moment');
 
 const wca = require('../integrations/wca.integration.js');
-const competitionsDb = require('../database/competitions.database.js');
-const discordPingPatternsDb = require('../database/discordPingPatterns.database.js');
+const competitionsDb = require('../database/competitions/competitions-table/competitions.database.js');
+const discordPingPatternsDb = require('../database/competitions/discordPingPatterns.database.js');
 
 const logger = require('../utils/logger.util.js');
 

@@ -1,7 +1,7 @@
 const moment = require('moment-timezone');
 
-const competitionsDb = require('../database/competitions.database.js');
-const competitionEquipmentHoldersDb = require('../database/competitionEquipmentHolders.database.js');
+const competitionRemindersDb = require('../database/competitions/competitions-table/competitionReminders.database.js');
+const competitionEquipmentHoldersDb = require('../database/competitions/competitionEquipmentHolders.database.js');
 const discord = require('../integrations/discord.integration.js');
 const { groupBy } = require('../helpers/groupBy.helper.js');
 const logger = require('../utils/logger.util.js');
@@ -18,7 +18,7 @@ function getEquipmentReminderMonday(startDate) {
 // Posts due reminders during the daily refresh and leaves failed posts retryable.
 async function sendDueEquipmentReminders() {
   const today = moment().tz(EASTERN_TIME_ZONE).format('YYYY-MM-DD');
-  const candidates = await competitionsDb.getEquipmentReminderCandidates(today);
+  const candidates = await competitionRemindersDb.getEquipmentReminderCandidates(today);
   const dueCompetitions = candidates.filter((competition) => {
     const reminderMonday = getEquipmentReminderMonday(competition.start_date);
     return reminderMonday && today >= reminderMonday && today < competition.start_date;
@@ -40,7 +40,7 @@ async function sendDueEquipmentReminders() {
         competition,
         holdersByCompetition.get(competition.id) ?? [],
       ),
-    markAnnouncedFn: (ids) => competitionsDb.markEquipmentRemindersSent(ids),
+    markAnnouncedFn: (ids) => competitionRemindersDb.markEquipmentRemindersSent(ids),
     getId: (competition) => competition.id,
   });
   logger.info(

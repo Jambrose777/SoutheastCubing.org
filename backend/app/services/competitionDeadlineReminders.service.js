@@ -1,6 +1,6 @@
 const moment = require('moment');
 
-const competitionsDb = require('../database/competitions.database.js');
+const competitionRemindersDb = require('../database/competitions/competitions-table/competitionReminders.database.js');
 const emailIntegration = require('../integrations/email.integration.js');
 const emailService = require('./email.service.js');
 const { groupBy } = require('../helpers/groupBy.helper.js');
@@ -11,7 +11,9 @@ const DEADLINE_REMINDER_DAYS = 28 + 5;
 // Sends each due competition's reminder once during the daily scheduled run.
 async function sendDueWcaDeadlineReminders() {
   const reminderDate = moment.utc().add(DEADLINE_REMINDER_DAYS, 'days').format('YYYY-MM-DD');
-  const candidateRows = await competitionsDb.getUnannouncedDeadlineReminderCandidates(reminderDate);
+  const candidateRows = await competitionRemindersDb.getUnannouncedDeadlineReminderCandidates(
+    reminderDate,
+  );
   const rowsByCompetition = groupBy(candidateRows, 'competition_id');
   const reminders = [...rowsByCompetition.values()]
     .map((rows) => ({

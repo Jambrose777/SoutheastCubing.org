@@ -1,6 +1,6 @@
 const authService = require('../services/auth.service.js');
-const sessionsDb = require('../database/sessions.database.js');
-const usersDb = require('../database/users.database.js');
+const sessionsDb = require('../database/auth/sessions.database.js');
+const usersDb = require('../database/auth/users.database.js');
 
 const logger = require('../utils/logger.util.js');
 

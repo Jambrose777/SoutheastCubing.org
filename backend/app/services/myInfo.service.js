@@ -1,6 +1,6 @@
-const teamMembershipsDb = require('../database/teamMemberships.database.js');
-const teamLeadersDb = require('../database/teamLeaders.database.js');
-const delegatesDb = require('../database/delegates.database.js');
+const teamMembershipsDb = require('../database/teams/teamMemberships.database.js');
+const teamLeadersDb = require('../database/teams/teamLeaders.database.js');
+const delegatesDb = require('../database/people/delegates.database.js');
 const { resolvePersonPicture } = require('../helpers/personPicture.helper.js');
 const { PERSONAL_RANKS } = require('../helpers/delegateRanks.helper.js');
 const { httpError } = require('../helpers/httpError.helper.js');

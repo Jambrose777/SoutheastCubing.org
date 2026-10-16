@@ -1,7 +1,7 @@
-const db = require('./pool.js');
-const { FIXED_TEAM_IDS } = require('../helpers/fixedTeams.helper.js');
+const db = require('../pool.js');
+const { FIXED_TEAM_IDS } = require('../../helpers/fixedTeams.helper.js');
 
-const logger = require('../utils/logger.util.js');
+const logger = require('../../utils/logger.util.js');
 
 // Lists every team (fixed and ordinary, including archived/hidden ones)
 async function listTeams() {

@@ -1,5 +1,5 @@
 const { hasAnyRole } = require('../helpers/roles.helper.js');
-const competitionDelegatesDb = require('../database/competitionDelegates.database.js');
+const competitionDelegatesDb = require('../database/competitions/competitionDelegates.database.js');
 
 const logger = require('../utils/logger.util.js');
 

@@ -1,6 +1,6 @@
-const db = require('./pool.js');
+const db = require('../pool.js');
 
-const logger = require('../utils/logger.util.js');
+const logger = require('../../utils/logger.util.js');
 
 // Converts a stored wildcard pattern (using `*` to mean "any characters") to
 // a RegExp anchored to the whole string, so e.g. 'NAC*' matches 'NAC2026'
