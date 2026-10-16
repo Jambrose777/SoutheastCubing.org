@@ -1,6 +1,11 @@
-<div class="component-container">
+<div class="component-container table-view">
   <div class="main-pane" tabindex="0">
-    <se-header id="header" [title]="'Manage Users'" [showNavCluster]="isMobile()"></se-header>
+    <se-header
+      id="header"
+      [title]="'Manage Users'"
+      [showNavCluster]="isMobile()"
+      [dashboardControls]="true"
+    ></se-header>
 
     <div class="manage-users-content">
       @if (loading()) {

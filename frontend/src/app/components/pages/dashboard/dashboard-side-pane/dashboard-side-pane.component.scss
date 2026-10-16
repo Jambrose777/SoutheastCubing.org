@@ -8,6 +8,22 @@
   display: contents;
 }
 
+.side-pane {
+  min-width: 0;
+  overflow: hidden;
+  flex-basis: 50%;
+
+  &.collapsed {
+    flex-basis: 0;
+    width: 0;
+    visibility: hidden;
+  }
+}
+
+.side-pane:not(.collapsed) {
+  visibility: visible;
+}
+
 .item-title {
   display: flex;
   align-items: center;
@@ -47,4 +63,12 @@
     align-items: center;
     gap: 8px;
   }
+}
+
+.side-pane.collapsed ~ .side-pane-sign-out {
+  display: none;
+}
+
+.side-pane:not(.collapsed) ~ .side-pane-sign-out {
+  display: flex;
 }

@@ -1,6 +1,8 @@
 @use 'src/styles/color-pallet';
+@use 'src/styles/screen-sizes';
 
 .manage-teams-content {
+  container: teams-toolbar / inline-size;
   padding: 16px 24px;
   display: flex;
   flex-direction: column;
@@ -26,8 +28,8 @@
 // ends up, rather than space-between (which centers nothing once the two
 // sides are different widths).
 .content-toolbar {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
   // Stays visible while scrolling through a long team list - stacks right
@@ -43,13 +45,47 @@
 }
 
 .content-toolbar-side {
-  flex: 1;
   display: flex;
+  min-width: 0;
+}
+
+.content-toolbar-side:first-child {
+  display: none;
+}
+
+.view-mode-toggle {
+  grid-column: 1;
+  justify-self: center;
 }
 
 .content-toolbar-actions {
+  grid-column: 2;
+  flex-wrap: nowrap;
   justify-content: flex-end;
   gap: 6px;
+
+  .btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+}
+
+@container teams-toolbar (max-width: 600px) {
+  .content-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .view-mode-toggle {
+    grid-column: 1;
+    justify-self: center;
+  }
+
+  .content-toolbar-actions {
+    grid-column: 1;
+    width: 100%;
+    justify-self: end;
+    flex-wrap: wrap;
+  }
 }
 
 .team-card {
@@ -147,6 +183,10 @@
     width: 36px;
   }
 
+  .member-mobile-avatar {
+    display: none;
+  }
+
   .member-info-row {
     display: flex;
     align-items: center;
@@ -154,12 +194,23 @@
     flex-wrap: wrap;
   }
 
+  .member-badges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+
+    &:empty {
+      display: none;
+    }
+  }
+
   // Wide enough for "Leader: MM/DD/YYYY - MM/DD/YYYY" (the longest line that
   // can appear here) on one line - right-aligned so every line's dates (the
   // membership range and each "Leader:" sub-line below it) end at the same
   // x, even though "Leader: " makes those lines a different length overall.
   .member-dates-cell {
-    width: 230px;
+    width: 210px;
     text-align: right;
     font-size: 14px;
     color: color-pallet.$se-dark-grey;
@@ -181,6 +232,81 @@
     width: 50px;
     text-align: right;
     white-space: nowrap;
+  }
+}
+
+@media only screen and (max-width: screen-sizes.$extra-small-breakpoint) {
+  .member-list {
+    display: block;
+    table-layout: auto;
+  }
+
+  .member-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 4px 8px;
+    padding: 8px 4px;
+
+    .member-avatar-cell,
+    .member-info-cell,
+    .member-dates-cell,
+    .member-actions-cell {
+      display: block;
+      width: auto;
+      padding: 0;
+    }
+
+    .member-avatar-cell {
+      display: none;
+    }
+
+    .member-info-cell {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .member-info-row {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      align-items: center;
+      gap: 4px 8px;
+    }
+
+    .member-mobile-avatar {
+      display: block;
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .member-name {
+      grid-column: 2;
+      grid-row: 1;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .member-badges {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      min-width: 0;
+    }
+
+    .member-dates-cell {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      width: auto;
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+
+    .member-actions-cell {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      justify-self: end;
+      align-self: start;
+      text-align: right;
+    }
   }
 }
 

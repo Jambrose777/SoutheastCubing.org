@@ -1,10 +1,23 @@
 @use 'src/styles/color-pallet';
 
 .manage-delegates-content {
+  min-width: 0;
   padding: 16px 24px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.delegate-table-region {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid color-pallet.$se-black;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.delegate-table-scroll-content {
+  min-width: 700px;
 }
 
 // Wraps the toolbar and the table's own header row in a single
@@ -58,18 +71,24 @@
 
 // Card for the table to visually be in
 .delegate-table-card {
-  border: 1px solid color-pallet.$se-black;
-  border-top: none;
-  border-bottom-left-radius: 6px;
-  border-bottom-right-radius: 6px;
+  border: 0;
+  border-radius: 0;
+  width: 100%;
+  box-sizing: border-box;
   padding: 0 16px 12px;
-  margin-top: -12px;
+}
+
+.delegate-list,
+.history-list {
+  width: 100%;
 }
 
 // One column template shared by the header row and every body row below,
 // so they're guaranteed to line up exactly.
 .delegate-row {
   display: grid;
+  width: 100%;
+  box-sizing: border-box;
   grid-template-columns: 36px 1fr 150px 150px 110px 70px;
   align-items: center;
 
@@ -85,10 +104,8 @@
 // The header row.
 .delegate-row-header {
   font-size: 14px;
-  border: 1px solid color-pallet.$se-black;
+  border: 0;
   border-bottom: 2px solid color-pallet.$se-black;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
   padding: 0 16px;
   background-color: var(--main-pane-color);
 }
@@ -107,6 +124,8 @@
 // ungrouped body row.
 .history-row {
   display: grid;
+  width: 100%;
+  box-sizing: border-box;
   grid-template-columns: 36px 1fr 70px 160px 100px 100px 100px;
   align-items: center;
   font-size: 14px;
@@ -127,10 +146,8 @@
 }
 
 .history-row-header {
-  border: 1px solid color-pallet.$se-black;
+  border: 0;
   border-bottom: 2px solid color-pallet.$se-black;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
   padding: 0 16px;
   background-color: var(--main-pane-color);
 }
@@ -148,10 +165,12 @@
 // One Delegate's own group (grouped view).
 .history-group {
   display: grid;
+  width: 100%;
+  box-sizing: border-box;
   grid-template-columns: 36px 1fr 70px 160px 100px 100px 100px;
   align-items: center;
   font-size: 14px;
-  padding: 6px 4px;
+  padding: 6px 0;
 
   > div {
     padding: 6px 4px;

@@ -1,9 +1,10 @@
-<div class="component-container">
+<div class="component-container" [class.table-view]="view() !== 'calendar'">
   <div class="main-pane" tabindex="0">
     <se-header
       id="header"
       [title]="'Competition Planner'"
       [showNavCluster]="isMobile()"
+      [dashboardControls]="true"
     ></se-header>
 
     <div class="competition-planner-content">
@@ -97,6 +98,7 @@
           ></se-competition-calendar>
         } @else {
           <se-data-table
+            class="competition-planner-table"
             [rows]="tableRows()"
             [columns]="columns()"
             [stickyStartColumnKey]="'name'"

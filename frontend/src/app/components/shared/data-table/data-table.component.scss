@@ -143,6 +143,10 @@ se-filter-pills {
   background-color: var(--main-pane-color);
 }
 
+.data-table-header-sticky-placeholder {
+  visibility: hidden;
+}
+
 .data-table-header-sticky-start-cell .data-table-header-row {
   height: 100%;
   box-sizing: border-box;

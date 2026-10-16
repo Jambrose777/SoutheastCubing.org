@@ -5,6 +5,7 @@ import { Injectable, signal } from '@angular/core';
 })
 export class ScreenSizeService {
   mobileScreenSize = 950;
+  mediumScreenSize = 1180;
 
   // A signal always replays its current value to new readers synchronously,
   // so consumers can read it directly with no timing workaround needed.

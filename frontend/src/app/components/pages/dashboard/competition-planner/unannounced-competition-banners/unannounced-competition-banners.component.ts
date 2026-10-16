@@ -26,6 +26,9 @@ import { formatLongDate } from 'src/app/shared/date.util';
   selector: 'se-unannounced-competition-banners',
   templateUrl: './unannounced-competition-banners.component.html',
   styleUrls: ['./unannounced-competition-banners.component.scss'],
+  host: {
+    '[class.has-visible-competitions]': 'visibleCompetitions().length > 0',
+  },
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatSelectModule],
 })
@@ -49,6 +52,11 @@ export class UnannouncedCompetitionBannersComponent implements OnInit {
   visibleCompetitions = computed(() =>
     this.competitions().filter(
       (competition) => !this.linkLaterWcaIds().has(competition.wca_competition_id),
+    ),
+  );
+  hasNonClosingVisibleCompetitions = computed(() =>
+    this.visibleCompetitions().some(
+      (competition) => !this.closingWcaIds().has(competition.wca_competition_id),
     ),
   );
 

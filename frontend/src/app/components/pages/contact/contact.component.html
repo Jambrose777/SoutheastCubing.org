@@ -4,7 +4,7 @@
 
     <form [formGroup]="contactForm" class="form">
       <!-- Email Type -->
-      <mat-form-field class="form-field">
+      <mat-form-field class="form-field topic-field">
         <mat-label>What would you like to contact us about?</mat-label>
         <mat-select [formControl]="emailTypeControl">
           @for (emailTypeOption of emailTypeOptions; track emailTypeOption) {

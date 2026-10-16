@@ -1,5 +1,13 @@
 @use 'src/styles/color-pallet';
 
+:host {
+  display: block;
+}
+
+:host(:not(.has-visible-competitions)) {
+  display: none;
+}
+
 .unannounced-banners-list {
   display: flex;
   flex-direction: column;

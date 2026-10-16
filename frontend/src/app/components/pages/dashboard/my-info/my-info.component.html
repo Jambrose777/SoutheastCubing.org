@@ -1,6 +1,11 @@
 <div class="component-container">
   <div class="main-pane" tabindex="0">
-    <se-header id="header" [title]="'My Info'" [showNavCluster]="isMobile()"></se-header>
+    <se-header
+      id="header"
+      [title]="'My Info'"
+      [showNavCluster]="isMobile()"
+      [dashboardControls]="true"
+    ></se-header>
 
     <div class="my-info-content">
       @if (loading()) {

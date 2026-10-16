@@ -6,6 +6,7 @@ import {
   inject,
   signal,
   computed,
+  effect,
 } from '@angular/core';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { AuthService } from 'src/app/services/southeastcubing-api/auth.service';
@@ -17,6 +18,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { NavComponent } from '../nav/nav.component';
 import { AvatarComponent } from '../../shared/avatar/avatar.component';
 import { cacheBustUrl } from 'src/app/shared/cache-bust-url.util';
+import { DashboardLayoutService } from 'src/app/services/dashboard-layout.service';
 
 @Component({
   selector: 'se-header',
@@ -35,6 +37,7 @@ import { cacheBustUrl } from 'src/app/shared/cache-bust-url.util';
 })
 export class HeaderComponent implements OnInit {
   private screenSizeService = inject(ScreenSizeService);
+  dashboardLayout = inject(DashboardLayoutService);
   authService = inject(AuthService);
   devImpersonationService = inject(DevImpersonationService);
 
@@ -54,9 +57,28 @@ export class HeaderComponent implements OnInit {
   // while mobile keeps both together in a single instance.
   showTitle = input<boolean>(true);
   showNavCluster = input<boolean>(true);
+  dashboardControls = input<boolean>(false);
   disableHomeLink = input<boolean>(false);
   isNavActive = signal(false);
   transition = signal(false);
+  showDashboardNav = computed(
+    () =>
+      this.dashboardControls() && this.dashboardLayout.isSidePaneCollapsed() && !this.isMobile(),
+  );
+
+  constructor() {
+    let lastOpenRequest = this.dashboardLayout.sidePaneNavOpenRequest();
+    effect(() => {
+      const openRequest = this.dashboardLayout.sidePaneNavOpenRequest();
+      if (openRequest === lastOpenRequest) return;
+      lastOpenRequest = openRequest;
+
+      if (this.dashboardControls() && !this.showTitle()) {
+        this.isNavActive.set(true);
+        this.transition.set(true);
+      }
+    });
+  }
 
   ngOnInit(): void {
     if (this.activateNavOnDefault()) {
@@ -66,6 +88,11 @@ export class HeaderComponent implements OnInit {
 
   // Opens / Closes the nav controls
   toggleNav(toggled: boolean) {
+    if (toggled && this.showDashboardNav()) {
+      this.dashboardLayout.expandSidePaneAndOpenNav();
+      return;
+    }
+
     this.isNavActive.set(toggled);
     this.transition.set(true);
   }

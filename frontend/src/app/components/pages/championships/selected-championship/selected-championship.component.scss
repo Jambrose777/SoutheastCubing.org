@@ -75,6 +75,8 @@
 
     .col-2 {
       width: 25%;
+      min-width: 95px;
+      box-sizing: border-box;
     }
 
     .col-3 {

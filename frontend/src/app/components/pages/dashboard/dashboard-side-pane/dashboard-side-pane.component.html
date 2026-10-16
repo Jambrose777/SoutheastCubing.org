@@ -1,5 +1,5 @@
-<div class="side-pane">
-  <se-header id="header" [showTitle]="false"></se-header>
+<div class="side-pane" [class.collapsed]="dashboardLayout.isSidePaneCollapsed()">
+  <se-header id="header" [showTitle]="false" [dashboardControls]="true"></se-header>
 
   @if (tools().length) {
     <div class="list-container" tabindex="0">
@@ -13,6 +13,7 @@
             class="item-row"
             [routerLink]="tool.routerLink"
             [queryParams]="queryParamsForTool(tool.routerLink)"
+            (click)="onToolSelected(tool.routerLink)"
           >
             <div class="item-title">
               <span>{{ tool.label }}</span>

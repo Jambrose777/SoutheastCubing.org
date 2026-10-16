@@ -1,21 +1,66 @@
 <div
   class="header"
   [ngClass]="{
-    'title-only': showTitle() && !showNavCluster(),
-    'title-with-nav': showTitle() && showNavCluster(),
+    'title-only': showTitle() && !(showNavCluster() || showDashboardNav()),
+    'title-with-nav': showTitle() && (showNavCluster() || showDashboardNav()),
+    'dashboard-collapsed': showDashboardNav(),
   }"
 >
-  @if (showNavCluster()) {
-    <img
-      ngSrc="assets/SECILogoColor-header.png"
-      alt="SECI Logo"
-      width="240"
-      height="120"
-      priority
-      class="se-logo"
-      [routerLink]="'/home'"
-    />
-  }
+  <div class="dashboard-header-brand-nav" [class.dashboard-left-cluster]="showDashboardNav()">
+    @if (showNavCluster() || showDashboardNav()) {
+      <img
+        ngSrc="assets/SECILogoColor-header.png"
+        alt="SECI Logo"
+        width="240"
+        height="120"
+        priority
+        class="se-logo"
+        [routerLink]="'/home'"
+      />
+    }
+
+    <!-- Nav system -->
+    @if ((showNavCluster() || showDashboardNav()) && !isMobile()) {
+      <div class="nav-container" [ngClass]="{ active: isNavActive(), transition: transition() }">
+        <se-nav
+          [isNavActive]="isNavActive()"
+          [transition]="transition()"
+          [disableHomeLink]="disableHomeLink()"
+          (toggleNavEmitter)="toggleNav($event)"
+          (transitionEndEmitter)="onTransitionEnd()"
+        ></se-nav>
+        @if (!isNavActive() && !transition()) {
+          <div class="nav-item-text">Menu</div>
+        }
+
+        @if (dashboardControls() && !isMobile() && !isNavActive()) {
+          @if (showTitle() && dashboardLayout.isSidePaneCollapsed()) {
+            <button
+              type="button"
+              class="dashboard-pane-toggle"
+              (click)="dashboardLayout.toggleSidePane()"
+              aria-label="Expand dashboard navigation"
+              matTooltip="Expand dashboard navigation"
+              matTooltipPosition="above"
+            >
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          } @else if (!showTitle() && !dashboardLayout.isSidePaneCollapsed()) {
+            <button
+              type="button"
+              class="dashboard-pane-toggle"
+              (click)="dashboardLayout.toggleSidePane()"
+              aria-label="Collapse dashboard navigation"
+              matTooltip="Collapse dashboard navigation"
+              matTooltipPosition="above"
+            >
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+          }
+        }
+      </div>
+    }
+  </div>
   @if (showTitle()) {
     <h1 class="se-title">{{ title() }}</h1>
   }
@@ -123,22 +168,6 @@
             </mat-menu>
           }
         </div>
-      }
-    </div>
-  }
-
-  <!-- Nav system -->
-  @if (showNavCluster() && !isMobile()) {
-    <div class="nav-container" [ngClass]="{ active: isNavActive(), transition: transition() }">
-      <se-nav
-        [isNavActive]="isNavActive()"
-        [transition]="transition()"
-        [disableHomeLink]="disableHomeLink()"
-        (toggleNavEmitter)="toggleNav($event)"
-        (transitionEndEmitter)="onTransitionEnd()"
-      ></se-nav>
-      @if (!isNavActive() && !transition()) {
-        <div class="nav-item-text">Menu</div>
       }
     </div>
   }

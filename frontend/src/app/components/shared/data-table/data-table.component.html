@@ -119,7 +119,12 @@
       >
         @for (column of visibleColumns(); track column.key) {
           @if (isStickyStartColumn(column.key)) {
-            <div aria-hidden="true"></div>
+            <div class="data-table-header-sticky-placeholder">
+              <ng-container
+                [ngTemplateOutlet]="columnHeader"
+                [ngTemplateOutletContext]="{ $implicit: column }"
+              ></ng-container>
+            </div>
           } @else {
             <ng-container
               [ngTemplateOutlet]="columnHeader"

@@ -1,6 +1,6 @@
 <div
   class="unannounced-banners-list"
-  [class.has-visible-competitions]="visibleCompetitions().length > 0"
+  [class.has-visible-competitions]="hasNonClosingVisibleCompetitions()"
   [class.has-multiple-visible-competitions]="visibleCompetitions().length > 1"
 >
   @for (competition of visibleCompetitions(); track competition.wca_competition_id) {
