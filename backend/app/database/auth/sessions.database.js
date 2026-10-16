@@ -1,5 +1,5 @@
 const db = require('../pool.js');
-const { hashSessionToken } = require('../../helpers/session.helper.js');
+const { hashSessionToken } = require('../../helpers/auth/session.helper.js');
 
 const logger = require('../../utils/logger.util.js');
 

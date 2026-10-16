@@ -1,8 +1,8 @@
-const teamMembershipsDb = require('../database/teams/teamMemberships.database.js');
-const delegatesDb = require('../database/people/delegates.database.js');
+const teamMembershipsDb = require('../../database/teams/teamMemberships.database.js');
+const delegatesDb = require('../../database/people/delegates.database.js');
 const devImpersonation = require('./devImpersonation.helper.js');
-const { ADMIN_TEAM_ID, BOARD_TEAM_ID } = require('./fixedTeams.helper.js');
-const { highestDisplayRank } = require('./delegateRanks.helper.js');
+const { ADMIN_TEAM_ID, BOARD_TEAM_ID } = require('../fixedTeams.helper.js');
+const { highestDisplayRank } = require('../delegateRanks.helper.js');
 
 // Computes every team id `peopleId` currently (actively) belongs to, a person's
 // highest delegate rank, plus the Admin/Board convenience flags every later role

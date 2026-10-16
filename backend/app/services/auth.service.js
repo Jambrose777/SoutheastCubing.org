@@ -5,8 +5,8 @@ const usersDb = require('../database/auth/users.database.js');
 const sessionsDb = require('../database/auth/sessions.database.js');
 const wcaOauthGrantsDb = require('../database/auth/wcaOauthGrants.database.js');
 const photosService = require('./photos.service.js');
-const { generateSessionToken } = require('../helpers/session.helper.js');
-const { encrypt, decrypt } = require('../helpers/encryption.helper.js');
+const { generateSessionToken } = require('../helpers/auth/session.helper.js');
+const { encrypt, decrypt } = require('../helpers/auth/encryption.helper.js');
 const { httpError } = require('../helpers/httpError.helper.js');
 
 const logger = require('../utils/logger.util.js');

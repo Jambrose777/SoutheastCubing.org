@@ -1,5 +1,5 @@
-const { config } = require('../config/config.js');
-const logger = require('../utils/logger.util.js');
+const { config } = require('../../config/config.js');
+const logger = require('../../utils/logger.util.js');
 
 // Dev-only "login as" mechanism - lets a developer stand in as a person
 // holding any of a fixed set of roles without needing a separate real

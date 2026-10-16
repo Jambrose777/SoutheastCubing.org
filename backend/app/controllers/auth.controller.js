@@ -3,10 +3,10 @@ const { config } = require('../config/config.js');
 const authService = require('../services/auth.service.js');
 const sessionsDb = require('../database/auth/sessions.database.js');
 const wcaOauthGrantsDb = require('../database/auth/wcaOauthGrants.database.js');
-const { getCurrentRoles } = require('../helpers/roles.helper.js');
-const devImpersonation = require('../helpers/devImpersonation.helper.js');
+const { getCurrentRoles } = require('../helpers/auth/roles.helper.js');
+const devImpersonation = require('../helpers/auth/devImpersonation.helper.js');
 const { resolvePersonPicture } = require('../helpers/personPicture.helper.js');
-const { getPendingItems } = require('../helpers/pendingItems.helper.js');
+const { getPendingItems } = require('../services/people/pendingItems.service.js');
 
 const logger = require('../utils/logger.util.js');
 
@@ -274,7 +274,7 @@ function getDevImpersonationConfig(req, res) {
 // session.middleware.js), or 401 if there isn't one. Also resolves their
 // current Admin/Board access (roles.helper.js's shared role-check helper) so
 // the frontend can gate nav links without a second round-trip. As well as
-// any open notification-badge "pending items" (pendingItems.helper.js)
+// any open notification-badge "pending items" (pendingItems.service.js)
 async function getCurrentUser(req, res) {
   if (!req.user) {
     res.status(401).json({ message: 'Not signed in.' });

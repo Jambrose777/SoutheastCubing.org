@@ -23,13 +23,13 @@ const peopleDb = require('../database/people/people.database.js');
 const delegatesDb = require('../database/people/delegates.database.js');
 const discordPingPatternsDb = require('../database/competitions/discordPingPatterns.database.js');
 const majorChampionships = require('./majorChampionships.service.js');
-const { getFullCompetitionDate } = require('../helpers/competitionDates.helper.js');
-const { SOUTHEAST_STATES } = require('../helpers/southeastStates.helper.js');
+const { getFullCompetitionDate } = require('../helpers/competitions/competitionDates.helper.js');
+const { SOUTHEAST_STATES } = require('../helpers/competitions/southeastStates.helper.js');
 const { chunk } = require('../helpers/chunk.helper.js');
 const { groupBy } = require('../helpers/groupBy.helper.js');
 const { withResolvedPicture } = require('../helpers/personPicture.helper.js');
 const { httpError } = require('../helpers/httpError.helper.js');
-const { VALID_EVENT_IDS } = require('../helpers/wcaEvents.helper.js');
+const { VALID_EVENT_IDS } = require('../helpers/competitions/wcaEvents.helper.js');
 
 // Max rows upserted per statement, to keep each one well under DSQL's
 // 3,000-row transaction cap as the retained history keeps growing.

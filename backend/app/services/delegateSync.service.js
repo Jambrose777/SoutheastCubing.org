@@ -5,7 +5,7 @@ const photosService = require('./photos.service.js');
 const emailIntegration = require('../integrations/email.integration.js');
 const emailService = require('./email.service.js');
 const logger = require('../utils/logger.util.js');
-const { SOUTHEAST_STATES } = require('../helpers/southeastStates.helper.js');
+const { SOUTHEAST_STATES } = require('../helpers/competitions/southeastStates.helper.js');
 const {
   WCA_STATUS_TO_RANK,
   PERSONAL_RANK_STATUSES,

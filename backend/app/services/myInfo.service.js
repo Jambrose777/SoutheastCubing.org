@@ -4,8 +4,8 @@ const delegatesDb = require('../database/people/delegates.database.js');
 const { resolvePersonPicture } = require('../helpers/personPicture.helper.js');
 const { PERSONAL_RANKS } = require('../helpers/delegateRanks.helper.js');
 const { httpError } = require('../helpers/httpError.helper.js');
-const devImpersonation = require('../helpers/devImpersonation.helper.js');
-const { getCurrentRoles } = require('../helpers/roles.helper.js');
+const devImpersonation = require('../helpers/auth/devImpersonation.helper.js');
+const { getCurrentRoles } = require('../helpers/auth/roles.helper.js');
 const {
   ADMIN_TEAM_ID,
   BOARD_TEAM_ID,

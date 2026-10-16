@@ -1,4 +1,4 @@
-const { hasAnyRole } = require('../helpers/roles.helper.js');
+const { hasAnyRole } = require('../helpers/auth/roles.helper.js');
 const competitionDelegatesDb = require('../database/competitions/competitionDelegates.database.js');
 
 const logger = require('../utils/logger.util.js');

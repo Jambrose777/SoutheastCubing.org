@@ -3,7 +3,7 @@ const moment = require('moment');
 const db = require('../../pool.js');
 
 const logger = require('../../../utils/logger.util.js');
-const { SOUTHEAST_STATES } = require('../../../helpers/southeastStates.helper.js');
+const { SOUTHEAST_STATES } = require('../../../helpers/competitions/southeastStates.helper.js');
 const { COLUMNS, toRow, fromRow } = require('../../../helpers/competitions/competitionRows.helper.js');
 
 // Total row count in the competitions table - detectss first-time-population case.
