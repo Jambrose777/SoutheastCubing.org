@@ -15,6 +15,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { ThemeService } from 'src/app/services/theme.service';
+import { AuthService } from 'src/app/services/southeastcubing-api/auth.service';
 import { ManageUsersApiService } from 'src/app/services/southeastcubing-api/manage-users-api.service';
 import { Colors } from 'src/app/shared/types';
 import { formatLongDate, formatLongDateTime } from 'src/app/shared/date.util';
@@ -79,6 +80,7 @@ function teamCellText(row: ManageUser): string {
 export class ManageUsersComponent implements OnInit {
   private screenSizeService = inject(ScreenSizeService);
   private themeService = inject(ThemeService);
+  private authService = inject(AuthService);
   private manageUsersApi = inject(ManageUsersApiService);
   private location = inject(Location);
   private route = inject(ActivatedRoute);
@@ -251,13 +253,21 @@ export class ManageUsersComponent implements OnInit {
     this.loading.set(true);
     this.manageUsersApi.getUsers().subscribe({
       next: (users) => {
-        this.rows.set(users);
+        this.setUsers(users);
         this.loading.set(false);
       },
       error: () => {
         this.loading.set(false);
       },
     });
+  }
+
+  // Keeps the missing-ID quick filter from hiding the table after its final row is resolved.
+  private setUsers(users: ManageUser[]): void {
+    this.rows.set(users);
+    if (!users.some((user) => user.needsDiscordUserId)) {
+      this.missingDiscordIdsOverrideActive.set(false);
+    }
   }
 
   // Activates the missing-ID override as soon as its navigation parameter arrives.
@@ -315,12 +325,19 @@ export class ManageUsersComponent implements OnInit {
   // A mutation inside the sheet resolved - refetch so both the table row behind
   // it and the sheet's own displayed fields reflect the new server state, without
   // closing the sheet itself.
-  onUserSaved() {
+  onUserSaved(result: { pendingItemsMayHaveChanged: boolean }) {
     this.manageUsersApi.getUsers().subscribe({
       next: (users) => {
-        this.rows.set(users);
+        this.setUsers(users);
         const updated = users.find((u) => u.peopleId === this.selectedUser()?.peopleId);
         if (updated) this.selectedUser.set(updated);
+        const hasMissingDiscordIds = users.some((user) => user.needsDiscordUserId);
+        const hasPendingDiscordItem = this.authService
+          .currentUser()
+          ?.pendingItems.some((item) => item.id === 'delegate-discord-user-id');
+        if (result.pendingItemsMayHaveChanged && !hasMissingDiscordIds && hasPendingDiscordItem) {
+          this.authService.refreshCurrentUser();
+        }
       },
     });
   }

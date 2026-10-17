@@ -152,7 +152,7 @@
     <se-delegate-bio
       [bio]="user().bio"
       [updateBio]="updateBio"
-      (saved)="saved.emit()"
+      (saved)="saved.emit({ pendingItemsMayHaveChanged: false })"
     ></se-delegate-bio>
   }
 </div>

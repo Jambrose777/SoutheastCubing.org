@@ -83,7 +83,7 @@
       <se-edit-user-sheet
         [user]="user"
         (closed)="requestCloseSheet()"
-        (saved)="onUserSaved()"
+        (saved)="onUserSaved($event)"
       ></se-edit-user-sheet>
     </div>
   </div>

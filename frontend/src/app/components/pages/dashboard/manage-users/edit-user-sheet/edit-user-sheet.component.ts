@@ -29,8 +29,8 @@ export class EditUserSheetComponent {
 
   user = input.required<ManageUser>();
   closed = output<void>();
-  // A mutation (bio save, or a Picture & Crop sheet save) resolved.
-  saved = output<void>();
+  // Reports whether a resolved edit could change the signed-in user's pending items.
+  saved = output<{ pendingItemsMayHaveChanged: boolean }>();
 
   formatLongDate = formatLongDate;
   rankLabel(rank: string): string {
@@ -89,7 +89,7 @@ export class EditUserSheetComponent {
         this.savingDiscordUserId.set(false);
         this.editingDiscordUserId.set(false);
         this.toastService.success('Discord user ID updated.');
-        this.saved.emit();
+        this.saved.emit({ pendingItemsMayHaveChanged: true });
       },
       error: (err) => {
         this.savingDiscordUserId.set(false);
@@ -130,6 +130,6 @@ export class EditUserSheetComponent {
   }
 
   onPictureSheetSaved() {
-    this.saved.emit();
+    this.saved.emit({ pendingItemsMayHaveChanged: false });
   }
 }
