@@ -2,6 +2,8 @@
 
 :host {
   display: block;
+  container-name: unannounced-banner;
+  container-type: inline-size;
 }
 
 :host(:not(.has-visible-competitions)) {
@@ -149,7 +151,7 @@
   }
 }
 
-@media (max-width: 700px) {
+@container unannounced-banner (max-width: 660px) {
   .unannounced-banners-list.has-multiple-visible-competitions {
     max-height: 600px;
   }
