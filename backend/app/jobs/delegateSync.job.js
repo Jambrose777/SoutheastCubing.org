@@ -2,7 +2,7 @@ const schedule = require('node-schedule');
 
 const logger = require('../utils/logger.util.js');
 
-const { syncDelegatesFromWca } = require('../services/delegateSync.service.js');
+const { syncDelegatesFromWca } = require('../services/delegates/delegateSync.service.js');
 
 // Schedules a recurring nightly Delegate roster sync against WCA.
 // Offset to 1 AM UTC.

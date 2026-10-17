@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 
-const logger = require('../utils/logger.util.js');
-const competitionsDb = require('../database/competitions/competitions-table/competitions.database.js');
+const logger = require('../../utils/logger.util.js');
+const competitionsDb = require('../../database/competitions/competitions-table/competitions.database.js');
 const { withCompetitionEvents } = require('./competitionEnrichment.service.js');
 
 // In-process cache of the last getAnnouncedUpcomingCompetitions() result.

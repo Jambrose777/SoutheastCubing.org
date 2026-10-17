@@ -1,16 +1,16 @@
-const teamMembershipsDb = require('../database/teams/teamMemberships.database.js');
-const teamLeadersDb = require('../database/teams/teamLeaders.database.js');
-const delegatesDb = require('../database/people/delegates.database.js');
-const { resolvePersonPicture } = require('../helpers/personPicture.helper.js');
-const { PERSONAL_RANKS } = require('../helpers/delegateRanks.helper.js');
-const { httpError } = require('../helpers/httpError.helper.js');
-const devImpersonation = require('../helpers/auth/devImpersonation.helper.js');
-const { getCurrentRoles } = require('../helpers/auth/roles.helper.js');
+const teamMembershipsDb = require('../../database/teams/teamMemberships.database.js');
+const teamLeadersDb = require('../../database/teams/teamLeaders.database.js');
+const delegatesDb = require('../../database/people/delegates.database.js');
+const { resolvePersonPicture } = require('../../helpers/personPicture.helper.js');
+const { PERSONAL_RANKS } = require('../../helpers/delegateRanks.helper.js');
+const { httpError } = require('../../helpers/httpError.helper.js');
+const devImpersonation = require('../../helpers/auth/devImpersonation.helper.js');
+const { getCurrentRoles } = require('../../helpers/auth/roles.helper.js');
 const {
   ADMIN_TEAM_ID,
   BOARD_TEAM_ID,
   OFFICER_TEAM_IDS,
-} = require('../helpers/fixedTeams.helper.js');
+} = require('../../helpers/fixedTeams.helper.js');
 
 // Whether a membership's team should link to the Who We Are page
 function linksToWhoWeAre(row) {

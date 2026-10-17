@@ -1,6 +1,6 @@
 const moment = require('moment');
 
-const wca = require('../integrations/wca.integration.js');
+const wca = require('../../integrations/wca.integration.js');
 
 // Fetches registration counts, using the admin endpoint only when the caller has an assigned token.
 async function getRegistrationsFromWCA(competition, accessToken) {

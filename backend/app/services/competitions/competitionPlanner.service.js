@@ -1,21 +1,21 @@
 const crypto = require('crypto');
 
-const logger = require('../utils/logger.util.js');
-const competitionsDb = require('../database/competitions/competitions-table/competitions.database.js');
-const competitionPlannerDb = require('../database/competitions/competitions-table/competitionPlanner.database.js');
-const competitionEventsDb = require('../database/competitions/competitionEvents.database.js');
-const competitionDelegatesDb = require('../database/competitions/competitionDelegates.database.js');
-const competitionOrganizersDb = require('../database/competitions/competitionOrganizers.database.js');
-const competitionEquipmentHoldersDb = require('../database/competitions/competitionEquipmentHolders.database.js');
-const competitionUnofficialEventsDb = require('../database/competitions/competitionUnofficialEvents.database.js');
-const peopleDb = require('../database/people/people.database.js');
-const delegatesDb = require('../database/people/delegates.database.js');
-const { getFullCompetitionDate } = require('../helpers/competitions/competitionDates.helper.js');
-const { groupBy } = require('../helpers/groupBy.helper.js');
-const { withResolvedPicture } = require('../helpers/personPicture.helper.js');
-const { httpError } = require('../helpers/httpError.helper.js');
-const { withYearInName } = require('../helpers/competitions/competitionNames.helper.js');
-const { derivePlannerStatus } = require('../helpers/competitions/competitionStatus.helper.js');
+const logger = require('../../utils/logger.util.js');
+const competitionsDb = require('../../database/competitions/competitions-table/competitions.database.js');
+const competitionPlannerDb = require('../../database/competitions/competitions-table/competitionPlanner.database.js');
+const competitionEventsDb = require('../../database/competitions/competitionEvents.database.js');
+const competitionDelegatesDb = require('../../database/competitions/competitionDelegates.database.js');
+const competitionOrganizersDb = require('../../database/competitions/competitionOrganizers.database.js');
+const competitionEquipmentHoldersDb = require('../../database/competitions/competitionEquipmentHolders.database.js');
+const competitionUnofficialEventsDb = require('../../database/competitions/competitionUnofficialEvents.database.js');
+const peopleDb = require('../../database/people/people.database.js');
+const delegatesDb = require('../../database/people/delegates.database.js');
+const { getFullCompetitionDate } = require('../../helpers/competitions/competitionDates.helper.js');
+const { groupBy } = require('../../helpers/groupBy.helper.js');
+const { withResolvedPicture } = require('../../helpers/personPicture.helper.js');
+const { httpError } = require('../../helpers/httpError.helper.js');
+const { withYearInName } = require('../../helpers/competitions/competitionNames.helper.js');
+const { derivePlannerStatus } = require('../../helpers/competitions/competitionStatus.helper.js');
 const {
   getEquipmentHolders,
   assertValidEventIds,
@@ -25,7 +25,7 @@ const {
   getSoutheastState,
   getValidatedMultiCityLocation,
   assertStartDateFarEnoughOut,
-} = require('../helpers/competitions/competitionValidation.helper.js');
+} = require('../../helpers/competitions/competitionValidation.helper.js');
 const {
   assertWcaDriveOptions,
   validateWcaDriveRequest,

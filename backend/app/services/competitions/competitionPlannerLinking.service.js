@@ -1,25 +1,25 @@
-const wca = require('../integrations/wca.integration.js');
-const authService = require('./auth.service.js');
-const competitionsDb = require('../database/competitions/competitions-table/competitions.database.js');
-const competitionPlannerDb = require('../database/competitions/competitions-table/competitionPlanner.database.js');
-const competitionWcaDriveDb = require('../database/competitions/competitions-table/competitionWcaDrive.database.js');
-const competitionEventsDb = require('../database/competitions/competitionEvents.database.js');
-const competitionDelegatesDb = require('../database/competitions/competitionDelegates.database.js');
-const competitionOrganizersDb = require('../database/competitions/competitionOrganizers.database.js');
+const wca = require('../../integrations/wca.integration.js');
+const authService = require('../auth.service.js');
+const competitionsDb = require('../../database/competitions/competitions-table/competitions.database.js');
+const competitionPlannerDb = require('../../database/competitions/competitions-table/competitionPlanner.database.js');
+const competitionWcaDriveDb = require('../../database/competitions/competitions-table/competitionWcaDrive.database.js');
+const competitionEventsDb = require('../../database/competitions/competitionEvents.database.js');
+const competitionDelegatesDb = require('../../database/competitions/competitionDelegates.database.js');
+const competitionOrganizersDb = require('../../database/competitions/competitionOrganizers.database.js');
 const majorChampionships = require('./majorChampionships.service.js');
-const { resolvePersonIdFromWcaPerson } = require('./people.service.js');
-const { httpError } = require('../helpers/httpError.helper.js');
-const { derivePlannerStatus } = require('../helpers/competitions/competitionStatus.helper.js');
+const { resolvePersonIdFromWcaPerson } = require('../people/people.service.js');
+const { httpError } = require('../../helpers/httpError.helper.js');
+const { derivePlannerStatus } = require('../../helpers/competitions/competitionStatus.helper.js');
 const {
   getEligibleUnlinkedManagedCompetitions,
 } = require('./competitionManagedCompetitions.service.js');
-const { isEligibleManagedCompetition } = require('../helpers/competitions/competitionEligibility.helper.js');
+const { isEligibleManagedCompetition } = require('../../helpers/competitions/competitionEligibility.helper.js');
 const {
   filterCompetitionsToTrackedSEStates,
   isMultipleCitiesWcaCompetition,
-} = require('../helpers/competitions/states.helper.js');
+} = require('../../helpers/competitions/states.helper.js');
 const { fetchRegistrationDataByWcaId } = require('./competitionRegistrations.service.js');
-const { formatCompetitionData } = require('../helpers/competitions/competitionWcaData.helper.js');
+const { formatCompetitionData } = require('../../helpers/competitions/competitionWcaData.helper.js');
 const {
   assertWcaDriveOptions,
   validateWcaDriveRequest,

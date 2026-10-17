@@ -1,11 +1,11 @@
 const { imageSize } = require('image-size');
 
-const peopleDb = require('../database/people/people.database.js');
-const wcaIntegration = require('../integrations/wca.integration.js');
-const photoStorage = require('../integrations/photoStorage.integration.js');
-const { httpError } = require('../helpers/httpError.helper.js');
+const peopleDb = require('../../database/people/people.database.js');
+const wcaIntegration = require('../../integrations/wca.integration.js');
+const photoStorage = require('../../integrations/photoStorage.integration.js');
+const { httpError } = require('../../helpers/httpError.helper.js');
 
-const logger = require('../utils/logger.util.js');
+const logger = require('../../utils/logger.util.js');
 
 // Eevery place a managed photo is actually shown expects a square thumbnail.
 // Computes a centered best-fit square, the size of the shorter dimension,

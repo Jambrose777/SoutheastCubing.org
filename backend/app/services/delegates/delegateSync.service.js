@@ -1,15 +1,15 @@
-const wca = require('../integrations/wca.integration.js');
-const delegatesDb = require('../database/people/delegates.database.js');
-const peopleDb = require('../database/people/people.database.js');
-const photosService = require('./photos.service.js');
-const emailIntegration = require('../integrations/email.integration.js');
-const emailService = require('./email.service.js');
-const logger = require('../utils/logger.util.js');
-const { SOUTHEAST_STATES } = require('../helpers/competitions/states.helper.js');
+const wca = require('../../integrations/wca.integration.js');
+const delegatesDb = require('../../database/people/delegates.database.js');
+const peopleDb = require('../../database/people/people.database.js');
+const photosService = require('../people/photos.service.js');
+const emailIntegration = require('../../integrations/email.integration.js');
+const emailService = require('../email.service.js');
+const logger = require('../../utils/logger.util.js');
+const { SOUTHEAST_STATES } = require('../../helpers/competitions/states.helper.js');
 const {
   WCA_STATUS_TO_RANK,
   PERSONAL_RANK_STATUSES,
-} = require('../helpers/delegateRanks.helper.js');
+} = require('../../helpers/delegateRanks.helper.js');
 
 // SECI's own delegate_regions group id.
 const SECI_GROUP_ID = 32;

@@ -1,18 +1,18 @@
 const moment = require('moment');
 
-const logger = require('../utils/logger.util.js');
-const wca = require('../integrations/wca.integration.js');
-const authService = require('./auth.service.js');
-const competitionPlannerDb = require('../database/competitions/competitions-table/competitionPlanner.database.js');
-const competitionBannerDismissalsDb = require('../database/competitions/competitionBannerDismissals.database.js');
-const discordPingPatternsDb = require('../database/competitions/discordPingPatterns.database.js');
+const logger = require('../../utils/logger.util.js');
+const wca = require('../../integrations/wca.integration.js');
+const authService = require('../auth.service.js');
+const competitionPlannerDb = require('../../database/competitions/competitions-table/competitionPlanner.database.js');
+const competitionBannerDismissalsDb = require('../../database/competitions/competitionBannerDismissals.database.js');
+const discordPingPatternsDb = require('../../database/competitions/discordPingPatterns.database.js');
 const majorChampionships = require('./majorChampionships.service.js');
-const { isEligibleManagedCompetition } = require('../helpers/competitions/competitionEligibility.helper.js');
+const { isEligibleManagedCompetition } = require('../../helpers/competitions/competitionEligibility.helper.js');
 const {
   getStateFromCity,
   getTrackedSEState,
   isMultipleCitiesWcaCompetition,
-} = require('../helpers/competitions/states.helper.js');
+} = require('../../helpers/competitions/states.helper.js');
 
 // Matches the Planner's upcoming window, including its one-day timezone grace period.
 function isUpcomingCompetition(comp) {

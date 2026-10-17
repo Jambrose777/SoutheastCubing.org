@@ -1,9 +1,9 @@
 const logger = require('../utils/logger.util.js');
 const { respondWithServiceError } = require('../helpers/httpError.helper.js');
 
-const { syncDelegatesFromWca } = require('../services/delegateSync.service.js');
-const delegatesService = require('../services/delegates.service.js');
-const manageDelegatesService = require('../services/manageDelegates.service.js');
+const { syncDelegatesFromWca } = require('../services/delegates/delegateSync.service.js');
+const delegatesService = require('../services/delegates/delegates.service.js');
+const manageDelegatesService = require('../services/delegates/manageDelegates.service.js');
 
 // GET /delegates - public Delegate roster page listing.
 async function listPublicDelegates(req, res) {

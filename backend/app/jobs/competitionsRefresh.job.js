@@ -5,9 +5,9 @@ const logger = require('../utils/logger.util.js');
 const {
   fetchCompetitions,
   runCoordinatedCompetitionRefresh,
-} = require('../services/competitionRefresh.service.js');
-const { sendDueEquipmentReminders } = require('../services/equipmentReminders.service.js');
-const { sendDueWcaDeadlineReminders } = require('../services/competitionDeadlineReminders.service.js');
+} = require('../services/competitions/competitionRefresh.service.js');
+const { sendDueEquipmentReminders } = require('../services/competitions/equipmentReminders.service.js');
+const { sendDueWcaDeadlineReminders } = require('../services/competitions/competitionDeadlineReminders.service.js');
 
 // Fetches competitions once immediately on boot (if the stored data is
 // stale) and schedules a recurring daily refresh at midnight UTC - kept

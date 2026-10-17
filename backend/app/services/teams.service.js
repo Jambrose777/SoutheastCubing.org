@@ -1,7 +1,7 @@
 const teamsDb = require('../database/teams/teams.database.js');
 const teamMembershipsDb = require('../database/teams/teamMemberships.database.js');
 const teamLeadersDb = require('../database/teams/teamLeaders.database.js');
-const { resolvePeopleId } = require('./people.service.js');
+const { resolvePeopleId } = require('./people/people.service.js');
 const { httpError } = require('../helpers/httpError.helper.js');
 const { withResolvedPicture } = require('../helpers/personPicture.helper.js');
 const {

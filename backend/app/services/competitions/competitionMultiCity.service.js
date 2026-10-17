@@ -1,13 +1,13 @@
-const wca = require('../integrations/wca.integration.js');
-const competitionsDb = require('../database/competitions/competitions-table/competitions.database.js');
-const competitionPlannerDb = require('../database/competitions/competitions-table/competitionPlanner.database.js');
-const competitionWcaDriveDb = require('../database/competitions/competitions-table/competitionWcaDrive.database.js');
-const competitionEventsDb = require('../database/competitions/competitionEvents.database.js');
-const competitionDelegatesDb = require('../database/competitions/competitionDelegates.database.js');
-const competitionOrganizersDb = require('../database/competitions/competitionOrganizers.database.js');
-const competitionEquipmentHoldersDb = require('../database/competitions/competitionEquipmentHolders.database.js');
-const authService = require('./auth.service.js');
-const { resolvePersonIdFromWcaPerson } = require('./people.service.js');
+const wca = require('../../integrations/wca.integration.js');
+const competitionsDb = require('../../database/competitions/competitions-table/competitions.database.js');
+const competitionPlannerDb = require('../../database/competitions/competitions-table/competitionPlanner.database.js');
+const competitionWcaDriveDb = require('../../database/competitions/competitions-table/competitionWcaDrive.database.js');
+const competitionEventsDb = require('../../database/competitions/competitionEvents.database.js');
+const competitionDelegatesDb = require('../../database/competitions/competitionDelegates.database.js');
+const competitionOrganizersDb = require('../../database/competitions/competitionOrganizers.database.js');
+const competitionEquipmentHoldersDb = require('../../database/competitions/competitionEquipmentHolders.database.js');
+const authService = require('../auth.service.js');
+const { resolvePersonIdFromWcaPerson } = require('../people/people.service.js');
 const {
   getEligibleUnlinkedManagedCompetitions,
 } = require('./competitionManagedCompetitions.service.js');
@@ -20,22 +20,22 @@ const {
 } = require('./competitionWcaDrive.service.js');
 const { fetchRegistrationDataByWcaId } = require('./competitionRegistrations.service.js');
 const { invalidateCache } = require('./competitionPublicList.service.js');
-const { httpError } = require('../helpers/httpError.helper.js');
+const { httpError } = require('../../helpers/httpError.helper.js');
 const {
   isEligibleManagedCompetition,
-} = require('../helpers/competitions/competitionEligibility.helper.js');
+} = require('../../helpers/competitions/competitionEligibility.helper.js');
 const {
   getEquipmentHolders,
   getValidatedMultiCityLocation,
-} = require('../helpers/competitions/competitionValidation.helper.js');
+} = require('../../helpers/competitions/competitionValidation.helper.js');
 const {
   isMultipleCitiesWcaCompetition,
-} = require('../helpers/competitions/states.helper.js');
+} = require('../../helpers/competitions/states.helper.js');
 const {
   assertPeopleExist,
   assertEquipmentHoldersAreDelegates,
 } = require('./competitionPlanner.service.js');
-const { formatCompetitionData } = require('../helpers/competitions/competitionWcaData.helper.js');
+const { formatCompetitionData } = require('../../helpers/competitions/competitionWcaData.helper.js');
 
 // Creates linked Planner rows for every validated Southeast location of one managed WCA competition.
 async function createMultiCityCompetitionFromWca({

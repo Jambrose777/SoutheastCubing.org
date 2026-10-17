@@ -1,28 +1,28 @@
 const moment = require('moment');
 
-const logger = require('../utils/logger.util.js');
-const wca = require('../integrations/wca.integration.js');
-const googleForm = require('../integrations/googleForm.integration.js');
-const discord = require('../integrations/discord.integration.js');
-const authService = require('./auth.service.js');
-const competitionsDb = require('../database/competitions/competitions-table/competitions.database.js');
-const competitionPlannerDb = require('../database/competitions/competitions-table/competitionPlanner.database.js');
-const competitionsMetaDb = require('../database/competitions/competitionsMeta.database.js');
-const competitionRemindersDb = require('../database/competitions/competitions-table/competitionReminders.database.js');
-const competitionEventsDb = require('../database/competitions/competitionEvents.database.js');
-const competitionDelegatesDb = require('../database/competitions/competitionDelegates.database.js');
-const competitionOrganizersDb = require('../database/competitions/competitionOrganizers.database.js');
-const discordPingPatternsDb = require('../database/competitions/discordPingPatterns.database.js');
+const logger = require('../../utils/logger.util.js');
+const wca = require('../../integrations/wca.integration.js');
+const googleForm = require('../../integrations/googleForm.integration.js');
+const discord = require('../../integrations/discord.integration.js');
+const authService = require('../auth.service.js');
+const competitionsDb = require('../../database/competitions/competitions-table/competitions.database.js');
+const competitionPlannerDb = require('../../database/competitions/competitions-table/competitionPlanner.database.js');
+const competitionsMetaDb = require('../../database/competitions/competitionsMeta.database.js');
+const competitionRemindersDb = require('../../database/competitions/competitions-table/competitionReminders.database.js');
+const competitionEventsDb = require('../../database/competitions/competitionEvents.database.js');
+const competitionDelegatesDb = require('../../database/competitions/competitionDelegates.database.js');
+const competitionOrganizersDb = require('../../database/competitions/competitionOrganizers.database.js');
+const discordPingPatternsDb = require('../../database/competitions/discordPingPatterns.database.js');
 const majorChampionships = require('./majorChampionships.service.js');
-const { chunk } = require('../helpers/chunk.helper.js');
-const { groupBy } = require('../helpers/groupBy.helper.js');
-const { httpError } = require('../helpers/httpError.helper.js');
+const { chunk } = require('../../helpers/chunk.helper.js');
+const { groupBy } = require('../../helpers/groupBy.helper.js');
+const { httpError } = require('../../helpers/httpError.helper.js');
 const { withCompetitionEvents } = require('./competitionEnrichment.service.js');
-const { formatCompetitionData } = require('../helpers/competitions/competitionWcaData.helper.js');
+const { formatCompetitionData } = require('../../helpers/competitions/competitionWcaData.helper.js');
 const {
   filterCompetitionsToTrackedSEStates,
   isInSEState,
-} = require('../helpers/competitions/states.helper.js');
+} = require('../../helpers/competitions/states.helper.js');
 const { invalidateCache } = require('./competitionPublicList.service.js');
 const { syncDelegatesAndOrganizers } = require('./competitionPlannerLinking.service.js');
 const { fetchRegistrationDataByWcaId } = require('./competitionRegistrations.service.js');

@@ -1,10 +1,10 @@
 const moment = require('moment');
 
-const competitionRemindersDb = require('../database/competitions/competitions-table/competitionReminders.database.js');
-const emailIntegration = require('../integrations/email.integration.js');
-const emailService = require('./email.service.js');
-const { groupBy } = require('../helpers/groupBy.helper.js');
-const logger = require('../utils/logger.util.js');
+const competitionRemindersDb = require('../../database/competitions/competitions-table/competitionReminders.database.js');
+const emailIntegration = require('../../integrations/email.integration.js');
+const emailService = require('../email.service.js');
+const { groupBy } = require('../../helpers/groupBy.helper.js');
+const logger = require('../../utils/logger.util.js');
 
 const DEADLINE_REMINDER_DAYS = 28 + 5;
 

@@ -1,7 +1,7 @@
-const delegatesDb = require('../database/people/delegates.database.js');
-const { resolvePersonPicture } = require('../helpers/personPicture.helper.js');
-const { RANK_DISPLAY_ORDER, highestDisplayRank } = require('../helpers/delegateRanks.helper.js');
-const { groupBy } = require('../helpers/groupBy.helper.js');
+const delegatesDb = require('../../database/people/delegates.database.js');
+const { resolvePersonPicture } = require('../../helpers/personPicture.helper.js');
+const { RANK_DISPLAY_ORDER, highestDisplayRank } = require('../../helpers/delegateRanks.helper.js');
+const { groupBy } = require('../../helpers/groupBy.helper.js');
 
 // SECI's own delegate_regions display name - shown as the Regional
 // Delegate's own "state" instead of their actual home state, since their

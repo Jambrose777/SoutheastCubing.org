@@ -1,5 +1,5 @@
-const competitionEventsDb = require('../database/competitions/competitionEvents.database.js');
-const competitionUnofficialEventsDb = require('../database/competitions/competitionUnofficialEvents.database.js');
+const competitionEventsDb = require('../../database/competitions/competitionEvents.database.js');
+const competitionUnofficialEventsDb = require('../../database/competitions/competitionUnofficialEvents.database.js');
 
 // Merges official ids and saved unofficial events into each competition.
 async function withCompetitionEvents(comps) {

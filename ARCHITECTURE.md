@@ -90,7 +90,7 @@ flowchart TB
   headers, or the `safeUrl` pipe.
 - **Discord announcements** now use pattern-based `@everyone` pings (SE
   Championship, and any SE-hosted or supplementally-detected Nats/NAC/Worlds
-  match — `backend/app/services/majorChampionships.service.js`,
+  match — `backend/app/services/competitions/majorChampionships.service.js`,
   `backend/app/database/discordPingPatterns.database.js`)
   alongside the original per-state role pings, with rate-limit-safe chunked
   posting (`backend/app/integrations/discord.integration.js`).

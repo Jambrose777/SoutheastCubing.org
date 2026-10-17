@@ -1,4 +1,4 @@
-const photosService = require('../services/photos.service.js');
+const photosService = require('../services/people/photos.service.js');
 const { respondWithServiceError } = require('../helpers/httpError.helper.js');
 
 // PUT /dashboard/my-info/photo/sync - sets the signed-in user's own sync

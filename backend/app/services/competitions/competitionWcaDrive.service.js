@@ -1,10 +1,10 @@
 const moment = require('moment');
 
-const logger = require('../utils/logger.util.js');
-const googleDrive = require('../integrations/googleDrive.integration.js');
-const competitionsDb = require('../database/competitions/competitions-table/competitions.database.js');
-const competitionWcaDriveDb = require('../database/competitions/competitions-table/competitionWcaDrive.database.js');
-const { httpError } = require('../helpers/httpError.helper.js');
+const logger = require('../../utils/logger.util.js');
+const googleDrive = require('../../integrations/googleDrive.integration.js');
+const competitionsDb = require('../../database/competitions/competitions-table/competitions.database.js');
+const competitionWcaDriveDb = require('../../database/competitions/competitions-table/competitionWcaDrive.database.js');
+const { httpError } = require('../../helpers/httpError.helper.js');
 
 // Convert missing optional Drive setup into the backend's explicit 503 response.
 function rethrowWcaDriveUnavailable(error) {

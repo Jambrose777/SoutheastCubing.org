@@ -3,12 +3,12 @@ const logger = require('../utils/logger.util.js');
 const competitionsMetaDb = require('../database/competitions/competitionsMeta.database.js');
 const {
   runCoordinatedCompetitionRefresh,
-} = require('../services/competitionRefresh.service.js');
-const { refreshCompetitionFromWCA } = require('../services/competitionSingleRefresh.service.js');
+} = require('../services/competitions/competitionRefresh.service.js');
+const { refreshCompetitionFromWCA } = require('../services/competitions/competitionSingleRefresh.service.js');
 const {
   getAnnouncedUpcomingCompetitions,
   getAnnouncedUpcomingCompetitionsRevision,
-} = require('../services/competitionPublicList.service.js');
+} = require('../services/competitions/competitionPublicList.service.js');
 const {
   getCompetitionsForPlanner,
   createCompetition,
@@ -16,17 +16,17 @@ const {
   updateCompetition,
   deleteCompetition,
   unlinkCompetitionFromWca,
-} = require('../services/competitionPlanner.service.js');
+} = require('../services/competitions/competitionPlanner.service.js');
 const {
   getUnannouncedCompetitionBanners,
   getUnannouncedCompetitionLinkOptions,
   dismissUnannouncedCompetition,
-} = require('../services/competitionManagedCompetitions.service.js');
+} = require('../services/competitions/competitionManagedCompetitions.service.js');
 const {
   linkManagedCompetitionToPlanner,
-} = require('../services/competitionPlannerLinking.service.js');
-const { createMultiCityCompetitionFromWca } = require('../services/competitionMultiCity.service.js');
-const { createWcaDriveFolderForCompetition } = require('../services/competitionWcaDrive.service.js');
+} = require('../services/competitions/competitionPlannerLinking.service.js');
+const { createMultiCityCompetitionFromWca } = require('../services/competitions/competitionMultiCity.service.js');
+const { createWcaDriveFolderForCompetition } = require('../services/competitions/competitionWcaDrive.service.js');
 const { respondWithServiceError } = require('../helpers/httpError.helper.js');
 
 // Gets upcoming competitions from the database.

@@ -9,7 +9,7 @@
 
 const db = require('../app/database/pool.js');
 const peopleDb = require('../app/database/people/people.database.js');
-const photosService = require('../app/services/photos.service.js');
+const photosService = require('../app/services/people/photos.service.js');
 const logger = require('../app/utils/logger.util.js');
 
 async function main() {

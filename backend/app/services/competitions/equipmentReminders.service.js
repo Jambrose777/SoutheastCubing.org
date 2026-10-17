@@ -1,10 +1,10 @@
 const moment = require('moment-timezone');
 
-const competitionRemindersDb = require('../database/competitions/competitions-table/competitionReminders.database.js');
-const competitionEquipmentHoldersDb = require('../database/competitions/competitionEquipmentHolders.database.js');
-const discord = require('../integrations/discord.integration.js');
-const { groupBy } = require('../helpers/groupBy.helper.js');
-const logger = require('../utils/logger.util.js');
+const competitionRemindersDb = require('../../database/competitions/competitions-table/competitionReminders.database.js');
+const competitionEquipmentHoldersDb = require('../../database/competitions/competitionEquipmentHolders.database.js');
+const discord = require('../../integrations/discord.integration.js');
+const { groupBy } = require('../../helpers/groupBy.helper.js');
+const logger = require('../../utils/logger.util.js');
 
 const EASTERN_TIME_ZONE = 'America/New_York';
 

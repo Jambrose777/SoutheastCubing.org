@@ -1,4 +1,4 @@
-const myInfoService = require('../services/myInfo.service.js');
+const myInfoService = require('../services/people/myInfo.service.js');
 const { respondWithServiceError } = require('../helpers/httpError.helper.js');
 
 const logger = require('../utils/logger.util.js');

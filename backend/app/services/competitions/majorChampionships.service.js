@@ -2,11 +2,11 @@
 
 const moment = require('moment');
 
-const wca = require('../integrations/wca.integration.js');
-const competitionsDb = require('../database/competitions/competitions-table/competitions.database.js');
-const discordPingPatternsDb = require('../database/competitions/discordPingPatterns.database.js');
+const wca = require('../../integrations/wca.integration.js');
+const competitionsDb = require('../../database/competitions/competitions-table/competitions.database.js');
+const discordPingPatternsDb = require('../../database/competitions/discordPingPatterns.database.js');
 
-const logger = require('../utils/logger.util.js');
+const logger = require('../../utils/logger.util.js');
 
 // How many years beyond the current year to probe for a not-yet-tracked
 // supplemental competition.

@@ -1,4 +1,4 @@
-const peopleService = require('../services/people.service.js');
+const peopleService = require('../services/people/people.service.js');
 const { respondWithServiceError } = require('../helpers/httpError.helper.js');
 
 // GET /dashboard/people/search - search-as-you-type combobox backing search.

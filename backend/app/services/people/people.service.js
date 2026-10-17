@@ -1,12 +1,12 @@
-const peopleDb = require('../database/people/people.database.js');
-const delegatesDb = require('../database/people/delegates.database.js');
-const teamMembershipsDb = require('../database/teams/teamMemberships.database.js');
-const wcaIntegration = require('../integrations/wca.integration.js');
+const peopleDb = require('../../database/people/people.database.js');
+const delegatesDb = require('../../database/people/delegates.database.js');
+const teamMembershipsDb = require('../../database/teams/teamMemberships.database.js');
+const wcaIntegration = require('../../integrations/wca.integration.js');
 const photosService = require('./photos.service.js');
-const { httpError } = require('../helpers/httpError.helper.js');
-const { withResolvedPicture, resolvePersonPicture } = require('../helpers/personPicture.helper.js');
-const { highestDisplayRank } = require('../helpers/delegateRanks.helper.js');
-const { groupBy } = require('../helpers/groupBy.helper.js');
+const { httpError } = require('../../helpers/httpError.helper.js');
+const { withResolvedPicture, resolvePersonPicture } = require('../../helpers/personPicture.helper.js');
+const { highestDisplayRank } = require('../../helpers/delegateRanks.helper.js');
+const { groupBy } = require('../../helpers/groupBy.helper.js');
 
 // Matches WCA's own WCA ID format (e.g. 2010AMBR01).
 const WCA_ID_FORMAT = /^\d{4}[A-Z]{4}\d{2}$/;
