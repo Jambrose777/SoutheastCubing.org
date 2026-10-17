@@ -11,7 +11,7 @@ const peopleDb = require('../app/database/people/people.database.js');
 const peopleService = require('../app/services/people.service.js');
 const { pool, withRetry } = require('../app/database/pool.js');
 const { getFullCompetitionDate } = require('../app/helpers/competitions/competitionDates.helper.js');
-const { SOUTHEAST_STATES } = require('../app/helpers/competitions/southeastStates.helper.js');
+const { SOUTHEAST_STATES } = require('../app/helpers/competitions/states.helper.js');
 const logger = require('../app/utils/logger.util.js');
 
 const MANIFEST_PATH = path.join(__dirname, 'competitions-history-multi-city.json');

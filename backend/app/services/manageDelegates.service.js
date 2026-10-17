@@ -1,7 +1,7 @@
 const delegatesDb = require('../database/people/delegates.database.js');
 const peopleService = require('./people.service.js');
 const { httpError } = require('../helpers/httpError.helper.js');
-const { SOUTHEAST_STATES } = require('../helpers/competitions/southeastStates.helper.js');
+const { SOUTHEAST_STATES } = require('../helpers/competitions/states.helper.js');
 
 // The delegate_rank_history table's own CHECK constraint's allowed values.
 const VALID_RANKS = ['trainee', 'junior', 'delegate', 'senior', 'regional', 'temporary'];

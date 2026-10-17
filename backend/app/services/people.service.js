@@ -44,6 +44,17 @@ async function resolvePeopleId(person, promoteManagedPhoto = false) {
   return peopleId;
 }
 
+// Resolves a WCA Person sub-resource into a persisted `people` row id.
+async function resolvePersonIdFromWcaPerson(wcaPerson) {
+  const person = await peopleDb.findOrCreatePersonFromWcaProfile({
+    wcaId: wcaPerson.wca_id ?? null,
+    wcaUserId: String(wcaPerson.id),
+    name: wcaPerson.name,
+    pictureUrl: wcaPerson.avatar?.thumb_url ?? null,
+  });
+  return person.id;
+}
+
 // Resolves a `{ peopleId }` or `{ wcaId }` selection down to a display-ready
 // person - used by multi-select comboboxes (e.g. the Competition Planner's
 // Delegates/Organizers) that need the resolved person's fields immediately
@@ -169,6 +180,7 @@ async function listUsers() {
 module.exports = {
   WCA_ID_FORMAT,
   resolvePeopleId,
+  resolvePersonIdFromWcaPerson,
   resolvePerson,
   searchPeople,
   lookupWcaId,

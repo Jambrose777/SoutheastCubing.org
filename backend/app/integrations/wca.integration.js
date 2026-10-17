@@ -3,6 +3,7 @@ const axios = require('axios');
 const logger = require('../utils/logger.util.js');
 
 const WCA_MANAGED_COMPETITIONS_UNAUTHORIZED_CODE = 'WCA_MANAGED_COMPETITIONS_UNAUTHORIZED';
+const WCA_MAX_PAGES = 20;
 
 // Number of competitions requested per page from the WCA competitions list
 // endpoint - exported so callers can detect a short (final) page.
@@ -231,10 +232,9 @@ const USER_ROLES_PAGE_SIZE = 1000;
 // or a groupType (e.g. 'delegate_regions' for a worldwide pull). Exactly one
 // of groupId/groupType is expected per call.
 async function fetchUserRoles({ groupId, groupType, isActive = true } = {}) {
-  const maxPages = 20; // guard against an unexpected API change looping forever
   let allRoles = [];
 
-  for (let page = 1; page <= maxPages; page++) {
+  for (let page = 1; page <= WCA_MAX_PAGES; page++) {
     const params = new URLSearchParams({
       isActive: String(isActive),
       per_page: String(USER_ROLES_PAGE_SIZE),
@@ -257,9 +257,9 @@ async function fetchUserRoles({ groupId, groupType, isActive = true } = {}) {
       if (res.data.length < USER_ROLES_PAGE_SIZE) {
         break; // short page means there's nothing more to fetch
       }
-      if (page === maxPages) {
+      if (page === WCA_MAX_PAGES) {
         logger.warn(
-          `Hit the WCA user_roles pagination cap of ${maxPages} pages - some roles may be missing.`,
+          `Hit the WCA user_roles pagination cap of ${WCA_MAX_PAGES} pages - some roles may be missing.`,
         );
       }
     } catch (err) {
@@ -284,6 +284,7 @@ async function fetchAvatarImage(avatarUrl) {
 }
 
 module.exports = {
+  WCA_MAX_PAGES,
   US_COMPETITIONS_PAGE_SIZE,
   WCA_MANAGED_COMPETITIONS_UNAUTHORIZED_CODE,
   fetchUSCompetitionsPage,

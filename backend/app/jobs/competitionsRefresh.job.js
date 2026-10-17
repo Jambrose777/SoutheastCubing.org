@@ -5,7 +5,7 @@ const logger = require('../utils/logger.util.js');
 const {
   fetchCompetitions,
   runCoordinatedCompetitionRefresh,
-} = require('../services/competitions.service.js');
+} = require('../services/competitionRefresh.service.js');
 const { sendDueEquipmentReminders } = require('../services/equipmentReminders.service.js');
 const { sendDueWcaDeadlineReminders } = require('../services/competitionDeadlineReminders.service.js');
 

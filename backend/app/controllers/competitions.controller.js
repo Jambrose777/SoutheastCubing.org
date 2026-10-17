@@ -3,22 +3,30 @@ const logger = require('../utils/logger.util.js');
 const competitionsMetaDb = require('../database/competitions/competitionsMeta.database.js');
 const {
   runCoordinatedCompetitionRefresh,
-  refreshCompetitionFromWCA,
+} = require('../services/competitionRefresh.service.js');
+const { refreshCompetitionFromWCA } = require('../services/competitionSingleRefresh.service.js');
+const {
   getAnnouncedUpcomingCompetitions,
   getAnnouncedUpcomingCompetitionsRevision,
+} = require('../services/competitionPublicList.service.js');
+const {
   getCompetitionsForPlanner,
-  getUnannouncedCompetitionBanners,
-  getUnannouncedCompetitionLinkOptions,
-  dismissUnannouncedCompetition,
-  linkManagedCompetitionToPlanner,
-  createMultiCityCompetitionFromWca,
   createCompetition,
   createMajorCompetition,
-  createWcaDriveFolderForCompetition,
   updateCompetition,
   deleteCompetition,
   unlinkCompetitionFromWca,
-} = require('../services/competitions.service.js');
+} = require('../services/competitionPlanner.service.js');
+const {
+  getUnannouncedCompetitionBanners,
+  getUnannouncedCompetitionLinkOptions,
+  dismissUnannouncedCompetition,
+} = require('../services/competitionManagedCompetitions.service.js');
+const {
+  linkManagedCompetitionToPlanner,
+} = require('../services/competitionPlannerLinking.service.js');
+const { createMultiCityCompetitionFromWca } = require('../services/competitionMultiCity.service.js');
+const { createWcaDriveFolderForCompetition } = require('../services/competitionWcaDrive.service.js');
 const { respondWithServiceError } = require('../helpers/httpError.helper.js');
 
 // Gets upcoming competitions from the database.
