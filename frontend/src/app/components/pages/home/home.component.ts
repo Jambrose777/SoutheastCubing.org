@@ -28,7 +28,7 @@ import { NgOptimizedImage } from '@angular/common';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 import { CarouselComponent, CarouselImage } from '../../shared/carousel/carousel.component';
-import { MarkdownComponent } from 'ngx-markdown';
+import { MarkdownComponent, provideMarkdown } from 'ngx-markdown';
 import { SafeUrlPipe } from 'src/app/pipes/safeUrl.pipe';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -36,6 +36,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   selector: 'se-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
+  providers: provideMarkdown(),
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,

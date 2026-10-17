@@ -33,7 +33,7 @@ import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
-import { MarkdownComponent } from 'ngx-markdown';
+import { MarkdownComponent, provideMarkdown } from 'ngx-markdown';
 import { SelectedChampionshipComponent } from './selected-championship/selected-championship.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -41,6 +41,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   selector: 'se-championships',
   templateUrl: './championships.component.html',
   styleUrls: ['./championships.component.scss'],
+  providers: provideMarkdown(),
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,

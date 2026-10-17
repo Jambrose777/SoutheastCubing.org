@@ -24,13 +24,14 @@ import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
 import { resolvedAsset } from 'src/app/shared/contentful-links';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
-import { MarkdownComponent } from 'ngx-markdown';
+import { MarkdownComponent, provideMarkdown } from 'ngx-markdown';
 import { SelectedCatComponent } from './selected-cat/selected-cat.component';
 
 @Component({
   selector: 'se-cats',
   templateUrl: './cats.component.html',
   styleUrls: ['./cats.component.scss'],
+  providers: provideMarkdown(),
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,

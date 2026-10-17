@@ -23,7 +23,7 @@ import { DashboardLayoutService } from 'src/app/services/dashboard-layout.servic
 @Component({
   selector: 'se-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss'],
+  styleUrls: ['./header.component.scss', './header-dashboard.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,

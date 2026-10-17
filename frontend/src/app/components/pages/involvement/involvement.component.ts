@@ -25,13 +25,14 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
 import { Subscription } from 'rxjs';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
-import { MarkdownComponent } from 'ngx-markdown';
+import { MarkdownComponent, provideMarkdown } from 'ngx-markdown';
 import { SelectedSubTopicComponent } from '../../shared/selected-sub-topic/selected-sub-topic.component';
 
 @Component({
   selector: 'se-involvement',
   templateUrl: './involvement.component.html',
   styleUrls: ['./involvement.component.scss'],
+  providers: provideMarkdown(),
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,

@@ -56,7 +56,7 @@ function datesOverlap(
 @Component({
   selector: 'se-manage-teams',
   templateUrl: './manage-teams.component.html',
-  styleUrls: ['./manage-teams.component.scss'],
+  styleUrls: ['./manage-teams.component.scss', './manage-teams-members.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,

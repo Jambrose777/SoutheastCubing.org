@@ -15,12 +15,13 @@ import { ThemeService } from 'src/app/services/theme.service';
 import { Colors } from 'src/app/shared/types';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
-import { MarkdownComponent } from 'ngx-markdown';
+import { MarkdownComponent, provideMarkdown } from 'ngx-markdown';
 
 @Component({
   selector: 'se-page-not-found',
   templateUrl: './page-not-found.component.html',
   styleUrls: ['./page-not-found.component.scss'],
+  providers: provideMarkdown(),
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [HeaderComponent, LoadingSpinnerComponent, MarkdownComponent],
 })

@@ -31,7 +31,7 @@ import { SoutheastcubingApiService } from 'src/app/services/southeastcubing-api/
 import { MapPoint, MarkerColorClass } from 'src/app/models/Map';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
-import { MarkdownComponent } from 'ngx-markdown';
+import { MarkdownComponent, provideMarkdown } from 'ngx-markdown';
 import { SeMapComponent } from '../../shared/se-map/se-map.component';
 import { EventListComponent } from '../../shared/event-list/event-list.component';
 import { SeFilterMapComponent } from '../../shared/se-filter-map/se-filter-map.component';
@@ -46,6 +46,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   selector: 'se-competitions',
   templateUrl: './competitions.component.html',
   styleUrls: ['./competitions.component.scss'],
+  providers: provideMarkdown(),
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,

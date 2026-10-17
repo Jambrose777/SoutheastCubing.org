@@ -25,7 +25,7 @@ import { Subscription } from 'rxjs';
 import { LinksService } from 'src/app/services/links.service';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
-import { MarkdownComponent } from 'ngx-markdown';
+import { MarkdownComponent, provideMarkdown } from 'ngx-markdown';
 import { AvatarComponent } from '../../shared/avatar/avatar.component';
 import { SelectedDelegateComponent } from './selected-delegate/selected-delegate.component';
 
@@ -33,6 +33,7 @@ import { SelectedDelegateComponent } from './selected-delegate/selected-delegate
   selector: 'se-delegates',
   templateUrl: './delegates.component.html',
   styleUrls: ['./delegates.component.scss'],
+  providers: provideMarkdown(),
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,

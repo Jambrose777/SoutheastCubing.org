@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { MarkdownComponent } from 'ngx-markdown';
+import { MarkdownComponent, provideMarkdown } from 'ngx-markdown';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ToastService } from 'src/app/services/toast.service';
 import { ErrorBannerService } from 'src/app/services/error-banner.service';
@@ -21,6 +21,7 @@ import { ErrorBannerService } from 'src/app/services/error-banner.service';
   selector: 'se-delegate-bio',
   templateUrl: './delegate-bio.component.html',
   styleUrls: ['./delegate-bio.component.scss'],
+  providers: provideMarkdown(),
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { id: 'delegate-bio-field' },
   imports: [FormsModule, MatTooltipModule, MarkdownComponent],

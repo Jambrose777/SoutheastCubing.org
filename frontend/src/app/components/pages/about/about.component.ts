@@ -28,7 +28,7 @@ import { RouterLink } from '@angular/router';
 import { DocumentLink } from 'src/app/models/Document';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
-import { MarkdownComponent } from 'ngx-markdown';
+import { MarkdownComponent, provideMarkdown } from 'ngx-markdown';
 import { SelectedSubTopicComponent } from '../../shared/selected-sub-topic/selected-sub-topic.component';
 import { TeamsComponent } from './teams/teams.component';
 import { DoucmentsComponent } from './documents/documents.component';
@@ -37,6 +37,7 @@ import { DoucmentsComponent } from './documents/documents.component';
   selector: 'se-about',
   templateUrl: './about.component.html',
   styleUrls: ['./about.component.scss'],
+  providers: provideMarkdown(),
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,

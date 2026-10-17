@@ -23,13 +23,14 @@ import { HeaderComponent } from '../../core/header/header.component';
 import { MatFormField, MatLabel, MatSelect, MatOption, MatError } from '@angular/material/select';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 import { MatInput } from '@angular/material/input';
-import { MarkdownComponent } from 'ngx-markdown';
+import { MarkdownComponent, provideMarkdown } from 'ngx-markdown';
 import { NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'se-contact',
   templateUrl: './contact.component.html',
   styleUrls: ['./contact.component.scss'],
+  providers: provideMarkdown(),
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,

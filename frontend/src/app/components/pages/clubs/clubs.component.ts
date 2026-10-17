@@ -32,7 +32,7 @@ import { LinksService } from 'src/app/services/links.service';
 import { MapPoint } from 'src/app/models/Map';
 import { HeaderComponent } from '../../core/header/header.component';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
-import { MarkdownComponent } from 'ngx-markdown';
+import { MarkdownComponent, provideMarkdown } from 'ngx-markdown';
 import { SeMapComponent } from '../../shared/se-map/se-map.component';
 import { SeFilterMapComponent } from '../../shared/se-filter-map/se-filter-map.component';
 import { SelectedClubComponent } from './selected-club/selected-club.component';
@@ -45,6 +45,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   selector: 'se-clubs',
   templateUrl: './clubs.component.html',
   styleUrls: ['./clubs.component.scss'],
+  providers: provideMarkdown(),
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,

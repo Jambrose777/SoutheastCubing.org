@@ -1,0 +1,169 @@
+@use 'src/styles/color-pallet';
+@use 'src/styles/screen-sizes';
+
+// `table-layout: fixed` plus an explicit width on every column except
+// info (the one meant to flex) forces every .member-list on the page to use
+// the exact same column widths, rather than each team's own table sizing
+// its columns from only that team's own content.
+.member-list {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.member-row {
+  display: table-row;
+  transition: background-color 0.15s;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid color-pallet.$se-grey;
+  }
+
+  &:hover {
+    background-color: rgb(0 0 0 / 0.08);
+  }
+
+  &.inactive {
+    opacity: 0.6;
+  }
+
+  .member-avatar-cell,
+  .member-info-cell,
+  .member-dates-cell,
+  .member-actions-cell {
+    display: table-cell;
+    vertical-align: middle;
+    padding: 6px 4px;
+  }
+
+  .member-avatar-cell {
+    width: 36px;
+  }
+
+  .member-mobile-avatar {
+    display: none;
+  }
+
+  .member-info-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .member-badges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  // Wide enough for "Leader: MM/DD/YYYY - MM/DD/YYYY" (the longest line that
+  // can appear here) on one line - right-aligned so every line's dates (the
+  // membership range and each "Leader:" sub-line below it) end at the same
+  // x, even though "Leader: " makes those lines a different length overall.
+  .member-dates-cell {
+    width: 210px;
+    text-align: right;
+    font-size: 14px;
+    color: color-pallet.$se-dark-grey;
+  }
+
+  // Only the top (membership range) line stays on one line - a
+  // .leader-stint-date sub-line below it can still wrap onto a second line
+  // rather than overflowing into the row above/below if it doesn't fit at
+  // this column's width.
+  .member-date-range {
+    white-space: nowrap;
+  }
+
+  .leader-stint-date {
+    font-style: italic;
+  }
+
+  .member-actions-cell {
+    width: 50px;
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
+@media only screen and (max-width: screen-sizes.$extra-small-breakpoint) {
+  .member-list {
+    display: block;
+    table-layout: auto;
+  }
+
+  .member-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 4px 8px;
+    padding: 8px 4px;
+
+    .member-avatar-cell,
+    .member-info-cell,
+    .member-dates-cell,
+    .member-actions-cell {
+      display: block;
+      width: auto;
+      padding: 0;
+    }
+
+    .member-avatar-cell {
+      display: none;
+    }
+
+    .member-info-cell {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .member-info-row {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      align-items: center;
+      gap: 4px 8px;
+    }
+
+    .member-mobile-avatar {
+      display: block;
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .member-name {
+      grid-column: 2;
+      grid-row: 1;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .member-badges {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      min-width: 0;
+    }
+
+    .member-dates-cell {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      width: auto;
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+
+    .member-actions-cell {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      justify-self: end;
+      align-self: start;
+      text-align: right;
+    }
+  }
+}
