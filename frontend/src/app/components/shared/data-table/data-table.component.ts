@@ -20,11 +20,19 @@ import {
   DataTableColumnMeta,
   DataTableFilterOption,
   DataTableFilterPill,
+  DataTableSort,
 } from './data-table.types';
+export type { DataTableSort, DataTableSortDirection } from './data-table.types';
 import { ColumnVisibilityDropdownComponent } from './column-visibility-dropdown/column-visibility-dropdown.component';
 import { ColumnFilterDropdownComponent } from './column-filter-dropdown/column-filter-dropdown.component';
 import { FilterPillsComponent } from './filter-pills/filter-pills.component';
 import { TruncationTooltipDirective } from './truncation-tooltip.directive';
+import {
+  getDefaultDataTableLayout,
+  loadDataTableState,
+  restoreDataTableState,
+  saveDataTableState,
+} from './data-table-state.util';
 
 // Every row's fixed rendered height (px) - sized to fit up to 2 wrapped
 // lines of cell content.
@@ -35,8 +43,7 @@ export const DATA_TABLE_ROW_HEIGHT_PX = 56;
 // flexible column from collapsing to an unreadably narrow width.
 const DEFAULT_FLEX_COLUMN_MIN_WIDTH_PX = 160;
 
-// Width (px) - used to size the Actions column so it's never too
-// narrow for its own buttons.
+// Width (px) assigned to each Actions column button.
 const ACTION_BUTTON_WIDTH_PX = 36;
 // Gap (px) between adjacent action buttons.
 const ACTION_BUTTON_GAP_PX = 4;
@@ -46,23 +53,6 @@ const ACTIONS_CELL_PADDING_PX = 24;
 // Reserved column key for the Actions column's own entry in the
 // column-visibility dropdown - never a real consumer-supplied column key.
 const ACTIONS_COLUMN_KEY = '__actions__';
-
-export type DataTableSortDirection = 'asc' | 'desc';
-
-export interface DataTableSort {
-  columnKey: string;
-  direction: DataTableSortDirection;
-}
-
-// What actually gets persisted to `localStorage` on save.
-interface DataTableSavedState {
-  sort: DataTableSort | null;
-  visibleColumnKeys: string[];
-  columnOrder: string[];
-  columnFilters: Record<string, string[]>;
-  actionsColumnVisible: boolean;
-  consumerState?: Record<string, unknown>;
-}
 
 // Generic, reusable data table: virtualized rows plus configurable column
 // visibility, sort, search, per-column filters & actions column.
@@ -157,57 +147,25 @@ export class DataTableComponent<T> {
     // any saved state on top of those defaults.
     effect(() => {
       const cols = this.columns();
-      const defaultOrder = cols.map((column) => column.key);
       const stickyStartColumnKey = this.stickyStartColumnKey();
-      if (stickyStartColumnKey && defaultOrder.includes(stickyStartColumnKey)) {
-        defaultOrder.splice(defaultOrder.indexOf(stickyStartColumnKey), 1);
-        defaultOrder.unshift(stickyStartColumnKey);
-      }
-      const defaultVisible = new Set(
-        cols.filter((column) => column.visibleByDefault).map((column) => column.key),
-      );
-      if (stickyStartColumnKey && defaultOrder.includes(stickyStartColumnKey)) {
-        defaultVisible.add(stickyStartColumnKey);
-      }
-
-      const saved = this.loadSavedState();
+      const saved = loadDataTableState(this.storageKey());
       if (!saved) {
-        this.visibleColumnKeys.set(defaultVisible);
-        this.columnOrder.set(defaultOrder);
+        const defaults = getDefaultDataTableLayout(cols, stickyStartColumnKey);
+        this.visibleColumnKeys.set(defaults.visibleColumnKeys);
+        this.columnOrder.set(defaults.columnOrder);
         this.hasRestoredConsumerState = true;
         return;
       }
 
-      const validKeys = new Set(defaultOrder);
-      const savedOrder = saved.columnOrder.filter(
-        (key) => validKeys.has(key) && key !== stickyStartColumnKey,
-      );
-      const missingFromSaved = defaultOrder.filter(
-        (key) => !savedOrder.includes(key) && key !== stickyStartColumnKey,
-      );
-      this.columnOrder.set([
-        ...(stickyStartColumnKey && validKeys.has(stickyStartColumnKey)
-          ? [stickyStartColumnKey]
-          : []),
-        ...savedOrder,
-        ...missingFromSaved,
-      ]);
-      const savedVisibleKeys = new Set(saved.visibleColumnKeys.filter((key) => validKeys.has(key)));
-      if (stickyStartColumnKey && validKeys.has(stickyStartColumnKey)) {
-        savedVisibleKeys.add(stickyStartColumnKey);
-      }
-      this.visibleColumnKeys.set(savedVisibleKeys);
-
-      const filters = new Map<string, Set<string>>();
-      for (const [key, values] of Object.entries(saved.columnFilters)) {
-        if (validKeys.has(key)) filters.set(key, new Set(values));
-      }
-      this.columnFilters.set(filters);
-      this.actionsColumnVisible.set(saved.actionsColumnVisible);
-      if (saved.sort) this.sort.set(saved.sort);
+      const restored = restoreDataTableState(saved, cols, stickyStartColumnKey);
+      this.columnOrder.set(restored.columnOrder);
+      this.visibleColumnKeys.set(restored.visibleColumnKeys);
+      this.columnFilters.set(restored.columnFilters);
+      this.actionsColumnVisible.set(restored.actionsColumnVisible);
+      if (restored.sort) this.sort.set(restored.sort);
       if (!this.hasRestoredConsumerState) {
         this.hasRestoredConsumerState = true;
-        if (saved.consumerState) this.consumerStateRestored.emit(saved.consumerState);
+        if (restored.consumerState) this.consumerStateRestored.emit(restored.consumerState);
       }
     });
 
@@ -220,35 +178,19 @@ export class DataTableComponent<T> {
     });
   }
 
-  // Reads this table's own saved state from `localStorage`, if a
-  // `storageKey` is configured and something's actually been saved there.
-  private loadSavedState(): DataTableSavedState | null {
-    const key = this.storageKey();
-    if (!key) return null;
-    try {
-      const raw = localStorage.getItem(key);
-      return raw ? (JSON.parse(raw) as DataTableSavedState) : null;
-    } catch {
-      return null;
-    }
-  }
-
   // Saves this table's current filters, sort, column visibility, and
   // column order to `localStorage` - deliberately not the search term.
   saveToLocalStorage() {
     const key = this.storageKey();
     if (!key) return;
-    const state: DataTableSavedState = {
+    saveDataTableState(key, {
       sort: this.sort(),
-      visibleColumnKeys: [...this.visibleColumnKeys()],
+      visibleColumnKeys: this.visibleColumnKeys(),
       columnOrder: this.columnOrder(),
-      columnFilters: Object.fromEntries(
-        [...this.columnFilters()].map(([columnKey, values]) => [columnKey, [...values]]),
-      ),
+      columnFilters: this.columnFilters(),
       actionsColumnVisible: this.actionsColumnVisible(),
       consumerState: this.consumerState(),
-    };
-    localStorage.setItem(key, JSON.stringify(state));
+    });
     this.toastService.success('Table view saved.');
   }
 
@@ -428,21 +370,9 @@ export class DataTableComponent<T> {
     this.quickFilterActive.set(false);
     this.columnFilters.set(new Map());
     this.sort.set(this.defaultSort());
-    const cols = this.columns();
-    const stickyStartColumnKey = this.stickyStartColumnKey();
-    const visibleKeys = new Set(
-      cols.filter((column) => column.visibleByDefault).map((column) => column.key),
-    );
-    if (stickyStartColumnKey && cols.some((column) => column.key === stickyStartColumnKey)) {
-      visibleKeys.add(stickyStartColumnKey);
-    }
-    this.visibleColumnKeys.set(visibleKeys);
-    const order = cols.map((column) => column.key);
-    if (stickyStartColumnKey && order.includes(stickyStartColumnKey)) {
-      order.splice(order.indexOf(stickyStartColumnKey), 1);
-      order.unshift(stickyStartColumnKey);
-    }
-    this.columnOrder.set(order);
+    const defaults = getDefaultDataTableLayout(this.columns(), this.stickyStartColumnKey());
+    this.visibleColumnKeys.set(defaults.visibleColumnKeys);
+    this.columnOrder.set(defaults.columnOrder);
     this.actionsColumnVisible.set(true);
     this.tableReset.emit();
   }

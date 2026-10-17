@@ -10,13 +10,7 @@ import {
   untracked,
   OnInit,
 } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  Validators,
-  ReactiveFormsModule,
-  ValidatorFn,
-} from '@angular/forms';
+import { FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatFormField, MatLabel, MatError, MatSuffix } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -34,21 +28,25 @@ import { ToastService } from 'src/app/services/toast.service';
 import { States } from 'src/app/shared/types';
 import * as moment from 'moment';
 import { Moment } from 'moment';
-import {
-  PlannerCompetition,
-  PlannerCompetitionSaveRequest,
-  PlannerEquipmentHolderInput,
-  PlannerMajorCompetitionSaveRequest,
-  PlannerPerson,
-} from 'src/app/models/PlannerCompetition';
+import { PlannerCompetition, PlannerPerson } from 'src/app/models/PlannerCompetition';
 import { Delegate } from 'src/app/models/Delegate';
 import { SelectedPerson } from 'src/app/models/Person';
 import {
   equipmentPeopleIdsToValues,
   OTHER_EQUIPMENT_VALUE,
-  sortEquipmentHolders,
   toPlannerPerson,
 } from '../competition-planner.util';
+import {
+  getEquipmentAssignments,
+  getEquipmentSelectOptions,
+  getSortedEquipmentRoster,
+} from './competition-equipment.util';
+import { buildCompetitionSaveBodies } from './competition-save.util';
+import {
+  createCompetitionForm,
+  getMinimumStartDate,
+  minStartDateValidator,
+} from './competition-form.util';
 import {
   getUnofficialIconOptions,
   sortUnofficialEventDrafts,
@@ -58,15 +56,6 @@ import { AvatarComponent } from '../../../../shared/avatar/avatar.component';
 import { PersonSearchComponent } from '../../../../shared/person-search/person-search.component';
 import { EventListComponent } from '../../../../shared/event-list/event-list.component';
 import { UnofficialEventIconComponent } from '../../../../shared/unofficial-event-icon/unofficial-event-icon.component';
-
-// WCA competitions need at least this many days' notice.
-const MIN_START_DATE_LEAD_DAYS = 28;
-
-const minStartDateValidator: ValidatorFn = (control) => {
-  if (!control.value) return null;
-  const minDate = moment.utc().add(MIN_START_DATE_LEAD_DAYS, 'days').startOf('day');
-  return (control.value as Moment).isBefore(minDate) ? { minStartDate: true } : null;
-};
 
 // Slide-in "Add/Edit Competition" sheet - one reactive form shared by create
 // and edit mode. Every WCA-synced field (hand-entered fields, Delegates,
@@ -114,7 +103,7 @@ export class AddEditCompetitionSheetComponent implements OnInit {
 
   // Disables every date earlier than the minimum in the Start date
   // calendar, matching minStartDateValidator/the backend's own minimum.
-  minStartDate = moment.utc().add(MIN_START_DATE_LEAD_DAYS, 'days').startOf('day');
+  minStartDate = getMinimumStartDate();
 
   saving = false;
   stateOptions = Object.values(States);
@@ -126,48 +115,22 @@ export class AddEditCompetitionSheetComponent implements OnInit {
   delegateRoster = signal<Delegate[]>([]);
   // Equipment's own options list - alphabetical by name, regardless of
   // whatever order the roster endpoint returns.
-  equipmentOptions = computed(() =>
-    [...this.delegateRoster()].sort((a, b) => a.name.localeCompare(b.name)),
-  );
-  equipmentSelectOptions = computed(() =>
-    sortEquipmentHolders([
-      ...this.equipmentOptions().map((option) => ({
-        value: option.peopleId,
-        peopleId: option.peopleId,
-        name: option.name,
-      })),
-      { value: this.otherEquipmentValue, peopleId: null, name: 'Other' },
-    ]),
-  );
+  equipmentOptions = computed(() => getSortedEquipmentRoster(this.delegateRoster()));
+  equipmentSelectOptions = computed(() => getEquipmentSelectOptions(this.equipmentOptions()));
 
   delegates = signal<PlannerPerson[]>([]);
   organizers = signal<PlannerPerson[]>([]);
   // Equipment holder ids, drawn from this sheet's own Delegates list.
   equipmentValues = signal<string[]>([]);
   equipmentDetailsByHolder = signal<Record<string, string>>({});
-  equipmentAssignments = computed(() => {
-    const detailsByHolder = this.equipmentDetailsByHolder();
-    const savedHolders = this.competition()?.equipmentHolders ?? [];
-    const options = this.equipmentOptions();
-    return sortEquipmentHolders(
-      this.equipmentValues().map((value) => {
-        const peopleId = value === OTHER_EQUIPMENT_VALUE ? null : value;
-        const savedHolder = savedHolders.find((holder) => holder.peopleId === peopleId);
-        const person =
-          peopleId === null
-            ? null
-            : (options.find((option) => option.peopleId === peopleId) ??
-              (savedHolder && savedHolder.peopleId !== null ? savedHolder : null));
-        return {
-          value,
-          peopleId,
-          person,
-          name: peopleId === null ? 'Other' : (person?.name ?? ''),
-          equipmentDetails: detailsByHolder[value] ?? '',
-        };
-      }),
-    );
-  });
+  equipmentAssignments = computed(() =>
+    getEquipmentAssignments(
+      this.equipmentValues(),
+      this.equipmentDetailsByHolder(),
+      this.competition()?.equipmentHolders ?? [],
+      this.equipmentOptions(),
+    ),
+  );
   eventIds = signal<string[]>([]);
   unofficialEvents = signal<UnofficialEventDraft[]>([]);
   unofficialEventSearchControl = new FormControl('', { nonNullable: true });
@@ -190,23 +153,7 @@ export class AddEditCompetitionSheetComponent implements OnInit {
   private nextUnofficialEventDraftId = 0;
   private defaultCreatorPeopleId: string | null = null;
 
-  form = new FormGroup({
-    name: new FormControl('', Validators.required),
-    city: new FormControl('', Validators.required),
-    state: new FormControl<string | null>(null, Validators.required),
-    venueAddress: new FormControl(''),
-    venueDetails: new FormControl(''),
-    venue: new FormControl(''),
-    venueUrl: new FormControl(''),
-    latitudeDegrees: new FormControl<number | null>(null),
-    longitudeDegrees: new FormControl<number | null>(null),
-    startDate: new FormControl<Moment | null>(null, [Validators.required, minStartDateValidator]),
-    endDate: new FormControl<Moment | null>(null, Validators.required),
-    competitorLimit: new FormControl<number | null>(null),
-    leadPeopleId: new FormControl<string | null>(null, Validators.required),
-    createWcaDriveFolder: new FormControl(true, { nonNullable: true }),
-    wcaDriveLink: new FormControl(''),
-  });
+  form = createCompetitionForm();
 
   // Lead must already be one of this sheet's own Delegates.
   delegateOptions = computed(() => this.delegates());
@@ -499,54 +446,17 @@ export class AddEditCompetitionSheetComponent implements OnInit {
     }
 
     const value = this.form.getRawValue();
-    const equipmentHolders: PlannerEquipmentHolderInput[] = this.equipmentAssignments().map(
-      ({ peopleId, equipmentDetails }) => ({
-        peopleId,
-        equipmentDetails: equipmentDetails.trim() || null,
-      }),
-    );
-
-    const sharedBody = {
-      name: value.name ?? '',
-      city: value.city ?? '',
-      venueAddress: value.venueAddress || null,
-      venueDetails: value.venueDetails || null,
-      venue: value.venue || null,
-      venueUrl: value.venueUrl || null,
-      latitudeDegrees: value.latitudeDegrees,
-      longitudeDegrees: value.longitudeDegrees,
-      startDate: value.startDate?.format('YYYY-MM-DD') ?? '',
-      endDate: value.endDate?.format('YYYY-MM-DD') ?? '',
-      competitorLimit: value.competitorLimit,
-      leadPeopleId: value.leadPeopleId,
-      delegatePeopleIds: this.delegates().map((d) => d.peopleId),
-      organizerPeopleIds: this.organizers().map((o) => o.peopleId),
-      equipmentHolders,
-      eventIds: this.eventIds(),
-      unofficialEvents: this.unofficialEvents().map(({ eventName, icon }) => ({ eventName, icon })),
-    };
-    const regularBody: PlannerCompetitionSaveRequest = {
-      ...sharedBody,
-      state: value.state ?? '',
-      leadPeopleId: value.leadPeopleId ?? '',
-    };
-    const majorBody: PlannerMajorCompetitionSaveRequest = {
-      ...sharedBody,
-      stateOrCountry: value.state ?? '',
-    };
-
     const existing = this.competition();
-    if (existing && !this.isMajor()) {
-      const wcaDriveLink = value.wcaDriveLink?.trim() ?? '';
-      if (wcaDriveLink !== (existing.wca_drive_link ?? '')) {
-        regularBody.wcaDriveLink = wcaDriveLink || null;
-      }
-    } else if (!existing && !this.isMajor()) {
-      regularBody.createWcaDriveFolder = value.createWcaDriveFolder;
-      if (!value.createWcaDriveFolder && value.wcaDriveLink?.trim()) {
-        regularBody.wcaDriveLink = value.wcaDriveLink.trim();
-      }
-    }
+    const { regularBody, majorBody } = buildCompetitionSaveBodies({
+      value,
+      delegates: this.delegates(),
+      organizers: this.organizers(),
+      equipmentAssignments: this.equipmentAssignments(),
+      eventIds: this.eventIds(),
+      unofficialEvents: this.unofficialEvents(),
+      existing,
+      isMajor: this.isMajor(),
+    });
 
     this.saving = true;
     const request = existing

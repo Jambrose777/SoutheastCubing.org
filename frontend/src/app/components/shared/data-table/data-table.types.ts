@@ -1,5 +1,12 @@
 import { TemplateRef } from '@angular/core';
 
+export type DataTableSortDirection = 'asc' | 'desc';
+
+export interface DataTableSort {
+  columnKey: string;
+  direction: DataTableSortDirection;
+}
+
 // A column's per-column filter UI - 'multiselect' (options are every
 // distinct value `filterValue` derives from the loaded rows) or
 // 'custom-multiselect' (options are a fixed, consumer-supplied list)).

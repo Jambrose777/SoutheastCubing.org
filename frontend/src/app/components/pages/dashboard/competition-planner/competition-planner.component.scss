@@ -17,6 +17,7 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
   min-height: 0;
 }
 
@@ -72,7 +73,7 @@
 }
 
 @media only screen and (max-width: screen-sizes.$extra-small-breakpoint) {
-  .competition-planner-content > se-data-table ::ng-deep .data-table {
+  .competition-planner-content > se-competition-planner-table ::ng-deep .data-table {
     margin-inline: -24px;
   }
 }

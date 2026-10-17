@@ -14,6 +14,7 @@ import { AuthService } from 'src/app/services/southeastcubing-api/auth.service';
 import { ManageTeamsApiService } from 'src/app/services/southeastcubing-api/manage-teams-api.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { Colors } from 'src/app/shared/types';
+import { confirmDiscardIfDirty, type DirtyCheckable } from 'src/app/shared/dirty-check.util';
 import { HeaderComponent } from '../../../core/header/header.component';
 import { DashboardSidePaneComponent } from '../dashboard-side-pane/dashboard-side-pane.component';
 import { DASHBOARD_TOOLS } from '../dashboard-tools';
@@ -32,12 +33,6 @@ import { formatLongDateRange } from 'src/app/shared/date.util';
 
 type ActiveSheet = 'team' | 'member' | 'leadershipStint' | null;
 type ViewMode = 'current' | 'history';
-
-// Anything the Sheet component all expose the same shape of, for
-// requestClose() to check regardless of which sheet is currently open.
-interface DirtyCheckable {
-  isDirty(): boolean;
-}
 
 const CLOSE_ANIMATION_MS = 200;
 
@@ -221,7 +216,7 @@ export class ManageTeamsComponent implements OnInit {
   // Any way of dismissing a sheet (backdrop click, Escape, or its own
   // close/back button) routes through here.
   requestClose(sheet: DirtyCheckable) {
-    if (sheet.isDirty() && !confirm('You have unsaved changes. Discard them?')) {
+    if (!confirmDiscardIfDirty(sheet, 'You have unsaved changes. Discard them?')) {
       return;
     }
     this.closeSheet();

@@ -15,6 +15,7 @@ import { ManageDelegatesApiService } from 'src/app/services/southeastcubing-api/
 import { ToastService } from 'src/app/services/toast.service';
 import { ErrorBannerService } from 'src/app/services/error-banner.service';
 import { Colors, StateColors } from 'src/app/shared/types';
+import { confirmDiscardIfDirty, type DirtyCheckable } from 'src/app/shared/dirty-check.util';
 import { formatLongDate } from 'src/app/shared/date.util';
 import { RANK_LABELS } from 'src/app/models/Delegate';
 import { HeaderComponent } from '../../../core/header/header.component';
@@ -45,12 +46,6 @@ function hasSyncResults(summary: DelegateSyncSummary): boolean {
     summary.stateChanged.length > 0 ||
     summary.errors.length > 0
   );
-}
-
-// Anything the Sheet component exposes the same shape of, for
-// requestClose() to check regardless of which sheet is currently open.
-interface DirtyCheckable {
-  isDirty(): boolean;
 }
 
 const CLOSE_ANIMATION_MS = 200;
@@ -287,7 +282,7 @@ export class ManageDelegatesComponent implements OnInit {
 
   // Any way of dismissing a sheet routes through here.
   requestClose(sheet: DirtyCheckable) {
-    if (sheet.isDirty() && !confirm('You have unsaved changes. Discard them?')) {
+    if (!confirmDiscardIfDirty(sheet, 'You have unsaved changes. Discard them?')) {
       return;
     }
     this.closeSheet();

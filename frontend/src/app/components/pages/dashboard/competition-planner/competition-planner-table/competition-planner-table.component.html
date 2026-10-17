@@ -1,0 +1,15 @@
+<se-data-table
+  class="competition-planner-table"
+  [rows]="tableRows()"
+  [columns]="columns()"
+  [stickyStartColumnKey]="'name'"
+  [actions]="rowActions()"
+  [trackBy]="trackById"
+  [defaultSort]="defaultSort()"
+  [consumerState]="consumerState()"
+  (consumerStateRestored)="consumerStateRestored.emit($event)"
+  storageKey="table-prefs:competition-planner"
+  (sortChange)="onSortChange($event)"
+  (tableReset)="tableReset.emit()"
+></se-data-table>
+<ng-content></ng-content>

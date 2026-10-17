@@ -51,35 +51,18 @@ export class ViewCompetitionSheetComponent {
 
   hasRegistrationPeriod(): boolean {
     const competition = this.competition();
-    return (
-      getRegistrationStatus(
-        competition.registration_open,
-        competition.registration_close,
-        competition.accepted_registrations,
-        competition.competitor_limit,
-      ) !== null
-    );
+    return getRegistrationStatus(competition) !== null;
   }
 
   registrationStatusLabel(): string {
     const competition = this.competition();
-    const status = getRegistrationStatus(
-      competition.registration_open,
-      competition.registration_close,
-      competition.accepted_registrations,
-      competition.competitor_limit,
-    );
+    const status = getRegistrationStatus(competition);
     return status ? getRegistrationStatusLabel(status) : '--';
   }
 
   registrationStatusColor(): Colors {
     const competition = this.competition();
-    const status = getRegistrationStatus(
-      competition.registration_open,
-      competition.registration_close,
-      competition.accepted_registrations,
-      competition.competitor_limit,
-    );
+    const status = getRegistrationStatus(competition);
     return status ? getRegistrationStatusColor(status) : Colors.grey;
   }
 

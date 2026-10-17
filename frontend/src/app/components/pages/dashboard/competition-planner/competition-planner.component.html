@@ -97,247 +97,256 @@
             (competitionSelected)="openViewCompetition($event)"
           ></se-competition-calendar>
         } @else {
-          <se-data-table
+          <se-competition-planner-table
             class="competition-planner-table"
-            [rows]="tableRows()"
-            [columns]="columns()"
-            [stickyStartColumnKey]="'name'"
-            [actions]="rowActions()"
-            [trackBy]="trackById"
-            [defaultSort]="defaultSort()"
+            [rows]="rows()"
+            [view]="view()"
+            [showMajorHolidays]="showMajorHolidays()"
+            [showOpenWeekends]="showOpenWeekends()"
             [consumerState]="plannerConsumerState()"
+            [refreshingCompetitionIds]="refreshingCompetitionIds()"
+            [creatingDriveFolderIds]="creatingDriveFolderIds()"
+            [unlinkingCompetitionIds]="unlinkingCompetitionIds()"
             (consumerStateRestored)="restorePlannerConsumerState($event)"
-            storageKey="table-prefs:competition-planner"
             (sortChange)="onPlannerTableSort($event)"
             (tableReset)="onPlannerTableReset()"
-          ></se-data-table>
+            (viewCompetitionRequested)="openViewCompetition($event)"
+            (editCompetitionRequested)="openEditCompetition($event)"
+            (refreshCompetitionRequested)="refreshCompetition($event)"
+            (openWcaLinkSheetRequested)="openWcaLinkSheet($event)"
+            (createWcaDriveFolderRequested)="createWcaDriveFolder($event)"
+            (unlinkCompetitionRequested)="unlinkCompetitionFromWca($event)"
+            (deleteCompetitionRequested)="deleteCompetition($event)"
+          >
+            <ng-template #nameCell let-row>
+              @if (row.plannerRowType === 'holiday') {
+                <span class="planner-generated-cell">{{ row.name }}</span>
+              } @else if (row.plannerRowType === 'open-weekend') {
+                {{ '' }}
+              } @else if (row.wca_competition_id) {
+                <a
+                  [href]="environment.links.wcaCompetition + row.wca_competition_id"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >{{ row.name | stripYear }}</a
+                >
+              } @else {
+                {{ row.name | stripYear }}
+              }
+              @if (hasMissingMultiCityData(row)) {
+                <i
+                  class="fa-solid fa-circle-exclamation missing-multi-city-info"
+                  matTooltip="Required location information is missing."
+                  aria-label="Required location information is missing"
+                ></i>
+              }
+            </ng-template>
+            <ng-template #driveCell let-row>
+              @if (row.plannerRowType) {
+                {{ '' }}
+              } @else if (row.is_major) {
+                --
+              } @else if (row.wca_drive_link) {
+                <a
+                  class="drive-folder-link"
+                  [href]="row.wca_drive_link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+                  WCA Drive
+                </a>
+              } @else if (canEdit(row)) {
+                <div class="drive-folder-actions">
+                  <button
+                    type="button"
+                    class="btn small icon-only"
+                    matTooltip="Create new WCA Drive folder"
+                    matTooltipPosition="above"
+                    aria-label="Create WCA Drive folder"
+                    [disabled]="creatingDriveFolderIds().has(row.id)"
+                    (click)="createWcaDriveFolder(row)"
+                  >
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn small icon-only"
+                    matTooltip="Link existing WCA Drive folder"
+                    matTooltipPosition="above"
+                    aria-label="Link existing WCA Drive folder"
+                    (click)="openEditCompetition(row)"
+                  >
+                    <i class="fa-solid fa-link" aria-hidden="true"></i>
+                  </button>
+                </div>
+              } @else {
+                --
+              }
+            </ng-template>
+            <ng-template #dateCell let-row>
+              <span
+                [class.planner-generated-cell]="row.plannerRowType"
+                [matTooltip]="formatWeekdayDateRange(row.start_date, row.end_date)"
+                matTooltipPosition="above"
+              >
+                {{ formatLongDateRange(row.start_date, row.end_date) }}
+              </span>
+            </ng-template>
+            <ng-template #locationCell let-row>
+              @if (row.plannerRowType) {
+                {{ '' }}
+              } @else {
+                <span
+                  class="location-pill"
+                  [class.non-southeast-major]="isNonSoutheastMajor(row)"
+                  [style.background]="locationColor(row)"
+                  >{{ row.city }}</span
+                >
+              }
+            </ng-template>
+            <ng-template #majorCell let-row>
+              {{ row.plannerRowType ? '' : row.is_major ? 'Major' : '--' }}
+            </ng-template>
+            <ng-template #delegatesCell let-row>
+              <div class="avatar-list">
+                @for (delegate of row.delegates; track delegate.peopleId) {
+                  @if (delegate.pictureUrl) {
+                    <se-avatar
+                      [src]="delegate.pictureUrl"
+                      [size]="28"
+                      [alt]="delegate.name"
+                      [showTooltip]="true"
+                      [class.lead]="delegate.isLead"
+                      [cropX]="delegate.thumbnailCropX"
+                      [cropY]="delegate.thumbnailCropY"
+                      [cropW]="delegate.thumbnailCropW"
+                      [cropH]="delegate.thumbnailCropH"
+                    ></se-avatar>
+                  }
+                }
+              </div>
+            </ng-template>
+            <ng-template #organizersCell let-row>
+              <div class="avatar-list">
+                @for (organizer of visibleOrganizers(row); track organizer.peopleId) {
+                  @if (organizer.pictureUrl) {
+                    <se-avatar
+                      [src]="organizer.pictureUrl"
+                      [size]="28"
+                      [alt]="organizer.name"
+                      [showTooltip]="true"
+                      [cropX]="organizer.thumbnailCropX"
+                      [cropY]="organizer.thumbnailCropY"
+                      [cropW]="organizer.thumbnailCropW"
+                      [cropH]="organizer.thumbnailCropH"
+                    ></se-avatar>
+                  }
+                }
+              </div>
+            </ng-template>
+            <ng-template #equipmentHoldersCell let-row>
+              <div class="avatar-list">
+                @for (holder of visibleEquipmentHolders(row); track holder.peopleId ?? $index) {
+                  @if (holder.peopleId === null) {
+                    <span class="equipment-holder-label">Other</span>
+                  } @else if (holder.pictureUrl) {
+                    <se-avatar
+                      [src]="holder.pictureUrl"
+                      [size]="28"
+                      [alt]="holder.name"
+                      [showTooltip]="true"
+                      [cropX]="holder.thumbnailCropX"
+                      [cropY]="holder.thumbnailCropY"
+                      [cropW]="holder.thumbnailCropW"
+                      [cropH]="holder.thumbnailCropH"
+                    ></se-avatar>
+                  }
+                }
+              </div>
+            </ng-template>
+            <ng-template #statusCell let-row>
+              @if (row.plannerRowType) {
+                {{ '' }}
+              } @else {
+                <span class="status-badge" [class]="row.status">{{ statusLabel(row) }}</span>
+              }
+            </ng-template>
+            <ng-template #seciOrganizerConnectedCell let-row>
+              @if (!row.plannerRowType && !row.is_major) {
+                <span
+                  class="registration-period-pill"
+                  [style.background]="seciOrganizerConnectedColor(row)"
+                >
+                  {{ isSeciOrganizerConnected(row) ? 'Connected' : 'Missing' }}
+                </span>
+              }
+            </ng-template>
+            <ng-template #eventsCell let-row>
+              <div class="events-list">
+                @for (event of row.event_ids; track event.toString()) {
+                  <span
+                    [ngClass]="'cubing-icon event-' + event"
+                    [matTooltip]="EventNames[event]"
+                    matTooltipPosition="above"
+                    [attr.aria-label]="EventNames[event]"
+                  ></span>
+                }
+              </div>
+            </ng-template>
+            <ng-template #unofficialEventsCell let-row>
+              <div class="unofficial-events-list">
+                @for (event of row.unofficial_events ?? []; track $index) {
+                  <se-unofficial-event-icon [icon]="event.icon" [label]="event.event_name" />
+                }
+              </div>
+            </ng-template>
+            <ng-template #registrationsCell let-row>
+              {{ row.plannerRowType ? '' : registrationsText(row) }}
+              @if (showWaitingList(row)) {
+                <br />
+                <span
+                  class="waiting-list-count"
+                  [class.stale]="isWaitingListStale(row)"
+                  [matTooltip]="waitingListTooltip(row)"
+                  matTooltipClass="waiting-list-tooltip"
+                  matTooltipPosition="above"
+                >
+                  WL - {{ row.waiting_list_count }}
+                </span>
+              }
+            </ng-template>
+            <ng-template #registrationPeriodCell let-row>
+              @let registration = registrationDisplay(row);
+              @if (registration.hasPeriod) {
+                <span
+                  class="registration-period-pill registration-period-range"
+                  [style.background]="registration.statusColor"
+                >
+                  {{ formatLongDateRange(row.registration_open, row.registration_close) }}
+                </span>
+              } @else {
+                {{ row.plannerRowType ? '' : '--' }}
+              }
+            </ng-template>
+            <ng-template #registrationStatusCell let-row>
+              @let registration = registrationDisplay(row);
+              @if (registration.statusText !== '--') {
+                <span
+                  class="registration-period-pill"
+                  [style.background]="registration.statusColor"
+                  [matTooltip]="formatLongDateRange(row.registration_open, row.registration_close)"
+                  matTooltipPosition="above"
+                >
+                  {{ registration.statusText }}
+                </span>
+              } @else {
+                {{ row.plannerRowType ? '' : '--' }}
+              }
+            </ng-template>
+          </se-competition-planner-table>
         }
       }
-
-      <ng-template #nameCell let-row>
-        @if (row.plannerRowType === 'holiday') {
-          <span class="planner-generated-cell">{{ row.name }}</span>
-        } @else if (row.plannerRowType === 'open-weekend') {
-          {{ '' }}
-        } @else if (row.wca_competition_id) {
-          <a
-            [href]="environment.links.wcaCompetition + row.wca_competition_id"
-            target="_blank"
-            rel="noopener noreferrer"
-            >{{ row.name | stripYear }}</a
-          >
-        } @else {
-          {{ row.name | stripYear }}
-        }
-        @if (hasMissingMultiCityData(row)) {
-          <i
-            class="fa-solid fa-circle-exclamation missing-multi-city-info"
-            matTooltip="Required location information is missing."
-            aria-label="Required location information is missing"
-          ></i>
-        }
-      </ng-template>
-      <ng-template #driveCell let-row>
-        @if (row.plannerRowType) {
-          {{ '' }}
-        } @else if (row.is_major) {
-          --
-        } @else if (row.wca_drive_link) {
-          <a
-            class="drive-folder-link"
-            [href]="row.wca_drive_link"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
-            WCA Drive
-          </a>
-        } @else if (canEdit(row)) {
-          <div class="drive-folder-actions">
-            <button
-              type="button"
-              class="btn small icon-only"
-              matTooltip="Create new WCA Drive folder"
-              matTooltipPosition="above"
-              aria-label="Create WCA Drive folder"
-              [disabled]="creatingDriveFolderIds().has(row.id)"
-              (click)="createWcaDriveFolder(row)"
-            >
-              <i class="fa-solid fa-plus" aria-hidden="true"></i>
-            </button>
-            <button
-              type="button"
-              class="btn small icon-only"
-              matTooltip="Link existing WCA Drive folder"
-              matTooltipPosition="above"
-              aria-label="Link existing WCA Drive folder"
-              (click)="openEditCompetition(row)"
-            >
-              <i class="fa-solid fa-link" aria-hidden="true"></i>
-            </button>
-          </div>
-        } @else {
-          --
-        }
-      </ng-template>
-      <ng-template #dateCell let-row>
-        <span
-          [class.planner-generated-cell]="row.plannerRowType"
-          [matTooltip]="formatWeekdayDateRange(row.start_date, row.end_date)"
-          matTooltipPosition="above"
-        >
-          {{ formatLongDateRange(row.start_date, row.end_date) }}
-        </span>
-      </ng-template>
-      <ng-template #locationCell let-row>
-        @if (row.plannerRowType) {
-          {{ '' }}
-        } @else {
-          <span
-            class="location-pill"
-            [class.non-southeast-major]="isNonSoutheastMajor(row)"
-            [style.background]="locationColor(row)"
-            >{{ row.city }}</span
-          >
-        }
-      </ng-template>
-      <ng-template #majorCell let-row>
-        {{ row.plannerRowType ? '' : row.is_major ? 'Major' : '--' }}
-      </ng-template>
-      <ng-template #delegatesCell let-row>
-        <div class="avatar-list">
-          @for (delegate of row.delegates; track delegate.peopleId) {
-            @if (delegate.pictureUrl) {
-              <se-avatar
-                [src]="delegate.pictureUrl"
-                [size]="28"
-                [alt]="delegate.name"
-                [showTooltip]="true"
-                [class.lead]="delegate.isLead"
-                [cropX]="delegate.thumbnailCropX"
-                [cropY]="delegate.thumbnailCropY"
-                [cropW]="delegate.thumbnailCropW"
-                [cropH]="delegate.thumbnailCropH"
-              ></se-avatar>
-            }
-          }
-        </div>
-      </ng-template>
-      <ng-template #organizersCell let-row>
-        <div class="avatar-list">
-          @for (organizer of visibleOrganizers(row); track organizer.peopleId) {
-            @if (organizer.pictureUrl) {
-              <se-avatar
-                [src]="organizer.pictureUrl"
-                [size]="28"
-                [alt]="organizer.name"
-                [showTooltip]="true"
-                [cropX]="organizer.thumbnailCropX"
-                [cropY]="organizer.thumbnailCropY"
-                [cropW]="organizer.thumbnailCropW"
-                [cropH]="organizer.thumbnailCropH"
-              ></se-avatar>
-            }
-          }
-        </div>
-      </ng-template>
-      <ng-template #equipmentHoldersCell let-row>
-        <div class="avatar-list">
-          @for (holder of visibleEquipmentHolders(row); track holder.peopleId ?? $index) {
-            @if (holder.peopleId === null) {
-              <span class="equipment-holder-label">Other</span>
-            } @else if (holder.pictureUrl) {
-              <se-avatar
-                [src]="holder.pictureUrl"
-                [size]="28"
-                [alt]="holder.name"
-                [showTooltip]="true"
-                [cropX]="holder.thumbnailCropX"
-                [cropY]="holder.thumbnailCropY"
-                [cropW]="holder.thumbnailCropW"
-                [cropH]="holder.thumbnailCropH"
-              ></se-avatar>
-            }
-          }
-        </div>
-      </ng-template>
-      <ng-template #statusCell let-row>
-        @if (row.plannerRowType) {
-          {{ '' }}
-        } @else {
-          <span class="status-badge" [class]="row.status">{{ statusLabel(row) }}</span>
-        }
-      </ng-template>
-      <ng-template #seciOrganizerConnectedCell let-row>
-        @if (!row.plannerRowType && !row.is_major) {
-          <span
-            class="registration-period-pill"
-            [style.background]="seciOrganizerConnectedColor(row)"
-          >
-            {{ isSeciOrganizerConnected(row) ? 'Connected' : 'Missing' }}
-          </span>
-        }
-      </ng-template>
-      <ng-template #eventsCell let-row>
-        <div class="events-list">
-          @for (event of row.event_ids; track event.toString()) {
-            <span
-              [ngClass]="'cubing-icon event-' + event"
-              [matTooltip]="EventNames[event]"
-              matTooltipPosition="above"
-              [attr.aria-label]="EventNames[event]"
-            ></span>
-          }
-        </div>
-      </ng-template>
-      <ng-template #unofficialEventsCell let-row>
-        <div class="unofficial-events-list">
-          @for (event of row.unofficial_events ?? []; track $index) {
-            <se-unofficial-event-icon [icon]="event.icon" [label]="event.event_name" />
-          }
-        </div>
-      </ng-template>
-      <ng-template #registrationsCell let-row>
-        {{ row.plannerRowType ? '' : registrationsText(row) }}
-        @if (showWaitingList(row)) {
-          <br />
-          <span
-            class="waiting-list-count"
-            [class.stale]="isWaitingListStale(row)"
-            [matTooltip]="waitingListTooltip(row)"
-            matTooltipClass="waiting-list-tooltip"
-            matTooltipPosition="above"
-          >
-            WL - {{ row.waiting_list_count }}
-          </span>
-        }
-      </ng-template>
-      <ng-template #registrationPeriodCell let-row>
-        @if (hasRegistrationPeriod(row)) {
-          <span
-            class="registration-period-pill registration-period-range"
-            [style.background]="registrationPeriodColor(row)"
-          >
-            {{ formatLongDateRange(row.registration_open, row.registration_close) }}
-          </span>
-        } @else {
-          {{ row.plannerRowType ? '' : '--' }}
-        }
-      </ng-template>
-      <ng-template #registrationStatusCell let-row>
-        @if (registrationStatusText(row) !== '--') {
-          <span
-            class="registration-period-pill"
-            [style.background]="registrationStatusColor(row)"
-            [matTooltip]="formatLongDateRange(row.registration_open, row.registration_close)"
-            matTooltipPosition="above"
-          >
-            {{ registrationStatusText(row) }}
-          </span>
-        } @else {
-          {{ row.plannerRowType ? '' : '--' }}
-        }
-      </ng-template>
     </div>
   </div>
 
