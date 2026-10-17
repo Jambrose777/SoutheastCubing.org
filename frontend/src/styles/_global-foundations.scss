@@ -1,0 +1,143 @@
+@use 'color-pallet';
+
+.notification-badge {
+  display: inline-flex;
+  flex: 0 0 18px;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: color-pallet.$se-dark-red;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+input[type='checkbox'] {
+  accent-color: color-pallet.$se-blue;
+}
+
+.mat-mdc-checkbox,
+.mat-mdc-checkbox.mat-primary {
+  --mat-checkbox-selected-checkmark-color: white;
+  --mat-checkbox-selected-focus-icon-color: #{color-pallet.$se-blue};
+  --mat-checkbox-selected-hover-icon-color: #{color-pallet.$se-blue};
+  --mat-checkbox-selected-icon-color: #{color-pallet.$se-blue};
+  --mat-checkbox-selected-pressed-icon-color: #{color-pallet.$se-blue};
+  --mat-checkbox-selected-focus-state-layer-color: #{color-pallet.$se-blue};
+  --mat-checkbox-selected-hover-state-layer-color: #{color-pallet.$se-blue};
+  --mat-checkbox-selected-pressed-state-layer-color: #{color-pallet.$se-blue};
+}
+
+.mat-mdc-slide-toggle,
+.mat-mdc-slide-toggle.mat-primary,
+.mat-mdc-slide-toggle.mat-accent {
+  --mat-slide-toggle-selected-icon-color: white;
+  --mat-slide-toggle-selected-focus-state-layer-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-handle-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-hover-state-layer-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-pressed-state-layer-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-focus-handle-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-hover-handle-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-pressed-handle-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-focus-track-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-hover-track-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-pressed-track-color: #{color-pallet.$se-blue};
+  --mat-slide-toggle-selected-track-color: #{color-pallet.$se-blue};
+}
+
+// Shared divided view control for dashboard list pages.
+.view-mode-toggle {
+  display: flex;
+  border: 1px solid color-pallet.$se-black;
+  border-radius: 4px;
+  overflow: hidden;
+
+  .toggle-half {
+    padding: 4px 10px;
+    font-size: 14px;
+    background-color: color-pallet.$se-grey;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    &:not(:last-child) {
+      border-right: 1px solid color-pallet.$se-black;
+    }
+
+    &.active {
+      background-color: color-pallet.$se-black;
+      color: white;
+    }
+  }
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('../assets/fonts/Montserrat-Regular.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'MontserratBold';
+  src: url('../assets/fonts/Montserrat-Bold.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Montserrat';
+  margin: 0;
+}
+
+h1,
+h2,
+b,
+strong {
+  font-family: 'MontserratBold';
+}
+
+a {
+  text-decoration: none;
+  color: black;
+}
+
+// Keep underline for markdown transformations.
+markdown {
+  a {
+    text-decoration: underline;
+  }
+
+  // Content pasted into Contentful from Word/Google Docs often carries
+  // inline `style="font-family: ..."` spans, which <markdown> renders
+  // verbatim - overriding the Montserrat cascade set on `body` above.
+  // `!important` is required specifically to beat those inline style
+  // attributes, which otherwise always win over stylesheet rules regardless
+  // of selector specificity.
+  &,
+  * {
+    font-family: 'Montserrat' !important;
+  }
+
+  // ...but preserve MontserratBold for headings/bold text rendered inside
+  // markdown content - the rule above targets every descendant, so without
+  // this it would flatten these back to the base weight too. Higher
+  // specificity (two elements vs. one) wins the tie against the `!important`
+  // rule above regardless of source order.
+  h1,
+  h2,
+  b,
+  strong {
+    font-family: 'MontserratBold' !important;
+  }
+}
+
+p {
+  margin-block-start: 0;
+  margin-block-end: 0;
+}

@@ -1,0 +1,324 @@
+@use 'color-pallet';
+@use 'screen-sizes';
+
+.component-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: row;
+}
+
+.main-pane {
+  display: flex;
+  width: 50%;
+  height: 100%;
+  background-color: var(--main-pane-color);
+  flex-direction: column;
+  overflow-y: scroll;
+  box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
+  // Visually swapped to the right
+  order: 2;
+  // Grows to fill whatever space .side-pane's max-width doesn't use.
+  flex-grow: 1;
+
+  se-header {
+    z-index: 10001;
+    position: sticky;
+    top: 0;
+    background-color: var(--main-pane-color);
+  }
+}
+
+.side-pane {
+  display: flex;
+  width: 50%;
+  max-width: 475px;
+  height: 100%;
+  background-color: color-pallet.$se-dark-grey;
+  flex-direction: column;
+  box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
+  // Visually swapped to the left
+  order: 1;
+
+  se-header {
+    z-index: 10001;
+    position: sticky;
+    top: 0;
+    background-color: color-pallet.$se-dark-grey;
+  }
+
+  .list-container {
+    display: flex;
+    height: 100%;
+    margin: 30px 10px 20px 0;
+    flex-direction: column;
+    overflow-y: scroll;
+
+    .item-container {
+      display: flex;
+      flex-direction: row;
+      width: 445px;
+      min-height: 70px;
+      margin-right: auto;
+      margin-bottom: 7px;
+      background-color: var(--state-color);
+      border-radius: 0 10px 10px 0;
+      transition: 0.5s;
+
+      .thumbnail {
+        height: 60px;
+        width: 60px;
+        margin: 5px;
+        border-radius: 10px;
+        // Source photos aren't guaranteed to be square, so crop (rather than
+        // stretch) them to fit this fixed-size box now that NgOptimizedImage
+        // sets each image's real intrinsic width/height as HTML attributes.
+        object-fit: cover;
+      }
+
+      .item-row {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        min-height: 70px;
+      }
+
+      .item-title {
+        font-size: 24px;
+        margin: auto 0 auto 20px;
+      }
+
+      .item-sub-text {
+        font-size: 16px;
+        margin: auto 10px auto auto;
+        text-align: right;
+      }
+    }
+
+    .item-container:hover {
+      width: 455px;
+      transition: 0.5s;
+    }
+
+    .item-container.active {
+      width: 455px;
+      transition: 0.5s;
+    }
+  }
+}
+
+.title-text {
+  font-size: 48px;
+  text-align: center;
+  margin: 30px auto 0 auto;
+}
+
+.large-text-content {
+  margin: 30px 30px;
+  width: calc(100% - 60px);
+  text-align: center;
+  font-size: 30px;
+  white-space: pre-wrap;
+}
+
+.medium-text-content {
+  text-align: center;
+  font-size: 24px;
+  margin: 5px auto;
+  white-space: pre-wrap;
+}
+
+.small-text-content {
+  text-align: center;
+  font-size: 18px;
+  margin: 5px auto;
+  white-space: pre-wrap;
+}
+
+.tiny-text-content {
+  font-size: 16px;
+}
+
+.clickable {
+  cursor: pointer;
+  color: color-pallet.$se-black;
+}
+
+.icon-button {
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.sub-text-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-flow: row wrap;
+  margin: 20px 0;
+
+  .sub-text-box {
+    width: 300px;
+    height: 200px;
+    margin: 0 20px;
+    padding: 15px;
+    font-size: 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+
+    .fa-brands {
+      margin: 0 20px;
+    }
+  }
+}
+
+.btn {
+  width: fit-content;
+  border: 3px solid color-pallet.$se-black;
+  border-radius: 30px;
+  padding: 10px;
+  background-color: color-pallet.$se-grey;
+  cursor: pointer;
+  margin: 0 auto;
+  display: block;
+  box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
+  // Resets a native <button>'s default font/color so a <button class="btn">
+  // renders identically to the anchor variant.
+  font: inherit;
+  color: inherit;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+// An icon-only `.btn.small` (no text label).
+.btn.small.icon-only {
+  padding: 4px 8px;
+}
+
+.selected-item-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0 20px;
+}
+
+.photo-container {
+  width: 60%;
+  margin: 5px auto;
+  text-align: center;
+}
+
+.image {
+  max-height: 300px;
+  max-width: 80%;
+  width: auto;
+  height: auto;
+  border-radius: 10px;
+}
+
+.medium-image {
+  max-height: 400px;
+  box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
+}
+
+se-loading-spinner {
+  margin: auto;
+}
+
+@media only screen and (max-width: screen-sizes.$small-breakpoint) {
+  body {
+    background: color-pallet.$se-black;
+  }
+
+  .component-container {
+    flex-direction: column;
+    height: fit-content;
+  }
+
+  .main-pane {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    overflow-y: auto;
+    height: fit-content;
+    box-shadow: none;
+    // Restore natural DOM order for mobile's stacked single-column layout
+    order: initial;
+  }
+
+  .side-pane {
+    width: 100%;
+    max-width: none;
+    height: fit-content;
+    border-radius: 0;
+    overflow-y: auto;
+    order: initial;
+    background-color: color-pallet.$se-black;
+
+    .list-container {
+      height: fit-content;
+      margin: 6px;
+
+      .item-container {
+        width: calc(100% - 8px);
+        margin: 4px;
+        border-radius: 10px;
+        flex-direction: column;
+
+        .item-title {
+          font-size: 20px;
+          font-weight: bold;
+          margin: auto 10px auto 5px;
+        }
+
+        .item-sub-text {
+          text-align: right;
+        }
+      }
+
+      .item-container:hover {
+        width: calc(100% - 8px);
+      }
+
+      .item-container.active {
+        width: calc(100% - 8px);
+        height: fit-content;
+      }
+    }
+  }
+
+  .project-container {
+    background-color: var(--main-pane-color);
+  }
+
+  .large-text-content {
+    margin: 10px 5px;
+    width: calc(100% - 10px);
+    text-align: center;
+    font-size: 24px;
+  }
+
+  .medium-text-content {
+    font-size: 20px;
+  }
+
+  .selected-item-container {
+    margin: 0 5px;
+  }
+
+  .sub-text-box {
+    height: fit-content !important;
+    margin: 10px !important;
+    padding: 0 !important;
+
+    .btn {
+      margin: 10px auto;
+    }
+  }
+}
