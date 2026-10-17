@@ -18,7 +18,10 @@ const options = {
       { name: 'Health', description: 'Service status.' },
     ],
   },
-  apis: [path.join(__dirname, '../routes/*.routes.js')],
+  apis: [
+    path.join(__dirname, '../routes/*.routes.js'),
+    path.join(__dirname, '../routes/**/*.routes.js'),
+  ],
 };
 
 const swaggerSpec = swaggerJsdoc(options);

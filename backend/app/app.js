@@ -28,7 +28,7 @@ const { attachSession } = require('./middleware/session.middleware.js');
 
 const publicRoutes = require('./routes/public.routes.js');
 const authRoutes = require('./routes/auth.routes.js');
-const dashboardRoutes = require('./routes/dashboard.routes.js');
+const dashboardRoutes = require('./routes/dashboard/dashboard.routes.js');
 
 const { registerCompetitionsRefreshJob } = require('./jobs/competitionsRefresh.job.js');
 const { registerSessionsCleanupJob } = require('./jobs/sessionsCleanup.job.js');
