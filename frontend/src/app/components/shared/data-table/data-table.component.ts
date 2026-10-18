@@ -102,6 +102,7 @@ export class DataTableComponent<T> {
 
   // The sort applied before the user ever interacts with the table.
   defaultSort = input<DataTableSort | null>(null);
+  sortResetKey = input(0);
 
   // Persists/restores this table's own filters, sort, column visibility,
   // and column order to `localStorage` under this exact key, keyed per
@@ -141,6 +142,8 @@ export class DataTableComponent<T> {
   // Every column's current display order (by key).
   columnOrder = signal<string[]>([]);
   private hasRestoredConsumerState = false;
+  private hasSeenSortResetKey = false;
+  private previousSortResetKey = 0;
 
   constructor() {
     // Seeds default column visibility/order from `columns()`, then applies
@@ -169,12 +172,27 @@ export class DataTableComponent<T> {
       }
     });
 
-    // Applies `defaultSort` exactly once, the first time it's available.
+    // Applies the default initially only when there is no restored sort.
     effect(() => {
       const def = this.defaultSort();
       if (def && this.sort() === null) {
         this.sort.set(def);
       }
+    });
+
+    // Resets sorting after a view switch, including when loading remounts the table.
+    effect(() => {
+      const resetKey = this.sortResetKey();
+      if (!this.hasSeenSortResetKey) {
+        this.hasSeenSortResetKey = true;
+        this.previousSortResetKey = resetKey;
+        if (resetKey !== 0) this.sort.set(this.defaultSort());
+        return;
+      }
+      if (resetKey === this.previousSortResetKey) return;
+
+      this.previousSortResetKey = resetKey;
+      this.sort.set(this.defaultSort());
     });
   }
 

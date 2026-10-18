@@ -6,6 +6,7 @@
   [actions]="rowActions()"
   [trackBy]="trackById"
   [defaultSort]="defaultSort()"
+  [sortResetKey]="sortResetKey()"
   [consumerState]="consumerState()"
   (consumerStateRestored)="consumerStateRestored.emit($event)"
   storageKey="table-prefs:competition-planner"

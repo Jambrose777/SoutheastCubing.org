@@ -6,8 +6,8 @@ sync with the codebase — see the "Keeping this up to date" note at the
 bottom, and `.github/copilot-instructions.md`.
 
 For a snapshot of the architecture before the `docs/stories/`-driven work
-began, see `docs/original-architecture-diagram.md` (local-only, not tracked
-by git).
+began, see `docs/demo/original-architecture-diagram.md` (local-only, not
+tracked by git).
 
 ```mermaid
 flowchart TB

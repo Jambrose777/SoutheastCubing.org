@@ -113,6 +113,7 @@ export class CompetitionPlannerComponent implements OnInit {
 
   loading = signal(true);
   view = signal<PlannerCompetitionView>('upcoming');
+  sortResetVersion = signal(0);
   rows = signal<PlannerCompetition[]>([]);
   wcaAnnouncementDeadlineWarnings = computed(() => {
     if (this.view() !== 'upcoming') return [];
@@ -444,6 +445,7 @@ export class CompetitionPlannerComponent implements OnInit {
   // Loads the selected date scope without showing rows from the previous scope.
   setPlannerView(view: PlannerCompetitionView): void {
     if (view === this.view()) return;
+    this.sortResetVersion.update((version) => version + 1);
     this.view.set(view);
     this.rows.set([]);
     const cachedCompetitions = getCachedCompetitionsForView(

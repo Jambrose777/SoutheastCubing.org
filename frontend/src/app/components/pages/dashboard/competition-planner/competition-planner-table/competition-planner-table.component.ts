@@ -40,6 +40,7 @@ import {
 export class CompetitionPlannerTableComponent {
   rows = input<PlannerCompetition[]>([]);
   view = input<PlannerCompetitionView>('upcoming');
+  sortResetKey = input(0);
   showMajorHolidays = input(true);
   showOpenWeekends = input(true);
   consumerState = input<Record<string, unknown>>({});
