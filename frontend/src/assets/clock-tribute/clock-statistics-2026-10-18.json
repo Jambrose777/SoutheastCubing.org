@@ -1,0 +1,3248 @@
+{
+  "metadata": {
+    "exportDate": "2026-10-18 00:00:15 UTC",
+    "exportFormatVersion": "v2.0.2",
+    "sourceFile": "WCA_export_v2_291_20261018T000015Z.tsv.zip",
+    "attributionNotice": "This information is based on competition results owned and maintained by the World Cube Assocation, published at https://worldcubeassociation.org/results as of October 18, 2026.",
+    "resultRowsRead": 6982643,
+    "clockResultRows": 255852,
+    "candidateCount": 109
+  },
+  "rankings": {
+    "rankLimit": 20,
+    "results": [
+      {
+        "date": "2017-09-03",
+        "rankingType": "single",
+        "wcaId": "2010AMBR01",
+        "personName": "Jacob Ambrose",
+        "rank": 19,
+        "value": 528,
+        "competitionId": "HendersonvilleFall2017",
+        "competitionName": "Hendersonville Fall 2017",
+        "city": "Hendersonville, North Carolina",
+        "state": "Georgia",
+        "competitionState": "North Carolina"
+      },
+      {
+        "date": "2017-10-29",
+        "rankingType": "average",
+        "wcaId": "2015JOIN01",
+        "personName": "Kyra Joiner",
+        "rank": 18,
+        "value": 665,
+        "competitionId": "ClassicCitySpooks2017",
+        "competitionName": "Classic City Spooks 2017",
+        "city": "Athens, Georgia",
+        "state": "Georgia",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2017-12-10",
+        "rankingType": "single",
+        "wcaId": "2017STAR04",
+        "personName": "Silas Starling",
+        "rank": 10,
+        "value": 492,
+        "competitionId": "ClassicCity4Charity2017",
+        "competitionName": "Classic City 4 Charity 2017",
+        "city": "Athens, Georgia",
+        "state": "North Carolina",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2017-12-10",
+        "rankingType": "average",
+        "wcaId": "2015JOIN01",
+        "personName": "Kyra Joiner",
+        "rank": 17,
+        "value": 651,
+        "competitionId": "ClassicCity4Charity2017",
+        "competitionName": "Classic City 4 Charity 2017",
+        "city": "Athens, Georgia",
+        "state": "Georgia",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2017-12-10",
+        "rankingType": "average",
+        "wcaId": "2017STAR04",
+        "personName": "Silas Starling",
+        "rank": 20,
+        "value": 675,
+        "competitionId": "ClassicCity4Charity2017",
+        "competitionName": "Classic City 4 Charity 2017",
+        "city": "Athens, Georgia",
+        "state": "North Carolina",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2017-12-30",
+        "rankingType": "average",
+        "wcaId": "2017STAR04",
+        "personName": "Silas Starling",
+        "rank": 15,
+        "value": 643,
+        "competitionId": "CarolinaClockStravaganza2017",
+        "competitionName": "Carolina Clock 'Stravaganza 2017",
+        "city": "Matthews, North Carolina",
+        "state": "North Carolina",
+        "competitionState": "North Carolina"
+      },
+      {
+        "date": "2018-05-27",
+        "rankingType": "single",
+        "wcaId": "2015CLAU02",
+        "personName": "Carson Claud",
+        "rank": 13,
+        "value": 490,
+        "competitionId": "TeaTimeSpring2018",
+        "competitionName": "Tea Time Spring 2018",
+        "city": "Fairfax, Virginia",
+        "state": "North Carolina",
+        "competitionState": null
+      },
+      {
+        "date": "2018-05-27",
+        "rankingType": "single",
+        "wcaId": "2010AMBR01",
+        "personName": "Jacob Ambrose",
+        "rank": 10,
+        "value": 487,
+        "competitionId": "TeaTimeSpring2018",
+        "competitionName": "Tea Time Spring 2018",
+        "city": "Fairfax, Virginia",
+        "state": "Georgia",
+        "competitionState": null
+      },
+      {
+        "date": "2018-07-29",
+        "rankingType": "average",
+        "wcaId": "2010AMBR01",
+        "personName": "Jacob Ambrose",
+        "rank": 17,
+        "value": 628,
+        "competitionId": "CubingUSANationals2018",
+        "competitionName": "CubingUSA Nationals 2018",
+        "city": "Salt Lake City, Utah",
+        "state": "Georgia",
+        "competitionState": null
+      },
+      {
+        "date": "2018-07-29",
+        "rankingType": "average",
+        "wcaId": "2017STAR04",
+        "personName": "Silas Starling",
+        "rank": 15,
+        "value": 611,
+        "competitionId": "CubingUSANationals2018",
+        "competitionName": "CubingUSA Nationals 2018",
+        "city": "Salt Lake City, Utah",
+        "state": "North Carolina",
+        "competitionState": null
+      },
+      {
+        "date": "2018-09-22",
+        "rankingType": "average",
+        "wcaId": "2010AMBR01",
+        "personName": "Jacob Ambrose",
+        "rank": 6,
+        "value": 577,
+        "competitionId": "CobbCubesAgain2018",
+        "competitionName": "Cobb Cubes Again 2018",
+        "city": "Mableton, Georgia",
+        "state": "Georgia",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2018-12-16",
+        "rankingType": "single",
+        "wcaId": "2010AMBR01",
+        "personName": "Jacob Ambrose",
+        "rank": 13,
+        "value": 469,
+        "competitionId": "GAChamp2018",
+        "competitionName": "CubingUSA Georgia Championship 2018",
+        "city": "Athens, Georgia",
+        "state": "Georgia",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2018-12-16",
+        "rankingType": "single",
+        "wcaId": "2018CREE01",
+        "personName": "Kerry Creech",
+        "rank": 11,
+        "value": 468,
+        "competitionId": "GAChamp2018",
+        "competitionName": "CubingUSA Georgia Championship 2018",
+        "city": "Athens, Georgia",
+        "state": "North Carolina",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2019-04-28",
+        "rankingType": "average",
+        "wcaId": "2018CREE01",
+        "personName": "Kerry Creech",
+        "rank": 10,
+        "value": 575,
+        "competitionId": "SoutheastChampionship2019",
+        "competitionName": "CubingUSA Southeast Championship 2019",
+        "city": "Charlotte, North Carolina",
+        "state": "North Carolina",
+        "competitionState": "North Carolina"
+      },
+      {
+        "date": "2019-08-04",
+        "rankingType": "single",
+        "wcaId": "2010AMBR01",
+        "personName": "Jacob Ambrose",
+        "rank": 12,
+        "value": 435,
+        "competitionId": "CubingUSANationals2019",
+        "competitionName": "CubingUSA Nationals 2019",
+        "city": "Baltimore, Maryland",
+        "state": "Georgia",
+        "competitionState": null
+      },
+      {
+        "date": "2019-09-22",
+        "rankingType": "single",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 12,
+        "value": 426,
+        "competitionId": "FloridaFallFest2019",
+        "competitionName": "Florida Fall Fest 2019",
+        "city": "Orlando, Florida",
+        "state": "Florida",
+        "competitionState": "Florida"
+      },
+      {
+        "date": "2019-11-23",
+        "rankingType": "single",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 12,
+        "value": 415,
+        "competitionId": "CarolinaClockStravaganza2019",
+        "competitionName": "Carolina Clock 'Stravaganza 2019",
+        "city": "Monroe, North Carolina",
+        "state": "Florida",
+        "competitionState": "North Carolina"
+      },
+      {
+        "date": "2019-11-23",
+        "rankingType": "average",
+        "wcaId": "2018CREE01",
+        "personName": "Kerry Creech",
+        "rank": 12,
+        "value": 560,
+        "competitionId": "CarolinaClockStravaganza2019",
+        "competitionName": "Carolina Clock 'Stravaganza 2019",
+        "city": "Monroe, North Carolina",
+        "state": "North Carolina",
+        "competitionState": "North Carolina"
+      },
+      {
+        "date": "2019-12-14",
+        "rankingType": "average",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 11,
+        "value": 556,
+        "competitionId": "GACubersFeetFest2019",
+        "competitionName": "GA Cubers Feet Fest 2019",
+        "city": "Locust Grove, Georgia",
+        "state": "Florida",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2019-12-22",
+        "rankingType": "average",
+        "wcaId": "2018CREE01",
+        "personName": "Kerry Creech",
+        "rank": 11,
+        "value": 547,
+        "competitionId": "FloridaWinterBreak2019",
+        "competitionName": "Florida Winter Break 2019",
+        "city": "Orlando, Florida",
+        "state": "North Carolina",
+        "competitionState": "Florida"
+      },
+      {
+        "date": "2020-03-01",
+        "rankingType": "single",
+        "wcaId": "2018CREE01",
+        "personName": "Kerry Creech",
+        "rank": 19,
+        "value": 442,
+        "competitionId": "BlueRidgeMountains2020",
+        "competitionName": "Blue Ridge Mountains 2020",
+        "city": "Hendersonville, North Carolina",
+        "state": "North Carolina",
+        "competitionState": "North Carolina"
+      },
+      {
+        "date": "2020-03-01",
+        "rankingType": "average",
+        "wcaId": "2018CREE01",
+        "personName": "Kerry Creech",
+        "rank": 10,
+        "value": 537,
+        "competitionId": "BlueRidgeMountains2020",
+        "competitionName": "Blue Ridge Mountains 2020",
+        "city": "Hendersonville, North Carolina",
+        "state": "North Carolina",
+        "competitionState": "North Carolina"
+      },
+      {
+        "date": "2021-07-11",
+        "rankingType": "single",
+        "wcaId": "2018CREE01",
+        "personName": "Kerry Creech",
+        "rank": 11,
+        "value": 409,
+        "competitionId": "GACubersReturnB2021",
+        "competitionName": "GA Cubers Return B 2021",
+        "city": "Sandy Springs, Georgia",
+        "state": "North Carolina",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2021-07-11",
+        "rankingType": "single",
+        "wcaId": "2018EVAR01",
+        "personName": "Jacob Evarts",
+        "rank": 14,
+        "value": 420,
+        "competitionId": "GACubersReturnB2021",
+        "competitionName": "GA Cubers Return B 2021",
+        "city": "Sandy Springs, Georgia",
+        "state": "Georgia",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2021-07-11",
+        "rankingType": "average",
+        "wcaId": "2018CREE01",
+        "personName": "Kerry Creech",
+        "rank": 3,
+        "value": 462,
+        "competitionId": "GACubersReturnB2021",
+        "competitionName": "GA Cubers Return B 2021",
+        "city": "Sandy Springs, Georgia",
+        "state": "North Carolina",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2021-07-11",
+        "rankingType": "average",
+        "wcaId": "2018EVAR01",
+        "personName": "Jacob Evarts",
+        "rank": 5,
+        "value": 491,
+        "competitionId": "GACubersReturnB2021",
+        "competitionName": "GA Cubers Return B 2021",
+        "city": "Sandy Springs, Georgia",
+        "state": "Georgia",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2021-11-07",
+        "rankingType": "single",
+        "wcaId": "2018CREE01",
+        "personName": "Kerry Creech",
+        "rank": 5,
+        "value": 359,
+        "competitionId": "GACubersQuietQuarrel2021",
+        "competitionName": "GA Cubers Quiet Quarrel 2021",
+        "city": "Cumming, Georgia",
+        "state": "North Carolina",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2021-11-21",
+        "rankingType": "single",
+        "wcaId": "2017SANK04",
+        "personName": "Vishwa Sankar",
+        "rank": 9,
+        "value": 391,
+        "competitionId": "PittsburghFall2021",
+        "competitionName": "Pittsburgh Fall 2021",
+        "city": "Pittsburgh, Pennsylvania",
+        "state": "Georgia",
+        "competitionState": null
+      },
+      {
+        "date": "2021-11-21",
+        "rankingType": "single",
+        "wcaId": "2010AMBR01",
+        "personName": "Jacob Ambrose",
+        "rank": 15,
+        "value": 409,
+        "competitionId": "PittsburghFall2021",
+        "competitionName": "Pittsburgh Fall 2021",
+        "city": "Pittsburgh, Pennsylvania",
+        "state": "Georgia",
+        "competitionState": null
+      },
+      {
+        "date": "2021-12-05",
+        "rankingType": "average",
+        "wcaId": "2017SANK04",
+        "personName": "Vishwa Sankar",
+        "rank": 15,
+        "value": 531,
+        "competitionId": "RockyTop2021",
+        "competitionName": "Rocky Top 2021",
+        "city": "Gatlinburg, Tennessee",
+        "state": "Georgia",
+        "competitionState": "Tennessee"
+      },
+      {
+        "date": "2021-12-12",
+        "rankingType": "average",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 15,
+        "value": 520,
+        "competitionId": "FloridaFall2021",
+        "competitionName": "Florida Fall 2021",
+        "city": "Orlando, Florida",
+        "state": "Florida",
+        "competitionState": "Florida"
+      },
+      {
+        "date": "2022-01-30",
+        "rankingType": "single",
+        "wcaId": "2018EVAR01",
+        "personName": "Jacob Evarts",
+        "rank": 6,
+        "value": 352,
+        "competitionId": "GACubersCelebration2022",
+        "competitionName": "GA Cubers Celebration 2022",
+        "city": "Cumming, Georgia",
+        "state": "Georgia",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2022-01-30",
+        "rankingType": "average",
+        "wcaId": "2018EVAR01",
+        "personName": "Jacob Evarts",
+        "rank": 6,
+        "value": 478,
+        "competitionId": "GACubersCelebration2022",
+        "competitionName": "GA Cubers Celebration 2022",
+        "city": "Cumming, Georgia",
+        "state": "Georgia",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2022-01-30",
+        "rankingType": "average",
+        "wcaId": "2017SANK04",
+        "personName": "Vishwa Sankar",
+        "rank": 9,
+        "value": 500,
+        "competitionId": "GACubersCelebration2022",
+        "competitionName": "GA Cubers Celebration 2022",
+        "city": "Cumming, Georgia",
+        "state": "Georgia",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2022-02-12",
+        "rankingType": "single",
+        "wcaId": "2016MULL04",
+        "personName": "Daniel Mullen",
+        "rank": 11,
+        "value": 390,
+        "competitionId": "CapeFear2022",
+        "competitionName": "Cape Fear 2022",
+        "city": "Wilmington, North Carolina",
+        "state": "Georgia",
+        "competitionState": "North Carolina"
+      },
+      {
+        "date": "2022-02-27",
+        "rankingType": "single",
+        "wcaId": "2017SANK04",
+        "personName": "Vishwa Sankar",
+        "rank": 5,
+        "value": 342,
+        "competitionId": "GACubersFebruaryB2022",
+        "competitionName": "GA Cubers February B 2022",
+        "city": "Cumming, Georgia",
+        "state": "Georgia",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2022-03-13",
+        "rankingType": "average",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 14,
+        "value": 512,
+        "competitionId": "FloridaBigBlindTime2022",
+        "competitionName": "Florida Big & Blind & Time 2022",
+        "city": "Orlando, Florida",
+        "state": "Florida",
+        "competitionState": "Florida"
+      },
+      {
+        "date": "2022-05-22",
+        "rankingType": "single",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 7,
+        "value": 352,
+        "competitionId": "FSUbers202022",
+        "competitionName": "FSUbers 2.0 2022",
+        "city": "Tallahassee, Florida",
+        "state": "Florida",
+        "competitionState": "Florida"
+      },
+      {
+        "date": "2022-06-04",
+        "rankingType": "average",
+        "wcaId": "2017SANK04",
+        "personName": "Vishwa Sankar",
+        "rank": 5,
+        "value": 444,
+        "competitionId": "BuccaneerBonanza2022",
+        "competitionName": "Buccaneer Bonanza 2022",
+        "city": "Hendersonville, Tennessee",
+        "state": "Georgia",
+        "competitionState": "Tennessee"
+      },
+      {
+        "date": "2022-06-12",
+        "rankingType": "single",
+        "wcaId": "2018CREE01",
+        "personName": "Kerry Creech",
+        "rank": 6,
+        "value": 349,
+        "competitionId": "GACubersBigBlindTime2022",
+        "competitionName": "GA Cubers Big & Blind & Time 2022",
+        "city": "Cumming, Georgia",
+        "state": "North Carolina",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2022-06-12",
+        "rankingType": "average",
+        "wcaId": "2018CREE01",
+        "personName": "Kerry Creech",
+        "rank": 6,
+        "value": 452,
+        "competitionId": "GACubersBigBlindTime2022",
+        "competitionName": "GA Cubers Big & Blind & Time 2022",
+        "city": "Cumming, Georgia",
+        "state": "North Carolina",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2022-06-12",
+        "rankingType": "average",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 19,
+        "value": 506,
+        "competitionId": "GACubersBigBlindTime2022",
+        "competitionName": "GA Cubers Big & Blind & Time 2022",
+        "city": "Cumming, Georgia",
+        "state": "Florida",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2022-07-24",
+        "rankingType": "single",
+        "wcaId": "2018EVAR01",
+        "personName": "Jacob Evarts",
+        "rank": 2,
+        "value": 317,
+        "competitionId": "GACubersWarmUp2022",
+        "competitionName": "GA Cubers Warm Up 2022",
+        "city": "Cumming, Georgia",
+        "state": "Georgia",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2022-07-24",
+        "rankingType": "average",
+        "wcaId": "2018EVAR01",
+        "personName": "Jacob Evarts",
+        "rank": 10,
+        "value": 471,
+        "competitionId": "GACubersWarmUp2022",
+        "competitionName": "GA Cubers Warm Up 2022",
+        "city": "Cumming, Georgia",
+        "state": "Georgia",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2022-07-31",
+        "rankingType": "average",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 9,
+        "value": 463,
+        "competitionId": "SoutheastChampionship2022",
+        "competitionName": "CubingUSA Southeast Championship 2022",
+        "city": "Gatlinburg, Tennessee",
+        "state": "Florida",
+        "competitionState": "Tennessee"
+      },
+      {
+        "date": "2022-09-24",
+        "rankingType": "average",
+        "wcaId": "2018CREE01",
+        "personName": "Kerry Creech",
+        "rank": 7,
+        "value": 443,
+        "competitionId": "SharonForksShowdown2022",
+        "competitionName": "Sharon Forks Showdown 2022",
+        "city": "Cumming, Georgia",
+        "state": "North Carolina",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2022-12-11",
+        "rankingType": "single",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 8,
+        "value": 336,
+        "competitionId": "GACubersPersonalBestQuest2022",
+        "competitionName": "GA Cubers Personal Best Quest 2022",
+        "city": "Cumming, Georgia",
+        "state": "Florida",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2023-01-07",
+        "rankingType": "single",
+        "wcaId": "2017SANK04",
+        "personName": "Vishwa Sankar",
+        "rank": 3,
+        "value": 307,
+        "competitionId": "Pegasus2023",
+        "competitionName": "Pegasus 2023",
+        "city": "Orlando, Florida",
+        "state": "Georgia",
+        "competitionState": "Florida"
+      },
+      {
+        "date": "2023-01-07",
+        "rankingType": "single",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 2,
+        "value": 297,
+        "competitionId": "Pegasus2023",
+        "competitionName": "Pegasus 2023",
+        "city": "Orlando, Florida",
+        "state": "Florida",
+        "competitionState": "Florida"
+      },
+      {
+        "date": "2023-01-29",
+        "rankingType": "average",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 9,
+        "value": 438,
+        "competitionId": "4BLDinaMadisonHall2023",
+        "competitionName": "4BLD in a Madison Hall 2023",
+        "city": "Madison, Wisconsin",
+        "state": "Florida",
+        "competitionState": null
+      },
+      {
+        "date": "2023-02-11",
+        "rankingType": "average",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 2,
+        "value": 372,
+        "competitionId": "SharonForksQualifier2023",
+        "competitionName": "Sharon Forks Qualifier 2023",
+        "city": "Cumming, Georgia",
+        "state": "Florida",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2023-03-05",
+        "rankingType": "average",
+        "wcaId": "2017SANK04",
+        "personName": "Vishwa Sankar",
+        "rank": 8,
+        "value": 427,
+        "competitionId": "CubingintheClouds2023",
+        "competitionName": "Cubing in the Clouds 2023",
+        "city": "Rising Fawn, Georgia",
+        "state": "Georgia",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2023-04-16",
+        "rankingType": "average",
+        "wcaId": "2017SANK04",
+        "personName": "Vishwa Sankar",
+        "rank": 7,
+        "value": 410,
+        "competitionId": "SoutheastChampionship2023",
+        "competitionName": "CubingUSA Southeast Championship 2023",
+        "city": "Orange Beach, Alabama",
+        "state": "Georgia",
+        "competitionState": "Alabama"
+      },
+      {
+        "date": "2023-05-07",
+        "rankingType": "average",
+        "wcaId": "2018CREE01",
+        "personName": "Kerry Creech",
+        "rank": 16,
+        "value": 442,
+        "competitionId": "AlphaCubingB2023",
+        "competitionName": "AlphaCubing B 2023",
+        "city": "Alpharetta, Georgia",
+        "state": "North Carolina",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2023-06-19",
+        "rankingType": "single",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 1,
+        "value": 261,
+        "competitionId": "MidAtlanticChampionship2023",
+        "competitionName": "CubingUSA Mid-Atlantic Championship 2023",
+        "city": "Albany, New York",
+        "state": "Florida",
+        "competitionState": null
+      },
+      {
+        "date": "2023-06-25",
+        "rankingType": "average",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 2,
+        "value": 359,
+        "competitionId": "SouthernChampionship2023",
+        "competitionName": "CubingUSA Southern Championship 2023",
+        "city": "Austin, Texas",
+        "state": "Florida",
+        "competitionState": null
+      },
+      {
+        "date": "2023-07-30",
+        "rankingType": "average",
+        "wcaId": "2018CREE01",
+        "personName": "Kerry Creech",
+        "rank": 12,
+        "value": 420,
+        "competitionId": "CubingUSANationals2023",
+        "competitionName": "CubingUSA Nationals 2023",
+        "city": "Pittsburgh, Pennsylvania",
+        "state": "North Carolina",
+        "competitionState": null
+      },
+      {
+        "date": "2023-07-30",
+        "rankingType": "average",
+        "wcaId": "2020ARTZ01",
+        "personName": "Eddie Artze",
+        "rank": 10,
+        "value": 416,
+        "competitionId": "CubingUSANationals2023",
+        "competitionName": "CubingUSA Nationals 2023",
+        "city": "Pittsburgh, Pennsylvania",
+        "state": "Florida",
+        "competitionState": null
+      },
+      {
+        "date": "2023-07-30",
+        "rankingType": "average",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 1,
+        "value": 350,
+        "competitionId": "CubingUSANationals2023",
+        "competitionName": "CubingUSA Nationals 2023",
+        "city": "Pittsburgh, Pennsylvania",
+        "state": "Florida",
+        "competitionState": null
+      },
+      {
+        "date": "2023-12-03",
+        "rankingType": "average",
+        "wcaId": "2020ARTZ01",
+        "personName": "Eddie Artze",
+        "rank": 10,
+        "value": 393,
+        "competitionId": "RockyTop2023",
+        "competitionName": "Rocky Top 2023",
+        "city": "Gatlinburg, Tennessee",
+        "state": "Florida",
+        "competitionState": "Tennessee"
+      },
+      {
+        "date": "2024-02-03",
+        "rankingType": "single",
+        "wcaId": "2020ARTZ01",
+        "personName": "Eddie Artze",
+        "rank": 13,
+        "value": 294,
+        "competitionId": "CobbCubesandClocks2024",
+        "competitionName": "Cobb Cubes and Clocks 2024",
+        "city": "Acworth, Georgia",
+        "state": "Florida",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2024-02-03",
+        "rankingType": "average",
+        "wcaId": "2020ARTZ01",
+        "personName": "Eddie Artze",
+        "rank": 3,
+        "value": 349,
+        "competitionId": "CobbCubesandClocks2024",
+        "competitionName": "Cobb Cubes and Clocks 2024",
+        "city": "Acworth, Georgia",
+        "state": "Florida",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2024-02-24",
+        "rankingType": "average",
+        "wcaId": "2022WOLF02",
+        "personName": "Jasper Wolfe-Tham",
+        "rank": 18,
+        "value": 389,
+        "competitionId": "VolunteerStateCubing2024",
+        "competitionName": "Volunteer State Cubing 2024",
+        "city": "Knoxville, Tennessee",
+        "state": "Georgia",
+        "competitionState": "Tennessee"
+      },
+      {
+        "date": "2024-03-02",
+        "rankingType": "average",
+        "wcaId": "2022WOLF02",
+        "personName": "Jasper Wolfe-Tham",
+        "rank": 10,
+        "value": 369,
+        "competitionId": "BeattheClockWestminster2024",
+        "competitionName": "Beat the Clock Westminster 2024",
+        "city": "Atlanta, Georgia",
+        "state": "Georgia",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2024-05-12",
+        "rankingType": "single",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 2,
+        "value": 243,
+        "competitionId": "AlabamaChampionship2024",
+        "competitionName": "Alabama Championship 2024",
+        "city": "Gadsden, Alabama",
+        "state": "Florida",
+        "competitionState": "Alabama"
+      },
+      {
+        "date": "2024-05-12",
+        "rankingType": "average",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 6,
+        "value": 341,
+        "competitionId": "AlabamaChampionship2024",
+        "competitionName": "Alabama Championship 2024",
+        "city": "Gadsden, Alabama",
+        "state": "Florida",
+        "competitionState": "Alabama"
+      },
+      {
+        "date": "2024-06-02",
+        "rankingType": "average",
+        "wcaId": "2022WOLF02",
+        "personName": "Jasper Wolfe-Tham",
+        "rank": 15,
+        "value": 353,
+        "competitionId": "SeeGeorgiaLakeRussellB2024",
+        "competitionName": "See Georgia: Lake Russell B 2024",
+        "city": "Elberton, Georgia",
+        "state": "Georgia",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2024-06-02",
+        "rankingType": "average",
+        "wcaId": "2022BAOF01",
+        "personName": "Fiona Bao",
+        "rank": 18,
+        "value": 368,
+        "competitionId": "SeeGeorgiaLakeRussellB2024",
+        "competitionName": "See Georgia: Lake Russell B 2024",
+        "city": "Elberton, Georgia",
+        "state": "North Carolina",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2024-06-08",
+        "rankingType": "average",
+        "wcaId": "2015CHER07",
+        "personName": "Tommy Cherry",
+        "rank": 6,
+        "value": 328,
+        "competitionId": "CMTEvergreen2024",
+        "competitionName": "Colorado Mountain Tour - Evergreen 2024",
+        "city": "Evergreen, Colorado",
+        "state": "Florida",
+        "competitionState": null
+      },
+      {
+        "date": "2024-08-31",
+        "rankingType": "single",
+        "wcaId": "2022WOLF02",
+        "personName": "Jasper Wolfe-Tham",
+        "rank": 18,
+        "value": 262,
+        "competitionId": "ScenicCityScrambleTN2024",
+        "competitionName": "Scenic City Scramble TN 2024",
+        "city": "Chattanooga, Tennessee",
+        "state": "Georgia",
+        "competitionState": "Tennessee"
+      },
+      {
+        "date": "2024-10-13",
+        "rankingType": "single",
+        "wcaId": "2020ARTZ01",
+        "personName": "Eddie Artze",
+        "rank": 20,
+        "value": 260,
+        "competitionId": "GACuberJacketsFall2024",
+        "competitionName": "GA Cuber Jackets Fall 2024",
+        "city": "Atlanta, Georgia",
+        "state": "Florida",
+        "competitionState": "Georgia"
+      },
+      {
+        "date": "2024-11-11",
+        "rankingType": "average",
+        "wcaId": "2020ARTZ01",
+        "personName": "Eddie Artze",
+        "rank": 10,
+        "value": 312,
+        "competitionId": "ColombianNationals2024",
+        "competitionName": "Colombian Nationals Avenida Chile 2024",
+        "city": "Bogotá",
+        "state": "Florida",
+        "competitionState": null
+      },
+      {
+        "date": "2025-01-25",
+        "rankingType": "single",
+        "wcaId": "2020ARTZ01",
+        "personName": "Eddie Artze",
+        "rank": 12,
+        "value": 232,
+        "competitionId": "CharlotteWinter2025",
+        "competitionName": "Charlotte Winter 2025",
+        "city": "Charlotte, North Carolina",
+        "state": "Florida",
+        "competitionState": "North Carolina"
+      },
+      {
+        "date": "2025-01-25",
+        "rankingType": "single",
+        "wcaId": "2018RICH05",
+        "personName": "Drake Denton Richard",
+        "rank": 7,
+        "value": 226,
+        "competitionId": "CharlotteWinter2025",
+        "competitionName": "Charlotte Winter 2025",
+        "city": "Charlotte, North Carolina",
+        "state": "Georgia",
+        "competitionState": "North Carolina"
+      },
+      {
+        "date": "2026-02-28",
+        "rankingType": "single",
+        "wcaId": "2018RICH05",
+        "personName": "Drake Denton Richard",
+        "rank": 19,
+        "value": 215,
+        "competitionId": "GACubersBananaMystery2026",
+        "competitionName": "GA Cubers Banana Mystery 2026",
+        "city": "Atlanta, Georgia",
+        "state": "Georgia",
+        "competitionState": "Georgia"
+      }
+    ]
+  },
+  "currentRecords": {
+    "single": {
+      "date": "2026-09-13",
+      "rankingType": "single",
+      "wcaId": "2023LATI01",
+      "personName": "Shafin Latif",
+      "value": 204,
+      "competitionId": "AlabamaChampionship2026",
+      "competitionName": "Alabama Championship 2026",
+      "city": "Tuscaloosa, Alabama",
+      "state": "Alabama",
+      "competitionState": "Alabama"
+    },
+    "average": {
+      "date": "2025-12-14",
+      "rankingType": "average",
+      "wcaId": "2018RICH05",
+      "personName": "Drake Denton Richard",
+      "value": 307,
+      "competitionId": "ThriceasNiceMiami2025",
+      "competitionName": "Thrice as Nice Miami 2025",
+      "city": "Miami, Florida",
+      "state": "Georgia",
+      "competitionState": "Florida"
+    }
+  },
+  "femaleRecordAchievements": [
+    {
+      "date": "2015-08-02",
+      "record": "FNAR",
+      "metric": "single",
+      "wcaId": "2014BELL02",
+      "personName": "Alyssa Bell",
+      "value": 1047,
+      "competitionId": "USNationals2015",
+      "competitionName": "US Nationals 2015",
+      "city": "Hilton Head Island, South Carolina",
+      "state": "Florida",
+      "competitionState": "South Carolina"
+    },
+    {
+      "date": "2015-10-03",
+      "record": "FNAR",
+      "metric": "average",
+      "wcaId": "2013WEAV01",
+      "personName": "Sydney Weaver",
+      "value": 1279,
+      "competitionId": "Cubetoberfest2015",
+      "competitionName": "Cubetoberfest 2015",
+      "city": "Orlando, Florida",
+      "state": "South Carolina",
+      "competitionState": "Florida"
+    },
+    {
+      "date": "2018-03-18",
+      "record": "FNAR",
+      "metric": "single",
+      "wcaId": "2014BELL02",
+      "personName": "Alyssa Bell",
+      "value": 523,
+      "competitionId": "BrilliantBNBB2018",
+      "competitionName": "Brilliant Big & Blind Blast 2018",
+      "city": "Orlando, Florida",
+      "state": "Florida",
+      "competitionState": "Florida"
+    },
+    {
+      "date": "2018-03-18",
+      "record": "FNAR",
+      "metric": "average",
+      "wcaId": "2014BELL02",
+      "personName": "Alyssa Bell",
+      "value": 785,
+      "competitionId": "BrilliantBNBB2018",
+      "competitionName": "Brilliant Big & Blind Blast 2018",
+      "city": "Orlando, Florida",
+      "state": "Florida",
+      "competitionState": "Florida"
+    },
+    {
+      "date": "2019-03-02",
+      "record": "FNAR",
+      "metric": "average",
+      "wcaId": "2014BELL02",
+      "personName": "Alyssa Bell",
+      "value": 742,
+      "competitionId": "WestSeattleFavorites2019",
+      "competitionName": "West Seattle Favorites 2019",
+      "city": "Seattle, Washington",
+      "state": "Florida",
+      "competitionState": null
+    },
+    {
+      "date": "2019-04-28",
+      "record": "FNAR",
+      "metric": "average",
+      "wcaId": "2014BELL02",
+      "personName": "Alyssa Bell",
+      "value": 719,
+      "competitionId": "SoutheastChampionship2019",
+      "competitionName": "CubingUSA Southeast Championship 2019",
+      "city": "Charlotte, North Carolina",
+      "state": "Florida",
+      "competitionState": "North Carolina"
+    },
+    {
+      "date": "2021-12-05",
+      "record": "FNAR",
+      "metric": "average",
+      "wcaId": "2010HULL01",
+      "personName": "Katie Hull",
+      "value": 719,
+      "competitionId": "RockyTop2021",
+      "competitionName": "Rocky Top 2021",
+      "city": "Gatlinburg, Tennessee",
+      "state": "Georgia",
+      "competitionState": "Tennessee"
+    },
+    {
+      "date": "2022-07-24",
+      "record": "FNAR",
+      "metric": "single",
+      "wcaId": "2019CODR01",
+      "personName": "Briana Codrescu",
+      "value": 487,
+      "competitionId": "GACubersWarmUp2022",
+      "competitionName": "GA Cubers Warm Up 2022",
+      "city": "Cumming, Georgia",
+      "state": "Georgia",
+      "competitionState": "Georgia"
+    },
+    {
+      "date": "2022-07-31",
+      "record": "FNAR",
+      "metric": "average",
+      "wcaId": "2019CODR01",
+      "personName": "Briana Codrescu",
+      "value": 644,
+      "competitionId": "SoutheastChampionship2022",
+      "competitionName": "CubingUSA Southeast Championship 2022",
+      "city": "Gatlinburg, Tennessee",
+      "state": "Georgia",
+      "competitionState": "Tennessee"
+    },
+    {
+      "date": "2023-02-11",
+      "record": "FNAR",
+      "metric": "average",
+      "wcaId": "2022KIMN01",
+      "personName": "NJ Kim",
+      "value": 616,
+      "competitionId": "SharonForksQualifier2023",
+      "competitionName": "Sharon Forks Qualifier 2023",
+      "city": "Cumming, Georgia",
+      "state": "South Carolina",
+      "competitionState": "Georgia"
+    },
+    {
+      "date": "2023-04-01",
+      "record": "FNAR",
+      "metric": "average",
+      "wcaId": "2019CODR01",
+      "personName": "Briana Codrescu",
+      "value": 594,
+      "competitionId": "GACubersWarmUp2023",
+      "competitionName": "GA Cubers Warm Up 2023",
+      "city": "Cumming, Georgia",
+      "state": "Georgia",
+      "competitionState": "Georgia"
+    },
+    {
+      "date": "2023-06-25",
+      "record": "FNAR",
+      "metric": "single",
+      "wcaId": "2022KIMN01",
+      "personName": "NJ Kim",
+      "value": 418,
+      "competitionId": "ConcordSummer2023",
+      "competitionName": "Concord Summer 2023",
+      "city": "Concord, North Carolina",
+      "state": "South Carolina",
+      "competitionState": "North Carolina"
+    },
+    {
+      "date": "2023-07-30",
+      "record": "FNAR",
+      "metric": "single",
+      "wcaId": "2022KIMN01",
+      "personName": "NJ Kim",
+      "value": 416,
+      "competitionId": "CubingUSANationals2023",
+      "competitionName": "CubingUSA Nationals 2023",
+      "city": "Pittsburgh, Pennsylvania",
+      "state": "South Carolina",
+      "competitionState": null
+    },
+    {
+      "date": "2023-07-30",
+      "record": "FNAR",
+      "metric": "average",
+      "wcaId": "2022KIMN01",
+      "personName": "NJ Kim",
+      "value": 529,
+      "competitionId": "CubingUSANationals2023",
+      "competitionName": "CubingUSA Nationals 2023",
+      "city": "Pittsburgh, Pennsylvania",
+      "state": "South Carolina",
+      "competitionState": null
+    },
+    {
+      "date": "2023-11-05",
+      "record": "FWR",
+      "metric": "single",
+      "wcaId": "2022BAOF01",
+      "personName": "Fiona Bao",
+      "value": 387,
+      "competitionId": "NorthCarolinaChampionship2023",
+      "competitionName": "North Carolina Championship 2023",
+      "city": "Charlotte, North Carolina",
+      "state": "North Carolina",
+      "competitionState": "North Carolina"
+    },
+    {
+      "date": "2023-11-25",
+      "record": "FWR",
+      "metric": "single",
+      "wcaId": "2019DRES01",
+      "personName": "CJ Dresdner",
+      "value": 377,
+      "competitionId": "SowegaSolving2023",
+      "competitionName": "Sowega Solving 2023",
+      "city": "Albany, Georgia",
+      "state": "Florida",
+      "competitionState": "Georgia"
+    },
+    {
+      "date": "2024-02-03",
+      "record": "FNAR",
+      "metric": "average",
+      "wcaId": "2010HULL01",
+      "personName": "Katie Hull",
+      "value": 526,
+      "competitionId": "CobbCubesandClocks2024",
+      "competitionName": "Cobb Cubes and Clocks 2024",
+      "city": "Acworth, Georgia",
+      "state": "Georgia",
+      "competitionState": "Georgia"
+    },
+    {
+      "date": "2024-03-02",
+      "record": "FNAR",
+      "metric": "single",
+      "wcaId": "2022BAOF01",
+      "personName": "Fiona Bao",
+      "value": 337,
+      "competitionId": "BeattheClockWestminster2024",
+      "competitionName": "Beat the Clock Westminster 2024",
+      "city": "Atlanta, Georgia",
+      "state": "North Carolina",
+      "competitionState": "Georgia"
+    },
+    {
+      "date": "2024-03-02",
+      "record": "FNAR",
+      "metric": "average",
+      "wcaId": "2022BAOF01",
+      "personName": "Fiona Bao",
+      "value": 408,
+      "competitionId": "BeattheClockWestminster2024",
+      "competitionName": "Beat the Clock Westminster 2024",
+      "city": "Atlanta, Georgia",
+      "state": "North Carolina",
+      "competitionState": "Georgia"
+    },
+    {
+      "date": "2024-06-02",
+      "record": "FWR",
+      "metric": "average",
+      "wcaId": "2022BAOF01",
+      "personName": "Fiona Bao",
+      "value": 368,
+      "competitionId": "SeeGeorgiaLakeRussellB2024",
+      "competitionName": "See Georgia: Lake Russell B 2024",
+      "city": "Elberton, Georgia",
+      "state": "North Carolina",
+      "competitionState": "Georgia"
+    },
+    {
+      "date": "2024-06-02",
+      "record": "FNAR",
+      "metric": "single",
+      "wcaId": "2022BAOF01",
+      "personName": "Fiona Bao",
+      "value": 322,
+      "competitionId": "SeeGeorgiaLakeRussellB2024",
+      "competitionName": "See Georgia: Lake Russell B 2024",
+      "city": "Elberton, Georgia",
+      "state": "North Carolina",
+      "competitionState": "Georgia"
+    },
+    {
+      "date": "2024-06-30",
+      "record": "FNAR",
+      "metric": "single",
+      "wcaId": "2022BAOF01",
+      "personName": "Fiona Bao",
+      "value": 308,
+      "competitionId": "SoutheastChampionship2024",
+      "competitionName": "CubingUSA Southeast Championship 2024",
+      "city": "Spartanburg, South Carolina",
+      "state": "North Carolina",
+      "competitionState": "South Carolina"
+    },
+    {
+      "date": "2024-09-07",
+      "record": "FWR",
+      "metric": "single",
+      "wcaId": "2022BAOF01",
+      "personName": "Fiona Bao",
+      "value": 270,
+      "competitionId": "BullCitySummerNC2024",
+      "competitionName": "Bull City Summer NC 2024",
+      "city": "Durham, North Carolina",
+      "state": "North Carolina",
+      "competitionState": "North Carolina"
+    },
+    {
+      "date": "2024-09-07",
+      "record": "FWR",
+      "metric": "average",
+      "wcaId": "2022BAOF01",
+      "personName": "Fiona Bao",
+      "value": 364,
+      "competitionId": "BullCitySummerNC2024",
+      "competitionName": "Bull City Summer NC 2024",
+      "city": "Durham, North Carolina",
+      "state": "North Carolina",
+      "competitionState": "North Carolina"
+    }
+  ],
+  "regionalRecords": [
+    {
+      "date": "2021-07-11",
+      "wcaId": "2018CREE01",
+      "personName": "Kerry Creech",
+      "record": "NAR",
+      "metric": "average",
+      "value": 462,
+      "competitionId": "GACubersReturnB2021",
+      "competitionName": "GA Cubers Return B 2021",
+      "city": "Sandy Springs, Georgia",
+      "state": "North Carolina",
+      "competitionState": "Georgia"
+    },
+    {
+      "date": "2022-02-27",
+      "wcaId": "2017SANK04",
+      "personName": "Vishwa Sankar",
+      "record": "NAR",
+      "metric": "single",
+      "value": 342,
+      "competitionId": "GACubersFebruaryB2022",
+      "competitionName": "GA Cubers February B 2022",
+      "city": "Cumming, Georgia",
+      "state": "Georgia",
+      "competitionState": "Georgia"
+    },
+    {
+      "date": "2022-07-24",
+      "wcaId": "2018EVAR01",
+      "personName": "Jacob Evarts",
+      "record": "NAR",
+      "metric": "single",
+      "value": 317,
+      "competitionId": "GACubersWarmUp2022",
+      "competitionName": "GA Cubers Warm Up 2022",
+      "city": "Cumming, Georgia",
+      "state": "Georgia",
+      "competitionState": "Georgia"
+    },
+    {
+      "date": "2023-01-07",
+      "wcaId": "2015CHER07",
+      "personName": "Tommy Cherry",
+      "record": "NAR",
+      "metric": "single",
+      "value": 297,
+      "competitionId": "Pegasus2023",
+      "competitionName": "Pegasus 2023",
+      "city": "Orlando, Florida",
+      "state": "Florida",
+      "competitionState": "Florida"
+    },
+    {
+      "date": "2023-02-11",
+      "wcaId": "2015CHER07",
+      "personName": "Tommy Cherry",
+      "record": "NAR",
+      "metric": "average",
+      "value": 372,
+      "competitionId": "SharonForksQualifier2023",
+      "competitionName": "Sharon Forks Qualifier 2023",
+      "city": "Cumming, Georgia",
+      "state": "Florida",
+      "competitionState": "Georgia"
+    },
+    {
+      "date": "2023-06-19",
+      "wcaId": "2015CHER07",
+      "personName": "Tommy Cherry",
+      "record": "WR",
+      "metric": "single",
+      "value": 261,
+      "competitionId": "MidAtlanticChampionship2023",
+      "competitionName": "CubingUSA Mid-Atlantic Championship 2023",
+      "city": "Albany, New York",
+      "state": "Florida",
+      "competitionState": null
+    },
+    {
+      "date": "2023-06-25",
+      "wcaId": "2015CHER07",
+      "personName": "Tommy Cherry",
+      "record": "NAR",
+      "metric": "average",
+      "value": 359,
+      "competitionId": "SouthernChampionship2023",
+      "competitionName": "CubingUSA Southern Championship 2023",
+      "city": "Austin, Texas",
+      "state": "Florida",
+      "competitionState": null
+    },
+    {
+      "date": "2023-07-30",
+      "wcaId": "2015CHER07",
+      "personName": "Tommy Cherry",
+      "record": "WR",
+      "metric": "average",
+      "value": 350,
+      "competitionId": "CubingUSANationals2023",
+      "competitionName": "CubingUSA Nationals 2023",
+      "city": "Pittsburgh, Pennsylvania",
+      "state": "Florida",
+      "competitionState": null
+    },
+    {
+      "date": "2024-02-03",
+      "wcaId": "2020ARTZ01",
+      "personName": "Eddie Artze",
+      "record": "NAR",
+      "metric": "average",
+      "value": 349,
+      "competitionId": "CobbCubesandClocks2024",
+      "competitionName": "Cobb Cubes and Clocks 2024",
+      "city": "Acworth, Georgia",
+      "state": "Florida",
+      "competitionState": "Georgia"
+    },
+    {
+      "date": "2024-05-12",
+      "wcaId": "2015CHER07",
+      "personName": "Tommy Cherry",
+      "record": "NAR",
+      "metric": "single",
+      "value": 243,
+      "competitionId": "AlabamaChampionship2024",
+      "competitionName": "Alabama Championship 2024",
+      "city": "Gadsden, Alabama",
+      "state": "Florida",
+      "competitionState": "Alabama"
+    }
+  ],
+  "podiums": {
+    "rankLimit": 10,
+    "qualifyingPodiums": [
+      {
+        "competitionId": "WC2005",
+        "competitionName": "Rubik's World Championship 2005",
+        "date": "2005-11-06",
+        "competitionState": "Florida",
+        "score": 3830,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2003POCH01",
+            "name": "Stefan Pochmann",
+            "average": 1003
+          },
+          {
+            "place": 2,
+            "wcaId": "2005OOMS01",
+            "name": "Alexander Ooms",
+            "average": 1398
+          },
+          {
+            "place": 3,
+            "wcaId": "2004FERN01",
+            "name": "Ernesto Fernández Regueira",
+            "average": 1429
+          }
+        ],
+        "rank": 1
+      },
+      {
+        "competitionId": "USOpen2008",
+        "competitionName": "US Nationals and Open 2008",
+        "date": "2008-07-20",
+        "competitionState": "Georgia",
+        "score": 3439,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2003POCH01",
+            "name": "Stefan Pochmann",
+            "average": 1130
+          },
+          {
+            "place": 2,
+            "wcaId": "2008RUDN01",
+            "name": "Matt Rudnicki",
+            "average": 1150
+          },
+          {
+            "place": 3,
+            "wcaId": "2007NELS02",
+            "name": "Gavin Nelson",
+            "average": 1159
+          }
+        ],
+        "rank": 2
+      },
+      {
+        "competitionId": "USNationals2015",
+        "competitionName": "US Nationals 2015",
+        "date": "2015-08-02",
+        "competitionState": "South Carolina",
+        "score": 2042,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2009LIUE01",
+            "name": "Evan Liu",
+            "average": 648
+          },
+          {
+            "place": 2,
+            "wcaId": "2013HANU01",
+            "name": "Hubert Hanusiak",
+            "average": 692
+          },
+          {
+            "place": 3,
+            "wcaId": "2010VILL03",
+            "name": "Robbie Villarica",
+            "average": 702
+          }
+        ],
+        "rank": 1
+      },
+      {
+        "competitionId": "CarolinaClockStravaganza2019",
+        "competitionName": "Carolina Clock 'Stravaganza 2019",
+        "date": "2019-11-23",
+        "competitionState": "North Carolina",
+        "score": 1777,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2018CREE01",
+            "name": "Kerry Creech",
+            "average": 560
+          },
+          {
+            "place": 2,
+            "wcaId": "2018NIEU01",
+            "name": "Lucas Nieuwland",
+            "average": 577
+          },
+          {
+            "place": 3,
+            "wcaId": "2010AMBR01",
+            "name": "Jacob Ambrose",
+            "average": 640
+          }
+        ],
+        "rank": 10
+      },
+      {
+        "competitionId": "GACubersReturnB2021",
+        "competitionName": "GA Cubers Return B 2021",
+        "date": "2021-07-11",
+        "competitionState": "Georgia",
+        "score": 1513,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2018CREE01",
+            "name": "Kerry Creech",
+            "average": 462
+          },
+          {
+            "place": 2,
+            "wcaId": "2018EVAR01",
+            "name": "Jacob Evarts",
+            "average": 491
+          },
+          {
+            "place": 3,
+            "wcaId": "2017BRYA06",
+            "name": "Aedan Bryant",
+            "average": 560
+          }
+        ],
+        "rank": 1
+      },
+      {
+        "competitionId": "GACubersQuietQuarrel2021",
+        "competitionName": "GA Cubers Quiet Quarrel 2021",
+        "date": "2021-11-07",
+        "competitionState": "Georgia",
+        "score": 1648,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2018CREE01",
+            "name": "Kerry Creech",
+            "average": 481
+          },
+          {
+            "place": 2,
+            "wcaId": "2017SANK04",
+            "name": "Vishwa Sankar",
+            "average": 568
+          },
+          {
+            "place": 3,
+            "wcaId": "2016MULL04",
+            "name": "Daniel Mullen",
+            "average": 599
+          }
+        ],
+        "rank": 4
+      },
+      {
+        "competitionId": "GACubersCelebration2022",
+        "competitionName": "GA Cubers Celebration 2022",
+        "date": "2022-01-30",
+        "competitionState": "Georgia",
+        "score": 1517,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2018EVAR01",
+            "name": "Jacob Evarts",
+            "average": 478
+          },
+          {
+            "place": 2,
+            "wcaId": "2017SANK04",
+            "name": "Vishwa Sankar",
+            "average": 513
+          },
+          {
+            "place": 3,
+            "wcaId": "2018CREE01",
+            "name": "Kerry Creech",
+            "average": 526
+          }
+        ],
+        "rank": 2
+      },
+      {
+        "competitionId": "CapeFear2022",
+        "competitionName": "Cape Fear 2022",
+        "date": "2022-02-12",
+        "competitionState": "North Carolina",
+        "score": 1628,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2018CREE01",
+            "name": "Kerry Creech",
+            "average": 507
+          },
+          {
+            "place": 2,
+            "wcaId": "2021WILL06",
+            "name": "Carter Williams",
+            "average": 542
+          },
+          {
+            "place": 3,
+            "wcaId": "2010AMBR01",
+            "name": "Jacob Ambrose",
+            "average": 579
+          }
+        ],
+        "rank": 4
+      },
+      {
+        "competitionId": "FloridaBigBlindTime2022",
+        "competitionName": "Florida Big & Blind & Time 2022",
+        "date": "2022-03-13",
+        "competitionState": "Florida",
+        "score": 1515,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2018CREE01",
+            "name": "Kerry Creech",
+            "average": 466
+          },
+          {
+            "place": 2,
+            "wcaId": "2017SANK04",
+            "name": "Vishwa Sankar",
+            "average": 507
+          },
+          {
+            "place": 3,
+            "wcaId": "2015CHER07",
+            "name": "Tommy Cherry",
+            "average": 542
+          }
+        ],
+        "rank": 2
+      },
+      {
+        "competitionId": "GACubersBigBlindTime2022",
+        "competitionName": "GA Cubers Big & Blind & Time 2022",
+        "date": "2022-06-12",
+        "competitionState": "Georgia",
+        "score": 1542,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2018CREE01",
+            "name": "Kerry Creech",
+            "average": 452
+          },
+          {
+            "place": 2,
+            "wcaId": "2015TREL02",
+            "name": "Caleb Trelford",
+            "average": 499
+          },
+          {
+            "place": 3,
+            "wcaId": "2016MULL04",
+            "name": "Daniel Mullen",
+            "average": 591
+          }
+        ],
+        "rank": 5
+      },
+      {
+        "competitionId": "GACubersWarmUp2022",
+        "competitionName": "GA Cubers Warm Up 2022",
+        "date": "2022-07-24",
+        "competitionState": "Georgia",
+        "score": 1397,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2015TREL02",
+            "name": "Caleb Trelford",
+            "average": 412
+          },
+          {
+            "place": 2,
+            "wcaId": "2018EVAR01",
+            "name": "Jacob Evarts",
+            "average": 471
+          },
+          {
+            "place": 3,
+            "wcaId": "2017SANK04",
+            "name": "Vishwa Sankar",
+            "average": 514
+          }
+        ],
+        "rank": 1
+      },
+      {
+        "competitionId": "SoutheastChampionship2022",
+        "competitionName": "CubingUSA Southeast Championship 2022",
+        "date": "2022-07-31",
+        "competitionState": "Tennessee",
+        "score": 1441,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2015TREL02",
+            "name": "Caleb Trelford",
+            "average": 429
+          },
+          {
+            "place": 2,
+            "wcaId": "2018CREE01",
+            "name": "Kerry Creech",
+            "average": 472
+          },
+          {
+            "place": 3,
+            "wcaId": "2018NIEU01",
+            "name": "Lucas Nieuwland",
+            "average": 540
+          }
+        ],
+        "rank": 2
+      },
+      {
+        "competitionId": "AlphaCubingB2023",
+        "competitionName": "AlphaCubing B 2023",
+        "date": "2023-05-07",
+        "competitionState": "Georgia",
+        "score": 1453,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2018CREE01",
+            "name": "Kerry Creech",
+            "average": 442
+          },
+          {
+            "place": 2,
+            "wcaId": "2017SANK04",
+            "name": "Vishwa Sankar",
+            "average": 483
+          },
+          {
+            "place": 3,
+            "wcaId": "2017GARR05",
+            "name": "Luke Garrett",
+            "average": 528
+          }
+        ],
+        "rank": 7
+      },
+      {
+        "competitionId": "CuberJacketsFall2023",
+        "competitionName": "Cuber Jackets Fall 2023",
+        "date": "2023-10-15",
+        "competitionState": "Georgia",
+        "score": 1396,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2017SANK04",
+            "name": "Vishwa Sankar",
+            "average": 428
+          },
+          {
+            "place": 2,
+            "wcaId": "2022WOLF02",
+            "name": "Jasper Wolfe-Tham",
+            "average": 443
+          },
+          {
+            "place": 3,
+            "wcaId": "2020ARTZ01",
+            "name": "Eddie Artze",
+            "average": 525
+          }
+        ],
+        "rank": 9
+      },
+      {
+        "competitionId": "BeattheClockWestminster2024",
+        "competitionName": "Beat the Clock Westminster 2024",
+        "date": "2024-03-02",
+        "competitionState": "Georgia",
+        "score": 1159,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2022WOLF02",
+            "name": "Jasper Wolfe-Tham",
+            "average": 369
+          },
+          {
+            "place": 2,
+            "wcaId": "2020ARTZ01",
+            "name": "Eddie Artze",
+            "average": 382
+          },
+          {
+            "place": 3,
+            "wcaId": "2022BAOF01",
+            "name": "Fiona Bao",
+            "average": 408
+          }
+        ],
+        "rank": 1
+      },
+      {
+        "competitionId": "GACuberJacketsFall2024",
+        "competitionName": "GA Cuber Jackets Fall 2024",
+        "date": "2024-10-13",
+        "competitionState": "Georgia",
+        "score": 1069,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2018BOHA01",
+            "name": "Alex Bohac",
+            "average": 342
+          },
+          {
+            "place": 2,
+            "wcaId": "2022WOLF02",
+            "name": "Jasper Wolfe-Tham",
+            "average": 354
+          },
+          {
+            "place": 3,
+            "wcaId": "2020ARTZ01",
+            "name": "Eddie Artze",
+            "average": 373
+          }
+        ],
+        "rank": 6
+      },
+      {
+        "competitionId": "SoutheastChampionship2025",
+        "competitionName": "CubingUSA Southeast Championship 2025",
+        "date": "2025-06-15",
+        "competitionState": "Georgia",
+        "score": 945,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2021DUNA01",
+            "name": "Brendyn Dunagan",
+            "average": 286
+          },
+          {
+            "place": 2,
+            "wcaId": "2020ARTZ01",
+            "name": "Eddie Artze",
+            "average": 325
+          },
+          {
+            "place": 3,
+            "wcaId": "2022WOLF02",
+            "name": "Jasper Wolfe-Tham",
+            "average": 334
+          }
+        ],
+        "rank": 1
+      },
+      {
+        "competitionId": "NAC2026",
+        "competitionName": "Rubik's WCA North American Championship 2026",
+        "date": "2026-07-05",
+        "competitionState": "North Carolina",
+        "score": 844,
+        "competitors": [
+          {
+            "place": 1,
+            "wcaId": "2021WONG02",
+            "name": "Aaron Jake Wong",
+            "average": 273
+          },
+          {
+            "place": 2,
+            "wcaId": "2023DIOM01",
+            "name": "Alessandro Diomampo",
+            "average": 282
+          },
+          {
+            "place": 3,
+            "wcaId": "2022KAPU01",
+            "name": "Volodymyr Kapustianskyi",
+            "average": 289
+          }
+        ],
+        "rank": 1
+      }
+    ]
+  },
+  "majorChampionships": [
+    {
+      "competitionId": "NA2020",
+      "competitionName": "WCA North American Championship 2020",
+      "date": "2020-06-28",
+      "city": "Toronto, Ontario, Canada",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "486",
+          "championshipType": "_North America"
+        }
+      ],
+      "year": "2020",
+      "finalists": []
+    },
+    {
+      "competitionId": "NAC2022",
+      "logoAssetId": "4pI150hGEyCXRZFZWaTxYP",
+      "competitionName": "Rubik's WCA North American Championship 2022",
+      "date": "2022-07-10",
+      "city": "Toronto, Ontario, Canada",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "543",
+          "championshipType": "_North America"
+        }
+      ],
+      "year": "2022",
+      "finalists": [
+        {
+          "wcaId": "2017SANK04",
+          "personName": "Vishwa Sankar",
+          "state": "Georgia",
+          "personCountryId": "USA",
+          "place": 1,
+          "best": 426,
+          "average": 449
+        },
+        {
+          "wcaId": "2018CREE01",
+          "personName": "Kerry Creech",
+          "state": "North Carolina",
+          "personCountryId": "USA",
+          "place": 2,
+          "best": 456,
+          "average": 505
+        },
+        {
+          "wcaId": "2015CHER07",
+          "personName": "Tommy Cherry",
+          "state": "Florida",
+          "personCountryId": "USA",
+          "place": 7,
+          "best": 472,
+          "average": 575
+        },
+        {
+          "wcaId": "2016MULL04",
+          "personName": "Daniel Mullen",
+          "state": "Georgia",
+          "personCountryId": "USA",
+          "place": 11,
+          "best": 542,
+          "average": 645
+        },
+        {
+          "wcaId": "2010AMBR01",
+          "personName": "Jacob Ambrose",
+          "state": "Georgia",
+          "personCountryId": "USA",
+          "place": 12,
+          "best": 554,
+          "average": 671
+        },
+        {
+          "wcaId": "2017HUYN02",
+          "personName": "Timothy Huynh",
+          "state": "Florida",
+          "personCountryId": "USA",
+          "place": 16,
+          "best": 605,
+          "average": 743
+        },
+        {
+          "wcaId": "2017SWOR01",
+          "personName": "Noah Swor",
+          "state": "Florida",
+          "personCountryId": "USA",
+          "place": 19,
+          "best": 749,
+          "average": 891
+        }
+      ]
+    },
+    {
+      "competitionId": "NAC2024",
+      "logoAssetId": "nyJGdzv0v6hqGpyd6H5et",
+      "competitionName": "Rubik's WCA North American Championship 2024",
+      "date": "2024-07-21",
+      "city": "Minneapolis, Minnesota",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "685",
+          "championshipType": "_North America"
+        },
+        {
+          "championshipId": "686",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2024",
+      "finalists": [
+        {
+          "wcaId": "2020ARTZ01",
+          "personName": "Eddie Artze",
+          "state": "Florida",
+          "personCountryId": "USA",
+          "place": 3,
+          "best": 311,
+          "average": 364
+        },
+        {
+          "wcaId": "2018BOHA01",
+          "personName": "Alex Bohac",
+          "state": "Georgia",
+          "personCountryId": "USA",
+          "place": 8,
+          "best": 376,
+          "average": 412
+        },
+        {
+          "wcaId": "2015CHER07",
+          "personName": "Tommy Cherry",
+          "state": "Florida",
+          "personCountryId": "USA",
+          "place": 12,
+          "best": 290,
+          "average": 495
+        },
+        {
+          "wcaId": "2022KIMN01",
+          "personName": "NJ Kim",
+          "state": "South Carolina",
+          "personCountryId": "USA",
+          "place": 18,
+          "best": 450,
+          "average": -1
+        }
+      ]
+    },
+    {
+      "competitionId": "NAC2026",
+      "logoAssetId": "37HfajXVgPXdfYxtklIBFv",
+      "competitionName": "Rubik's WCA North American Championship 2026",
+      "date": "2026-07-05",
+      "city": "Raleigh, North Carolina",
+      "state": "North Carolina",
+      "championships": [
+        {
+          "championshipId": "995",
+          "championshipType": "_North America"
+        },
+        {
+          "championshipId": "994",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2026",
+      "finalists": [
+        {
+          "wcaId": "2018RICH05",
+          "personName": "Drake Denton Richard",
+          "state": "Georgia",
+          "personCountryId": "USA",
+          "place": 8,
+          "best": 225,
+          "average": 361
+        },
+        {
+          "wcaId": "2022PAKC01",
+          "personName": "Chase Pak",
+          "state": "North Carolina",
+          "personCountryId": "USA",
+          "place": 17,
+          "best": 374,
+          "average": 423
+        }
+      ]
+    },
+    {
+      "competitionId": "US2004",
+      "competitionName": "US Nationals 2004",
+      "date": "2004-07-10",
+      "city": "Pasadena, California",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "199",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2004",
+      "finalists": []
+    },
+    {
+      "competitionId": "US2006",
+      "competitionName": "US Nationals 2006",
+      "date": "2006-08-06",
+      "city": "San Francisco, California",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "200",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2006",
+      "finalists": []
+    },
+    {
+      "competitionId": "USOpen2007",
+      "competitionName": "US Open 2007",
+      "date": "2007-06-17",
+      "city": "Chicago, Illinois",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "201",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2007",
+      "finalists": []
+    },
+    {
+      "competitionId": "USOpen2008",
+      "competitionName": "US Nationals and Open 2008",
+      "date": "2008-07-20",
+      "city": "Atlanta, Georgia",
+      "state": "Georgia",
+      "championships": [
+        {
+          "championshipId": "202",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2008",
+      "finalists": []
+    },
+    {
+      "competitionId": "USNationals2009",
+      "competitionName": "US Nationals 2009",
+      "date": "2009-08-16",
+      "city": "Stanford, California",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "203",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2009",
+      "finalists": []
+    },
+    {
+      "competitionId": "USNationals2010",
+      "competitionName": "United States Rubik's Cube Championships 2010",
+      "date": "2010-08-08",
+      "city": "Cambridge, Massachusetts",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "204",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2010",
+      "finalists": []
+    },
+    {
+      "competitionId": "USNationals2011",
+      "competitionName": "United States National Championships 2011",
+      "date": "2011-08-14",
+      "city": "Columbus, Ohio",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "205",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2011",
+      "finalists": []
+    },
+    {
+      "competitionId": "USNationals2012",
+      "competitionName": "United States National Championships 2012",
+      "date": "2012-08-05",
+      "city": "Las Vegas, Nevada",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "206",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2012",
+      "finalists": []
+    },
+    {
+      "competitionId": "WC2013",
+      "competitionName": "World Rubik's Cube Championship 2013",
+      "date": "2013-07-28",
+      "city": "Las Vegas, Nevada",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "207",
+          "championshipType": "US"
+        },
+        {
+          "championshipId": "7",
+          "championshipType": "world"
+        }
+      ],
+      "year": "2013",
+      "finalists": []
+    },
+    {
+      "competitionId": "USNationals2014",
+      "competitionName": "US Nationals 2014",
+      "date": "2014-08-03",
+      "city": "Jersey City, New Jersey",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "208",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2014",
+      "finalists": []
+    },
+    {
+      "competitionId": "USNationals2015",
+      "competitionName": "US Nationals 2015",
+      "date": "2015-08-02",
+      "city": "Hilton Head Island, South Carolina",
+      "state": "South Carolina",
+      "championships": [
+        {
+          "championshipId": "209",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2015",
+      "finalists": []
+    },
+    {
+      "competitionId": "USNationals2016",
+      "competitionName": "US Nationals 2016",
+      "date": "2016-07-31",
+      "city": "Portland, Oregon",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "210",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2016",
+      "finalists": []
+    },
+    {
+      "competitionId": "CubingUSANationals2017",
+      "logoAssetId": "6LaPihYW0FqBncGqVbrZiM",
+      "competitionName": "CubingUSA Nationals 2017",
+      "date": "2017-07-09",
+      "city": "Fort Wayne, Indiana",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "211",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2017",
+      "finalists": [
+        {
+          "wcaId": "2015JOIN01",
+          "personName": "Kyra Joiner",
+          "state": "Georgia",
+          "personCountryId": "USA",
+          "place": 3,
+          "best": 738,
+          "average": 813
+        },
+        {
+          "wcaId": "2010AMBR01",
+          "personName": "Jacob Ambrose",
+          "state": "Georgia",
+          "personCountryId": "USA",
+          "place": 8,
+          "best": 715,
+          "average": 1059
+        }
+      ]
+    },
+    {
+      "competitionId": "CubingUSANationals2018",
+      "logoAssetId": "220cfQY0GwPQgJKPKZvjuo",
+      "competitionName": "CubingUSA Nationals 2018",
+      "date": "2018-07-29",
+      "city": "Salt Lake City, Utah",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "289",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2018",
+      "finalists": [
+        {
+          "wcaId": "2017STAR04",
+          "personName": "Silas Starling",
+          "state": "North Carolina",
+          "personCountryId": "USA",
+          "place": 3,
+          "best": 531,
+          "average": 611
+        },
+        {
+          "wcaId": "2010AMBR01",
+          "personName": "Jacob Ambrose",
+          "state": "Georgia",
+          "personCountryId": "USA",
+          "place": 4,
+          "best": 567,
+          "average": 628
+        },
+        {
+          "wcaId": "2015JOIN01",
+          "personName": "Kyra Joiner",
+          "state": "Georgia",
+          "personCountryId": "USA",
+          "place": 8,
+          "best": 640,
+          "average": 678
+        },
+        {
+          "wcaId": "2015PADG01",
+          "personName": "Dalton Padgett",
+          "state": "North Carolina",
+          "personCountryId": "USA",
+          "place": 11,
+          "best": 666,
+          "average": 835
+        },
+        {
+          "wcaId": "2010HULL01",
+          "personName": "Katie Hull",
+          "state": "Georgia",
+          "personCountryId": "USA",
+          "place": 13,
+          "best": 732,
+          "average": 894
+        }
+      ]
+    },
+    {
+      "competitionId": "CubingUSANationals2019",
+      "logoAssetId": "1Hi3cNy0PuWMcF23S5gZdT",
+      "competitionName": "CubingUSA Nationals 2019",
+      "date": "2019-08-04",
+      "city": "Baltimore, Maryland",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "409",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2019",
+      "finalists": [
+        {
+          "wcaId": "2018CREE01",
+          "personName": "Kerry Creech",
+          "state": "North Carolina",
+          "personCountryId": "USA",
+          "place": 3,
+          "best": 490,
+          "average": 601
+        },
+        {
+          "wcaId": "2010AMBR01",
+          "personName": "Jacob Ambrose",
+          "state": "Georgia",
+          "personCountryId": "USA",
+          "place": 4,
+          "best": 435,
+          "average": 613
+        },
+        {
+          "wcaId": "2017FANI01",
+          "personName": "Jacob Fanikos",
+          "state": "Tennessee",
+          "personCountryId": "USA",
+          "place": 5,
+          "best": 569,
+          "average": 640
+        },
+        {
+          "wcaId": "2015CHER07",
+          "personName": "Tommy Cherry",
+          "state": "Florida",
+          "personCountryId": "USA",
+          "place": 6,
+          "best": 496,
+          "average": 668
+        },
+        {
+          "wcaId": "2010HULL01",
+          "personName": "Katie Hull",
+          "state": "Georgia",
+          "personCountryId": "USA",
+          "place": 9,
+          "best": 605,
+          "average": 721
+        },
+        {
+          "wcaId": "2017STAR04",
+          "personName": "Silas Starling",
+          "state": "North Carolina",
+          "personCountryId": "USA",
+          "place": 10,
+          "best": 479,
+          "average": 725
+        },
+        {
+          "wcaId": "2015JOIN01",
+          "personName": "Kyra Joiner",
+          "state": "Georgia",
+          "personCountryId": "USA",
+          "place": 12,
+          "best": 694,
+          "average": 774
+        }
+      ]
+    },
+    {
+      "competitionId": "CubingUSANationals2023",
+      "logoAssetId": "5tU2RnvGuJtvjony9AvLyp",
+      "competitionName": "CubingUSA Nationals 2023",
+      "date": "2023-07-30",
+      "city": "Pittsburgh, Pennsylvania",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "591",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2023",
+      "finalists": [
+        {
+          "wcaId": "2015CHER07",
+          "personName": "Tommy Cherry",
+          "state": "Florida",
+          "personCountryId": "USA",
+          "place": 1,
+          "best": 327,
+          "average": 350
+        },
+        {
+          "wcaId": "2020ARTZ01",
+          "personName": "Eddie Artze",
+          "state": "Florida",
+          "personCountryId": "USA",
+          "place": 4,
+          "best": 381,
+          "average": 416
+        },
+        {
+          "wcaId": "2017SANK04",
+          "personName": "Vishwa Sankar",
+          "state": "Georgia",
+          "personCountryId": "USA",
+          "place": 7,
+          "best": 396,
+          "average": 500
+        },
+        {
+          "wcaId": "2022KIMN01",
+          "personName": "NJ Kim",
+          "state": "South Carolina",
+          "personCountryId": "USA",
+          "place": 10,
+          "best": 416,
+          "average": 529
+        },
+        {
+          "wcaId": "2022MILL05",
+          "personName": "Evan Millsap",
+          "state": "North Carolina",
+          "personCountryId": "USA",
+          "place": 11,
+          "best": 485,
+          "average": 530
+        },
+        {
+          "wcaId": "2018CREE01",
+          "personName": "Kerry Creech",
+          "state": "North Carolina",
+          "personCountryId": "USA",
+          "place": 16,
+          "best": 475,
+          "average": 613
+        },
+        {
+          "wcaId": "2017LAMB06",
+          "personName": "Andreas Lambropoulos",
+          "state": "North Carolina",
+          "personCountryId": "USA",
+          "place": 18,
+          "best": 482,
+          "average": 943
+        },
+        {
+          "wcaId": "2017SWOR01",
+          "personName": "Noah Swor",
+          "state": "Florida",
+          "personCountryId": "USA",
+          "place": 19,
+          "best": 436,
+          "average": -1
+        }
+      ]
+    },
+    {
+      "competitionId": "CubingUSAAllStars2025",
+      "logoAssetId": "5mHiprdLX30LsKyhdTAPPC",
+      "competitionName": "Rubik's x TheCubicle CubingUSA All-Stars 2025",
+      "date": "2025-11-02",
+      "city": "Providence, Rhode Island",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "867",
+          "championshipType": "US"
+        }
+      ],
+      "year": "2025",
+      "finalists": [
+        {
+          "wcaId": "2015CHER07",
+          "personName": "Tommy Cherry",
+          "state": "Florida",
+          "personCountryId": "USA",
+          "place": 7,
+          "best": 357,
+          "average": 705
+        }
+      ]
+    },
+    {
+      "competitionId": "WC1982",
+      "competitionName": "World Rubik's Cube Championship 1982",
+      "date": "1982-06-05",
+      "city": "Budapest, Hungary",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "1",
+          "championshipType": "world"
+        }
+      ],
+      "year": "1982",
+      "finalists": []
+    },
+    {
+      "competitionId": "WC2003",
+      "competitionName": "World Rubik's Games Championship 2003",
+      "date": "2003-08-24",
+      "city": "Toronto, Ontario, Canada",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "2",
+          "championshipType": "world"
+        }
+      ],
+      "year": "2003",
+      "finalists": []
+    },
+    {
+      "competitionId": "WC2005",
+      "competitionName": "Rubik's World Championship 2005",
+      "date": "2005-11-06",
+      "city": "Lake Buena Vista, Florida",
+      "state": "Florida",
+      "championships": [
+        {
+          "championshipId": "3",
+          "championshipType": "world"
+        }
+      ],
+      "year": "2005",
+      "finalists": []
+    },
+    {
+      "competitionId": "WC2007",
+      "competitionName": "World Rubik's Cube Championship 2007",
+      "date": "2007-10-07",
+      "city": "Budapest, Hungary",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "4",
+          "championshipType": "world"
+        }
+      ],
+      "year": "2007",
+      "finalists": []
+    },
+    {
+      "competitionId": "WC2009",
+      "competitionName": "World Rubik's Cube Championship 2009",
+      "date": "2009-10-11",
+      "city": "Düsseldorf, Germany",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "5",
+          "championshipType": "world"
+        }
+      ],
+      "year": "2009",
+      "finalists": []
+    },
+    {
+      "competitionId": "WC2011",
+      "competitionName": "World Rubik's Cube Championship 2011",
+      "date": "2011-10-16",
+      "city": "Bangkok, Thailand",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "6",
+          "championshipType": "world"
+        }
+      ],
+      "year": "2011",
+      "finalists": []
+    },
+    {
+      "competitionId": "WC2015",
+      "competitionName": "World Rubik's Cube Championship 2015",
+      "date": "2015-07-19",
+      "city": "São Paulo, São Paulo, Brazil",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "8",
+          "championshipType": "world"
+        }
+      ],
+      "year": "2015",
+      "finalists": []
+    },
+    {
+      "competitionId": "WC2017",
+      "competitionName": "World Rubik's Cube Championship 2017",
+      "date": "2017-07-16",
+      "city": "Paris, France",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "9",
+          "championshipType": "world"
+        }
+      ],
+      "year": "2017",
+      "finalists": []
+    },
+    {
+      "competitionId": "WC2019",
+      "competitionName": "WCA World Championship 2019",
+      "date": "2019-07-14",
+      "city": "Melbourne, Victoria, Australia",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "407",
+          "championshipType": "world"
+        }
+      ],
+      "year": "2019",
+      "finalists": []
+    },
+    {
+      "competitionId": "WC2023",
+      "logoAssetId": "1c3MsjZLp2baFslSFQjupi",
+      "competitionName": "Rubik's WCA World Championship 2023",
+      "date": "2023-08-15",
+      "city": "인천광역시 (Incheon), Republic of Korea",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "610",
+          "championshipType": "world"
+        }
+      ],
+      "year": "2023",
+      "finalists": [
+        {
+          "wcaId": "2015CHER07",
+          "personName": "Tommy Cherry",
+          "state": "Florida",
+          "personCountryId": "USA",
+          "place": 1,
+          "best": 297,
+          "average": 375
+        }
+      ]
+    },
+    {
+      "competitionId": "WC2025",
+      "logoAssetId": "5bbUuVrBSl793eMRiO1sIV",
+      "competitionName": "Rubik's WCA World Championship 2025",
+      "date": "2025-07-06",
+      "city": "Seattle, Washington",
+      "state": null,
+      "championships": [
+        {
+          "championshipId": "836",
+          "championshipType": "world"
+        }
+      ],
+      "year": "2025",
+      "finalists": [
+        {
+          "wcaId": "2020ARTZ01",
+          "personName": "Eddie Artze",
+          "state": "Florida",
+          "personCountryId": "USA",
+          "place": 10,
+          "best": 321,
+          "average": 396
+        },
+        {
+          "wcaId": "2022WOLF02",
+          "personName": "Jasper Wolfe-Tham",
+          "state": "Georgia",
+          "personCountryId": "USA",
+          "place": 12,
+          "best": 349,
+          "average": 407
+        },
+        {
+          "wcaId": "2018RICH05",
+          "personName": "Drake Denton Richard",
+          "state": "Georgia",
+          "personCountryId": "USA",
+          "place": 18,
+          "best": 469,
+          "average": 645
+        }
+      ]
+    }
+  ],
+  "southeastChampions": [
+    {
+      "competitionId": "SEChamp2018",
+      "competitionName": "CubingUSA Southeast Championship 2018",
+      "date": "2018-04-15",
+      "city": "Athens, Georgia",
+      "logoAssetId": "5xfVtbRbLdRjGOk16nf3WD",
+      "wcaId": "2015CLAU02",
+      "personName": "Carson Claud",
+      "state": "North Carolina",
+      "best": 636,
+      "average": 728
+    },
+    {
+      "competitionId": "SoutheastChampionship2019",
+      "competitionName": "CubingUSA Southeast Championship 2019",
+      "date": "2019-04-28",
+      "city": "Charlotte, North Carolina",
+      "logoAssetId": "7MDM7KAxQkFtfB69raNh3B",
+      "wcaId": "2018CREE01",
+      "personName": "Kerry Creech",
+      "state": "North Carolina",
+      "best": 473,
+      "average": 575
+    },
+    {
+      "competitionId": "SoutheastChampionship2022",
+      "competitionName": "CubingUSA Southeast Championship 2022",
+      "date": "2022-07-31",
+      "city": "Gatlinburg, Tennessee",
+      "logoAssetId": "69eCCQJD4zFZlxWYxYslBh",
+      "wcaId": "2018CREE01",
+      "personName": "Kerry Creech",
+      "state": "North Carolina",
+      "best": 436,
+      "average": 472
+    },
+    {
+      "competitionId": "SoutheastChampionship2023",
+      "competitionName": "CubingUSA Southeast Championship 2023",
+      "date": "2023-04-16",
+      "city": "Orange Beach, Alabama",
+      "logoAssetId": "5IALu8bkWMGaByrirhL9Y",
+      "wcaId": "2017SANK04",
+      "personName": "Vishwa Sankar",
+      "state": "Georgia",
+      "best": 493,
+      "average": 525
+    },
+    {
+      "competitionId": "SoutheastChampionship2024",
+      "competitionName": "CubingUSA Southeast Championship 2024",
+      "date": "2024-06-30",
+      "city": "Spartanburg, South Carolina",
+      "logoAssetId": "5mJcT5CKIJyAOFSW0eBYXq",
+      "wcaId": "2022BAOF01",
+      "personName": "Fiona Bao",
+      "state": "North Carolina",
+      "best": 311,
+      "average": 406
+    },
+    {
+      "competitionId": "SoutheastChampionship2025",
+      "competitionName": "CubingUSA Southeast Championship 2025",
+      "date": "2025-06-15",
+      "city": "Dalton, Georgia",
+      "logoAssetId": "65wvgbYER9nkMEEB1Ca262",
+      "wcaId": "2020ARTZ01",
+      "personName": "Eddie Artze",
+      "state": "Florida",
+      "best": 298,
+      "average": 325
+    },
+    {
+      "competitionId": "SoutheastChampionship2026",
+      "competitionName": "CubingUSA Southeast Championship 2026",
+      "date": "2026-04-26",
+      "city": "Huntsville, Alabama",
+      "logoAssetId": "6giOFZWqRDIXDOAtMn0TLy",
+      "wcaId": "2018RICH05",
+      "personName": "Drake Denton Richard",
+      "state": "Georgia",
+      "best": 240,
+      "average": 326
+    }
+  ],
+  "southeastCompetitions": [
+    {
+      "competitionId": "CarolinaClockStravaganza2017",
+      "competitionName": "Carolina Clock 'Stravaganza 2017",
+      "date": "2017-12-30",
+      "city": "Matthews, North Carolina",
+      "wcaId": "2015CLAU02",
+      "personName": "Carson Claud",
+      "state": "North Carolina",
+      "best": 665,
+      "average": 721
+    },
+    {
+      "competitionId": "CarolinaClockStravaganza2018",
+      "competitionName": "Carolina Clock 'Stravaganza 2018",
+      "date": "2018-11-17",
+      "city": "Monroe, North Carolina",
+      "wcaId": "2015CLAU02",
+      "personName": "Carson Claud",
+      "state": "North Carolina",
+      "best": 617,
+      "average": 648
+    },
+    {
+      "competitionId": "CarolinaClockStravaganza2019",
+      "competitionName": "Carolina Clock 'Stravaganza 2019",
+      "date": "2019-11-23",
+      "city": "Monroe, North Carolina",
+      "wcaId": "2018CREE01",
+      "personName": "Kerry Creech",
+      "state": "North Carolina",
+      "best": 456,
+      "average": 560
+    },
+    {
+      "competitionId": "GACubersCelebration2022",
+      "competitionName": "GA Cubers Celebration 2022",
+      "date": "2022-01-30",
+      "city": "Cumming, Georgia",
+      "wcaId": "2018EVAR01",
+      "personName": "Jacob Evarts",
+      "state": "Georgia",
+      "best": 434,
+      "average": 478
+    },
+    {
+      "competitionId": "GACubersBigBlindTime2022",
+      "competitionName": "GA Cubers Big & Blind & Time 2022",
+      "date": "2022-06-12",
+      "city": "Cumming, Georgia",
+      "wcaId": "2018CREE01",
+      "personName": "Kerry Creech",
+      "state": "North Carolina",
+      "best": 392,
+      "average": 452
+    },
+    {
+      "competitionId": "CarolinaClockStravaganza2022",
+      "competitionName": "Carolina Clock 'Stravaganza 2022",
+      "date": "2022-11-12",
+      "city": "Monroe, North Carolina",
+      "wcaId": "2018CREE01",
+      "personName": "Kerry Creech",
+      "state": "North Carolina",
+      "best": 449,
+      "average": 482
+    },
+    {
+      "competitionId": "SharonForksQualifier2023",
+      "competitionName": "Sharon Forks Qualifier 2023",
+      "date": "2023-02-11",
+      "city": "Cumming, Georgia",
+      "wcaId": "2015CHER07",
+      "personName": "Tommy Cherry",
+      "state": "Florida",
+      "best": 367,
+      "average": 415
+    },
+    {
+      "competitionId": "CarolinaClockStravaganza2023",
+      "competitionName": "Carolina Clock 'Stravaganza 2023",
+      "date": "2023-12-10",
+      "city": "Indian Trail, North Carolina",
+      "wcaId": "2022KIMN01",
+      "personName": "NJ Kim",
+      "state": "South Carolina",
+      "best": 480,
+      "average": 554
+    },
+    {
+      "competitionId": "CobbCubesandClocks2024",
+      "competitionName": "Cobb Cubes and Clocks 2024",
+      "date": "2024-02-03",
+      "city": "Acworth, Georgia",
+      "wcaId": "2020ARTZ01",
+      "personName": "Eddie Artze",
+      "state": "Florida",
+      "best": 339,
+      "average": 364
+    },
+    {
+      "competitionId": "CarolinaClockStravaganza2025",
+      "competitionName": "Carolina Clock 'Stravaganza 2025",
+      "date": "2025-11-08",
+      "city": "Mebane, North Carolina",
+      "wcaId": "2022KIMN01",
+      "personName": "NJ Kim",
+      "state": "South Carolina",
+      "best": 278,
+      "average": 321
+    },
+    {
+      "competitionId": "ScenicCitySummerTN2026",
+      "competitionName": "Scenic City Summer TN 2026",
+      "date": "2026-08-08",
+      "city": "Chattanooga, Tennessee",
+      "wcaId": "2018RICH05",
+      "personName": "Drake Denton Richard",
+      "state": "Georgia",
+      "best": 258,
+      "average": 326
+    },
+    {
+      "competitionId": "TurnBacktheClockMiami2026",
+      "competitionName": "Turn Back the Clock Miami 2026",
+      "date": "2026-10-10",
+      "city": "Miami, Florida",
+      "wcaId": "2022LAMJ01",
+      "personName": "Jacob Lam",
+      "state": "Florida",
+      "best": 382,
+      "average": 476
+    },
+    {
+      "competitionId": "ClockinginCobb2026",
+      "competitionName": "Clocking in Cobb 2026",
+      "date": "2026-11-21",
+      "city": "Marietta, Georgia",
+      "wcaId": null,
+      "personName": null,
+      "state": null,
+      "best": null,
+      "average": null
+    },
+    {
+      "competitionId": "RockyFace2027",
+      "competitionName": "Rocky Face 2027",
+      "date": "2027-02-14",
+      "city": "Dalton, Georgia",
+      "wcaId": null,
+      "personName": null,
+      "state": null,
+      "best": null,
+      "average": null
+    }
+  ],
+  "fourRoundClockCompetitions": [
+    {
+      "competitionId": "SoutheastChampionship2022",
+      "competitionName": "CubingUSA Southeast Championship 2022",
+      "date": "2022-07-31",
+      "city": "Gatlinburg, Tennessee",
+      "state": "Tennessee",
+      "finalists": [
+        {
+          "personName": "Caleb Trelford",
+          "wcaId": "2015TREL02"
+        },
+        {
+          "personName": "Kerry Creech",
+          "wcaId": "2018CREE01"
+        },
+        {
+          "personName": "Lucas Nieuwland",
+          "wcaId": "2018NIEU01"
+        },
+        {
+          "personName": "Luke Garrett",
+          "wcaId": "2017GARR05"
+        },
+        {
+          "personName": "Joshua Feran",
+          "wcaId": "2011FERA01"
+        },
+        {
+          "personName": "Daniel Mullen",
+          "wcaId": "2016MULL04"
+        },
+        {
+          "personName": "Jacob Ambrose",
+          "wcaId": "2010AMBR01"
+        },
+        {
+          "personName": "Tommy Cherry",
+          "wcaId": "2015CHER07"
+        },
+        {
+          "personName": "Jacob Evarts",
+          "wcaId": "2018EVAR01"
+        },
+        {
+          "personName": "Noah Swor",
+          "wcaId": "2017SWOR01"
+        },
+        {
+          "personName": "Zachary Ochs",
+          "wcaId": "2016OCHS01"
+        },
+        {
+          "personName": "NJ Kim",
+          "wcaId": "2022KIMN01"
+        },
+        {
+          "personName": "Caleb Kearney",
+          "wcaId": "2018KEAR02"
+        },
+        {
+          "personName": "Vishwa Sankar",
+          "wcaId": "2017SANK04"
+        },
+        {
+          "personName": "Silas Starling",
+          "wcaId": "2017STAR04"
+        }
+      ]
+    },
+    {
+      "competitionId": "SoutheastChampionship2024",
+      "competitionName": "CubingUSA Southeast Championship 2024",
+      "date": "2024-06-30",
+      "city": "Spartanburg, South Carolina",
+      "state": "South Carolina",
+      "finalists": [
+        {
+          "personName": "Fiona Bao",
+          "wcaId": "2022BAOF01"
+        },
+        {
+          "personName": "Eddie Artze",
+          "wcaId": "2020ARTZ01"
+        },
+        {
+          "personName": "Alex Bohac",
+          "wcaId": "2018BOHA01"
+        },
+        {
+          "personName": "Kerry Creech",
+          "wcaId": "2018CREE01"
+        },
+        {
+          "personName": "Justin Barker",
+          "wcaId": "2013BARK01"
+        },
+        {
+          "personName": "Jacob Lam",
+          "wcaId": "2022LAMJ01"
+        },
+        {
+          "personName": "Luke Garrett",
+          "wcaId": "2017GARR05"
+        },
+        {
+          "personName": "Daniel Guerra",
+          "wcaId": "2022GUER14"
+        },
+        {
+          "personName": "Anvesh Reddy Chinnapu",
+          "wcaId": "2023CHIN15"
+        },
+        {
+          "personName": "Bhuvanesh Ganta",
+          "wcaId": "2019GANT05"
+        },
+        {
+          "personName": "Jade Bowser",
+          "wcaId": "2023BOWS01"
+        },
+        {
+          "personName": "Tommy Cherry",
+          "wcaId": "2015CHER07"
+        },
+        {
+          "personName": "Andreas Lambropoulos",
+          "wcaId": "2017LAMB06"
+        },
+        {
+          "personName": "Ryan Michael Breen",
+          "wcaId": "2017BREE02"
+        },
+        {
+          "personName": "Jasper Wolfe-Tham",
+          "wcaId": "2022WOLF02"
+        },
+        {
+          "personName": "Siddharth Reddy",
+          "wcaId": "2020REDD01"
+        },
+        {
+          "personName": "Noah Swor",
+          "wcaId": "2017SWOR01"
+        },
+        {
+          "personName": "Jacob Evarts",
+          "wcaId": "2018EVAR01"
+        },
+        {
+          "personName": "Vishwa Sankar",
+          "wcaId": "2017SANK04"
+        },
+        {
+          "personName": "NJ Kim",
+          "wcaId": "2022KIMN01"
+        }
+      ]
+    }
+  ]
+}

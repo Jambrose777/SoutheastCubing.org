@@ -1,0 +1,105 @@
+@use 'src/styles/color-pallet' as color-pallet;
+@use 'sass:color';
+@use '../clock-results-pill';
+
+.clock-major-table-scroll {
+  max-height: min(60vh, 32rem);
+  overflow: auto;
+  border: 1px solid color-pallet.$se-grey;
+  border-radius: 4px;
+
+  &:focus-visible {
+    outline: 3px solid color-pallet.$se-blue;
+    outline-offset: 2px;
+  }
+}
+
+.clock-major-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  text-align: left;
+
+  caption {
+    padding: 12px 16px;
+    color: color-pallet.$se-black;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  th,
+  td {
+    padding: 12px 16px;
+    border-top: 1px solid color-pallet.$se-grey;
+    vertical-align: top;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: color-pallet.$se-dark-grey;
+    color: white;
+    font-weight: 600;
+  }
+
+  tbody tr:nth-child(even) {
+    background: rgba(color-pallet.$se-blue, 0.05);
+  }
+
+  a {
+    color: color-pallet.$se-blue;
+    text-decoration: none;
+
+    &:focus-visible {
+      outline: 2px solid color-pallet.$se-black;
+      outline-offset: 2px;
+    }
+  }
+
+  .clock-major-group-header th {
+    background: white;
+    color: color-pallet.$se-black;
+    text-align: left;
+  }
+
+  .clock-major-group-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .clock-major-logo {
+    display: block;
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+  }
+
+  .clock-major-group-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .clock-major-group-meta {
+    color: color-pallet.$se-dark-grey;
+    font-weight: 400;
+  }
+}
+
+.clock-major-place--gold {
+  color: color.adjust(color-pallet.$se-yellow, $lightness: -55%, $saturation: 20%);
+  font-family: 'MontserratBold';
+}
+
+.clock-major-place--silver {
+  color: color.adjust(color-pallet.$se-dark-grey, $lightness: -25%);
+  font-family: 'MontserratBold';
+}
+
+.clock-major-place--bronze {
+  color: color.adjust(color-pallet.$se-orange, $lightness: -45%);
+  font-family: 'MontserratBold';
+}

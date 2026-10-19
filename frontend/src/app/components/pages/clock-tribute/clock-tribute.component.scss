@@ -1,0 +1,142 @@
+@use 'src/styles/constants' as constants;
+@use 'src/styles/color-pallet' as color-pallet;
+@use 'src/styles/screen-sizes';
+@use 'sass:color';
+
+.component-container {
+  min-height: calc(100vh - constants.$footer-height);
+}
+
+.main-pane {
+  min-height: inherit;
+  scroll-behavior: smooth;
+
+  > se-header {
+    position: sticky;
+    top: 0;
+    z-index: 10002;
+    background-color: var(--main-pane-color);
+  }
+}
+
+.clock-section {
+  flex: 0 0 auto;
+  padding: 24px 30px;
+  scroll-margin-top: 100px;
+
+  h1,
+  h2 {
+    text-align: center;
+  }
+
+  h2 .event-clock {
+    display: inline-block;
+    margin: 0 0.65em;
+    font-size: 0.95em;
+    vertical-align: middle;
+  }
+
+  ::ng-deep markdown a {
+    color: color-pallet.$se-blue;
+    text-decoration: none;
+
+    &:focus-visible {
+      outline: 2px solid color-pallet.$se-black;
+      outline-offset: 2px;
+    }
+  }
+}
+
+.clock-opening {
+  display: flow-root;
+  min-height: auto;
+}
+
+.clock-opening-copy {
+  max-width: none;
+}
+
+.clock-opening-intro {
+  font-size: 1.2rem;
+  line-height: 1.55;
+}
+
+.clock-section-copy {
+  margin-top: 24px;
+}
+
+.clock-table-intro {
+  margin-bottom: 12px;
+}
+
+.clock-table-spaced {
+  display: block;
+  margin-top: 24px;
+}
+
+.clock-source-note {
+  max-width: 70rem;
+  margin: 0 auto;
+  padding: 0 30px 24px;
+  color: color-pallet.$se-dark-grey;
+  font-size: 0.9rem;
+}
+
+.clock-opening-photo {
+  float: right;
+  width: min(44%, 32rem);
+  margin: 0;
+  margin-left: 32px;
+  margin-bottom: 24px;
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 70vh;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+}
+
+.clock-toc {
+  position: sticky;
+  top: 0;
+
+  .item-row {
+    color: color-pallet.$se-black;
+    text-decoration: none;
+  }
+
+  .item-row:focus-visible {
+    outline: 3px solid color-pallet.$se-black;
+    outline-offset: 2px;
+  }
+}
+
+@media only screen and (max-width: screen-sizes.$small-breakpoint) {
+  .side-pane {
+    display: none;
+  }
+
+  .clock-section {
+    padding: 20px 16px;
+  }
+
+  .clock-source-note {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .clock-opening-photo img {
+    max-height: 50vh;
+  }
+}
+
+@media only screen and (max-width: screen-sizes.$extra-small-breakpoint) {
+  .clock-opening-photo {
+    float: none;
+    width: 100%;
+    margin: 0 0 24px;
+  }
+}

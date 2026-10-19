@@ -38,6 +38,7 @@ export class NavComponent {
   isNavActive = input(false);
   transition = input(false);
   disableHomeLink = input(false);
+  clockNavTheme = input(false);
   toggleNavEmitter = output<boolean>();
   transitionEndEmitter = output<void>();
 

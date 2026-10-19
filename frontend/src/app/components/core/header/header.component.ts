@@ -57,6 +57,7 @@ export class HeaderComponent implements OnInit {
   // while mobile keeps both together in a single instance.
   showTitle = input<boolean>(true);
   showNavCluster = input<boolean>(true);
+  clockNavTheme = input<boolean>(false);
   dashboardControls = input<boolean>(false);
   disableHomeLink = input<boolean>(false);
   isNavActive = signal(false);

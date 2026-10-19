@@ -1,0 +1,112 @@
+<div
+  class="clock-results-table-scroll"
+  [class.clock-results-table-scroll--vertical]="verticalScroll()"
+  role="region"
+  [attr.aria-label]="caption()"
+  tabindex="0"
+>
+  <table [class.clock-results-table--fixed-layout]="fixedLayout()">
+    <caption>
+      {{
+        caption()
+      }}
+    </caption>
+    <colgroup>
+      @for (column of columns(); track column.key) {
+        <col [style.width]="column.width ?? null" />
+      }
+    </colgroup>
+    <thead>
+      <tr>
+        @for (column of columns(); track column.key) {
+          <th scope="col">{{ column.label }}</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track row.id) {
+        <tr>
+          @for (column of columns(); track column.key) {
+            @let cell = row.cells[column.key];
+            <td>
+              @if (cell.pill) {
+                @if (cell.href; as href) {
+                  <a
+                    [class]="'clock-results-pill ' + statePillClass(cell.pillState)"
+                    [href]="href"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {{ cell.text }}
+                  </a>
+                } @else {
+                  <span [class]="'clock-results-pill ' + statePillClass(cell.pillState)">
+                    {{ cell.text }}
+                  </span>
+                }
+              } @else if (cell.links; as links) {
+                @for (link of links; track $index; let last = $last) {
+                  @if (link.href; as href) {
+                    <a [href]="href" target="_blank" rel="noopener noreferrer">
+                      {{ link.text }}
+                    </a>
+                  } @else {
+                    <span>{{ link.text }}</span>
+                  }
+                  @if (!last) {
+                    <span>, </span>
+                  }
+                }
+              } @else if (cell.imageUrl || cell.meta) {
+                <div class="clock-results-cell-content">
+                  @if (cell.imageUrl) {
+                    <img
+                      class="clock-results-cell-image"
+                      [src]="cell.imageUrl"
+                      alt=""
+                      aria-hidden="true"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  }
+                  <div class="clock-results-cell-info">
+                    @if (cell.href; as href) {
+                      <a [href]="href" target="_blank" rel="noopener noreferrer">
+                        {{ cell.text }}
+                      </a>
+                    } @else {
+                      <span>{{ cell.text }}</span>
+                    }
+                    @if (cell.meta) {
+                      <span class="clock-results-cell-meta">{{ cell.meta }}</span>
+                    }
+                  </div>
+                </div>
+              } @else if (cell.href; as href) {
+                <a
+                  [class.clock-results-text--blue]="cell.textColor === 'blue'"
+                  [class.clock-results-text--red]="cell.textColor === 'red'"
+                  [href]="href"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {{ cell.text }}
+                </a>
+              } @else {
+                <span
+                  [class.clock-results-text--blue]="cell.textColor === 'blue'"
+                  [class.clock-results-text--red]="cell.textColor === 'red'"
+                  [class.clock-results-text--gold]="cell.textColor === 'gold'"
+                  [class.clock-results-text--silver]="cell.textColor === 'silver'"
+                  [class.clock-results-text--bronze]="cell.textColor === 'bronze'"
+                >
+                  {{ cell.text }}
+                </span>
+              }
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

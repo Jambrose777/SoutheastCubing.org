@@ -43,19 +43,40 @@
   transition:
     transform 0.5s,
     width 0.5s,
-    height 0.5s;
+    height 0.5s,
+    border-radius 0.5s;
   transition-delay: calc(0.1s * var(--i) + 1);
   border: 1px solid color-pallet.$se-black;
   box-shadow: 3px 3px 5px rgb(0 0 0 / 0.4);
 }
 
-.menu .navigation a .fa-solid {
+.menu .navigation.clock-theme a {
+  border-radius: 50%;
+}
+
+.menu .navigation a:focus-visible {
+  z-index: 1;
+  outline: 3px solid color-pallet.$se-black;
+  outline-offset: 3px;
+}
+
+.menu .navigation a .fa-solid,
+.menu .navigation a .cubing-icon {
   font-size: 0.25rem;
   height: 0.125px;
   transition: 0.5s;
 }
 
-.menu .navigation.active a .fa-solid {
+.menu .navigation a .cubing-icon {
+  display: inline-block;
+}
+
+.menu .navigation:not(.active) a.clock-cube .cubing-icon.event-clock {
+  transform: translateY(-2px);
+}
+
+.menu .navigation.active a .fa-solid,
+.menu .navigation.active a .cubing-icon {
   font-size: 1.75rem;
   height: 28px;
   transition: 0.5s;
@@ -65,6 +86,16 @@
   // it needs to end up with, since centering itself contributes some of
   // that spacing.
   margin-top: 15px;
+}
+
+.menu .navigation.active a .cubing-icon.event-clock {
+  font-size: 2rem;
+  height: 32px;
+  transform: translateY(-16px);
+}
+
+.menu .navigation.active a.clock-cube .hidden-text {
+  transform: translateY(-3px);
 }
 
 .hidden-text {
@@ -81,6 +112,10 @@
   border-radius: 5px;
   transform: translate(calc(133px * var(--x)), calc(133px * var(--y)));
   transition-delay: 0.5s;
+}
+
+.menu .navigation.active.clock-theme a {
+  border-radius: 50%;
 }
 
 .black-cube {
@@ -136,7 +171,8 @@
   }
 }
 
-.menu .navigation.transitioned.active a:hover .fa-solid {
+.menu .navigation.transitioned.active a:hover .fa-solid,
+.menu .navigation.transitioned.active a:hover .cubing-icon {
   display: block;
 }
 

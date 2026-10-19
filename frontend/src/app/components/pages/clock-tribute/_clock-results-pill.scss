@@ -1,0 +1,53 @@
+@use 'src/styles/color-pallet' as color-pallet;
+
+.clock-results-pill {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  border-radius: 999px;
+  padding: 3px 10px;
+  color: color-pallet.$se-black;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.clock-results-pill:focus-visible {
+  outline: 2px solid color-pallet.$se-black;
+  outline-offset: 2px;
+}
+
+td a.clock-results-pill {
+  color: color-pallet.$se-black;
+}
+
+.clock-results-pill--alabama {
+  background: color-pallet.$se-orange;
+}
+
+.clock-results-pill--florida {
+  background: color-pallet.$se-red;
+}
+
+.clock-results-pill--georgia {
+  background: color-pallet.$se-blue;
+}
+
+.clock-results-pill--north-carolina {
+  background: color-pallet.$se-green;
+}
+
+.clock-results-pill--south-carolina {
+  background: color-pallet.$se-purple;
+}
+
+.clock-results-pill--tennessee {
+  background: color-pallet.$se-yellow;
+}
+
+.clock-results-pill--unknown {
+  background: color-pallet.$se-grey;
+}

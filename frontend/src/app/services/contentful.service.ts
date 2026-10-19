@@ -1,5 +1,11 @@
 import { Injectable } from '@angular/core';
-import { createClient, Entry, EntryCollection, EntrySkeletonType } from 'contentful';
+import {
+  AssetCollection,
+  createClient,
+  Entry,
+  EntryCollection,
+  EntrySkeletonType,
+} from 'contentful';
 import { from, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ContentfulContentType, ContentfulEntryId } from '../models/Contentful';
@@ -44,5 +50,10 @@ export class ContentfulService {
     // only resolves the page's direct links and leaves any second-level links
     // (like Get Involved's nested Organizers subtopics) as unresolved link stubs.
     return from(this.cdaClient.getEntry<Skeleton>(entryId, { include: 2 }));
+  }
+
+  // Retrieves a batch of Contentful assets by their IDs.
+  getContentfulAssets(assetIds: string[]): Observable<AssetCollection<undefined>> {
+    return from(this.cdaClient.getAssets({ 'sys.id[in]': assetIds }));
   }
 }

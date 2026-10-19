@@ -148,6 +148,14 @@ export type AboutPageSkeleton = {
   };
 };
 
+export type ClockTributePageSkeleton = {
+  contentTypeId: 'page';
+  fields: {
+    title: EntryFieldTypes.Symbol;
+    subTopics: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<SubTopicSkeleton>>;
+  };
+};
+
 export type InvolvementPageSkeleton = {
   contentTypeId: 'involvement';
   fields: {

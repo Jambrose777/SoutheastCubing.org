@@ -1,0 +1,87 @@
+@if (majorChampionshipResults().length > 0) {
+  <div
+    class="clock-major-table-scroll"
+    role="region"
+    aria-label="Major championship Clock results"
+    tabindex="0"
+  >
+    <table class="clock-major-table">
+      <caption>
+        Southeast Clock results at major championships
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Place</th>
+          <th scope="col">Cuber</th>
+          <th scope="col">Single</th>
+          <th scope="col">Average</th>
+          <th scope="col">State</th>
+        </tr>
+      </thead>
+      @for (competition of majorChampionshipResults(); track competition.competitionId) {
+        <tbody>
+          <tr class="clock-major-group-header">
+            <th scope="rowgroup" colspan="5">
+              <div class="clock-major-group-info">
+                @if (competition.logoUrl) {
+                  <img
+                    class="clock-major-logo"
+                    [src]="competition.logoUrl"
+                    alt=""
+                    aria-hidden="true"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                }
+                <div class="clock-major-group-text">
+                  <a
+                    [href]="
+                      'https://www.worldcubeassociation.org/competitions/' +
+                      competition.competitionId
+                    "
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {{ competition.competitionName }}
+                  </a>
+                  <span class="clock-major-group-meta">
+                    {{ competition.displayDate }} · {{ competition.city }}
+                  </span>
+                </div>
+              </div>
+            </th>
+          </tr>
+          @for (finalist of competition.finalists; track finalist.wcaId) {
+            <tr>
+              <td
+                [class.clock-major-place--gold]="finalist.place === 1"
+                [class.clock-major-place--silver]="finalist.place === 2"
+                [class.clock-major-place--bronze]="finalist.place === 3"
+              >
+                {{ finalist.place }}
+              </td>
+              <td>
+                <a
+                  [href]="'https://www.worldcubeassociation.org/persons/' + finalist.wcaId"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {{ finalist.personName }}
+                </a>
+              </td>
+              <td>{{ formatClockValue(finalist.best) }}</td>
+              <td>{{ formatClockValue(finalist.average) }}</td>
+              <td>
+                <span [class]="'clock-results-pill ' + statePillClass(finalist.state)">
+                  {{ finalist.state }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      }
+    </table>
+  </div>
+} @else {
+  <p>No matching championship results.</p>
+}

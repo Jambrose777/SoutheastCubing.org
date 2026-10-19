@@ -1,10 +1,12 @@
 <div class="menu">
   <div
     class="navigation"
+    [class.clock-theme]="clockNavTheme()"
     (click)="toggleNav()"
     (keydown.enter)="toggleNav()"
     (keydown.space)="$event.preventDefault(); toggleNav()"
     tabindex="0"
+    role="navigation"
     aria-label="Menu"
     [ngClass]="{ active: isNavActive(), transitioned: !transition() }"
   >
@@ -67,12 +69,12 @@
     </a>
     <a
       style="--i: 4; --x: -1; --y: 1"
-      class="white-cube"
-      [routerLink]="isNavActive() ? '/organizers' : []"
-      aria-label="Organizers"
+      class="white-cube clock-cube"
+      [routerLink]="isNavActive() ? '/clock' : []"
+      aria-label="Clock"
     >
-      <i class="fa-solid fa-file-lines fa-2xl clickable"></i>
-      <div class="hidden-text">Organizers</div>
+      <span class="cubing-icon event-clock clickable" aria-hidden="true"></span>
+      <div class="hidden-text">Clock</div>
     </a>
     <a
       style="--i: 3; --x: 0; --y: 1"

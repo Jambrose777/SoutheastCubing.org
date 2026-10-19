@@ -68,6 +68,14 @@ export const routes: Routes = [
       import('./components/pages/home/home.component').then((m) => m.HomeComponent),
   },
   {
+    path: 'clock',
+    loadComponent: () =>
+      import('./components/pages/clock-tribute/clock-tribute.component').then(
+        (m) => m.ClockTributeComponent,
+      ),
+    title: 'SoutheastCubing - Clock',
+  },
+  {
     path: 'dashboard',
     canActivate: [authGuard, dashboardHomeGuard],
     data: { requiresAuth: true },

@@ -19,6 +19,7 @@ import { ContentfulService } from 'src/app/services/contentful.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { Colors, StateColors } from 'src/app/shared/types';
 import { scaleToDisplaySize } from 'src/app/shared/scale-to-display-size';
+import { contentfulImageUrl } from 'src/app/shared/contentful-image-url';
 import { resolvedAsset, resolvedEntry } from 'src/app/shared/contentful-links';
 import { stateAbbreviationFromCity } from 'src/app/shared/state-abbreviation-from-city';
 import { buildDetailUrl } from 'src/app/shared/build-detail-url';
@@ -130,7 +131,9 @@ export class ChampionshipsComponent implements OnInit, OnDestroy {
               return {
                 ...championship.fields,
                 championshipType: championship.fields.championshipType || 'Southeast',
-                logo: logo?.fields.file?.url,
+                logo: logo?.fields.file?.url
+                  ? contentfulImageUrl(logo.fields.file.url, 160)
+                  : undefined,
                 logoAlt: logo?.fields.description ?? '',
                 logoWidth: logoSize.width,
                 logoHeight: logoSize.height,

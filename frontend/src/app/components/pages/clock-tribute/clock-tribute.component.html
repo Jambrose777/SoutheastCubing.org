@@ -1,0 +1,259 @@
+<div class="component-container">
+  <main #mainPane class="main-pane" tabindex="0" (scroll)="onMainPaneScroll(mainPane)">
+    <se-header
+      id="header"
+      [title]="title()"
+      [showNavCluster]="isMobile()"
+      [clockNavTheme]="true"
+    ></se-header>
+    @if (loadingContent()) {
+      <se-loading-spinner></se-loading-spinner>
+    } @else {
+      @for (section of sections(); track section.id) {
+        <section
+          class="clock-section"
+          [class.clock-opening]="section.kind === 'opening'"
+          [id]="section.id"
+          [attr.aria-labelledby]="section.kind === 'opening' ? null : section.id + '-heading'"
+          [attr.aria-label]="section.kind === 'opening' ? section.title : null"
+        >
+          @switch (section.kind) {
+            @case ('opening') {
+              @if (section.photo) {
+                <figure class="clock-opening-photo">
+                  <img
+                    ngSrc="{{ section.photo }}"
+                    [alt]="section.photoAlt ?? ''"
+                    [width]="section.photoWidth"
+                    [height]="section.photoHeight"
+                    priority
+                  />
+                </figure>
+              }
+              @if (section.description) {
+                <div class="clock-opening-copy clock-opening-intro">
+                  <markdown [data]="section.description"></markdown>
+                </div>
+              }
+            }
+            @case ('current-records') {
+              <h2 [id]="section.id + '-heading'">
+                <span class="cubing-icon event-clock" aria-hidden="true"></span>
+                {{ section.title }}
+                <span class="cubing-icon event-clock" aria-hidden="true"></span>
+              </h2>
+              @if (loadingStatistics()) {
+                <se-loading-spinner></se-loading-spinner>
+              } @else if (currentRecords()) {
+                <se-clock-results-table
+                  caption="Current Southeast Clock Records"
+                  [columns]="currentRecordsColumns"
+                  [rows]="currentRecordRows()"
+                ></se-clock-results-table>
+              }
+              @if (section.description) {
+                <div class="clock-section-copy">
+                  <markdown [data]="section.description"></markdown>
+                </div>
+              }
+            }
+            @case ('world-top-20') {
+              <h2 [id]="section.id + '-heading'">
+                <span class="cubing-icon event-clock" aria-hidden="true"></span>
+                {{ section.title }}
+                <span class="cubing-icon event-clock" aria-hidden="true"></span>
+              </h2>
+              @if (section.description) {
+                <div class="clock-section-copy clock-table-intro">
+                  <markdown [data]="section.description"></markdown>
+                </div>
+              }
+              @if (loadingStatistics()) {
+                <se-loading-spinner></se-loading-spinner>
+              } @else if (rankingHistoryRows().length > 0) {
+                <se-clock-results-table
+                  caption="Southeast Clock Results Ranking Top 20 in the World"
+                  [columns]="rankingHistoryColumns"
+                  [rows]="rankingHistoryRows()"
+                  [verticalScroll]="true"
+                ></se-clock-results-table>
+              } @else {
+                <p>No matching results.</p>
+              }
+            }
+            @case ('record-milestones') {
+              <h2 [id]="section.id + '-heading'">
+                <span class="cubing-icon event-clock" aria-hidden="true"></span>
+                {{ section.title }}
+                <span class="cubing-icon event-clock" aria-hidden="true"></span>
+              </h2>
+              @if (section.description) {
+                <div class="clock-section-copy clock-table-intro">
+                  <markdown [data]="section.description"></markdown>
+                </div>
+              }
+              @if (loadingStatistics()) {
+                <se-loading-spinner></se-loading-spinner>
+              }
+              @if (!loadingStatistics() && regionalRecordRows().length > 0) {
+                <se-clock-results-table
+                  caption="Clock Records by Southeast Cubers"
+                  [columns]="recordMilestoneColumns"
+                  [rows]="regionalRecordRows()"
+                ></se-clock-results-table>
+              }
+              @if (!loadingStatistics() && femaleRecordRows().length > 0) {
+                <se-clock-results-table
+                  class="clock-table-spaced"
+                  caption="Female Clock Achievements by Southeast Cubers"
+                  [columns]="recordMilestoneColumns"
+                  [rows]="femaleRecordRows()"
+                  [verticalScroll]="true"
+                ></se-clock-results-table>
+              }
+            }
+            @case ('competition-podiums') {
+              <h2 [id]="section.id + '-heading'">
+                <span class="cubing-icon event-clock" aria-hidden="true"></span>
+                {{ section.title }}
+                <span class="cubing-icon event-clock" aria-hidden="true"></span>
+              </h2>
+              @if (section.description) {
+                <div class="clock-section-copy clock-table-intro">
+                  <markdown [data]="section.description"></markdown>
+                </div>
+              }
+              @if (loadingStatistics()) {
+                <se-loading-spinner></se-loading-spinner>
+              } @else if (podiumRows().length > 0) {
+                <se-clock-results-table
+                  caption="Best Podium Rankings for Southeast Competitions"
+                  [columns]="podiumColumns"
+                  [rows]="podiumRows()"
+                  [verticalScroll]="true"
+                ></se-clock-results-table>
+              }
+            }
+            @case ('major-stage') {
+              <h2 [id]="section.id + '-heading'">
+                <span class="cubing-icon event-clock" aria-hidden="true"></span>
+                {{ section.title }}
+                <span class="cubing-icon event-clock" aria-hidden="true"></span>
+              </h2>
+              @if (section.description) {
+                <div class="clock-section-copy clock-table-intro">
+                  <markdown [data]="section.description"></markdown>
+                </div>
+              }
+              @if (loadingStatistics()) {
+                <se-loading-spinner></se-loading-spinner>
+              } @else {
+                <se-clock-major-results-table
+                  [competitions]="majorChampionships()"
+                  [logoUrlsByAssetId]="championshipLogoUrlsByAssetId()"
+                ></se-clock-major-results-table>
+              }
+            }
+            @case ('championship-history') {
+              <h2 [id]="section.id + '-heading'">
+                <span class="cubing-icon event-clock" aria-hidden="true"></span>
+                {{ section.title }}
+                <span class="cubing-icon event-clock" aria-hidden="true"></span>
+              </h2>
+              @if (section.description) {
+                <div class="clock-section-copy clock-table-intro">
+                  <markdown [data]="section.description"></markdown>
+                </div>
+              }
+              @if (loadingStatistics()) {
+                <se-loading-spinner></se-loading-spinner>
+              } @else if (southeastChampionRows().length > 0) {
+                <se-clock-results-table
+                  caption="Southeast Clock Champions"
+                  [columns]="southeastChampionColumns"
+                  [rows]="southeastChampionRows()"
+                ></se-clock-results-table>
+              } @else {
+                <p>No Southeast Clock champions found.</p>
+              }
+            }
+            @case ('southeast-competitions') {
+              <h2 [id]="section.id + '-heading'">
+                <span class="cubing-icon event-clock" aria-hidden="true"></span>
+                {{ section.title }}
+                <span class="cubing-icon event-clock" aria-hidden="true"></span>
+              </h2>
+              @if (section.description) {
+                <div class="clock-section-copy clock-table-intro">
+                  <markdown [data]="section.description"></markdown>
+                </div>
+              }
+              @if (!loadingStatistics() && fourRoundCompetitionRows().length > 0) {
+                <se-clock-results-table
+                  caption="Southeast Clock Competitions with Four Rounds"
+                  [fixedLayout]="true"
+                  [columns]="fourRoundCompetitionColumns"
+                  [rows]="fourRoundCompetitionRows()"
+                ></se-clock-results-table>
+              }
+
+              @if (loadingStatistics()) {
+                <se-loading-spinner></se-loading-spinner>
+              } @else if (southeastCompetitionRows().length > 0) {
+                <se-clock-results-table
+                  class="clock-table-spaced"
+                  caption="Southeast Clock Main-Event Competitions"
+                  [columns]="southeastCompetitionColumns"
+                  [rows]="southeastCompetitionRows()"
+                  [verticalScroll]="true"
+                ></se-clock-results-table>
+              } @else {
+                <p>No Southeast Clock competitions found.</p>
+              }
+            }
+            @default {
+              <h2 [id]="section.id + '-heading'">
+                <span class="cubing-icon event-clock" aria-hidden="true"></span>
+                {{ section.title }}
+                <span class="cubing-icon event-clock" aria-hidden="true"></span>
+              </h2>
+            }
+          }
+        </section>
+        @if (section.kind === 'opening' && exportDate(); as date) {
+          <p class="clock-source-note">
+            These statistics reflect WCA results available on {{ date }}.
+          </p>
+        }
+      }
+    }
+  </main>
+  @if (!isMobile()) {
+    <aside class="side-pane">
+      <se-header id="side-header" [showTitle]="false" [clockNavTheme]="true"></se-header>
+      @if (loadingContent()) {
+        <se-loading-spinner></se-loading-spinner>
+      } @else {
+        <nav class="clock-toc list-container" aria-label="Clock Tribute sections">
+          @for (section of sections(); track section.id) {
+            <div
+              class="clock-toc-item item-container clickable"
+              [class.active]="activeSection() === section.id"
+              [style.--state-color]="section.color"
+            >
+              <a
+                class="item-row"
+                [href]="'#' + section.id"
+                [style.color]="section.color === Colors.black ? 'white' : null"
+                (click)="scrollToSection($event, mainPane, section.id)"
+                [attr.aria-current]="activeSection() === section.id ? 'location' : null"
+              >
+                <div class="item-title">{{ section.title }}</div>
+              </a>
+            </div>
+          }
+        </nav>
+      }
+    </aside>
+  }
+</div>

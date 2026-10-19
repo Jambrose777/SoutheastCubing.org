@@ -10,6 +10,7 @@ export enum ContentfulEntryId {
   pageNotFound = '6j2IxOmaYgOFEFEtlW62Tl',
   cats = '6ioa16NhQUuNlyZJHlpZ4e',
   linksConfiguration = '6GWjRKoJ7PP2XIAzqWrjis',
+  clockTribute = '2bw7jfZW0rLExXF1j5En0I',
 }
 
 export enum ContentfulContentType {
@@ -20,3 +21,19 @@ export enum ContentfulContentType {
   cats = 'cats',
   homePageOverride = 'homePageOverride',
 }
+
+export const ClockTributeSectionKindByEntryId = {
+  nGV6d5uGyZt5sisu2IEjp: 'opening',
+  '5umZmDEBynw2eQ59MhwNAT': 'current-records',
+  '7vznFCOmC38NWKObG2KOMn': 'world-top-20',
+  '4h655pmmBcQIXxw0DT3CsP': 'record-milestones',
+  '2QdlbPcaFSLHDbdrgT2WqZ': 'competition-podiums',
+  '47DCdy5NFdcair1lA1akN7': 'major-stage',
+  '32tAjGmFGQRNy4pUvFsSUs': 'championship-history',
+  '6ocBLmsJqiBzQJD2ztzhR8': 'extra-fun',
+  '2cjHnYwHnL9ES5BJ1mnuXl': 'southeast-competitions',
+} as const;
+
+export type ClockTributeSectionKind =
+  | (typeof ClockTributeSectionKindByEntryId)[keyof typeof ClockTributeSectionKindByEntryId]
+  | 'generic';
