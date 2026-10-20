@@ -243,13 +243,14 @@ async function unlinkPlannerCompetitionFromWca(id) {
   }
 }
 
-// Deletes a Planner-created competition row and its join-table rows - only ever called before announcement.
+// Deletes a Planner-created competition and its dependent rows before announcement.
 async function deletePlannerCompetition(id) {
   await db.withRetry(async (client) => {
     await client.query('DELETE FROM competition_delegates WHERE competition_id = $1', [id]);
     await client.query('DELETE FROM competition_organizers WHERE competition_id = $1', [id]);
     await client.query('DELETE FROM competition_equipment_holders WHERE competition_id = $1', [id]);
     await client.query('DELETE FROM competition_events WHERE competition_id = $1', [id]);
+    await client.query('DELETE FROM competition_unofficial_events WHERE competition_id = $1', [id]);
     await client.query('DELETE FROM competitions WHERE id = $1', [id]);
   });
   logger.debug(`Deleted Planner competition (id ${id}).`);

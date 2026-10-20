@@ -3088,6 +3088,7 @@
   "fourRoundClockCompetitions": [
     {
       "competitionId": "SoutheastChampionship2022",
+      "logoAssetId": "69eCCQJD4zFZlxWYxYslBh",
       "competitionName": "CubingUSA Southeast Championship 2022",
       "date": "2022-07-31",
       "city": "Gatlinburg, Tennessee",
@@ -3157,6 +3158,7 @@
     },
     {
       "competitionId": "SoutheastChampionship2024",
+      "logoAssetId": "5mJcT5CKIJyAOFSW0eBYXq",
       "competitionName": "CubingUSA Southeast Championship 2024",
       "date": "2024-06-30",
       "city": "Spartanburg, South Carolina",

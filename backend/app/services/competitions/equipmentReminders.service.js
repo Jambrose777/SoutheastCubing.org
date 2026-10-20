@@ -8,11 +8,13 @@ const logger = require('../../utils/logger.util.js');
 
 const EASTERN_TIME_ZONE = 'America/New_York';
 
-// Finds the Monday in the 3-9 calendar-day window before a competition starts.
-function getEquipmentReminderMonday(startDate) {
+// Finds the Wednesday strictly before the competition's Eastern calendar date.
+function getEquipmentReminderWednesday(startDate) {
   const start = moment.tz(startDate, 'YYYY-MM-DD', EASTERN_TIME_ZONE);
   if (!start.isValid()) return null;
-  return start.subtract(3, 'days').startOf('isoWeek').format('YYYY-MM-DD');
+  const daysSinceWednesday = (start.isoWeekday() - 3 + 7) % 7;
+  const daysBeforeCompetition = daysSinceWednesday === 0 ? 7 : daysSinceWednesday;
+  return start.subtract(daysBeforeCompetition, 'days').format('YYYY-MM-DD');
 }
 
 // Posts due reminders during the daily refresh and leaves failed posts retryable.
@@ -20,8 +22,8 @@ async function sendDueEquipmentReminders() {
   const today = moment().tz(EASTERN_TIME_ZONE).format('YYYY-MM-DD');
   const candidates = await competitionRemindersDb.getEquipmentReminderCandidates(today);
   const dueCompetitions = candidates.filter((competition) => {
-    const reminderMonday = getEquipmentReminderMonday(competition.start_date);
-    return reminderMonday && today >= reminderMonday && today < competition.start_date;
+    const reminderWednesday = getEquipmentReminderWednesday(competition.start_date);
+    return reminderWednesday && today >= reminderWednesday && today < competition.start_date;
   });
   if (!dueCompetitions.length) return;
 

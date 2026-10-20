@@ -21,11 +21,11 @@ export function contentfulImageLoader(config: ImageLoaderConfig): string {
   // match. Normalizing to an explicit `https:` scheme keeps the resolved
   // origin consistent (and correct) in both dev and production.
   const src = config.src.startsWith('//') ? `https:${config.src}` : config.src;
-
-  const params = ['fm=webp'];
+  const url = new URL(src);
+  url.searchParams.set('fm', 'webp');
   // config.width isn't always provided
   if (config.width) {
-    params.push(`w=${config.width}`);
+    url.searchParams.set('w', String(config.width));
   }
-  return `${src}?${params.join('&')}`;
+  return url.toString();
 }
