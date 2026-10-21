@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { clockStatePillClass } from '../clock-results.util';
+import { ClockVideoTableDirective } from '../clock-video-table.directive';
 
 export interface ClockResultsTableColumn {
   key: string;
@@ -15,6 +16,7 @@ export interface ClockResultsTableLink {
 export interface ClockResultsTableCell {
   text: string;
   href?: string;
+  videoUrl?: string;
   links?: ClockResultsTableLink[];
   imageUrl?: string;
   meta?: string;
@@ -33,6 +35,7 @@ export interface ClockResultsTableRow {
   templateUrl: './clock-results-table.component.html',
   styleUrls: ['./clock-results-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ClockVideoTableDirective],
 })
 export class ClockResultsTableComponent {
   caption = input.required<string>();

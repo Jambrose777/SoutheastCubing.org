@@ -1,6 +1,14 @@
 <div
+  #videoTable="clockVideoTable"
+  seClockVideoTable
   class="clock-results-table-scroll"
   [class.clock-results-table-scroll--vertical]="verticalScroll()"
+  [class.clock-results-table-scroll--video-expanded]="videoTable.expandedVideo() !== null"
+  [style.--clock-video-expanded-height]="
+    videoTable.expandedVideo() && videoTable.expandedTableHeight() !== null
+      ? videoTable.expandedTableHeight() + 'px'
+      : null
+  "
   role="region"
   [attr.aria-label]="caption()"
   tabindex="0"
@@ -19,17 +27,41 @@
     <thead>
       <tr>
         @for (column of columns(); track column.key) {
-          <th scope="col">{{ column.label }}</th>
+          <th scope="col" [attr.aria-label]="column.key === 'video' ? 'Video' : null">
+            {{ column.label }}
+          </th>
         }
       </tr>
     </thead>
     <tbody>
       @for (row of rows(); track row.id) {
-        <tr>
+        <tr [attr.data-clock-result-row]="row.id">
           @for (column of columns(); track column.key) {
             @let cell = row.cells[column.key];
-            <td>
-              @if (cell.pill) {
+            <td [class.clock-results-video-cell]="column.key === 'video'">
+              @if (column.key === 'video') {
+                @if (cell.videoUrl) {
+                  <button
+                    type="button"
+                    class="clock-results-video-button"
+                    [attr.aria-label]="
+                      videoTable.expandedVideo()?.rowId === row.id
+                        ? 'Close result video'
+                        : 'Play result video'
+                    "
+                    [attr.aria-expanded]="videoTable.expandedVideo()?.rowId === row.id"
+                    [attr.aria-controls]="'clock-video-panel-' + row.id"
+                    [attr.title]="
+                      videoTable.expandedVideo()?.rowId === row.id
+                        ? 'Close result video'
+                        : 'Play result video'
+                    "
+                    (click)="videoTable.toggleVideo(row.id, cell.videoUrl)"
+                  >
+                    <i class="fa-solid fa-video" aria-hidden="true"></i>
+                  </button>
+                }
+              } @else if (cell.pill) {
                 @if (cell.href; as href) {
                   <a
                     [class]="'clock-results-pill ' + statePillClass(cell.pillState)"
@@ -106,6 +138,26 @@
             </td>
           }
         </tr>
+        @if (videoTable.expandedVideo(); as expanded) {
+          @if (expanded.rowId === row.id) {
+            <tr class="clock-results-video-row">
+              <td [attr.colspan]="columns().length">
+                <div class="clock-results-video-panel" [id]="'clock-video-panel-' + row.id">
+                  @if (expanded.embedUrl) {
+                    <iframe
+                      class="clock-results-video-frame"
+                      [src]="expanded.embedUrl"
+                      title="Clock result video player"
+                      allow="autoplay; encrypted-media; picture-in-picture; web-share"
+                      referrerpolicy="strict-origin-when-cross-origin"
+                      allowfullscreen
+                    ></iframe>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        }
       }
     </tbody>
   </table>

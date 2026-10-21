@@ -1,0 +1,57 @@
+@use 'src/styles/color-pallet' as color-pallet;
+
+.clock-results-video-button {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: color-pallet.$se-blue;
+  cursor: pointer;
+  vertical-align: middle;
+
+  &:hover {
+    background: rgba(color-pallet.$se-blue, 0.1);
+  }
+
+  &:focus-visible {
+    outline: 2px solid color-pallet.$se-black;
+    outline-offset: 2px;
+  }
+
+  .fa-video {
+    font-size: 1rem;
+  }
+}
+
+.clock-results-video-cell {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.clock-results-video-panel {
+  position: sticky;
+  left: max(1rem, calc((100cqw - 48rem) / 2));
+  display: flex;
+  width: min(48rem, calc(100cqw - 2rem));
+  flex-direction: column;
+  align-items: center;
+  margin-inline: max(1rem, calc((100cqw - 48rem) / 2));
+  gap: 12px;
+}
+
+.clock-results-video-row > td {
+  padding-inline: 0;
+}
+
+.clock-results-video-frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  background: color-pallet.$se-black;
+}

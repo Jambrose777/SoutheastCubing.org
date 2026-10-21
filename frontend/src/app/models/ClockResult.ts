@@ -11,6 +11,7 @@ export interface ClockResult {
   city: string;
   state: string | null;
   competitionState?: string | null;
+  videoUrl?: string;
   scrambles?: string[];
 }
 
@@ -54,6 +55,7 @@ export interface ClockChampionshipFinalist {
   best: number;
   average: number;
   state: string;
+  videoUrl?: string;
 }
 
 export interface ClockMajorChampionship {
@@ -79,6 +81,7 @@ export interface ClockSoutheastCompetition {
   state: string | null;
   best: number | null;
   average: number | null;
+  videoUrl?: string;
 }
 
 export interface ClockFourRoundFinalist {
@@ -107,6 +110,7 @@ export interface ClockSoutheastChampion {
   state: string | null;
   best: number;
   average: number;
+  videoUrl?: string;
 }
 
 export interface ClockRankings {

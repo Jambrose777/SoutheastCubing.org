@@ -42,6 +42,7 @@ import { Colors } from 'src/app/shared/types';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 import { ClockResultsTableComponent } from './clock-results-table/clock-results-table.component';
 import { ClockMajorResultsTableComponent } from './clock-major-results-table/clock-major-results-table.component';
+import { ClockVideoPlaybackService } from './clock-video-playback.service';
 import { formatClockValue } from './clock-results.util';
 import type {
   ClockResultsTableCell,
@@ -72,6 +73,7 @@ const RESULT_COLUMNS = {
   average: { key: 'average', label: 'Average' },
   state: { key: 'state', label: 'State' },
   competition: { key: 'competition', label: 'Competition' },
+  video: { key: 'video', label: '', width: '3.5rem' },
 } satisfies Record<string, ClockResultsTableColumn>;
 const RECORD_TEXT_COLORS: Partial<Record<string, 'blue' | 'red'>> = {
   WR: 'blue',
@@ -89,7 +91,7 @@ const PODIUM_RANK_COLORS: Record<number, 'gold' | 'silver' | 'bronze' | undefine
   selector: 'se-clock-tribute',
   templateUrl: './clock-tribute.component.html',
   styleUrls: ['./clock-tribute.component.scss'],
-  providers: provideMarkdown(),
+  providers: [provideMarkdown(), ClockVideoPlaybackService],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,
@@ -131,6 +133,7 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
     RESULT_COLUMNS.cuber,
     RESULT_COLUMNS.single,
     RESULT_COLUMNS.average,
+    RESULT_COLUMNS.video,
     RESULT_COLUMNS.state,
     RESULT_COLUMNS.competition,
   ];
@@ -152,6 +155,7 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
     RESULT_COLUMNS.rank,
     RESULT_COLUMNS.single,
     RESULT_COLUMNS.average,
+    RESULT_COLUMNS.video,
     RESULT_COLUMNS.state,
     RESULT_COLUMNS.competition,
   ];
@@ -160,7 +164,10 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
       .sort((left, right) => left.date.localeCompare(right.date))
       .map((record) => ({
         id: `${record.date}-${record.rankingType}-${record.wcaId}-${record.competitionId}`,
-        cells: { ...this.resultCells(record), rank: { text: `#${record.rank}` } },
+        cells: {
+          ...this.resultCells(record),
+          rank: { text: `#${record.rank}` },
+        },
       }));
   });
   recordMilestoneColumns: ClockResultsTableColumn[] = [
@@ -169,6 +176,7 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
     RESULT_COLUMNS.cuber,
     RESULT_COLUMNS.single,
     RESULT_COLUMNS.average,
+    RESULT_COLUMNS.video,
     RESULT_COLUMNS.state,
     RESULT_COLUMNS.competition,
   ];
@@ -222,6 +230,7 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
     RESULT_COLUMNS.champion,
     RESULT_COLUMNS.single,
     RESULT_COLUMNS.average,
+    RESULT_COLUMNS.video,
     RESULT_COLUMNS.state,
   ];
   southeastCompetitionColumns: ClockResultsTableColumn[] = [
@@ -229,6 +238,7 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
     RESULT_COLUMNS.winner,
     RESULT_COLUMNS.single,
     RESULT_COLUMNS.average,
+    RESULT_COLUMNS.video,
     RESULT_COLUMNS.state,
   ];
   fourRoundCompetitionColumns: ClockResultsTableColumn[] = [
@@ -267,6 +277,7 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
         return {
           id: competition.competitionId,
           cells: {
+            video: { text: '', videoUrl: competition.videoUrl },
             competition: this.linkedCompetitionCell(
               competition.competitionId,
               competition.competitionName,
@@ -298,6 +309,7 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
       .map((champion) => ({
         id: champion.competitionId,
         cells: {
+          video: { text: '', videoUrl: champion.videoUrl },
           competition: this.linkedCompetitionCell(
             champion.competitionId,
             champion.competitionName,
@@ -454,6 +466,7 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
       | 'competitionName'
       | 'state'
       | 'competitionState'
+      | 'videoUrl'
     >,
   ): Record<string, ClockResultsTableCell> {
     return {
@@ -463,6 +476,7 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
       average: record.rankingType === 'average' ? this.clockValueCell(record.value) : { text: '' },
       state: this.stateCell(record.state),
       competition: this.competitionCell(record),
+      video: { text: '', videoUrl: record.videoUrl },
     };
   }
 

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import type { ClockMajorChampionship } from 'src/app/models/ClockResult';
 import { formatLongDate } from 'src/app/shared/date.util';
 import { clockStatePillClass, formatClockValue } from '../clock-results.util';
+import { ClockVideoTableDirective } from '../clock-video-table.directive';
 
 type ClockMajorChampionshipView = ClockMajorChampionship & {
   displayDate: string;
@@ -13,6 +14,7 @@ type ClockMajorChampionshipView = ClockMajorChampionship & {
   templateUrl: './clock-major-results-table.component.html',
   styleUrls: ['./clock-major-results-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ClockVideoTableDirective],
 })
 export class ClockMajorResultsTableComponent {
   competitions = input.required<ClockMajorChampionship[]>();
