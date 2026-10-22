@@ -42,16 +42,24 @@ import { Colors } from 'src/app/shared/types';
 import { LoadingSpinnerComponent } from '../../shared/loading-spinner/loading-spinner.component';
 import { ClockResultsTableComponent } from './clock-results-table/clock-results-table.component';
 import { ClockMajorResultsTableComponent } from './clock-major-results-table/clock-major-results-table.component';
+import { ClockScramblePracticePaneComponent } from './clock-scramble-practice-pane/clock-scramble-practice-pane.component';
 import { ClockVideoPlaybackService } from './clock-video-playback.service';
 import { formatClockValue } from './clock-results.util';
+import {
+  buildClockCompetitionCell,
+  buildClockFourRoundCompetitionRows,
+  buildClockPodiumCompetitorCells,
+  buildClockRecordMilestoneRows,
+  buildClockResultCells,
+  buildClockSoutheastResultRow,
+} from './clock-tribute-table-data';
 import type {
-  ClockResultsTableCell,
   ClockResultsTableColumn,
+  ClockResultsTableResult,
   ClockResultsTableRow,
 } from './clock-results-table/clock-results-table.component';
 
 type ClockTributeSection = SubTopic & { id: string; kind: ClockTributeSectionKind };
-
 const RESULT_COLUMNS = {
   date: { key: 'date', label: 'Date' },
   cuber: { key: 'name', label: 'Cuber' },
@@ -74,13 +82,8 @@ const RESULT_COLUMNS = {
   state: { key: 'state', label: 'State' },
   competition: { key: 'competition', label: 'Competition' },
   video: { key: 'video', label: '', width: '3.5rem' },
+  scramble: { key: 'scramble', label: '', width: '3.5rem' },
 } satisfies Record<string, ClockResultsTableColumn>;
-const RECORD_TEXT_COLORS: Partial<Record<string, 'blue' | 'red'>> = {
-  WR: 'blue',
-  FWR: 'blue',
-  NAR: 'red',
-  FNAR: 'red',
-};
 const PODIUM_RANK_COLORS: Record<number, 'gold' | 'silver' | 'bronze' | undefined> = {
   1: 'gold',
   2: 'silver',
@@ -100,6 +103,7 @@ const PODIUM_RANK_COLORS: Record<number, 'gold' | 'silver' | 'bronze' | undefine
     NgOptimizedImage,
     ClockResultsTableComponent,
     ClockMajorResultsTableComponent,
+    ClockScramblePracticePaneComponent,
   ],
 })
 export class ClockTributeComponent implements OnInit, OnDestroy {
@@ -115,6 +119,7 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
   loadingContent = signal(true);
   sections = signal<ClockTributeSection[]>([]);
   activeSection = signal('');
+  scramblePracticeResult = signal<ClockResultsTableResult | null>(null);
   loadingStatistics = signal(true);
   exportDate = signal<string | null>(null);
   currentRecords = signal<ClockCurrentRecords | null>(null);
@@ -134,6 +139,7 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
     RESULT_COLUMNS.single,
     RESULT_COLUMNS.average,
     RESULT_COLUMNS.video,
+    RESULT_COLUMNS.scramble,
     RESULT_COLUMNS.state,
     RESULT_COLUMNS.competition,
   ];
@@ -145,7 +151,7 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
       const record = records[rankingType];
       return {
         id: rankingType,
-        cells: this.resultCells(record),
+        ...buildClockResultCells(record),
       };
     });
   });
@@ -156,19 +162,21 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
     RESULT_COLUMNS.single,
     RESULT_COLUMNS.average,
     RESULT_COLUMNS.video,
+    RESULT_COLUMNS.scramble,
     RESULT_COLUMNS.state,
     RESULT_COLUMNS.competition,
   ];
   rankingHistoryRows = computed<ClockResultsTableRow[]>(() => {
     return [...this.rankingHistory()]
       .sort((left, right) => left.date.localeCompare(right.date))
-      .map((record) => ({
-        id: `${record.date}-${record.rankingType}-${record.wcaId}-${record.competitionId}`,
-        cells: {
-          ...this.resultCells(record),
+      .map((record) => {
+        const row = buildClockResultCells(record);
+        return {
+          id: `${record.date}-${record.rankingType}-${record.wcaId}-${record.competitionId}`,
+          ...row,
           rank: { text: `#${record.rank}` },
-        },
-      }));
+        };
+      });
   });
   recordMilestoneColumns: ClockResultsTableColumn[] = [
     RESULT_COLUMNS.date,
@@ -177,14 +185,15 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
     RESULT_COLUMNS.single,
     RESULT_COLUMNS.average,
     RESULT_COLUMNS.video,
+    RESULT_COLUMNS.scramble,
     RESULT_COLUMNS.state,
     RESULT_COLUMNS.competition,
   ];
   femaleRecordRows = computed<ClockResultsTableRow[]>(() =>
-    this.buildRecordMilestoneRows(this.femaleRecordAchievements()),
+    buildClockRecordMilestoneRows(this.femaleRecordAchievements()),
   );
   regionalRecordRows = computed<ClockResultsTableRow[]>(() =>
-    this.buildRecordMilestoneRows(this.regionalRecords()),
+    buildClockRecordMilestoneRows(this.regionalRecords()),
   );
   podiumColumns: ClockResultsTableColumn[] = [
     RESULT_COLUMNS.podiumRank,
@@ -196,31 +205,35 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
     RESULT_COLUMNS.secondResult,
     RESULT_COLUMNS.third,
     RESULT_COLUMNS.thirdResult,
+    RESULT_COLUMNS.scramble,
   ];
   podiumRows = computed<ClockResultsTableRow[]>(() =>
     [...this.qualifyingPodiums()]
       .sort((left, right) => left.date.localeCompare(right.date))
       .map((competition) => {
         const [firstCompetitor, secondCompetitor, thirdCompetitor] = competition.competitors;
-        const first = this.podiumCompetitorCells(competition, firstCompetitor);
-        const second = this.podiumCompetitorCells(competition, secondCompetitor);
-        const third = this.podiumCompetitorCells(competition, thirdCompetitor);
+        const first = buildClockPodiumCompetitorCells(competition, firstCompetitor);
+        const second = buildClockPodiumCompetitorCells(competition, secondCompetitor);
+        const third = buildClockPodiumCompetitorCells(competition, thirdCompetitor);
 
         return {
           id: competition.competitionId,
-          cells: {
-            podiumRank: {
-              text: String(competition.rank),
-              textColor: PODIUM_RANK_COLORS[competition.rank],
-            },
-            competition: this.competitionCell(competition),
-            sum: { text: this.formatClockValue(competition.score) },
-            first: first.name,
-            firstResult: first.average,
-            second: second.name,
-            secondResult: second.average,
-            third: third.name,
-            thirdResult: third.average,
+          podiumRank: {
+            text: String(competition.rank),
+            textColor: PODIUM_RANK_COLORS[competition.rank],
+          },
+          competition: buildClockCompetitionCell(competition),
+          sum: { text: this.formatClockValue(competition.score) },
+          first: first.name,
+          firstResult: first.average,
+          second: second.name,
+          secondResult: second.average,
+          third: third.name,
+          thirdResult: third.average,
+          result: {
+            ...(first.result ? { firstResult: first.result } : {}),
+            ...(second.result ? { secondResult: second.result } : {}),
+            ...(third.result ? { thirdResult: third.result } : {}),
           },
         };
       }),
@@ -231,6 +244,7 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
     RESULT_COLUMNS.single,
     RESULT_COLUMNS.average,
     RESULT_COLUMNS.video,
+    RESULT_COLUMNS.scramble,
     RESULT_COLUMNS.state,
   ];
   southeastCompetitionColumns: ClockResultsTableColumn[] = [
@@ -239,6 +253,7 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
     RESULT_COLUMNS.single,
     RESULT_COLUMNS.average,
     RESULT_COLUMNS.video,
+    RESULT_COLUMNS.scramble,
     RESULT_COLUMNS.state,
   ];
   fourRoundCompetitionColumns: ClockResultsTableColumn[] = [
@@ -246,84 +261,24 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
     RESULT_COLUMNS.finalists,
   ];
   fourRoundCompetitionRows = computed<ClockResultsTableRow[]>(() =>
-    [...this.fourRoundClockCompetitions()]
-      .sort((left, right) => left.date.localeCompare(right.date))
-      .map((competition) => ({
-        id: competition.competitionId,
-        cells: {
-          competition: this.linkedCompetitionCell(
-            competition.competitionId,
-            competition.competitionName,
-            {
-              imageUrl: competition.logoAssetId
-                ? this.championshipLogoUrlsByAssetId().get(competition.logoAssetId)
-                : undefined,
-              meta: `${formatLongDate(competition.date)} · ${competition.city}`,
-            },
-          ),
-          finalists: {
-            text: '',
-            links: competition.finalists.map((finalist) =>
-              this.personCell(finalist.personName, finalist.wcaId),
-            ),
-          },
-        },
-      })),
+    buildClockFourRoundCompetitionRows(
+      this.fourRoundClockCompetitions(),
+      this.championshipLogoUrlsByAssetId(),
+    ),
   );
   southeastCompetitionRows = computed<ClockResultsTableRow[]>(() =>
     [...this.southeastCompetitions()]
       .sort((left, right) => left.date.localeCompare(right.date))
-      .map((competition) => {
-        return {
-          id: competition.competitionId,
-          cells: {
-            video: { text: '', videoUrl: competition.videoUrl },
-            competition: this.linkedCompetitionCell(
-              competition.competitionId,
-              competition.competitionName,
-              {
-                imageUrl: competition.logoAssetId
-                  ? this.championshipLogoUrlsByAssetId().get(competition.logoAssetId)
-                  : undefined,
-                meta: `${formatLongDate(competition.date)} · ${competition.city}`,
-              },
-            ),
-            winner:
-              competition.wcaId && competition.personName
-                ? this.personCell(competition.personName, competition.wcaId)
-                : { text: '' },
-            single:
-              competition.best !== null ? this.clockValueCell(competition.best) : { text: '' },
-            average:
-              competition.average !== null
-                ? this.clockValueCell(competition.average)
-                : { text: '' },
-            state: competition.wcaId ? this.stateCell(competition.state, 'Unknown') : { text: '' },
-          },
-        };
-      }),
+      .map((competition) =>
+        buildClockSoutheastResultRow(competition, 'winner', this.championshipLogoUrlsByAssetId()),
+      ),
   );
   southeastChampionRows = computed<ClockResultsTableRow[]>(() =>
     [...this.southeastChampions()]
       .sort((left, right) => left.date.localeCompare(right.date))
-      .map((champion) => ({
-        id: champion.competitionId,
-        cells: {
-          video: { text: '', videoUrl: champion.videoUrl },
-          competition: this.linkedCompetitionCell(
-            champion.competitionId,
-            champion.competitionName,
-            {
-              imageUrl: this.championshipLogoUrlsByAssetId().get(champion.logoAssetId),
-              meta: `${formatLongDate(champion.date)} · ${champion.city}`,
-            },
-          ),
-          champion: this.personCell(champion.personName, champion.wcaId),
-          single: this.clockValueCell(champion.best),
-          average: this.clockValueCell(champion.average),
-          state: this.stateCell(champion.state, 'Unknown'),
-        },
-      })),
+      .map((champion) =>
+        buildClockSoutheastResultRow(champion, 'champion', this.championshipLogoUrlsByAssetId()),
+      ),
   );
 
   // Set the page theme and load editorial sections alongside generated statistics.
@@ -411,111 +366,6 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  // Build a linked, state-colored competition cell.
-  private competitionCell(
-    competition: Pick<ClockResult, 'competitionId' | 'competitionName' | 'competitionState'>,
-  ): ClockResultsTableCell {
-    return {
-      ...this.linkedCompetitionCell(competition.competitionId, competition.competitionName),
-      pill: true,
-      pillState: competition.competitionState,
-    };
-  }
-
-  // Build a linked competition cell that can include optional championship details.
-  private linkedCompetitionCell(
-    competitionId: string,
-    competitionName: string,
-    details: Pick<ClockResultsTableCell, 'imageUrl' | 'meta'> = {},
-  ): ClockResultsTableCell {
-    return {
-      text: competitionName,
-      href: `https://www.worldcubeassociation.org/competitions/${competitionId}`,
-      ...details,
-    };
-  }
-
-  // Build a linked person cell when a WCA ID is available.
-  private personCell(personName: string, wcaId: string | null): ClockResultsTableCell {
-    return {
-      text: personName,
-      ...(wcaId ? { href: `https://www.worldcubeassociation.org/persons/${wcaId}` } : {}),
-    };
-  }
-
-  // Format one Clock result value for a table cell.
-  private clockValueCell(value: number): ClockResultsTableCell {
-    return { text: this.formatClockValue(value) };
-  }
-
-  // Build a state pill while allowing champion rows to show an unknown-state label.
-  private stateCell(state: string | null, fallback = ''): ClockResultsTableCell {
-    return { text: state ?? fallback, pill: true, pillState: state };
-  }
-
-  // Share the common result cells across Clock statistics tables.
-  private resultCells(
-    record: Pick<
-      ClockResult,
-      | 'date'
-      | 'rankingType'
-      | 'value'
-      | 'wcaId'
-      | 'personName'
-      | 'competitionId'
-      | 'competitionName'
-      | 'state'
-      | 'competitionState'
-      | 'videoUrl'
-    >,
-  ): Record<string, ClockResultsTableCell> {
-    return {
-      date: { text: formatLongDate(record.date) },
-      name: this.personCell(record.personName, record.wcaId),
-      single: record.rankingType === 'single' ? this.clockValueCell(record.value) : { text: '' },
-      average: record.rankingType === 'average' ? this.clockValueCell(record.value) : { text: '' },
-      state: this.stateCell(record.state),
-      competition: this.competitionCell(record),
-      video: { text: '', videoUrl: record.videoUrl },
-    };
-  }
-
-  // Map record milestones into date-ordered rows for the two record tables.
-  private buildRecordMilestoneRows(records: ClockRecordMilestone[]): ClockResultsTableRow[] {
-    return [...records]
-      .sort((left, right) => left.date.localeCompare(right.date))
-      .map((record) => {
-        const result = { ...record, rankingType: record.metric };
-        return {
-          id: `${record.date}-${record.record}-${record.metric}-${record.wcaId}-${record.competitionId}`,
-          cells: {
-            ...this.resultCells(result),
-            record: { text: record.record, textColor: RECORD_TEXT_COLORS[record.record] },
-          },
-        };
-      });
-  }
-
-  // Reuse result formatting for each competitor in a qualifying podium.
-  private podiumCompetitorCells(
-    competition: ClockQualifyingPodium,
-    competitor: ClockQualifyingPodium['competitors'][number],
-  ): { name: ClockResultsTableCell; average: ClockResultsTableCell } {
-    const cells = this.resultCells({
-      date: competition.date,
-      rankingType: 'average',
-      value: competitor.average,
-      wcaId: competitor.wcaId,
-      personName: competitor.name,
-      competitionId: competition.competitionId,
-      competitionName: competition.competitionName,
-      state: null,
-      competitionState: competition.competitionState,
-    });
-
-    return { name: cells['name'], average: cells['average'] };
-  }
-
   // Scroll TOC targets inside the page's own scroll container.
   scrollToSection(event: MouseEvent, mainPane: HTMLElement, sectionId: string): void {
     event.preventDefault();
@@ -541,6 +391,11 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
     }
 
     this.activeSection.set(activeId);
+  }
+
+  // Replace the section navigation with the selected result's scramble pane.
+  openScramblePane(result: ClockResultsTableResult): void {
+    this.scramblePracticeResult.set(result);
   }
 
   // Map a linked Contentful subTopic into the Clock page's section model.

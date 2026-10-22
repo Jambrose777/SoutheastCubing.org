@@ -28,30 +28,25 @@
   }
 }
 
-.clock-results-video-cell {
-  text-align: center;
-  vertical-align: middle;
-}
-
-.clock-results-video-panel {
-  position: sticky;
-  left: max(1rem, calc((100cqw - 48rem) / 2));
-  display: flex;
-  width: min(48rem, calc(100cqw - 2rem));
-  flex-direction: column;
+.clock-results-scramble-button {
+  display: inline-flex;
   align-items: center;
-  margin-inline: max(1rem, calc((100cqw - 48rem) / 2));
-  gap: 12px;
-}
-
-.clock-results-video-row > td {
-  padding-inline: 0;
-}
-
-.clock-results-video-frame {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
+  justify-content: center;
+  padding: 4px;
   border: 0;
-  background: color-pallet.$se-black;
+  border-radius: 4px;
+  background: transparent;
+  color: color-pallet.$se-dark-blue;
+  font-size: 1.25rem;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(color-pallet.$se-blue, 0.08);
+    color: color-pallet.$se-blue;
+  }
+
+  &:focus-visible {
+    outline: 2px solid color-pallet.$se-blue;
+    outline-offset: 2px;
+  }
 }

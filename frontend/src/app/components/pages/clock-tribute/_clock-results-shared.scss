@@ -51,3 +51,18 @@ td a.clock-results-pill {
 .clock-results-pill--unknown {
   background: color-pallet.$se-grey;
 }
+
+.clock-results-scramble-column {
+  text-align: center;
+}
+
+.clock-results-video-cell {
+  text-align: center;
+  vertical-align: middle;
+}
+
+@media only screen and (max-width: 950px) {
+  .clock-results-scramble-column {
+    display: none;
+  }
+}

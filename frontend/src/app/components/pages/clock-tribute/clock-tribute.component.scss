@@ -114,6 +114,14 @@
   }
 }
 
+.side-pane.clock-side-pane--scramble {
+  background-color: color-pallet.$se-blue;
+
+  > se-header {
+    background-color: color-pallet.$se-blue;
+  }
+}
+
 @media only screen and (max-width: screen-sizes.$small-breakpoint) {
   .side-pane {
     display: none;

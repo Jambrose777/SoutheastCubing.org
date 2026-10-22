@@ -1,0 +1,27 @@
+@if (mode() === 'video') {
+  @if (videoUrl(); as url) {
+    <button
+      type="button"
+      class="clock-results-video-button"
+      [attr.aria-label]="videoExpanded() ? 'Close result video' : 'Play result video'"
+      [attr.aria-expanded]="videoExpanded()"
+      [attr.aria-controls]="'clock-video-panel-' + rowId()"
+      [matTooltip]="videoExpanded() ? 'Close result video' : 'Play result video'"
+      matTooltipPosition="above"
+      (click)="videoToggled.emit({ rowId: rowId(), videoUrl: url })"
+    >
+      <i class="fa-solid fa-video" aria-hidden="true"></i>
+    </button>
+  }
+} @else if (scrambleResult(); as result) {
+  <button
+    type="button"
+    class="clock-results-scramble-button"
+    [attr.aria-label]="scrambleLabel(result.scrambles)"
+    [matTooltip]="scrambleLabel(result.scrambles)"
+    matTooltipPosition="above"
+    (click)="scrambleSelected.emit(result)"
+  >
+    <span class="cubing-icon event-clock" aria-hidden="true"></span>
+  </button>
+}

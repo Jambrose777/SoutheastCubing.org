@@ -1,0 +1,138 @@
+@use 'src/styles/color-pallet' as color-pallet;
+
+.clock-scramble-practice-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 16px;
+}
+
+.clock-scramble-practice-pane-timer-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.clock-scramble-practice-pane-timer {
+  grid-column: 2;
+  min-width: 8rem;
+  padding: 8px 12px;
+  border: 1px solid color-pallet.$se-grey;
+  border-radius: 4px;
+  background: white;
+  color: color-pallet.$se-black;
+  font-size: 1.75rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+
+  &:focus-visible {
+    outline: 2px solid color-pallet.$se-blue;
+    outline-offset: 2px;
+  }
+
+  &[aria-current='step'] {
+    font-weight: 700;
+  }
+}
+
+.clock-scramble-practice-pane-dnf {
+  grid-column: 3;
+  justify-self: start;
+  min-width: 3.5rem;
+  padding: 8px 12px;
+  border: 1px solid color-pallet.$se-dark-red;
+  border-radius: 4px;
+  background: color-pallet.$se-red;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid color-pallet.$se-black;
+    outline-offset: 2px;
+  }
+}
+
+.clock-scramble-practice-pane-event {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.clock-scramble-practice-pane-competition {
+  margin: 0;
+  font-family: 'MontserratBold';
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.clock-scramble-practice-pane-round {
+  margin: 0;
+  color: color-pallet.$se-dark-grey;
+  font-size: 0.875rem;
+}
+
+.clock-scramble-practice-pane-attempts {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  text-align: left;
+
+  th,
+  td {
+    padding: 8px 6px;
+    border-bottom: 1px solid color-pallet.$se-grey;
+    vertical-align: top;
+  }
+
+  thead th {
+    background: color-pallet.$se-dark-grey;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  th:nth-child(1),
+  td:nth-child(1),
+  th:nth-child(2),
+  td:nth-child(2) {
+    width: 3.5rem;
+  }
+
+  th:last-child,
+  td:last-child {
+    width: auto;
+  }
+}
+
+.clock-scramble-practice-pane-attempt-selected {
+  background: rgba(color-pallet.$se-blue, 0.1);
+
+  .clock-scramble-practice-pane-scramble {
+    font-family: 'MontserratBold';
+    font-weight: normal;
+  }
+}
+
+.clock-scramble-practice-pane-scramble {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: color-pallet.$se-black;
+  font: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid color-pallet.$se-blue;
+    outline-offset: 2px;
+  }
+}
+
+.clock-scramble-practice-pane-average {
+  border-top: 2px solid color-pallet.$se-dark-grey;
+  font-weight: 600;
+}

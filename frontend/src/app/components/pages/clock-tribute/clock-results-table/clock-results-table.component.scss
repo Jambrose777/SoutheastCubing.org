@@ -1,7 +1,6 @@
 @use 'src/styles/color-pallet' as color-pallet;
 @use 'sass:color';
-@use '../clock-results-pill';
-@use '../clock-video';
+@use '../clock-results-shared';
 
 .clock-results-table-scroll {
   max-width: 100%;

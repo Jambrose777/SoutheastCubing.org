@@ -1,0 +1,24 @@
+@use 'src/styles/color-pallet' as color-pallet;
+
+:host > td {
+  padding-inline: 0;
+}
+
+.clock-results-video-panel {
+  position: sticky;
+  left: max(1rem, calc((100cqw - 48rem) / 2));
+  display: flex;
+  width: min(48rem, calc(100cqw - 2rem));
+  flex-direction: column;
+  align-items: center;
+  margin-inline: max(1rem, calc((100cqw - 48rem) / 2));
+  gap: 12px;
+}
+
+.clock-results-video-frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  background: color-pallet.$se-black;
+}

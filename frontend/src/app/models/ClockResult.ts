@@ -1,5 +1,7 @@
 // WCA result records.
 export interface ClockResult {
+  resultId: string;
+  roundTypeId: string;
   date: string;
   rankingType: 'single' | 'average';
   wcaId: string;
@@ -12,6 +14,7 @@ export interface ClockResult {
   state: string | null;
   competitionState?: string | null;
   videoUrl?: string;
+  attempts: number[];
   scrambles?: string[];
 }
 
@@ -26,10 +29,14 @@ export type ClockRecordMilestone = Omit<ClockResult, 'rank' | 'rankingType'> & {
 };
 
 export interface ClockPodiumCompetitor {
+  resultId: string;
+  roundTypeId: string;
   place: number;
   wcaId: string;
   name: string;
   average: number;
+  attempts: number[];
+  scrambles?: string[];
 }
 
 export interface ClockQualifyingPodium {
@@ -48,6 +55,8 @@ export interface ClockChampionshipType {
 }
 
 export interface ClockChampionshipFinalist {
+  resultId: string;
+  roundTypeId: string;
   wcaId: string;
   personName: string;
   personCountryId: string;
@@ -55,7 +64,9 @@ export interface ClockChampionshipFinalist {
   best: number;
   average: number;
   state: string;
+  attempts: number[];
   videoUrl?: string;
+  scrambles?: string[];
 }
 
 export interface ClockMajorChampionship {
@@ -72,6 +83,8 @@ export interface ClockMajorChampionship {
 
 export interface ClockSoutheastCompetition {
   competitionId: string;
+  resultId: string | null;
+  roundTypeId: string | null;
   logoAssetId?: string;
   competitionName: string;
   date: string;
@@ -81,7 +94,9 @@ export interface ClockSoutheastCompetition {
   state: string | null;
   best: number | null;
   average: number | null;
+  attempts: number[] | null;
   videoUrl?: string;
+  scrambles?: string[];
 }
 
 export interface ClockFourRoundFinalist {
@@ -101,6 +116,8 @@ export interface ClockFourRoundCompetition {
 
 export interface ClockSoutheastChampion {
   competitionId: string;
+  resultId: string;
+  roundTypeId: string;
   competitionName: string;
   date: string;
   city: string;
@@ -110,7 +127,9 @@ export interface ClockSoutheastChampion {
   state: string | null;
   best: number;
   average: number;
+  attempts: number[];
   videoUrl?: string;
+  scrambles?: string[];
 }
 
 export interface ClockRankings {

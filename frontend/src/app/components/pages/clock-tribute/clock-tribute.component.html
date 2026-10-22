@@ -49,6 +49,7 @@
                   caption="Current Southeast Clock Records"
                   [columns]="currentRecordsColumns"
                   [rows]="currentRecordRows()"
+                  (scrambleSelected)="openScramblePane($event)"
                 ></se-clock-results-table>
               }
               @if (section.description) {
@@ -76,6 +77,7 @@
                   [columns]="rankingHistoryColumns"
                   [rows]="rankingHistoryRows()"
                   [verticalScroll]="true"
+                  (scrambleSelected)="openScramblePane($event)"
                 ></se-clock-results-table>
               } @else {
                 <p>No matching results.</p>
@@ -100,6 +102,7 @@
                   caption="Clock Records by Southeast Cubers"
                   [columns]="recordMilestoneColumns"
                   [rows]="regionalRecordRows()"
+                  (scrambleSelected)="openScramblePane($event)"
                 ></se-clock-results-table>
               }
               @if (!loadingStatistics() && femaleRecordRows().length > 0) {
@@ -109,6 +112,7 @@
                   [columns]="recordMilestoneColumns"
                   [rows]="femaleRecordRows()"
                   [verticalScroll]="true"
+                  (scrambleSelected)="openScramblePane($event)"
                 ></se-clock-results-table>
               }
             }
@@ -131,6 +135,7 @@
                   [columns]="podiumColumns"
                   [rows]="podiumRows()"
                   [verticalScroll]="true"
+                  (scrambleSelected)="openScramblePane($event)"
                 ></se-clock-results-table>
               }
             }
@@ -151,6 +156,7 @@
                 <se-clock-major-results-table
                   [competitions]="majorChampionships()"
                   [logoUrlsByAssetId]="championshipLogoUrlsByAssetId()"
+                  (scrambleSelected)="openScramblePane($event)"
                 ></se-clock-major-results-table>
               }
             }
@@ -172,6 +178,7 @@
                   caption="Southeast Clock Champions"
                   [columns]="southeastChampionColumns"
                   [rows]="southeastChampionRows()"
+                  (scrambleSelected)="openScramblePane($event)"
                 ></se-clock-results-table>
               } @else {
                 <p>No Southeast Clock champions found.</p>
@@ -206,6 +213,7 @@
                   [columns]="southeastCompetitionColumns"
                   [rows]="southeastCompetitionRows()"
                   [verticalScroll]="true"
+                  (scrambleSelected)="openScramblePane($event)"
                 ></se-clock-results-table>
               } @else {
                 <p>No Southeast Clock competitions found.</p>
@@ -229,10 +237,12 @@
     }
   </main>
   @if (!isMobile()) {
-    <aside class="side-pane">
+    <aside class="side-pane" [class.clock-side-pane--scramble]="scramblePracticeResult() !== null">
       <se-header id="side-header" [showTitle]="false" [clockNavTheme]="true"></se-header>
       @if (loadingContent()) {
         <se-loading-spinner></se-loading-spinner>
+      } @else if (scramblePracticeResult(); as result) {
+        <se-clock-scramble-practice-pane [result]="result"></se-clock-scramble-practice-pane>
       } @else {
         <nav class="clock-toc list-container" aria-label="Clock Tribute sections">
           @for (section of sections(); track section.id) {

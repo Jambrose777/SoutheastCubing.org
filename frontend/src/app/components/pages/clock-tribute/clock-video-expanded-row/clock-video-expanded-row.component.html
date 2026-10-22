@@ -1,0 +1,14 @@
+<td [attr.colspan]="colspan()">
+  <div class="clock-results-video-panel" [id]="panelId()">
+    @if (embedUrl(); as url) {
+      <iframe
+        class="clock-results-video-frame"
+        [src]="url"
+        title="Clock result video player"
+        allow="autoplay; encrypted-media; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+      ></iframe>
+    }
+  </div>
+</td>

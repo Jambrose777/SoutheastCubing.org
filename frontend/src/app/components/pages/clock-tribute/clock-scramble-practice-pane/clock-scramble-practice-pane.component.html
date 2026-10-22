@@ -1,0 +1,79 @@
+<section
+  class="clock-scramble-practice-pane"
+  [attr.aria-label]="'Scramble practice for ' + result().personName"
+>
+  <header class="clock-scramble-practice-pane-event">
+    <h2 class="clock-scramble-practice-pane-competition">{{ result().competitionName }}</h2>
+    @if (roundName(); as round) {
+      <p class="clock-scramble-practice-pane-round">{{ round }}</p>
+    }
+  </header>
+
+  <table class="clock-scramble-practice-pane-attempts">
+    <thead>
+      <tr>
+        <th scope="col">{{ resultFirstName() }}</th>
+        <th scope="col">You</th>
+        <th scope="col">Scramble</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (index of attemptIndexes(); track index) {
+        <tr
+          [class.clock-scramble-practice-pane-attempt-selected]="selectedAttemptIndex() === index"
+        >
+          <td>{{ wcaAttemptText(index) }}</td>
+          <td>{{ userAttemptText(index) }}</td>
+          <td>
+            <button
+              type="button"
+              class="clock-scramble-practice-pane-scramble"
+              [attr.aria-current]="selectedAttemptIndex() === index ? 'step' : null"
+              [attr.aria-label]="'Select attempt ' + (index + 1)"
+              (click)="selectAttempt(index)"
+            >
+              {{ scrambleText(index) }}
+            </button>
+          </td>
+        </tr>
+      }
+      @if (result().resultType === 'average') {
+        <tr class="clock-scramble-practice-pane-average">
+          <td>{{ originalAverageText() }}</td>
+          <td>{{ userAverageText() }}</td>
+          <td>Average</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <div class="clock-scramble-practice-pane-timer-controls">
+    <output
+      #timerDisplay
+      class="clock-scramble-practice-pane-timer"
+      tabindex="0"
+      role="timer"
+      aria-live="off"
+      [attr.aria-label]="timerAccessibleLabel()"
+    >
+      @if (timerPhase() === 'ready') {
+        Ready
+      } @else {
+        {{ formatClockValue(timerCentiseconds()) }}
+      }
+    </output>
+    @if (lastCompletedAttemptIndex() !== null) {
+      <button
+        type="button"
+        class="clock-scramble-practice-pane-dnf"
+        [attr.aria-label]="previousDnfAriaLabel()"
+        (click)="markPreviousDnf()"
+      >
+        DNF Previous
+      </button>
+    }
+  </div>
+  @if (selectedScramble(); as scramble) {
+    <se-clock-scramble-diagram [scramble]="scramble"></se-clock-scramble-diagram>
+  }
+</section>

@@ -24,13 +24,14 @@
           <th scope="col">Single</th>
           <th scope="col">Average</th>
           <th scope="col" aria-label="Video"></th>
+          <th scope="col" class="clock-results-scramble-column" aria-label="Scramble practice"></th>
           <th scope="col">State</th>
         </tr>
       </thead>
       @for (competition of majorChampionshipResults(); track competition.competitionId) {
         <tbody>
           <tr class="clock-major-group-header">
-            <th scope="rowgroup" colspan="6">
+            <th scope="rowgroup" colspan="7">
               <div class="clock-major-group-info">
                 @if (competition.logoUrl) {
                   <img
@@ -61,6 +62,7 @@
             </th>
           </tr>
           @for (finalist of competition.finalists; track finalist.wcaId) {
+            @let scrambleResultData = scrambleResult(finalist, competition.competitionName);
             <tr [attr.data-clock-result-row]="competition.competitionId + '-' + finalist.wcaId">
               <td
                 [class.clock-major-place--gold]="finalist.place === 1"
@@ -79,41 +81,34 @@
                 </a>
               </td>
               <td>{{ formatClockValue(finalist.best) }}</td>
-              <td>{{ formatClockValue(finalist.average) }}</td>
+              <td>
+                <span
+                  tabindex="0"
+                  [matTooltip]="formatAttempts(finalist.attempts)"
+                  matTooltipPosition="above"
+                >
+                  {{ formatClockValue(finalist.average) }}
+                </span>
+              </td>
               <td class="clock-results-video-cell">
-                @if (finalist.videoUrl) {
-                  <button
-                    type="button"
-                    class="clock-results-video-button"
-                    [attr.aria-label]="
-                      videoTable.expandedVideo()?.rowId ===
-                      competition.competitionId + '-' + finalist.wcaId
-                        ? 'Close result video'
-                        : 'Play result video'
-                    "
-                    [attr.aria-expanded]="
-                      videoTable.expandedVideo()?.rowId ===
-                      competition.competitionId + '-' + finalist.wcaId
-                    "
-                    [attr.aria-controls]="
-                      'clock-video-panel-' + competition.competitionId + '-' + finalist.wcaId
-                    "
-                    [attr.title]="
-                      videoTable.expandedVideo()?.rowId ===
-                      competition.competitionId + '-' + finalist.wcaId
-                        ? 'Close result video'
-                        : 'Play result video'
-                    "
-                    (click)="
-                      videoTable.toggleVideo(
-                        competition.competitionId + '-' + finalist.wcaId,
-                        finalist.videoUrl
-                      )
-                    "
-                  >
-                    <i class="fa-solid fa-video" aria-hidden="true"></i>
-                  </button>
-                }
+                <se-clock-result-action
+                  mode="video"
+                  [rowId]="competition.competitionId + '-' + finalist.wcaId"
+                  [videoUrl]="finalist.videoUrl ?? null"
+                  [videoExpanded]="
+                    videoTable.expandedVideo()?.rowId ===
+                    competition.competitionId + '-' + finalist.wcaId
+                  "
+                  (videoToggled)="videoTable.toggleVideo($event.rowId, $event.videoUrl)"
+                ></se-clock-result-action>
+              </td>
+              <td class="clock-results-scramble-column">
+                <se-clock-result-action
+                  mode="scramble"
+                  [rowId]="competition.competitionId + '-' + finalist.wcaId"
+                  [scrambleResult]="scrambleResultData ?? null"
+                  (scrambleSelected)="scrambleSelected.emit($event)"
+                ></se-clock-result-action>
               </td>
               <td>
                 <span [class]="'clock-results-pill ' + statePillClass(finalist.state)">
@@ -123,25 +118,15 @@
             </tr>
             @if (videoTable.expandedVideo(); as expanded) {
               @if (expanded.rowId === competition.competitionId + '-' + finalist.wcaId) {
-                <tr class="clock-results-video-row">
-                  <td colspan="6">
-                    <div
-                      class="clock-results-video-panel"
-                      [id]="'clock-video-panel-' + competition.competitionId + '-' + finalist.wcaId"
-                    >
-                      @if (expanded.embedUrl) {
-                        <iframe
-                          class="clock-results-video-frame"
-                          [src]="expanded.embedUrl"
-                          title="Clock result video player"
-                          allow="autoplay; encrypted-media; picture-in-picture; web-share"
-                          referrerpolicy="strict-origin-when-cross-origin"
-                          allowfullscreen
-                        ></iframe>
-                      }
-                    </div>
-                  </td>
-                </tr>
+                <tr
+                  class="clock-results-video-row"
+                  seClockVideoExpandedRow
+                  [colspan]="7"
+                  [embedUrl]="expanded.embedUrl"
+                  [panelId]="
+                    'clock-video-panel-' + competition.competitionId + '-' + finalist.wcaId
+                  "
+                ></tr>
               }
             }
           }
