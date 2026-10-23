@@ -39,8 +39,8 @@
 
 <!-- Sign-out button -->
 <div class="side-pane-sign-out">
-  <span class="btn" (click)="signOut()" role="button" tabindex="0" aria-label="Sign out">
-    Sign out
+  <button type="button" class="btn" [disabled]="isSigningOut()" (click)="signOut()">
+    {{ isSigningOut() ? 'Signing out...' : 'Sign out' }}
     <i class="fa-solid fa-right-from-bracket fa-sm"></i>
-  </span>
+  </button>
 </div>

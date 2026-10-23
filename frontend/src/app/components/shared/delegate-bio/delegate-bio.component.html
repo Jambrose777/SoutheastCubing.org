@@ -55,7 +55,7 @@
     ></textarea>
     <div class="bio-edit-actions">
       <button type="button" class="btn small" (click)="save()" [disabled]="savingBio()">
-        Save
+        {{ savingBio() ? 'Saving...' : 'Save' }}
       </button>
       <button type="button" class="btn small" (click)="cancelEditing()" [disabled]="savingBio()">
         Cancel

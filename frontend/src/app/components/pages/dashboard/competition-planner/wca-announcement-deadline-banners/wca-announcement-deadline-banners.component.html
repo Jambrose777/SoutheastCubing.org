@@ -14,7 +14,12 @@
         <p>This competition can no longer be announed on WCA.</p>
       </div>
       <div class="banner-actions">
-        <button type="button" class="btn small" (click)="deleteRequested.emit(competition)">
+        <button
+          type="button"
+          class="btn small"
+          [disabled]="deletingCompetitionIds().has(competition.id)"
+          (click)="deleteRequested.emit(competition)"
+        >
           <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
           Delete
         </button>

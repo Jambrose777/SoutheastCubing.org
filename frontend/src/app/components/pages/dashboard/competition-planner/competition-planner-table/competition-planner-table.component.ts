@@ -47,6 +47,7 @@ export class CompetitionPlannerTableComponent {
   refreshingCompetitionIds = input<ReadonlySet<string>>(new Set());
   creatingDriveFolderIds = input<ReadonlySet<string>>(new Set());
   unlinkingCompetitionIds = input<ReadonlySet<string>>(new Set());
+  deletingCompetitionIds = input<ReadonlySet<string>>(new Set());
 
   viewCompetitionRequested = output<PlannerTableRow>();
   editCompetitionRequested = output<PlannerTableRow>();
@@ -192,9 +193,8 @@ export class CompetitionPlannerTableComponent {
         icon: 'fa-arrows-rotate',
         label: 'Refresh WCA data',
         onClick: (row) => this.refreshCompetitionRequested.emit(row),
-        visible: (row) =>
-          canRefreshPlannerCompetition(row, this.currentUser()) &&
-          !this.refreshingCompetitionIds().has(row.id),
+        visible: (row) => canRefreshPlannerCompetition(row, this.currentUser()),
+        disabled: (row) => this.refreshingCompetitionIds().has(row.id),
       },
       {
         icon: 'fa-link',
@@ -216,6 +216,7 @@ export class CompetitionPlannerTableComponent {
           canEditPlannerCompetition(row, this.currentUser()) &&
           !row.is_major &&
           !row.wca_drive_link,
+        disabled: (row) => this.creatingDriveFolderIds().has(row.id),
       },
       {
         icon: 'fa-link',
@@ -231,9 +232,8 @@ export class CompetitionPlannerTableComponent {
         label: 'Unlink from WCA',
         onClick: (row) => this.unlinkCompetitionRequested.emit(row),
         visible: (row) =>
-          canEditPlannerCompetition(row, this.currentUser()) &&
-          row.status === 'planning' &&
-          !this.unlinkingCompetitionIds().has(row.id),
+          canEditPlannerCompetition(row, this.currentUser()) && row.status === 'planning',
+        disabled: (row) => this.unlinkingCompetitionIds().has(row.id),
       },
       {
         icon: 'fa-trash',
@@ -241,6 +241,7 @@ export class CompetitionPlannerTableComponent {
         onClick: (row) => this.deleteCompetitionRequested.emit(row),
         visible: (row) =>
           canEditPlannerCompetition(row, this.currentUser()) && row.status !== 'announced',
+        disabled: (row) => this.deletingCompetitionIds().has(row.id),
       },
     ],
   }));

@@ -14,6 +14,8 @@ export class AuthService {
 
   private currentUserSignal = signal<CurrentUser | null>(null);
   currentUser = this.currentUserSignal.asReadonly();
+  private signingOutSignal = signal(false);
+  isSigningOut = this.signingOutSignal.asReadonly();
 
   // Asks the backend whether the session cookie (if any) still resolves to a
   // signed-in user, updates currentUser accordingly, and resolves to whether
@@ -71,6 +73,8 @@ export class AuthService {
   // requires auth - a page that doesn't require auth leaves the user in
   // place, per the sign-out redirect rule.
   signOut(currentPageRequiresAuth: boolean) {
+    if (this.isSigningOut()) return;
+    this.signingOutSignal.set(true);
     this.api.signOut().subscribe({
       next: () => {
         this.currentUserSignal.set(null);
@@ -79,8 +83,10 @@ export class AuthService {
           window.location.href = '/home?signedOut=1';
         } else {
           this.toastService.success('Signed out successfully.');
+          this.signingOutSignal.set(false);
         }
       },
+      error: () => this.signingOutSignal.set(false),
     });
   }
 }

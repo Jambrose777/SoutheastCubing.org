@@ -11,6 +11,7 @@ import { formatLongDate } from 'src/app/shared/date.util';
 })
 export class WcaAnnouncementDeadlineBannersComponent {
   competitions = input.required<PlannerCompetition[]>();
+  deletingCompetitionIds = input<ReadonlySet<string>>(new Set());
   deleteRequested = output<PlannerCompetition>();
 
   private dismissedCompetitionIds = signal<Set<string>>(new Set());

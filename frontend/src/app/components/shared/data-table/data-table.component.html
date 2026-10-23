@@ -197,6 +197,7 @@
                 <button
                   type="button"
                   class="btn small icon-only"
+                  [disabled]="action.disabled?.(row) ?? false"
                   (click)="action.onClick(row)"
                   [matTooltip]="action.label"
                   matTooltipPosition="above"
@@ -224,7 +225,12 @@
               <mat-menu #rowActionsMenu="matMenu">
                 @for (action of rowActions.overflow; track action.label) {
                   @if (!action.visible || action.visible(row)) {
-                    <button type="button" mat-menu-item (click)="action.onClick(row)">
+                    <button
+                      type="button"
+                      mat-menu-item
+                      [disabled]="action.disabled?.(row) ?? false"
+                      (click)="action.onClick(row)"
+                    >
                       @if (action.iconImageSrc) {
                         <img class="data-table-action-icon" [src]="action.iconImageSrc" alt="" />
                       } @else if (action.icon) {

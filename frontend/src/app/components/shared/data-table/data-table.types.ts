@@ -68,6 +68,8 @@ export interface DataTableAction<T> {
   iconImageSrc?: string;
   label: string;
   onClick: (row: T) => void;
+  // Prevents activation for a row without hiding the action.
+  disabled?: (row: T) => boolean;
   // Omit to always show this action; when provided, the action is hidden
   // for a given row (e.g. an Edit item only shown to someone with edit
   // access to that specific row) rather than just disabled.

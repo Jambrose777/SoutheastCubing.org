@@ -175,6 +175,7 @@ export class ContactComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+    if (this.emailApiStatus() === EmailApiStatus.pending) return;
     this.emailApiStatus.set(EmailApiStatus.none);
     // check for a valid form
     if (!this.contactForm.valid) {

@@ -252,6 +252,7 @@
                             <button
                               type="button"
                               class="btn small icon-only"
+                              [disabled]="deletingHistoryIds().has(row.id)"
                               (click)="deleteHistoryRow(row)"
                               matTooltip="Permanently delete"
                               matTooltipPosition="above"
@@ -331,6 +332,7 @@
                           <button
                             type="button"
                             class="btn small icon-only"
+                            [disabled]="deletingHistoryIds().has(row.id)"
                             (click)="deleteHistoryRow(row)"
                             matTooltip="Permanently delete"
                             matTooltipPosition="above"

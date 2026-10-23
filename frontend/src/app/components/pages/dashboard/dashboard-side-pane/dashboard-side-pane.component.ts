@@ -19,6 +19,7 @@ import { ScreenSizeService } from 'src/app/services/screen-size.service';
 })
 export class DashboardSidePaneComponent implements OnInit {
   private authService = inject(AuthService);
+  isSigningOut = this.authService.isSigningOut;
   private router = inject(Router);
   private screenSizeService = inject(ScreenSizeService);
   dashboardLayout = inject(DashboardLayoutService);

@@ -138,6 +138,7 @@ export class CompetitionPlannerComponent implements OnInit {
   refreshingCompetitionIds = signal<Set<string>>(new Set());
   creatingDriveFolderIds = signal<Set<string>>(new Set());
   unlinkingCompetitionIds = signal<Set<string>>(new Set());
+  deletingCompetitionIds = signal<Set<string>>(new Set());
   potentialRows = computed(() => getPotentialPlannerCompetitions(this.rows()));
   statusLabel = (row: PlannerCompetition) => PLANNER_STATUS_LABELS[row.status];
   registrationsText = registrationsText;
@@ -354,21 +355,35 @@ export class CompetitionPlannerComponent implements OnInit {
     this.unannouncedCompetitionBanners()?.refresh();
   }
 
+  // Shares one in-flight guard across the row menu and deadline banner.
   deleteCompetition(row: PlannerCompetition): void {
+    if (this.deletingCompetitionIds().has(row.id)) return;
     if (!confirm(`Permanently delete "${row.name}"? This can't be undone.`)) {
       return;
     }
+    this.setCompetitionDeletePending(row.id, true);
     const pendingToast = this.toastService.pending('Deleting competition…');
     this.competitionPlannerApi.deleteCompetition(row.id).subscribe({
       next: () => {
         pendingToast.dismiss();
+        this.setCompetitionDeletePending(row.id, false);
         this.toastService.success('Competition deleted.');
         this.loadCompetitions();
       },
       error: (err) => {
         pendingToast.dismiss();
+        this.setCompetitionDeletePending(row.id, false);
         this.toastService.error(err?.error?.message ?? 'Failed to delete competition.');
       },
+    });
+  }
+
+  private setCompetitionDeletePending(competitionId: string, pending: boolean): void {
+    this.deletingCompetitionIds.update((ids) => {
+      const updated = new Set(ids);
+      if (pending) updated.add(competitionId);
+      else updated.delete(competitionId);
+      return updated;
     });
   }
 

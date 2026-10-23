@@ -18,10 +18,15 @@
     @if (isMobile()) {
       <!-- TEMPORARY: the desktop sign-out (see below) doesn't exist on
       mobile - remove this once a permanent mobile placement is designed. -->
-      <span class="btn sign-out" (click)="signOut()" role="button" tabindex="0">
-        Sign out
+      <button
+        type="button"
+        class="btn sign-out"
+        [disabled]="authService.isSigningOut()"
+        (click)="signOut()"
+      >
+        {{ authService.isSigningOut() ? 'Signing out...' : 'Sign out' }}
         <i class="fa-solid fa-right-from-bracket fa-sm"></i>
-      </span>
+      </button>
     }
   </div>
   @if (!isMobile()) {

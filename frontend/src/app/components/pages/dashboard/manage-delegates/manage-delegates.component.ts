@@ -123,6 +123,7 @@ export class ManageDelegatesComponent implements OnInit {
 
   // Manual "Refresh" sync button's own state.
   syncing = signal(false);
+  deletingHistoryIds = signal<Set<string>>(new Set());
 
   activeSheet = signal<ActiveSheet>(null);
   sheetRow = signal<ManageDelegateHistoryEntry | null>(null);
@@ -241,11 +242,13 @@ export class ManageDelegatesComponent implements OnInit {
   // Admin-only, irreversible - a simple one-click action with its own
   // confirmation prompt.
   deleteHistoryRow(row: ManageDelegateHistoryEntry) {
+    if (this.deletingHistoryIds().has(row.id)) return;
     if (
       !confirm(`Permanently delete ${row.name}'s ${row.type} history row? This can't be undone.`)
     ) {
       return;
     }
+    this.setHistoryDeletePending(row.id, true);
     const request =
       row.type === 'rank'
         ? this.manageDelegatesApi.hardDeleteRankRow(row.id)
@@ -254,13 +257,25 @@ export class ManageDelegatesComponent implements OnInit {
     request.subscribe({
       next: () => {
         pendingToast.dismiss();
+        this.setHistoryDeletePending(row.id, false);
         this.toastService.success('History row deleted.');
         this.loadDelegates();
       },
       error: (err) => {
         pendingToast.dismiss();
+        this.setHistoryDeletePending(row.id, false);
         this.toastService.error(err?.error?.message ?? 'Failed to delete history row.');
       },
+    });
+  }
+
+  // Tracks hard-delete requests by history row across both history layouts.
+  private setHistoryDeletePending(rowId: string, pending: boolean): void {
+    this.deletingHistoryIds.update((ids) => {
+      const updated = new Set(ids);
+      if (pending) updated.add(rowId);
+      else updated.delete(rowId);
+      return updated;
     });
   }
 

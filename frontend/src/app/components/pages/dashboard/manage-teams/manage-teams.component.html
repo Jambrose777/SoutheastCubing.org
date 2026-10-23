@@ -93,6 +93,7 @@
                     <button
                       type="button"
                       class="btn small icon-only"
+                      [disabled]="isActionPending('unarchive-team', team.id)"
                       (click)="unarchiveTeam(team)"
                       matTooltip="Unarchive team"
                       matTooltipPosition="above"
@@ -104,6 +105,7 @@
                     <button
                       type="button"
                       class="btn small icon-only"
+                      [disabled]="isActionPending('archive-team', team.id)"
                       (click)="archiveTeam(team)"
                       matTooltip="Archive team"
                       matTooltipPosition="above"
@@ -116,6 +118,7 @@
                     <button
                       type="button"
                       class="btn small icon-only"
+                      [disabled]="isActionPending('delete-team', team.id)"
                       (click)="hardDeleteTeam(team)"
                       matTooltip="Permanently delete team"
                       matTooltipPosition="above"
@@ -255,24 +258,40 @@
                       @if (!member.end_date) {
                         @if (team.kind === 'ordinary') {
                           @if (member.is_active_leader) {
-                            <button mat-menu-item (click)="removeLeader(team)">
+                            <button
+                              mat-menu-item
+                              [disabled]="isActionPending('team-leader', team.id)"
+                              (click)="removeLeader(team)"
+                            >
                               <i class="fa-solid fa-crown"></i>
                               Remove Leader
                             </button>
                           } @else {
-                            <button mat-menu-item (click)="setLeader(team, member)">
+                            <button
+                              mat-menu-item
+                              [disabled]="isActionPending('team-leader', team.id)"
+                              (click)="setLeader(team, member)"
+                            >
                               <i class="fa-solid fa-crown"></i>
                               Set Leader
                             </button>
                           }
                         }
-                        <button mat-menu-item (click)="removeMember(member)">
+                        <button
+                          mat-menu-item
+                          [disabled]="isActionPending('remove-member', member.id)"
+                          (click)="removeMember(member)"
+                        >
                           <i class="fa-solid fa-user-minus"></i>
                           Remove
                         </button>
                       }
                       @if (isAdmin()) {
-                        <button mat-menu-item (click)="hardDeleteMembership(member)">
+                        <button
+                          mat-menu-item
+                          [disabled]="isActionPending('delete-membership', member.id)"
+                          (click)="hardDeleteMembership(member)"
+                        >
                           <i class="fa-solid fa-trash"></i>
                           Delete
                         </button>
