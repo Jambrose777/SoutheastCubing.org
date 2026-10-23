@@ -42,6 +42,7 @@ const CLOSE_ANIMATION_MS = 200;
 
 // The "Who We Are" page's URL.
 const WHO_WE_ARE_URL = buildDetailUrl('/about', 'Who We Are');
+const PRIVACY_STATEMENT_URL = buildDetailUrl('/about', 'Privacy Statement');
 
 // The signed-in Delegate's own public Delegate page URL - same
 // /delegates/{name} slug pattern delegates.component.ts already uses.
@@ -94,6 +95,7 @@ export class MyInfoComponent implements OnInit {
 
   isMobile = this.screenSizeService.isMobile;
   whoWeAreUrl = WHO_WE_ARE_URL;
+  privacyStatementUrl = PRIVACY_STATEMENT_URL;
   delegatePageUrl = computed(() => delegatePageUrl(this.myInfo()?.name ?? ''));
 
   loading = signal(true);

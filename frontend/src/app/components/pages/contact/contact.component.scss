@@ -39,6 +39,11 @@
   }
 }
 
+.privacy-statement-link {
+  margin: auto 30px 20px;
+  padding-top: 20px;
+}
+
 .success-message {
   margin-top: 20px;
   color: color-pallet.$se-green;
@@ -82,6 +87,11 @@
 @media only screen and (max-width: screen-sizes.$small-breakpoint) {
   .form {
     margin: 20px 5px;
+  }
+
+  .privacy-statement-link {
+    margin-right: 5px;
+    margin-left: 5px;
   }
 
   .form-row {

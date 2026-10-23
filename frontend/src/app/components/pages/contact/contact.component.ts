@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Competition } from 'src/app/models/Competition';
 import { ContentfulEntryId } from 'src/app/models/Contentful';
@@ -34,6 +34,7 @@ import { NgOptimizedImage } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     HeaderComponent,
+    RouterLink,
     ReactiveFormsModule,
     MatFormField,
     MatLabel,
