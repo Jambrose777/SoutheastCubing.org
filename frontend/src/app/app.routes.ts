@@ -134,6 +134,16 @@ export const routes: Routes = [
     title: 'SoutheastCubing - Manage Users',
   },
   {
+    path: 'dashboard/contentful-instructions',
+    canActivate: [authGuard, roleGuard('board', 'admin')],
+    data: { requiresAuth: true },
+    loadComponent: () =>
+      import('./components/pages/dashboard/contentful-instructions/contentful-instructions.component').then(
+        (m) => m.ContentfulInstructionsComponent,
+      ),
+    title: 'SoutheastCubing - Contentful Instructions',
+  },
+  {
     path: 'involvement',
     loadComponent: loadInvolvement,
     title: 'SoutheastCubing - Get Involved',

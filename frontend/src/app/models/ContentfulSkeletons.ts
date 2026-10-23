@@ -37,16 +37,6 @@ export type ChampionSkeleton = {
   };
 };
 
-export type TeamMemberSkeleton = {
-  contentTypeId: 'teamMember';
-  fields: {
-    name: EntryFieldTypes.Symbol;
-    color?: EntryFieldTypes.Symbol;
-    title?: EntryFieldTypes.Symbol;
-    thumbnail?: EntryFieldTypes.AssetLink;
-  };
-};
-
 // --- List content types, queried via `getContentfulGroup` ---
 
 export type DocumentSkeleton = {
@@ -103,16 +93,6 @@ export type ChampionshipSkeleton = {
     logo?: EntryFieldTypes.AssetLink;
     images?: EntryFieldTypes.Array<EntryFieldTypes.AssetLink>;
     champions?: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<ChampionSkeleton>>;
-  };
-};
-
-export type TeamSkeleton = {
-  contentTypeId: 'teams';
-  fields: {
-    name: EntryFieldTypes.Symbol;
-    order: EntryFieldTypes.Symbol;
-    description?: EntryFieldTypes.Text;
-    teamMembers: EntryFieldTypes.Array<EntryFieldTypes.EntryLink<TeamMemberSkeleton>>;
   };
 };
 

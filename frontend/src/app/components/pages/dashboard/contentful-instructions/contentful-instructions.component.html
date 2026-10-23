@@ -1,0 +1,26 @@
+<div class="component-container">
+  <div class="main-pane" tabindex="0">
+    <se-header
+      id="header"
+      [title]="title()"
+      [showNavCluster]="isMobile()"
+      [dashboardControls]="true"
+    ></se-header>
+
+    <div class="contentful-instructions-content">
+      @if (loading()) {
+        <se-loading-spinner></se-loading-spinner>
+      } @else if (available()) {
+        <div class="medium-text-content">
+          <markdown [data]="description()"></markdown>
+        </div>
+      } @else {
+        <p class="instructions-unavailable" role="status">Instructions unavailable</p>
+      }
+    </div>
+  </div>
+
+  @if (!isMobile()) {
+    <se-dashboard-side-pane></se-dashboard-side-pane>
+  }
+</div>

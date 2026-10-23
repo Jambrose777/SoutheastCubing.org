@@ -11,13 +11,13 @@ export enum ContentfulEntryId {
   cats = '6ioa16NhQUuNlyZJHlpZ4e',
   linksConfiguration = '6GWjRKoJ7PP2XIAzqWrjis',
   clockTribute = '2bw7jfZW0rLExXF1j5En0I',
+  contentfulInstructions = '4iB9XmEqE7lnKaqMYwJs81',
 }
 
 export enum ContentfulContentType {
   documents = 'documents',
   clubs = 'clubs',
   championships = 'championships',
-  teams = 'teams',
   cats = 'cats',
   homePageOverride = 'homePageOverride',
 }

@@ -59,6 +59,13 @@ export const DASHBOARD_TOOLS: DashboardTool[] = [
     color: Colors.green,
     requiresAnyRole: ['regionalDelegate', 'admin', 'board'],
   },
+  {
+    label: 'Contentful Instructions',
+    routerLink: '/dashboard/contentful-instructions',
+    icon: 'fa-file',
+    color: Colors.grey,
+    requiresAnyRole: ['board', 'admin'],
+  },
 ];
 
 // True if `user` currently holds any of `roles`.

@@ -1,0 +1,32 @@
+.contentful-instructions-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  padding: 32px 24px 16px;
+  text-align: left;
+}
+
+.contentful-instructions-content .medium-text-content {
+  margin: 0;
+  text-align: left;
+}
+
+:host ::ng-deep .contentful-instructions-content markdown h1 {
+  font-size: 2rem;
+  line-height: 1.25;
+}
+
+:host ::ng-deep .contentful-instructions-content markdown h2 {
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+
+:host ::ng-deep .contentful-instructions-content markdown h3 {
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+.instructions-unavailable {
+  margin: 0;
+}

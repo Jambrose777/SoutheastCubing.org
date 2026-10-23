@@ -62,9 +62,9 @@ const configSchema = z.object({
 // an entry here - they fail fast instead of warning.
 const OPTIONAL_VAR_DESCRIPTIONS = {
   CONTENTFUL_SPACE:
-    'manually-added Contentful competitions will be skipped (WCA-sourced competitions still work)',
+    'backend Contentful requests cannot run without the Contentful space ID',
   CONTENTFUL_ACCESS_TOKEN:
-    'manually-added Contentful competitions will be skipped (WCA-sourced competitions still work)',
+    'backend Contentful requests cannot run without the Contentful access token',
   DISCORD_COMPETITION_ANNOUNCEMENTS_WEBHOOK:
     'competition Discord posts will be skipped (the competitions refresh itself still succeeds)',
   DISCORD_EQUIPMENT_NOTIFICATIONS_WEBHOOK:
