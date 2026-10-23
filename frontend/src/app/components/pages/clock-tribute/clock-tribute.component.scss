@@ -20,6 +20,7 @@
 }
 
 .clock-section {
+  display: flow-root;
   flex: 0 0 auto;
   padding: 24px 30px;
   scroll-margin-top: 100px;
@@ -45,6 +46,13 @@
       outline-offset: 2px;
     }
   }
+}
+
+.clock-section > se-clock-results-table,
+.clock-section > se-clock-major-results-table {
+  display: block;
+  clear: both;
+  width: 100%;
 }
 
 .clock-opening {
@@ -82,21 +90,24 @@
   font-size: 0.9rem;
 }
 
-.clock-opening-photo {
+.clock-section-photo {
   float: right;
-  width: min(44%, 32rem);
-  margin: 0;
-  margin-left: 32px;
-  margin-bottom: 24px;
+  width: min(44%, 32rem, calc(340px * var(--clock-photo-ratio, 1)));
+  margin: 0 0 24px 32px;
+  overflow: hidden;
+  border-radius: 10px;
 
   img {
     display: block;
     width: 100%;
     height: auto;
-    max-height: 70vh;
-    object-fit: cover;
     border-radius: 10px;
   }
+}
+
+.clock-section-photo--left {
+  float: left;
+  margin: 0 32px 24px 0;
 }
 
 .clock-toc {
@@ -135,16 +146,22 @@
     padding-right: 16px;
     padding-left: 16px;
   }
+}
 
-  .clock-opening-photo img {
-    max-height: 50vh;
+@media only screen and (min-width: screen-sizes.$small-breakpoint) and (max-width: 1080px) {
+  .clock-section-photo {
+    float: none;
+    width: min(100%, calc(70vh * var(--clock-photo-ratio, 1)));
+    max-width: none;
+    margin: 0 0 24px;
   }
 }
 
-@media only screen and (max-width: screen-sizes.$extra-small-breakpoint) {
-  .clock-opening-photo {
+@media only screen and (max-width: 479px) {
+  .clock-section-photo {
     float: none;
-    width: 100%;
+    width: min(100%, calc(50vh * var(--clock-photo-ratio, 1)));
+    max-width: none;
     margin: 0 0 24px;
   }
 }

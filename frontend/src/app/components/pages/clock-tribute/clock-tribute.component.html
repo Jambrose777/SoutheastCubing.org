@@ -17,19 +17,27 @@
           [attr.aria-labelledby]="section.kind === 'opening' ? null : section.id + '-heading'"
           [attr.aria-label]="section.kind === 'opening' ? section.title : null"
         >
+          @if (section.photo) {
+            <figure
+              class="clock-section-photo"
+              [class.clock-section-photo--left]="section.photoSide === 'left'"
+              [style.--clock-photo-ratio]="
+                section.photoWidth && section.photoHeight
+                  ? section.photoWidth / section.photoHeight
+                  : 1
+              "
+            >
+              <img
+                [ngSrc]="section.photo"
+                [alt]="section.photoAlt ?? ''"
+                [width]="section.photoWidth"
+                [height]="section.photoHeight"
+                [priority]="section.kind === 'opening'"
+              />
+            </figure>
+          }
           @switch (section.kind) {
             @case ('opening') {
-              @if (section.photo) {
-                <figure class="clock-opening-photo">
-                  <img
-                    ngSrc="{{ section.photo }}"
-                    [alt]="section.photoAlt ?? ''"
-                    [width]="section.photoWidth"
-                    [height]="section.photoHeight"
-                    priority
-                  />
-                </figure>
-              }
               @if (section.description) {
                 <div class="clock-opening-copy clock-opening-intro">
                   <markdown [data]="section.description"></markdown>

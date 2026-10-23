@@ -59,7 +59,11 @@ import type {
   ClockResultsTableRow,
 } from './clock-results-table/clock-results-table.component';
 
-type ClockTributeSection = SubTopic & { id: string; kind: ClockTributeSectionKind };
+type ClockTributeSection = SubTopic & {
+  id: string;
+  kind: ClockTributeSectionKind;
+  photoSide?: 'left' | 'right';
+};
 const RESULT_COLUMNS = {
   date: { key: 'date', label: 'Date' },
   cuber: { key: 'name', label: 'Cuber' },
@@ -290,10 +294,21 @@ export class ClockTributeComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (entry) => {
             this.title.set(entry.fields.title);
+            const sections = entry.fields.subTopics.map((subTopicLink, index) =>
+              this.mapSubTopic(subTopicLink, index),
+            );
+            // Advance the alternating side only for sections with a photo.
+            let photoCount = 0;
             this.sections.set(
-              entry.fields.subTopics.map((subTopicLink, index) =>
-                this.mapSubTopic(subTopicLink, index),
-              ),
+              sections.map((section) => {
+                if (!section.photo) {
+                  return section;
+                }
+
+                const photoSide = photoCount % 2 === 0 ? 'right' : 'left';
+                photoCount++;
+                return { ...section, photoSide };
+              }),
             );
             this.loadingContent.set(false);
           },
