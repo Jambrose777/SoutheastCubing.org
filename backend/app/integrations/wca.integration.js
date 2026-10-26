@@ -117,6 +117,9 @@ async function fetchCompetitionRegistrationsCount(competitionId) {
   const url = `https://www.worldcubeassociation.org/api/v0/competitions/${competitionId}/registrations`;
   try {
     const res = await axios.get(url);
+    if (!Array.isArray(res.data)) {
+      throw new Error('Unexpected WCA registrations response shape');
+    }
     logger.debug(`WCA registrations count fetch succeeded: ${url}`);
     return res.data.length;
   } catch (err) {

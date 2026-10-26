@@ -1,6 +1,9 @@
 const contentful = require('contentful');
 
 const { config } = require('../config/config.js');
+const logger = require('../utils/logger.util.js');
+
+const HOME_PAGE_ENTRY_ID = 'VBd7CLFJeHCRE5VbPaIg3';
 
 // Only build the client when both Contentful credentials are present.
 let cdaClient;
@@ -22,4 +25,20 @@ function getClient() {
   return cdaClient;
 }
 
-module.exports = { isConfigured, getClient };
+// Fetches the home-page entry used by the health check.
+async function getHomePageEntry() {
+  try {
+    if (!cdaClient) {
+      throw new Error('Contentful is not configured.');
+    }
+
+    const entry = await cdaClient.getEntry(HOME_PAGE_ENTRY_ID);
+    logger.debug('Successfully fetched the home-page entry from Contentful.');
+    return entry;
+  } catch (error) {
+    logger.error('Failed to fetch the home-page entry from Contentful: ', error);
+    throw error;
+  }
+}
+
+module.exports = { isConfigured, getClient, getHomePageEntry };

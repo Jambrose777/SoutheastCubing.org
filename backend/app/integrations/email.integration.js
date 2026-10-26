@@ -33,6 +33,24 @@ function isConfigured() {
   return !!transporter;
 }
 
+// Verifies SMTP connectivity on demand for health check.
+async function verifyTransporter() {
+  if (!transporter) {
+    const error = new Error('Email transporter is not configured.');
+    logger.error('Email transporter verification failed: ', error);
+    throw error;
+  }
+
+  try {
+    await transporter.verify();
+    logger.debug('Email transporter verification succeeded.');
+    return true;
+  } catch (error) {
+    logger.error('Email transporter verification failed: ', error);
+    throw error;
+  }
+}
+
 // Sends `mailOptions` through the configured SMTP transporter. `description`
 // is a caller-supplied, non-PII label for the debug/error log (e.g. an email
 // category) - callers must never pass anything derived from user-supplied
@@ -51,4 +69,4 @@ async function sendMail(mailOptions, description) {
   }
 }
 
-module.exports = { isConfigured, sendMail };
+module.exports = { isConfigured, verifyTransporter, sendMail };

@@ -1,5 +1,6 @@
 const express = require('express');
 
+const healthController = require('../controllers/health.controller.js');
 const emailController = require('../controllers/email.controller.js');
 const competitionsController = require('../controllers/competitions.controller.js');
 const teamsController = require('../controllers/teams.controller.js');
@@ -9,6 +10,48 @@ const { asyncRoute } = require('../helpers/asyncRoute.helper.js');
 
 // Public, unauthenticated routes.
 const router = express.Router();
+
+/**
+ * @openapi
+ * /health:
+ *   get:
+ *     summary: Check backend and DSQL health.
+ *     tags: [Health]
+ *     parameters:
+ *       - in: query
+ *         name: check
+ *         schema: { type: string }
+ *         description: Comma-separated checks to run (backend,dsql); omitted runs both.
+ *     responses:
+ *       200:
+ *         description: All selected checks are healthy.
+ *       400:
+ *         description: The check parameter is empty or contains an unsupported check.
+ *       503:
+ *         description: One or more selected checks are unhealthy.
+ */
+router.get('/health', asyncRoute(healthController.getInternalHealth));
+
+/**
+ * @openapi
+ * /health/external:
+ *   get:
+ *     summary: Check external integration health.
+ *     tags: [Health]
+ *     parameters:
+ *       - in: query
+ *         name: check
+ *         schema: { type: string }
+ *         description: Comma-separated checks to run (wca,contentful,drive,email); omitted runs all.
+ *     responses:
+ *       200:
+ *         description: All selected checks are healthy.
+ *       400:
+ *         description: The check parameter is empty or contains an unsupported check.
+ *       503:
+ *         description: One or more selected checks are unhealthy.
+ */
+router.get('/health/external', asyncRoute(healthController.getExternalHealth));
 
 /**
  * @openapi
