@@ -37,7 +37,8 @@ flowchart TB
         Gmail["Gmail SMTP"]
         GForms["Google Forms API"]
         GDrive["Google Drive API"]
-        WCA ~~~ Contentful ~~~ Discord ~~~ Gmail ~~~ GForms ~~~ GDrive
+        GA4["Google Analytics 4"]
+        WCA ~~~ Contentful ~~~ Discord ~~~ Gmail ~~~ GForms ~~~ GDrive ~~~ GA4
     end
 
     Browser -->|HTTPS| R53
@@ -46,6 +47,7 @@ flowchart TB
     Cron --> BE
     FE -->|"XHR"| BE
     Browser -->|"Contentful JS SDK (browser-side)"| Contentful
+    Browser -->|"gtag.js (production only)"| GA4
     Browser -->|"WCA OAuth consent screen redirect"| WCA
     WCA -->|"redirect back with auth code"| BE
     BE -->|"IAM token auth (DsqlSigner)"| DSQL
@@ -83,6 +85,8 @@ flowchart TB
   entry (`LinksService.pullLinksFromContentful()`). This is independent of the
   backend's own Contentful integration (`backend/app/integrations/contentful.integration.js`),
   which is used for competitions data only.
+- **Browser analytics** load GA4 through the Angular `AnalyticsService` only in
+  production; page views and outbound clicks use GA4 Enhanced Measurement.
 - **Security hardening added since the original snapshot:** `helmet()`,
   a request body size limit, a tightened CORS allow-list, rate limiting on
   `/email` and `/update-competitions`, and sanitization of

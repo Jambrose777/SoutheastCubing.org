@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, inject } from '@
 import { Subscription } from 'rxjs';
 import { ScreenSizeService } from './services/screen-size.service';
 import { LinksService } from './services/links.service';
+import { AnalyticsService } from './services/analytics.service';
 import { AuthService } from './services/southeastcubing-api/auth.service';
 import { DevImpersonationService } from './services/southeastcubing-api/dev-impersonation.service';
 import { ErrorBannerService } from './services/error-banner.service';
@@ -20,6 +21,7 @@ import { ErrorBannerComponent } from './components/shared/error-banner/error-ban
 export class AppComponent implements OnInit, OnDestroy {
   private screenSizeService = inject(ScreenSizeService);
   private linksService = inject(LinksService);
+  private analyticsService = inject(AnalyticsService);
   private authService = inject(AuthService);
   private devImpersonationService = inject(DevImpersonationService);
   private errorBannerService = inject(ErrorBannerService);
@@ -34,6 +36,7 @@ export class AppComponent implements OnInit, OnDestroy {
   subscriptions: Subscription = new Subscription();
 
   ngOnInit(): void {
+    this.analyticsService.initialize();
     this.screenSizeService.setUpScreenSize();
 
     // call links service to setup link overrides
