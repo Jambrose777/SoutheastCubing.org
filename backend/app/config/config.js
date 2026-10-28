@@ -11,12 +11,8 @@ const logger = require('../utils/logger.util.js');
 const configSchema = z.object({
   CORS_ORIGIN: z.string().min(1),
   DSQL_ENDPOINT: z.string().min(1),
-  // Not read directly via process.env anywhere in this codebase - the AWS SDK's
-  // default credential provider chain picks these up implicitly to sign the DSQL
-  // auth token in db/pool.js's generateAuthToken(). Still required for the DB
-  // connection to work, so they belong in the fail-fast schema despite that.
-  AWS_ACCESS_KEY_ID: z.string().min(1),
-  AWS_SECRET_ACCESS_KEY: z.string().min(1),
+  DSQL_ACCESS_KEY_ID: z.string().min(1),
+  DSQL_SECRET_ACCESS_KEY: z.string().min(1),
   // optional env vars
   CONTENTFUL_SPACE: z.string().min(1).optional(),
   CONTENTFUL_ACCESS_TOKEN: z.string().min(1).optional(),
@@ -51,6 +47,17 @@ const configSchema = z.object({
   // unset leaves the cookie host-only (fine for local dev where frontend/backend
   // share a hostname);
   SESSION_COOKIE_DOMAIN: z.string().min(1).optional(),
+  // Missing PHOTOS_S3_BUCKET keeps photoStorage.integration.js on its
+  // local-filesystem implementation.
+  PHOTOS_S3_BUCKET: z.string().min(1).optional(),
+  PHOTOS_S3_REGION: z.string().min(1).optional(),
+  PHOTOS_S3_ACCESS_KEY_ID: z.string().min(1).optional(),
+  PHOTOS_S3_SECRET_ACCESS_KEY: z.string().min(1).optional(),
+  // This backend's own public base URL, e.g. https://api.southeastcubing.org -
+  // used only to build the absolute redirect URL photoStorageS3.integration.js's
+  // resolveUrl() returns (GET /photos/s3/:key). Deliberately separate from
+  // FRONTEND_URL, which is the frontend's own base URL, not this backend's.
+  PHOTOS_BASE_URL: z.string().min(1).optional(),
   // Unset defaults to development (debug logs).
   NODE_ENV: z.enum(['development', 'production']).optional(),
   // unset leaves the NODE_ENV default in place.
@@ -93,6 +100,16 @@ const OPTIONAL_VAR_DESCRIPTIONS = {
     'direct WCA Drive actions will respond 503 and folder work during competition refresh will be skipped until this is set',
   SESSION_COOKIE_DOMAIN:
     'the session cookie will be host-only instead of scoped to a parent domain',
+  PHOTOS_S3_BUCKET:
+    'managed photos will continue using local filesystem storage instead of S3',
+  PHOTOS_S3_REGION:
+    'managed photos will continue using local filesystem storage instead of S3',
+  PHOTOS_S3_ACCESS_KEY_ID:
+    'managed photos will continue using local filesystem storage instead of S3',
+  PHOTOS_S3_SECRET_ACCESS_KEY:
+    'managed photos will continue using local filesystem storage instead of S3',
+  PHOTOS_BASE_URL:
+    'managed photos will continue using local filesystem storage instead of S3',
   NODE_ENV: 'defaulting to development-level (debug) logging',
   LOG_LEVEL:
     'log level is derived from NODE_ENV instead (debug in development, info in production)',

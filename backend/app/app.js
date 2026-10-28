@@ -64,8 +64,9 @@ registerDelegateSyncJob();
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Public, unauthenticated - serves local dev's managed photos. Local-dev-only:
-// production reads managed photos from S3 via CloudFront instead, and has no
-// backend/uploads/photos/ directory to serve at all.
+// when the S3-backed implementation is active instead, photos are served via
+// the GET /photos/s3/:key redirect route in publicRoutes, not this static
+// mount, and there's no backend/uploads/photos/ directory to serve at all.
 if (config.NODE_ENV !== 'production') {
   app.use(
     PHOTOS_URL_PREFIX,

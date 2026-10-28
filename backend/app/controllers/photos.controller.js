@@ -1,4 +1,5 @@
 const photosService = require('../services/people/photos.service.js');
+const photoStorageS3 = require('../integrations/photoStorageS3.integration.js');
 const { respondWithServiceError } = require('../helpers/httpError.helper.js');
 
 // PUT /dashboard/my-info/photo/sync - sets the signed-in user's own sync
@@ -78,6 +79,18 @@ async function updateCropForPerson(req, res) {
   }
 }
 
+// GET /photos/s3/:key - public, unauthenticated. This is the URL
+// photoStorageS3.integration.js's resolveUrl() hands back; it generates a
+// fresh presigned S3 GET URL and redirects the browser straight to it.
+async function redirectToS3Photo(req, res) {
+  try {
+    const url = await photoStorageS3.generatePresignedGetUrl(req.params.key);
+    res.redirect(302, url);
+  } catch (err) {
+    respondWithServiceError(res, err, 'Failed to resolve photo');
+  }
+}
+
 module.exports = {
   setSyncEnabled,
   uploadPhoto,
@@ -85,4 +98,5 @@ module.exports = {
   setSyncEnabledForPerson,
   uploadPhotoForPerson,
   updateCropForPerson,
+  redirectToS3Photo,
 };

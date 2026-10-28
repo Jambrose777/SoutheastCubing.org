@@ -14,9 +14,14 @@ const DSQL_DB_USER = 'app_dev';
 // function so pg re-signs it for every new physical connection, since tokens
 // expire after ~15 minutes.
 async function generateAuthToken() {
-  // Credentials come from the default AWS credential chain (AWS_ACCESS_KEY_ID/
-  // AWS_SECRET_ACCESS_KEY).
-  const signer = new DsqlSigner({ hostname: DSQL_ENDPOINT, region: DSQL_REGION });
+  const signer = new DsqlSigner({
+    hostname: DSQL_ENDPOINT,
+    region: DSQL_REGION,
+    credentials: {
+      accessKeyId: config.DSQL_ACCESS_KEY_ID,
+      secretAccessKey: config.DSQL_SECRET_ACCESS_KEY,
+    },
+  });
   return signer.getDbConnectAuthToken();
 }
 

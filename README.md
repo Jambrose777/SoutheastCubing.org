@@ -97,8 +97,8 @@ needs:
 
 Ask Jacob to create you an IAM user granted `dsql:DbConnect` (used by the running
 backend) and `dsql:DbConnectAdmin` (used only by the bootstrap script below) on the
-cluster, and set its access key/secret as your own `AWS_ACCESS_KEY_ID`/
-`AWS_SECRET_ACCESS_KEY` (see above). With those in place, run the one-time role
+cluster, and set its access key/secret as your own `DSQL_ACCESS_KEY_ID`/
+`DSQL_SECRET_ACCESS_KEY` (see above). With those in place, run the one-time role
 bootstrap — it links your IAM user to the non-admin `app_dev` database role the
 backend authenticates as (`backend/scripts/bootstrap-dsql-role.js`):
 

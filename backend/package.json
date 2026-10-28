@@ -21,7 +21,9 @@
     "node": ">=24.0.0"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1158.0",
     "@aws-sdk/dsql-signer": "^3.1127.0",
+    "@aws-sdk/s3-request-presigner": "^3.1158.0",
     "@googleapis/drive": "^26.0.2",
     "@googleapis/forms": "^7.0.0",
     "axios": "^1.20.0",

@@ -5,6 +5,7 @@ const emailController = require('../controllers/email.controller.js');
 const competitionsController = require('../controllers/competitions.controller.js');
 const teamsController = require('../controllers/teams.controller.js');
 const delegatesController = require('../controllers/delegates.controller.js');
+const photosController = require('../controllers/photos.controller.js');
 const { emailLimiter } = require('../middleware/rateLimit.middleware.js');
 const { asyncRoute } = require('../helpers/asyncRoute.helper.js');
 
@@ -130,6 +131,30 @@ router.get('/teams', asyncRoute(teamsController.listPublicTeams));
  *         description: Every current Delegate, in display order (Delegate Type, then promotion date, then name).
  */
 router.get('/delegates', asyncRoute(delegatesController.listPublicDelegates));
+
+/**
+ * @openapi
+ * /photos/s3/{key}:
+ *   get:
+ *     summary: Redirect to a presigned S3 URL for a managed photo.
+ *     tags: [Photos]
+ *     description: >
+ *       Interim route used only while the S3-backed photo storage
+ *       implementation is active and no CloudFront behavior is in front of
+ *       the bucket yet. This is the URL photoStorage.integration.js's
+ *       resolveUrl() returns for S3-stored photos.
+ *     parameters:
+ *       - in: path
+ *         name: key
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       302:
+ *         description: Redirects to a short-lived presigned S3 GET URL.
+ *       500:
+ *         description: Failed to generate a presigned URL.
+ */
+router.get('/photos/s3/:key', asyncRoute(photosController.redirectToS3Photo));
 
 /**
  * @openapi

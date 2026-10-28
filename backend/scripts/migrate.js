@@ -25,6 +25,8 @@ logger.level = 'debug';
 
 const DSQL_ENDPOINT = process.env.DSQL_ENDPOINT;
 const DSQL_REGION = 'us-east-2';
+const DSQL_ACCESS_KEY_ID = process.env.DSQL_ACCESS_KEY_ID;
+const DSQL_SECRET_ACCESS_KEY = process.env.DSQL_SECRET_ACCESS_KEY;
 const MIGRATIONS_DIR = path.join(__dirname, '../app/database/migrations');
 
 // SQLSTATE DSQL raises when a session's cached catalog version goes stale
@@ -59,10 +61,19 @@ async function main() {
   if (!DSQL_ENDPOINT) {
     throw new Error('Set DSQL_ENDPOINT to the DSQL cluster endpoint to run migrations against.');
   }
+  if (!DSQL_ACCESS_KEY_ID || !DSQL_SECRET_ACCESS_KEY) {
+    throw new Error(
+      'Set DSQL_ACCESS_KEY_ID and DSQL_SECRET_ACCESS_KEY to the IAM credentials to sign the admin auth token with.',
+    );
+  }
 
   // Admin-scoped token - migrations run DDL/GRANT statements the non-admin
   // app_dev role can't run itself.
-  const signer = new DsqlSigner({ hostname: DSQL_ENDPOINT, region: DSQL_REGION });
+  const signer = new DsqlSigner({
+    hostname: DSQL_ENDPOINT,
+    region: DSQL_REGION,
+    credentials: { accessKeyId: DSQL_ACCESS_KEY_ID, secretAccessKey: DSQL_SECRET_ACCESS_KEY },
+  });
   const token = await signer.getDbConnectAdminAuthToken();
 
   const client = new Client({
