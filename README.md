@@ -177,4 +177,4 @@ records. They do not post to Discord or fetch registration or waiting-list count
 
 # BE Fetch a new SSL certificate
 
-- sudo certbot --nginx
+- sudo certbot --nginx -d api.southeastcubing.org
