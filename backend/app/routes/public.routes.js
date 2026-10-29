@@ -1,4 +1,5 @@
 const express = require('express');
+const helmet = require('helmet');
 
 const healthController = require('../controllers/health.controller.js');
 const emailController = require('../controllers/email.controller.js');
@@ -154,7 +155,12 @@ router.get('/delegates', asyncRoute(delegatesController.listPublicDelegates));
  *       500:
  *         description: Failed to generate a presigned URL.
  */
-router.get('/photos/s3/:key', asyncRoute(photosController.redirectToS3Photo));
+router.get(
+  '/photos/s3/:key',
+  // without this override, a cross-origin page can never actually display the photo.
+  helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }),
+  asyncRoute(photosController.redirectToS3Photo),
+);
 
 /**
  * @openapi
