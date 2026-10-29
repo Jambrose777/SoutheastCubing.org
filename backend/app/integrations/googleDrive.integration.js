@@ -95,6 +95,10 @@ async function createFolder(name, parentFolderId) {
         parents: [parentFolderId],
       },
       fields: 'id,name,mimeType,parents,webViewLink',
+      // Required for any request touching an item inside a Shared Drive -
+      // without it, the API returns "not found" even for a file the caller
+      // genuinely has access to.
+      supportsAllDrives: true,
     });
 
     return response.data;
@@ -107,6 +111,7 @@ async function getFolder(folderId) {
     const response = await drive.files.get({
       fileId: folderId,
       fields: 'id,name,mimeType,parents,webViewLink',
+      supportsAllDrives: true,
     });
 
     return response.data;
@@ -124,6 +129,7 @@ async function moveFolder(folderId, currentParentFolderId, targetParentFolderId)
       addParents: targetParentFolderId,
       removeParents: currentParentFolderId,
       fields: 'id,name,mimeType,parents,webViewLink',
+      supportsAllDrives: true,
     });
 
     return response.data;
@@ -137,6 +143,7 @@ async function renameFolder(folderId, name) {
       fileId: folderId,
       requestBody: { name },
       fields: 'id,name,mimeType,parents,webViewLink',
+      supportsAllDrives: true,
     });
 
     return response.data;
