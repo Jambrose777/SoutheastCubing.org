@@ -44,20 +44,23 @@ reload if you change any of the source files.
 
 ## FE Deployment
 
+The frontend is served from a private S3 bucket (`southeast-cubing.org`) behind
+CloudFront, accessed only via Origin Access Control - not the old public-S3/EC2/Apache
+setup. Deploying is a build, a sync, and a cache invalidation:
+
 - Run `cd frontend && pnpm build` (equivalent to `ng build --configuration production`)
-  to build the project. The build artifacts will be stored in the `frontend/dist/`
-  directory.
-- Compress `frontend/dist/`
-- Upload dist.zip file onto AWS S3
-- Make the dist.zip public using acl
-- Copy the URL for dist.zip
-- SSH into AWS EC2 instance
-- navigate to relevant folder `cd /var/www/html`
-- remove current contents `rm -rf *`
-- import dist file into EC2 instance `wget {S3 Object URL}` Replace {} with URL from S3 Object
-- unzip the compressed folder `unzip dist.zip`
-- move files into correct folder `mv dist/southeast-cubing/browser/* .`
-- restart server `service httpd restart` or start server `service httpd start`
+  to build the project. The build artifacts land in
+  `frontend/dist/southeast-cubing/browser/`.
+- Sync the build to the bucket, using the dedicated `sec-frontend-deploy` AWS CLI
+  profile (scoped to just this bucket and this CloudFront distribution):
+  ```bash
+  aws s3 sync frontend/dist/southeast-cubing/browser/ s3://southeast-cubing.org/ --delete --profile sec-frontend-deploy
+  ```
+- Invalidate CloudFront's edge cache so the new build is actually served - a sync
+  alone doesn't bust already-cached files at the edge:
+  ```bash
+  aws cloudfront create-invalidation --distribution-id E129O9IT0X7NP2 --paths "/*" --profile sec-frontend-deploy
+  ```
 
 ## BE Development setup
 
@@ -170,10 +173,6 @@ records. They do not post to Discord or fetch registration or waiting-list count
 
 - systemctl status api.service
 - systemctl status nginx
-
-# FE Fetch a new SSL certificate
-
-- sudo certbot --apache
 
 # BE Fetch a new SSL certificate
 
