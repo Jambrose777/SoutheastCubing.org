@@ -45,8 +45,7 @@ reload if you change any of the source files.
 ## FE Deployment
 
 The frontend is served from a private S3 bucket (`southeast-cubing.org`) behind
-CloudFront, accessed only via Origin Access Control - not the old public-S3/EC2/Apache
-setup. Deploying is a build, a sync, and a cache invalidation:
+CloudFront, accessed only via Origin Access Control. Deploying is a build, a sync, and a cache invalidation:
 
 - Run `cd frontend && pnpm build` (equivalent to `ng build --configuration production`)
   to build the project. The build artifacts land in
